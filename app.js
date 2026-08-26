@@ -1,2408 +1,1874 @@
-/* ============================================================
+/*
+============================================================
 CENTINELA CODE
-APP.JS — MOTOR PRINCIPAL DEFINITIVO
-============================================================ */
+app.js - Versión corregida y compatible con index.html
+============================================================
+
+Funciones:
+- Carga de infracciones, LOPSC y ordenanzas.
+- Consulta por código, artículo, palabra y gravedad.
+- Navegación inferior y accesos rápidos.
+- Creación, edición básica y borrado de actas mediante localStorage.
+- Visor de LOPSC y ordenanzas.
+- Estado de conexión y estado de las bases.
+- Limpieza/recarga de datos.
+- Compatible con la estructura actual de index.html.
+============================================================
+*/
+
 "use strict";
-/* ============================================================
-CONFIGURACIÓN
-============================================================ */
+
 const CONFIG = {
-APP_NAME: "Centinela Code",
-VERSION: "1.0.0",
-DATA: {
-LOPSC: "./data/lopsc.json",
-INFRACCIONES: "./data/infracciones.json",
-ORDENANZAS: "./data/ordenanzas.json"
+VERSION: "1.0.1",
+RUTAS: {
+infracciones: "./data/infracciones.json",
+lopsc: "./data/lopsc.json",
+ordenanzas: "./data/ordenanzas.json"
 },
-STORAGE: {
-ACTAS: "centinela-code-actas",
-AGENTE: "centinela-code-agente",
-CONFIG: "centinela-code-config"
-}
+STORAGE_ACTAS: "centinela_code_actas_v1"
 };
-/* ============================================================
-ESTADO GLOBAL
-============================================================ */
+
 const estado = {
 infracciones: [],
-normativa: [],
-ordenanzas: [],
+lopsc: null,
+ordenanzas: null,
 resultados: [],
-actas: [],
-filtros: {
-texto: "",
-gravedad: "todas",
-articulo: "todos"
-},
-infraccionSeleccionada: null,
-actaActual: null,
-modo: "consulta",
-cargado: false,
-erroresDatos: []
+gravedad: "all",
+normativaBusqueda: "",
+actas: []
 };
-/* ============================================================
-INICIO
-============================================================ */
-document.addEventListener(
-"DOMContentLoaded",
-iniciarCentinela
+
+/* =========================================================
+UTILIDADES
+========================================================= */
+
+function $(id) {
+return document.getElementById(id);
+}
+
+function normalizarTexto(valor) {
+return String(valor || "")
+.toLowerCase()
+.normalize("NFD")
+.replace(/[\u0300-\u036f]/g, "")
+.trim();
+}
+
+function escaparHTML(valor) {
+return String(valor ?? "")
+.replace(/&/g, "&amp;")
+.replace(/</g, "&lt;")
+.replace(/>/g, "&gt;")
+.replace(/"/g, "&quot;")
+.replace(/'/g, "&#039;");
+}
+
+function mostrarToast(mensaje) {
+const toast = $("toast");
+const texto = $("toastMessage");
+
+if (!toast || !texto) {
+return;
+}
+
+texto.textContent = mensaje;
+toast.classList.add("show");
+
+clearTimeout(mostrarToast.timer);
+mostrarToast.timer = setTimeout(() => {
+toast.classList.remove("show");
+}, 2800);
+}
+
+function mostrarCarga(visible) {
+const pantalla = $("loadingScreen");
+
+if (!pantalla) {
+return;
+}
+
+if (visible) {
+pantalla.classList.remove("hidden");
+pantalla.style.display = "";
+} else {
+pantalla.classList.add("hidden");
+pantalla.style.display = "none";
+}
+}
+
+function activarSeccion(nombre) {
+document.querySelectorAll(".app-section").forEach((section) => {
+section.classList.toggle(
+"active",
+section.dataset.section === nombre
 );
-async function iniciarCentinela() {
-console.log(
-`${CONFIG.APP_NAME} ${CONFIG.VERSION}`
-); try {
-cargarActas();
-cargarConfiguracion();
-registrarEventos();
-actualizarRed();
-await cargarDatos();
-inicializarInterfaz();
-const loadingScreen =
-document.getElementById("loadingScreen");
-if (loadingScreen) {
-loadingScreen.classList.add("hidden");
-loadingScreen.style.display = "none";
-}
-console.log(
-"Centinela Code: aplicación cargada correctamente."
+});
+
+document.querySelectorAll(".nav-item").forEach((item) => {
+item.classList.toggle(
+"active",
+item.dataset.section === nombre
 );
-} catch (error) {
-console.error(
-"Centinela Code: error durante el inicio:",
-error
-);
-const loadingScreen =
-document.getElementById("loadingScreen");
-if (loadingScreen) {
-loadingScreen.classList.add("hidden");
-loadingScreen.style.display = "none";
+});
+
+window.scrollTo({
+top: 0,
+behavior: "smooth"
+});
 }
-if (typeof mostrarError === "function") {
-mostrarError(
-"La aplicación se ha iniciado con algunos datos pendientes de cargar."
+
+/* =========================================================
+CARGA DE DATOS
+========================================================= */
+
+async function cargarJSON(ruta) {
+const respuesta = await fetch(ruta, {
+cache: "no-store"
+});
+
+if (!respuesta.ok) {
+throw new Error(
+`No se pudo cargar ${ruta} (${respuesta.status})`
 );
 }
+
+return await respuesta.json();
 }
+
+function extraerInfracciones(datos) {
+if (Array.isArray(datos)) {
+return datos;
 }
-/* ============================================================
-CARGA GENERAL DE DATOS
-============================================================ */
+
+if (datos && Array.isArray(datos.infracciones)) {
+return datos.infracciones;
+}
+
+return [];
+}
+
+function extraerArticulos(datos) {
+if (datos && Array.isArray(datos.articulos)) {
+return datos.articulos;
+}
+
+return [];
+}
+
+function extraerOrdenanzas(datos) {
+if (Array.isArray(datos)) {
+return datos;
+}
+
+if (datos && Array.isArray(datos.ordenanzas)) {
+return datos.ordenanzas;
+}
+
+return [];
+}
+
 async function cargarDatos() {
-estado.erroresDatos = [];
 const resultados = await Promise.allSettled([
-cargarJSON(CONFIG.DATA.INFRACCIONES),
-cargarJSON(CONFIG.DATA.LOPSC),
-cargarJSON(CONFIG.DATA.ORDENANZAS)
+cargarJSON(CONFIG.RUTAS.infracciones),
+cargarJSON(CONFIG.RUTAS.lopsc),
+cargarJSON(CONFIG.RUTAS.ordenanzas)
 ]);
-/* --------------------------------------------------------
-INFRACCIONES
--------------------------------------------------------- */
-if (
-resultados[0].status === "fulfilled"
-) {
-estado.infracciones = normalizarInfracciones(
-resultados[0].value
+
+const [rInfracciones, rLopsc, rOrdenanzas] = resultados;
+
+if (rInfracciones.status === "fulfilled") {
+estado.infracciones = extraerInfracciones(
+rInfracciones.value
 );
 } else {
 estado.infracciones = [];
-estado.erroresDatos.push(
-CONFIG.DATA.INFRACCIONES
-);
 console.error(
-"No se pudo cargar infracciones:",
-resultados[0].reason
+"Error cargando infracciones:",
+rInfracciones.reason
 );
-}
-/* --------------------------------------------------------
-LOPSC
--------------------------------------------------------- */
-if (
-resultados[1].status === "fulfilled"
-) {
-estado.normativa =
-normalizarNormativa(
-resultados[1].value
-);
-} else {
-estado.normativa = [];
-estado.erroresDatos.push(
-CONFIG.DATA.LOPSC
-);
-console.error(
-"No se pudo cargar LOPSC:",
-resultados[1].reason
-);
-}
-/* --------------------------------------------------------
-ORDENANZAS
--------------------------------------------------------- */
-if (
-resultados[2].status === "fulfilled"
-) {
-estado.ordenanzas =
-normalizarOrdenanzas(
-resultados[2].value
-);
-} else {
-estado.ordenanzas = [];
-estado.erroresDatos.push(
-CONFIG.DATA.ORDENANZAS
-);
-console.error(
-"No se pudo cargar ordenanzas:",
-resultados[2].reason
-);
-}estado.cargado = true;
-console.log(
-"CENTINELA CODE — DATOS",
-{
-infracciones:
-estado.infracciones.length,
-normativa:
-estado.normativa.length,
-ordenanzas:
-estado.ordenanzas.length,
-errores:
-estado.erroresDatos
-}
-);
-}
-/* ============================================================
-FETCH JSON
-============================================================ */
-async function cargarJSON(ruta) {
-const respuesta = await fetch(
-ruta,
-{
-cache: "no-cache"
-}
-);
-if (!respuesta.ok) {
-throw new Error(
-`HTTP ${respuesta.status}: ${ruta}`
-);
-}
-return await respuesta.json();
-}
-/* ============================================================
-NORMALIZACIÓN DE INFRACCIONES
-============================================================ */
-function normalizarInfracciones(datos) {
-let lista = datos;
-if (
-datos &&
-Array.isArray(datos.infracciones)
-) {
-lista =
-datos.infracciones;
-}
-if (!Array.isArray(lista)) {
-return [];
-}
-return lista.map(
-(item, index) => { const articulo =
-String(
-item.articulo ??
-""
-);
-const apartado =
-String(
-item.apartado ??
-""
-);
-return {
-id:
-item.id ||
-`INF-${index + 1}`,
-ley:
-item.ley ||
-"LO 4/2015",
-articulo,
-apartado,
-codigo:
-item.codigo ||
-crearCodigo(
-articulo,
-apartado
-),
-gravedad:
-normalizarGravedad(
-item.gravedad
-),
-titulo:
-item.titulo ||
-item.nombre ||
-"Infracción",
-conducta:
-item.conducta ||
-item.descripcion ||
-"",
-sancion:
-normalizarSancion(
-item.sancion
-),
-palabrasClave:
-normalizarArray(
-item.palabrasClave ||
-item.keywords ||
-[]
-),
-medidas:
-normalizarArray(
-item.medidas ||
-[]
-),
-observaciones:
-item.observaciones ||
-"",
-responsables: normalizarArray(
-item.responsables ||
-[]
-),
-fuente:
-item.fuente ||
-"BOE",
-url:
-item.url ||
-""
-};
-}
-);
-}
-/* ============================================================
-NORMALIZACIÓN LOPSC
-============================================================ */
-function normalizarNormativa(datos) {
-if (
-datos &&
-Array.isArray(datos.articulos)
-) {
-return datos.articulos;
-}
-if (
-datos &&
-Array.isArray(datos.normativa)
-) {
-return datos.normativa;
-}
-if (
-datos &&
-Array.isArray(datos.capitulos)
-) {
-return convertirCapitulosANormativa(
-datos.capitulos
-);
-}
-if (Array.isArray(datos)) {
-return datos;
-}
-return [];
-}
-/* ============================================================
-CONVERSIÓN DE CAPÍTULOS
-============================================================ */
-function convertirCapitulosANormativa(
-capitulos
-) {
-const resultado = [];
-capitulos.forEach( capitulo => {
-const articulos =
-Array.isArray(
-capitulo.articulos
-)
-? capitulo.articulos
-: [];
-articulos.forEach(
-articulo => {
-resultado.push({
-...articulo,
-capitulo:
-articulo.capitulo ||
-capitulo.titulo ||
-capitulo.nombre ||
-"",
-capituloNumero:
-articulo.capituloNumero ||
-capitulo.numero ||
-""
-});
-}
-);
-}
-);
-return resultado;
-}
-/* ============================================================
-NORMALIZACIÓN ORDENANZAS
-============================================================ */
-function normalizarOrdenanzas(
-datos
-) {
-if (
-datos &&
-Array.isArray(datos.ordenanzas)
-) {
-return datos.ordenanzas;
-}
-if (
-datos &&
-Array.isArray(datos.articulos)
-) {
-return datos.articulos;
-}
-if (Array.isArray(datos)) {
-return datos;
-}
-return [];
-}
-/* ============================================================UTILIDADES DE DATOS
-============================================================ */
-function normalizarArray(valor) {
-if (Array.isArray(valor)) {
-return valor;
-}
-if (
-typeof valor === "string" &&
-valor.trim()
-) {
-return valor
-.split(",")
-.map(
-item =>
-item.trim()
-)
-.filter(Boolean);
-}
-return [];
-}
-function normalizarGravedad(
-valor
-) {
-if (!valor) {
-return "";
-}
-const texto =
-String(valor)
-.trim()
-.toLowerCase();
-if (
-texto === "leve" ||
-texto === "leves"
-) {
-return "Leve";
-}
-if (
-texto === "grave" ||
-texto === "graves"
-) {
-return "Grave";
-}
-if (
-texto.includes("muy") &&
-texto.includes("grave")
-) {
-return "Muy Grave";
-}
-return String(valor);
 }
 
-function convertirNumero(
-valor
-) {
-if (
-valor === null ||
-valor === undefined ||
-valor === ""
-) {
-return null;
-}
-const numero =
-Number(valor);
-return Number.isFinite(numero)
-? numero
-: null;
+if (rLopsc.status === "fulfilled") {
+estado.lopsc = rLopsc.value;
+} else {
+estado.lopsc = null;
+console.error(
+"Error cargando LOPSC:",
+rLopsc.reason
+);
 }
 
-function normalizarSancion(
-sancion
-) {
-if (!sancion) {
-return {
-min: null,
-max: null,
-moneda: "EUR",
-tramoMin: null,
-tramoMedio: null,
-tramoMax: null
-};
+if (rOrdenanzas.status === "fulfilled") {
+estado.ordenanzas = rOrdenanzas.value;
+} else {
+estado.ordenanzas = null;
+console.error(
+"Error cargando ordenanzas:",
+rOrdenanzas.reason
+);
 }
-return {
-min:
-convertirNumero(
-sancion.min
-),
-max:
-convertirNumero(
-sancion.max
-),
-moneda:
-sancion.moneda ||
-"EUR",
-tramoMin:
-convertirNumero(
-sancion.tramoMin
-),
-tramoMedio:
-convertirNumero(
-sancion.tramoMedio
-),
-tramoMax:
-convertirNumero(
-sancion.tramoMax
-)
-};
-}
-function crearCodigo(
-articulo,
-apartado
-) {
-if (!articulo) {
-return "";
-}
-if (
-apartado !== undefined &&
-apartado !== null &&
-apartado !== ""
-) {
-return `${articulo}.${apartado}`;
-}
-return String(articulo);
-}
-/* ============================================================
-INTERFAZ
-============================================================ */
-function inicializarInterfaz() {
-configurarFiltros();
-buscarInfracciones();
-actualizarEstadisticas();
+
 actualizarEstadoDatos();
-actualizarRed();
-actualizarVersion();
-configurarNormativa();
-}
-/* ============================================================
-VERSIÓN
-============================================================ */
-function actualizarVersion() {
-const elemento =
-document.getElementById(
-"app-version"
-);
-if (elemento) {
-elemento.textContent =
-CONFIG.VERSION;
-}
-}
-/* ============================================================
-FILTROS
-============================================================ */
-function configurarFiltros() {
-const selector = document.getElementById(
-"main-articulo"
-);
-if (!selector) {
-return;
-}
-const articulos =
-[
-...new Set(
-estado.infracciones
-.map(
-item =>
-item.articulo
-)
-.filter(Boolean)
-)
-];
-articulos.sort(
-(a, b) => {
-const numeroA =
-parseFloat(a);
-const numeroB =
-parseFloat(b);
-if (
-Number.isFinite(numeroA) &&
-Number.isFinite(numeroB)
-) {
-return numeroA - numeroB;
-}
-return String(a)
-.localeCompare(
-String(b),
-"es"
-);
-}
-);
-selector.innerHTML = `
-<option value="todos">
-Todos los artículos
-</option>
-`;
-articulos.forEach(
-articulo => {
-const option =
-document.createElement(
-"option"
-);
-option.value = articulo;
-option.textContent =
-`Artículo ${articulo}`;
-selector.appendChild(
-option
-);
-}
-);
-}
-/* ============================================================
-BÚSQUEDA
-============================================================ */
-function buscarInfracciones() {
-const texto =
-normalizarTexto(
-estado.filtros.texto
-);
-const gravedad =
-estado.filtros.gravedad;
-const articulo =
-estado.filtros.articulo;
-estado.resultados =
-estado.infracciones.filter(
-infraccion => {
-if (
-gravedad &&
-gravedad !== "todas" &&
-infraccion.gravedad !==
-gravedad
-) {
-return false;
-}
-if (
-articulo &&
-articulo !== "todos" &&
-String(
-infraccion.articulo
-) !==
-String(articulo)
-) {
-return false;
-}
-if (!texto) {
-return true;
-}
-const contenido =
-[
-infraccion.id,
-infraccion.codigo, infraccion.ley,
-infraccion.articulo,
-infraccion.apartado,
-infraccion.titulo,
-infraccion.conducta,
-infraccion.gravedad,
-...infraccion
-.palabrasClave,
-...infraccion
-.medidas,
-...infraccion
-.responsables
-]
-.join(" ");
-return normalizarTexto(
-contenido
-).includes(
-texto
-);
-}
-);
-if (texto) {
-estado.resultados.sort(
-(a, b) => {
-const codigoA =
-normalizarTexto(
-a.codigo
-);
-const codigoB =
-normalizarTexto(
-b.codigo
-);
-if (
-codigoA === texto
-) {
-return -1;
-}
-if (
-codigoB === texto
-) {
-return 1;
-}
-const tituloA =
-normalizarTexto(
-a.titulo
-);
-const tituloB =
-normalizarTexto( b.titulo
-);
-if (
-tituloA.startsWith(
-texto
-)
-) {
-return -1;
-}
-if (
-tituloB.startsWith(
-texto
-)
-) {
-return 1;
-}
-return 0;
-}
-);
-}
-renderizarResultados();
-actualizarContador();
-}
-/* ============================================================
-NORMALIZACIÓN TEXTO
-============================================================ */
-function normalizarTexto(
-texto
-) {
-return String(
-texto || ""
-)
-.toLowerCase()
-.normalize("NFD")
-.replace(
-/[\u0300-\u036f]/g,
-""
-)
-.trim();
-}
-/* ============================================================
-RENDER RESULTADOS
-============================================================ */
-function renderizarResultados() {
-const contenedor =
-document.getElementById(
-"search-results"
-);
-if (!contenedor) {
-return;
-}
-if (!estado.resultados.length) {
-contenedor.innerHTML = ` <div class="sin-resultados">
-<strong>
-No se han encontrado resultados
-</strong>
-<p>
-Prueba con otro código,
-artículo o palabra clave.
-</p>
-</div>
-`;
-return;
-}
-contenedor.innerHTML =
-estado.resultados
-.map(
-crearTarjetaInfraccion
-)
-.join("");
-}
-/* ============================================================
-TARJETA INFRACCIÓN
-============================================================ */
-function crearTarjetaInfraccion(
-infraccion
-) {
-const gravedadClass =
-claseGravedad(
-infraccion.gravedad
-);
-return `
-<article
-class="infraccion-card"
-data-id="${escapeHTML(
-infraccion.id
-)}"
->
-<div class="infraccion-top">
-<span class="infraccion-codigo">
-${escapeHTML(
-infraccion.codigo
-)}
-</span>
-<span
-class="gravedad ${gravedadClass}"
->
-${escapeHTML(
-infraccion.gravedad
-)}
-</span>
-</div>
-<h3>
-${escapeHTML(
-infraccion.titulo
-)} </h3>
-<div class="articulo">
-Artículo
-${escapeHTML(
-infraccion.articulo
-)}
-${
-infraccion.apartado
-? ` · apartado ${escapeHTML(
-infraccion.apartado
-)}`
-: ""
-}
-</div>
-<p>
-${escapeHTML(
-infraccion.conducta
-)}
-</p>
-${renderizarSancion(
-infraccion.sancion
-)}
-<div class="acciones-infraccion">
-<button
-type="button"
-onclick="verInfraccion('${escapeJS(
-infraccion.id
-)}')"
->
-VER DETALLE
-</button>
-<button
-type="button"
-onclick="iniciarActaDesdeInfraccion('${escapeJS(
-infraccion.id
-)}')"
->
-CREAR ACTA
-</button>
-</div>
-</article>
-`;
-}
-/* ============================================================
-SANCIÓN
-============================================================ */
-function renderizarSancion(
-sancion
-) {
-if (!sancion) {
-return "";
-}const min =
-formatearEuros(
-sancion.min
-);
-const max =
-formatearEuros(
-sancion.max
-);
-if (
-min === "-" &&
-max === "-"
-) {
-return "";
-}
-return `
-<div class="sancion">
-<strong>
-Sanción:
-</strong>
-${min}
-${
-max !== "-"
-? ` — ${max}`
-: ""
-}
-</div>
-`;
-}
-/* ============================================================
-DETALLE INFRACCIÓN
-============================================================ */
-function verInfraccion(
-id
-) {
-const infraccion =
-estado.infracciones.find(
-item =>
-String(item.id) ===
-String(id)
-);
-if (!infraccion) {
-return;
-}
-estado.infraccionSeleccionada =
-infraccion;
-const contenedor =
-document.getElementById(
-"search-results"
-);
-if (!contenedor) { return;
-}
-contenedor.innerHTML = `
-<div class="detalle-infraccion">
-<button
-type="button"
-onclick="buscarInfracciones()"
->
-← Volver a resultados
-</button>
-<div class="infraccion-top">
-<span class="infraccion-codigo">
-${escapeHTML(
-infraccion.codigo
-)}
-</span>
-<span
-class="gravedad ${claseGravedad(
-infraccion.gravedad
-)}"
->
-${escapeHTML(
-infraccion.gravedad
-)}
-</span>
-</div>
-<h2>
-${escapeHTML(
-infraccion.titulo
-)}
-</h2>
-<p>
-<strong>
-Artículo:
-</strong>
-${escapeHTML(
-infraccion.articulo
-)}
-${
-infraccion.apartado
-? `.${escapeHTML(
-infraccion.apartado
-)}`
-: ""
-}
-</p>
-<h3>
-Conducta
-</h3> <p>
-${escapeHTML(
-infraccion.conducta
-)}
-</p>
-<h3>
-Sanción
-</h3>
-${renderizarSancion(
-infraccion.sancion
-)}
-${
-infraccion.palabrasClave.length
-? `
-<h3>
-Palabras clave
-</h3>
-<div>
-${infraccion
-.palabrasClave
-.map(
-palabra =>
-`<span class="tag">
-${escapeHTML(
-palabra
-)}
-</span>`
-)
-.join("")}
-</div>
-`
-: ""
-}
-${
-infraccion.medidas.length
-? `
-<h3>
-Medidas asociadas
-</h3>
-<div>
-${infraccion
-.medidas
-.map(
-medida =>
-`<span class="tag">
-${escapeHTML(
-medida
-)}
-</span>`
-)
-.join("")}
-</div>
-`
-: ""
-}
-${ infraccion.observaciones
-? `
-<h3>
-Observaciones
-</h3>
-<p>
-${escapeHTML(
-infraccion.observaciones
-)}
-</p>
-`
-: ""
-}
-${
-infraccion.fuente
-? `
-<p class="fuente">
-<strong>
-Fuente:
-</strong>
-${escapeHTML(
-infraccion.fuente
-)}
-</p>
-`
-: ""
-}
-<hr>
-<button
-type="button"
-onclick="iniciarActaDesdeInfraccion('${escapeJS(
-infraccion.id
-)}')"
->
-CREAR ACTA CON ESTA INFRACCIÓN
-</button>
-</div>
-`;
-}
-/* ============================================================
-NORMATIVA
-============================================================ */
-function configurarNormativa() {
-const boton =
-document.getElementById(
-"open-lopsc"
-);
-if (boton) {
-boton.onclick =
-mostrarLOPSC;
-}const botonInfracciones =
-document.getElementById(
-"open-infracciones"
-);
-if (botonInfracciones) {
-botonInfracciones.onclick =
-() => {
-mostrarSeccionInterna(
-"consulta"
-);
-};
-}
-}
-function mostrarLOPSC() {
-mostrarSeccionInterna(
-"normativa"
-);
-const viewer =
-document.getElementById(
-"normativa-viewer"
-);
-if (!viewer) {
-return;
-}
-viewer.classList.remove(
-"hidden"
-);
-if (!estado.normativa.length) {
-viewer.innerHTML = `
-<div class="empty-state">
-<strong>
-LOPSC no cargada
-</strong>
-<p>
-Comprueba que exista:
-data/lopsc.json
-</p>
-</div>
-`;
-return;
-}
-viewer.innerHTML = `
-<div class="viewer-header">
-<div>
-<span class="section-kicker">
-LEGISLACIÓN </span>
-<h3>
-Ley Orgánica 4/2015
-</h3>
-<small>
-Protección de la Seguridad Ciudadana
-</small>
-</div>
-<button
-type="button"
-onclick="
-document
-.getElementById(
-'normativa-viewer'
-)
-.classList
-.add('hidden')
-"
->
-Cerrar
-</button>
-</div>
-<div class="normativa-search">
-<input
-type="search"
-id="normativa-search-input"
-placeholder="Buscar artículo o texto..."
-autocomplete="off"
->
-</div>
-<div
-id="normativa-articulos"
-class="normativa-articulos"
-></div>
-`;
-renderizarNormativa(
-estado.normativa
-);
-const buscador =
-document.getElementById(
-"normativa-search-input"
-);
-buscador?.addEventListener(
-"input",
-evento => {
-const texto =
-normalizarTexto(
-evento.target.value
-);
-if (!texto) {
-renderizarNormativa( estado.normativa
-);
-return;
-}
-const filtrados =
-estado.normativa.filter(
-articulo => {
-return normalizarTexto(
-JSON.stringify(
-articulo
-)
-).includes(
-texto
-);
-}
-);
-renderizarNormativa(
-filtrados
-);
-}
-);
-}
-function renderizarNormativa(
-articulos
-) {
-const contenedor =
-document.getElementById(
-"normativa-articulos"
-);
-if (!contenedor) {
-return;
-}
-if (!articulos.length) {
-contenedor.innerHTML = `
-<div class="empty-state">
-<strong>
-No se encontraron artículos
-</strong>
-</div>
-`;
-return;
-}
-contenedor.innerHTML =
-articulos
-.map(
-crearArticuloNormativo
-)
-.join("");
-}
-function crearArticuloNormativo(
-articulo) {
-const numero =
-articulo.numero ||
-articulo.articulo ||
-articulo.id ||
-"";
-const titulo =
-articulo.titulo ||
-articulo.nombre ||
-"";
-const texto =
-articulo.texto ||
-articulo.contenido ||
-articulo.descripcion ||
-"";
-return `
-<article class="normativa-articulo">
-<div class="normativa-articulo-header">
-<strong>
-Artículo ${escapeHTML(
-numero
-)}
-</strong>
-${
-titulo
-? `<span>
-${escapeHTML(
-titulo
-)}
-</span>`
-: ""
-}
-</div>
-<div class="normativa-texto">
-${formatearTextoLegal(
-texto
-)}
-</div>
-</article>
-`;
-}
-function formatearTextoLegal(
-texto
-) {
-return escapeHTML(
-texto
-)
-.replace(
-/\n/g,
-"<br>"
-);
-}
-/* ============================================================ACTAS
-============================================================ */
-function iniciarActaDesdeInfraccion(
-id
-) {
-const infraccion =
-estado.infracciones.find(
-item =>
-String(item.id) ===
-String(id)
-);
-if (!infraccion) {
-return;
-}
-estado.infraccionSeleccionada =
-infraccion;
-estado.modo =
-"acta";
-estado.actaActual = {
-id:
-generarIdActa(),
-fechaCreacion:
-new Date().toISOString(),
-estado:
-"borrador",
-infraccion: {
-id:
-infraccion.id,
-codigo:
-infraccion.codigo,
-ley:
-infraccion.ley,
-articulo:
-infraccion.articulo,
-apartado:
-infraccion.apartado,
-gravedad:
-infraccion.gravedad,
-titulo:
-infraccion.titulo,
-conducta:
-infraccion.conducta,
-sancion:
-infraccion.sancion
-},
-agente: {
-identificador: "", nombre: "",
-unidad: ""
-},
-denunciado: {
-nombre: "",
-documento: "",
-domicilio: "",
-observaciones: ""
-},
-hechos: "",
-lugar: "",
-fechaHora:
-obtenerFechaHoraLocal(),
-medidas: [],
-observaciones: ""
-};
-mostrarFormularioActa();
-}
-function activarModoActa() {
-estado.modo =
-"acta";
-estado.infraccionSeleccionada =
-null;
-estado.actaActual = {
-id:
-generarIdActa(),
-fechaCreacion:
-new Date().toISOString(),
-estado:
-"borrador",
-infraccion:
-null,
-agente: {
-identificador: "",
-nombre: "",
-unidad: ""
-},
-denunciado: {
-nombre: "",
-documento: "",
-domicilio: "",
-observaciones: ""
-},
-hechos: "",
-lugar: "", fechaHora:
-obtenerFechaHoraLocal(),
-medidas: [],
-observaciones: ""
-};
-mostrarFormularioActa();
-}
-/* ============================================================
-FORMULARIO ACTA
-============================================================ */
-function mostrarFormularioActa() {
-mostrarSeccionInterna(
-"actas"
-);
-const contenedor =
-document.getElementById(
-"drafts-container"
-);
-if (!contenedor) {
-return;
-}
-const acta =
-estado.actaActual;
-if (!acta) {
-return;
-}
-contenedor.innerHTML = `
-<div class="acta-container">
-<div class="acta-header">
-<button
-type="button"
-onclick="mostrarMenuActas()"
->
-← Volver
-</button>
-<h2>
-Nueva acta
-</h2>
-</div>
-${
-acta.infraccion
-? `
-<div class="acta-infraccion">
-<strong>
-Infracción seleccionada </strong>
-<h3>
-${escapeHTML(
-acta.infraccion.codigo
-)}
-·
-${escapeHTML(
-acta.infraccion.titulo
-)}
-</h3>
-<p>
-Artículo
-${escapeHTML(
-acta.infraccion.articulo
-)}
-·
-${escapeHTML(
-acta.infraccion.gravedad
-)}
-</p>
-</div>
-`
-: `
-<div class="acta-aviso">
-<strong>
-Acta sin tipificar
-</strong>
-<p>
-Puedes completar el acta
-y seleccionar posteriormente
-la infracción correspondiente.
-</p>
-</div>
-`
-}
-<form
-id="form-acta"
-class="formulario-acta"
->
-<h3>
-Agente actuante
-</h3>
-<label>
-Identificador profesional
-</label>
-<input
-type="text"
-name="agenteIdentificador"
-autocomplete="off"
->
-<label>
-Nombre
-</label>
-<input
-type="text" name="agenteNombre"
-autocomplete="off"
->
-<label>
-Unidad
-</label>
-<input
-type="text"
-name="agenteUnidad"
-autocomplete="off"
->
-<h3>
-Denunciado
-</h3>
-<label>
-Nombre y apellidos
-</label>
-<input
-type="text"
-name="denunciadoNombre"
-autocomplete="off"
->
-<label>
-Documento
-</label>
-<input
-type="text"
-name="denunciadoDocumento"
-autocomplete="off"
->
-<label>
-Domicilio
-</label>
-<input
-type="text"
-name="denunciadoDomicilio"
-autocomplete="off"
->
-<h3>
-Lugar y momento
-</h3>
-<label>
-Lugar de los hechos
-</label>
-<input
-type="text"
-name="lugar"
-autocomplete="off"
->
-<label>
-Fecha y hora
-</label> <input
-type="datetime-local"
-name="fechaHora"
->
-<h3>
-Hechos
-</h3>
-<textarea
-name="hechos"
-rows="7"
-placeholder="Describa objetivamente los hechos..."
-></textarea>
-<h3>
-Medidas
-</h3>
-<div class="medidas">
-${crearChecksMedidas()}
-</div>
-<h3>
-Observaciones
-</h3>
-<textarea
-name="observaciones"
-rows="5"
-></textarea>
-<button
-type="submit"
-class="btn-principal"
->
-GUARDAR BORRADOR
-</button>
-</form>
-</div>
-`;
-rellenarFormularioActa();
-const formulario =
-document.getElementById(
-"form-acta"
-);
-formulario?.addEventListener(
-"submit",
-guardarActaDesdeFormulario
-);
-}
-/* ============================================================
-MEDIDAS
-============================================================ */function crearChecksMedidas() {
-const medidas = [
-"Intervención de sustancias",
-"Intervención de arma u objeto",
-"Intervención de efectos",
-"Retirada de objetos",
-"Inmovilización de vehículo",
-"Otra medida"
-];
-return medidas
-.map(
-medida => `
-<label class="check-medida">
-<input
-type="checkbox"
-name="medida"
-value="${escapeHTML(
-medida
-)}"
->
-<span>
-${escapeHTML(
-medida
-)}
-</span>
-</label>
-`
-)
-.join("");
-}
-/* ============================================================
-RELLENAR ACTA
-============================================================ */
-function rellenarFormularioActa() {
-const acta =
-estado.actaActual;
-const form =
-document.getElementById(
-"form-acta"
-);
-if (!acta || !form) {
-return;
-}
-form.elements.agenteIdentificador.value =
-acta.agente?.identificador ||
-"";
-form.elements.agenteNombre.value =
-acta.agente?.nombre || "";
-form.elements.agenteUnidad.value =
-acta.agente?.unidad ||
-"";
-form.elements.denunciadoNombre.value =
-acta.denunciado?.nombre ||
-"";
-form.elements.denunciadoDocumento.value =
-acta.denunciado?.documento ||
-"";
-form.elements.denunciadoDomicilio.value =
-acta.denunciado?.domicilio ||
-"";
-form.elements.lugar.value =
-acta.lugar ||
-"";
-form.elements.fechaHora.value =
-convertirAInputFecha(
-acta.fechaHora
-);
-form.elements.hechos.value =
-acta.hechos ||
-"";
-form.elements.observaciones.value =
-acta.observaciones ||
-"";
-const medidas =
-Array.isArray(
-acta.medidas
-)
-? acta.medidas
-: [];
-form
-.querySelectorAll(
-'input[name="medida"]'
-)
-.forEach(
-checkbox => {
-checkbox.checked =
-medidas.includes(
-checkbox.value
-);
-}
-);
-}
-/* ============================================================
-GUARDAR ACTA
-============================================================ */
-function guardarActaDesdeFormulario(evento
-) {
-evento.preventDefault();
-const form =
-evento.currentTarget;
-const acta =
-estado.actaActual;
-if (!acta) {
-return;
-}
-acta.agente = {
-identificador:
-form.elements
-.agenteIdentificador
-.value
-.trim(),
-nombre:
-form.elements
-.agenteNombre
-.value
-.trim(),
-unidad:
-form.elements
-.agenteUnidad
-.value
-.trim()
-};
-acta.denunciado = {
-nombre:
-form.elements
-.denunciadoNombre
-.value
-.trim(),
-documento:
-form.elements
-.denunciadoDocumento
-.value
-.trim(),
-domicilio:
-form.elements
-.denunciadoDomicilio
-.value
-.trim(),
-observaciones:
-""
-};
-acta.lugar =
-form.elements
-.lugar
-.value .trim();
-acta.fechaHora =
-form.elements
-.fechaHora
-.value;
-acta.hechos =
-form.elements
-.hechos
-.value
-.trim();
-acta.observaciones =
-form.elements
-.observaciones
-.value
-.trim();
-acta.medidas =
-Array.from(
-form.querySelectorAll(
-'input[name="medida"]:checked'
-)
-)
-.map(
-checkbox =>
-checkbox.value
-);
-acta.estado =
-"borrador";
-const indice =
-estado.actas.findIndex(
-item =>
-item.id ===
-acta.id
-);
-if (indice >= 0) {
-estado.actas[indice] =
-acta;
+actualizarBusqueda();
+renderizarNormativa();
+
+const correctos = resultados.filter(
+(resultado) => resultado.status === "fulfilled"
+).length;
+
+if (correctos === 3) {
+mostrarToast("Datos cargados correctamente.");
 } else {
-estado.actas.push(
-acta
-);
-}
-guardarActas();
-mostrarNotificacion(
-"Acta guardada correctamente."
-);
-mostrarMenuActas();
-}
-/* ============================================================
-MENÚ ACTAS============================================================ */
-function mostrarMenuActas() {
-estado.modo =
-"consulta";
-estado.actaActual =
-null;
-mostrarSeccionInterna(
-"actas"
-);
-mostrarBorradores();
-}
-/* ============================================================
-BORRADORES
-============================================================ */
-function mostrarBorradores() {
-const container =
-document.getElementById(
-"drafts-container"
-);
-if (!container) {
-return;
-}
-if (!estado.actas.length) {
-container.innerHTML = `
-<div class="empty-state">
-<strong>
-No hay borradores
-</strong>
-<p>
-Las actas que guardes
-aparecerán aquí.
-</p>
-</div>
-`;
-return;
-}
-container.innerHTML = `
-<div>
-${estado.actas
-.slice()
-.reverse()
-.map(
-crearTarjetaBorrador
-)
-.join("")}
-</div>`;
-}
-function crearTarjetaBorrador(
-acta
-) {
-const codigo =
-acta.infraccion?.codigo ||
-"Sin tipificar";
-const titulo =
-acta.infraccion?.titulo ||
-"Acta sin infracción";
-return `
-<div class="draft-card">
-<strong>
-${escapeHTML(
-codigo
-)}
-</strong>
-<span>
-${escapeHTML(
-titulo
-)}
-</span>
-<small>
-${escapeHTML(
-acta.lugar ||
-"Lugar no indicado"
-)}
-</small>
-<div class="acciones-infraccion">
-<button
-type="button"
-onclick="editarActa('${escapeJS(
-acta.id
-)}')"
->
-EDITAR
-</button>
-<button
-type="button"
-onclick="eliminarActa('${escapeJS(
-acta.id
-)}')"
->
-ELIMINAR
-</button>
-</div>
-</div>
-`;
-}
-/* ============================================================
-EDITAR ACTA
-============================================================ */
-function editarActa(id
-) {
-const acta =
-estado.actas.find(
-item =>
-item.id === id
-);
-if (!acta) {
-return;
-}
-estado.actaActual =
-JSON.parse(
-JSON.stringify(
-acta
-)
-);
-mostrarFormularioActa();
-}
-/* ============================================================
-ELIMINAR ACTA
-============================================================ */
-function eliminarActa(
-id
-) {
-const confirmar =
-window.confirm(
-"¿Eliminar este borrador?"
-);
-if (!confirmar) {
-return;
-}
-estado.actas =
-estado.actas.filter(
-item =>
-item.id !== id
-);
-guardarActas();
-mostrarBorradores();
-}
-/* ============================================================
-LOCAL STORAGE
-============================================================ */
-function cargarActas() {
-try {
-const datos =
-localStorage.getItem(
-CONFIG.STORAGE.ACTAS
-);
-estado.actas =
-datos ? JSON.parse(
-datos
-)
-: [];
-if (
-!Array.isArray(
-estado.actas
-)
-) {
-estado.actas = [];
-}
-} catch (error) {
-console.error(
-"Error leyendo actas:",
-error
-);
-estado.actas = [];
-}
-}
-function guardarActas() {
-try {
-localStorage.setItem(
-CONFIG.STORAGE.ACTAS,
-JSON.stringify(
-estado.actas
-)
-);
-} catch (error) {
-console.error(
-"Error guardando actas:",
-error
-);
-mostrarError(
-"No se pudo guardar el borrador."
+mostrarToast(
+`Datos cargados: ${correctos}/3 bases disponibles.`
 );
 }
 }
-/* ============================================================
-CONFIGURACIÓN
-============================================================ */
-function cargarConfiguracion() {
-try {
-const datos =
-localStorage.getItem(
-CONFIG.STORAGE.CONFIG
-);
-if (!datos) {
-return;
-}
-const configuracion =
-JSON.parse(
-datos );
-if (
-configuracion &&
-configuracion.agente
-) {
-localStorage.setItem(
-CONFIG.STORAGE.AGENTE,
-JSON.stringify(
-configuracion.agente
-)
-);
-}
-} catch (error) {
-console.warn(
-"No hay configuración válida."
-);
-}
-}
-/* ============================================================
-EVENTOS
-============================================================ */
-function registrarEventos() {
-/*
-* NAVEGACIÓN
-*/
-document
-.querySelectorAll(
-".nav-button"
-)
-.forEach(
-boton => {
-boton.addEventListener(
-"click",
-() => {
-mostrarSeccionInterna(
-boton.dataset.section
-);
-}
-);
-}
-);
-/*
-* BUSCADOR
-*/
-const search =
-document.getElementById(
-"main-search"
-);
-search?.addEventListener(
-"input",
-evento => {
-estado.filtros.texto =
-evento.target.value;
-buscarInfracciones(); }
-);
-/*
-* GRAVEDAD
-*/
-document
-.getElementById(
-"main-gravedad"
-)
-?.addEventListener(
-"change",
-evento => {
-estado.filtros.gravedad =
-evento.target.value;
-buscarInfracciones();
-}
-);
-/*
-* ARTÍCULO
-*/
-document
-.getElementById(
-"main-articulo"
-)
-?.addEventListener(
-"change",
-evento => {
-estado.filtros.articulo =
-evento.target.value;
-buscarInfracciones();
-}
-);
-/*
-* LIMPIAR
-*/
-document
-.getElementById(
-"clear-search"
-)
-?.addEventListener(
-"click",
-() => {
-const input =
-document.getElementById(
-"main-search"
-);
-if (input) {
-input.value = "";
-}
-estado.filtros.texto =
-"";
-buscarInfracciones(); input?.focus();
-}
-);
-/*
-* NUEVA ACTA
-*/
-document
-.getElementById(
-"new-acta-button"
-)
-?.addEventListener(
-"click",
-activarModoActa
-);
-/*
-* BORRADORES
-*/
-document
-.getElementById(
-"drafts-button"
-)
-?.addEventListener(
-"click",
-mostrarBorradores
-);
-/*
-* ACCESO RÁPIDO CONSULTA
-*/
-document
-.getElementById(
-"quick-search"
-)
-?.addEventListener(
-"click",
-() => {
-mostrarSeccionInterna(
-"consulta"
-);
-setTimeout(
-() => {
-document
-.getElementById(
-"main-search"
-)
-?.focus();
-},
-100
-);
-}
-);
-/*
-* ACCESO RÁPIDO ACTA
-*/
-document .getElementById(
-"quick-acta"
-)
-?.addEventListener(
-"click",
-activarModoActa
-);
-/*
-* NORMATIVA
-*/
-document
-.getElementById(
-"open-lopsc"
-)
-?.addEventListener(
-"click",
-mostrarLOPSC
-);
-document
-.getElementById(
-"open-infracciones"
-)
-?.addEventListener(
-"click",
-() => {
-mostrarSeccionInterna(
-"consulta"
-);
-}
-);
-/*
-* RED
-*/
-window.addEventListener(
-"online",
-actualizarRed
-);
-window.addEventListener(
-"offline",
-actualizarRed
-);
-}
-/* ============================================================
-NAVEGACIÓN
-============================================================ */
-function mostrarSeccionInterna(
-nombre
-) {
-const secciones = {
-consulta:
-document.getElementById(
-"consulta-section"
-),
-actas:
-document.getElementById(
-"actas-section" ),
-normativa:
-document.getElementById(
-"normativa-section"
-),
-ajustes:
-document.getElementById(
-"ajustes-section"
-)
-};
-const bienvenida =
-document.getElementById(
-"welcome-section"
-);
-bienvenida?.classList.add(
-"hidden"
-);
-Object.values(
-secciones
-).forEach(
-section => {
-section?.classList.add(
-"hidden"
-);
-}
-);
-secciones[nombre]
-?.classList.remove(
-"hidden"
-);
-document
-.querySelectorAll(
-".nav-button"
-)
-.forEach(
-boton => {
-boton.classList.toggle(
-"active",
-boton.dataset.section ===
-nombre
-);
-}
-);
-const status =
-document.getElementById(
-"header-status"
-);
-if (status) {
-status.textContent =
-nombre.toUpperCase();
-}if (
-nombre === "actas"
-) {
-mostrarBorradores();
-}
-if (
-nombre === "consulta"
-) {
-buscarInfracciones();
-}
-}
-/* ============================================================
-ESTADÍSTICAS
-============================================================ */
-function actualizarEstadisticas() {
-const total =
-document.getElementById(
-"stat-total"
-);
-const leves =
-document.getElementById(
-"stat-leves"
-);
-const graves =
-document.getElementById(
-"stat-graves"
-);
-const muyGraves =
-document.getElementById(
-"stat-muy-graves"
-);
-if (total) {
-total.textContent =
-estado.infracciones.length;
-}
-if (leves) {
-leves.textContent =
-estado.infracciones.filter(
-item =>
-item.gravedad ===
-"Leve"
-).length;
-}
-if (graves) {
-graves.textContent =
-estado.infracciones.filter(
-item =>
-item.gravedad ===
-"Grave"
-).length;
-}if (muyGraves) {
-muyGraves.textContent =
-estado.infracciones.filter(
-item =>
-item.gravedad ===
-"Muy Grave"
-).length;
-}
-}
-/* ============================================================
-ESTADO DATOS
-============================================================ */
-function actualizarEstadoDatos() {
-const elemento =
-document.getElementById(
-"data-status"
-);
+
+/* =========================================================
+ESTADO DEL SISTEMA
+========================================================= */
+
+function establecerEstado(elemento, texto, correcto) {
 if (!elemento) {
 return;
 }
+
+elemento.textContent = texto;
+
+elemento.classList.toggle(
+"success",
+Boolean(correcto)
+);
+
+elemento.classList.toggle(
+"error",
+correcto === false
+);
+}
+
+function actualizarEstadoDatos() {
+const hayLopsc =
+Boolean(estado.lopsc) &&
+extraerArticulos(estado.lopsc).length > 0;
+
+const hayInfracciones =
+estado.infracciones.length > 0;
+
+const hayOrdenanzas =
+Boolean(estado.ordenanzas) &&
+extraerOrdenanzas(estado.ordenanzas).length > 0;
+
+establecerEstado(
+$("homeNormativaStatus"),
+hayLopsc
+? `${extraerArticulos(estado.lopsc).length} artículos`
+: "No disponible",
+hayLopsc
+);
+
+establecerEstado(
+$("homeInfraccionesStatus"),
+hayInfracciones
+? `${estado.infracciones.length} infracciones`
+: "No disponible",
+hayInfracciones
+);
+
+establecerEstado(
+$("homeOrdenanzasStatus"),
+hayOrdenanzas
+? `${extraerOrdenanzas(estado.ordenanzas).length} ordenanzas`
+: "No disponible",
+hayOrdenanzas
+);
+
+establecerEstado(
+$("settingsLopscStatus"),
+hayLopsc ? "Disponible" : "No disponible",
+hayLopsc
+);
+
+establecerEstado(
+$("settingsInfraccionesStatus"),
+hayInfracciones ? "Disponible" : "No disponible",
+hayInfracciones
+);
+
+establecerEstado(
+$("settingsOrdenanzasStatus"),
+hayOrdenanzas ? "Disponible" : "No disponible",
+hayOrdenanzas
+);
+}
+
+function actualizarRed() {
+const conectado = navigator.onLine;
+
+establecerEstado(
+$("homeNetworkStatus"),
+conectado ? "Online" : "Offline",
+conectado
+);
+
+const modo = $("appMode");
+
+if (modo) {
+modo.textContent = conectado
+? "Online"
+: "Offline";
+}
+}
+
+/* =========================================================
+NAVEGACIÓN
+========================================================= */
+
+function configurarNavegacion() {
+document.querySelectorAll(
+".nav-item[data-section]"
+).forEach((boton) => {
+boton.addEventListener("click", () => {
+activarSeccion(boton.dataset.section);
+});
+});
+
+document.querySelectorAll(
+".quick-action[data-target]"
+).forEach((boton) => {
+boton.addEventListener("click", () => {
+activarSeccion(boton.dataset.target);
+});
+});
+
+const buscarCabecera =
+$("headerSearchButton");
+
+if (buscarCabecera) {
+buscarCabecera.addEventListener("click", () => {
+activarSeccion("consulta");
+
+setTimeout(() => {
+$("consultaSearch")?.focus();
+}, 100);
+});
+}
+}
+
+/* =========================================================
+CONSULTA DE INFRACCIONES
+========================================================= */
+
+function configurarConsulta() {
+const input = $("consultaSearch");
+
+if (input) {
+input.addEventListener("input", () => {
+actualizarBusqueda();
+});
+}
+
+const limpiar =
+$("clearConsultaSearch");
+
+if (limpiar) {
+limpiar.addEventListener("click", () => {
+if (input) {
+input.value = "";
+input.focus();
+}
+
+actualizarBusqueda();
+});
+}
+
+document.querySelectorAll(
+".filter-chip[data-severity]"
+).forEach((boton) => {
+boton.addEventListener("click", () => {
+
+document.querySelectorAll(
+".filter-chip[data-severity]"
+).forEach((item) => {
+item.classList.remove("active");
+});
+
+boton.classList.add("active");
+
+estado.gravedad =
+boton.dataset.severity || "all";
+
+actualizarBusqueda();
+});
+});
+}
+
+function actualizarBusqueda() {
+const input = $("consultaSearch");
+
+const texto =
+normalizarTexto(
+input ? input.value : ""
+);
+
+const gravedad =
+estado.gravedad;
+
+estado.resultados =
+estado.infracciones.filter((infraccion) => {
+
 if (
-estado.erroresDatos.length
+gravedad !== "all" &&
+String(
+infraccion.gravedad || ""
+) !== gravedad
 ) {
-elemento.textContent =
-"REVISAR DATOS";
+return false;
+}
+
+if (!texto) {
+return false;
+}
+
+const palabras = Array.isArray(
+infraccion.palabrasClave
+)
+? infraccion.palabrasClave
+: [];
+
+const responsables = Array.isArray(
+infraccion.responsables
+)
+? infraccion.responsables
+: [];
+
+const contenido = [
+infraccion.id,
+infraccion.codigo,
+infraccion.ley,
+infraccion.articulo,
+infraccion.apartado,
+infraccion.titulo,
+infraccion.conducta,
+infraccion.gravedad,
+...palabras,
+...responsables
+].join(" ");
+
+return normalizarTexto(
+contenido
+).includes(texto);
+});
+
+ordenarResultados(texto);
+renderizarResultados();
+}
+
+function ordenarResultados(texto) {
+if (!texto) {
 return;
 }
-elemento.textContent =
-estado.infracciones.length
-? "CARGADA"
-: "SIN DATOS";
+
+estado.resultados.sort((a, b) => {
+
+const codigoA =
+normalizarTexto(a.codigo);
+
+const codigoB =
+normalizarTexto(b.codigo);
+
+if (codigoA === texto &&
+codigoB !== texto) {
+return -1;
 }
-/* ============================================================
-CONTADOR
-============================================================ */
-function actualizarContador() {
+
+if (codigoB === texto &&
+codigoA !== texto) {
+return 1;
+}
+
+const tituloA =
+normalizarTexto(a.titulo);
+
+const tituloB =
+normalizarTexto(b.titulo);
+
+if (
+tituloA.startsWith(texto) &&
+!tituloB.startsWith(texto)
+) {
+return -1;
+}
+
+if (
+tituloB.startsWith(texto) &&
+!tituloA.startsWith(texto)
+) {
+return 1;
+}
+
+return String(a.codigo || "")
+.localeCompare(
+String(b.codigo || ""),
+"es",
+{ numeric: true }
+);
+});
+}
+
+function renderizarResultados() {
+const contenedor =
+$("consultaResults");
+
 const contador =
-document.getElementById(
-"search-result-count"
-);
-if (!contador) {
+$("consultaResultCount");
+
+if (!contenedor) {
 return;
 }
+
+if (contador) {
 contador.textContent =
-`${estado.resultados.length} resultado(s)`;
+estado.resultados.length;
 }
-/* ============================================================
-RED
-============================================================ */
-function actualizarRed() {const online =
-navigator.onLine;
-const network =
-document.getElementById(
-"network-status"
-);
-const welcome =
-document.getElementById(
-"welcome-connection"
-);
-const consulta =
-document.getElementById(
-"consulta-status"
-);
-if (online) {
-if (network) {
-network.textContent =
-"ONLINE";
-}
-if (welcome) {
-welcome.textContent =
-"● Conectado";
-welcome.className =
-"connection-indicator online";
-}
-if (consulta) {
-consulta.textContent =
-"ONLINE";
-}
-} else {
-if (network) {
-network.textContent =
-"OFFLINE";
-}
-if (welcome) {
-welcome.textContent =
-"● Modo offline";
-welcome.className =
-"connection-indicator offline";
-}
-if (consulta) {
-consulta.textContent =
-"OFFLINE READY";
-}
-}
-}/* ============================================================
-NOTIFICACIONES
-============================================================ */
-function mostrarNotificacion(
-mensaje
+
+const input = $("consultaSearch");
+
+if (
+!input ||
+!input.value.trim()
 ) {
-document
-.querySelector(
-".centinela-notificacion"
-)
-?.remove();
-const elemento =
-document.createElement(
-"div"
-);
-elemento.className =
-"centinela-notificacion";
-elemento.textContent =
-mensaje;
-Object.assign(
-elemento.style,
+contenedor.innerHTML = `
+<div class="empty-state">
+<div class="empty-icon">🔎</div>
+<h3>Buscar infracción</h3>
+<p>
+Introduce un código, artículo o
+palabra clave para comenzar.
+</p>
+</div>
+`;
+return;
+}
+
+if (!estado.resultados.length) {
+contenedor.innerHTML = `
+<div class="empty-state">
+<div class="empty-icon">⚠️</div>
+<h3>Sin resultados</h3>
+<p>
+No se han encontrado infracciones
+con esos criterios.
+</p>
+</div>
+`;
+return;
+}
+
+contenedor.innerHTML =
+estado.resultados
+.map(renderizarTarjetaInfraccion)
+.join("");
+}
+
+function renderizarTarjetaInfraccion(
+infraccion
+) {
+const sancion =
+infraccion.sancion || {};
+
+const min =
+Number.isFinite(Number(sancion.min))
+? Number(sancion.min)
+: null;
+
+const max =
+Number.isFinite(Number(sancion.max))
+? Number(sancion.max)
+: null;
+
+let rango = "";
+
+if (min !== null && max !== null) {
+rango =
+`${formatearEuros(min)} - ${formatearEuros(max)}`;
+} else if (min !== null) {
+rango =
+`Desde ${formatearEuros(min)}`;
+} else if (max !== null) {
+rango =
+`Hasta ${formatearEuros(max)}`;
+}
+
+return `
+<article class="result-card">
+
+<div class="result-card-header">
+
+<div>
+<span class="result-code">
+${escaparHTML(
+infraccion.codigo || ""
+)}
+</span>
+
+<h3>
+${escaparHTML(
+infraccion.titulo ||
+"Sin título"
+)}
+</h3>
+</div>
+
+<span class="severity-badge">
+${escaparHTML(
+infraccion.gravedad || ""
+)}
+</span>
+
+</div>
+
+<p class="result-conducta">
+${escaparHTML(
+infraccion.conducta || ""
+)}
+</p>
+
+<div class="result-meta">
+
+<span>
+Art. ${escaparHTML(
+infraccion.articulo || ""
+)}
+</span>
+
+${
+rango
+? `<span>${rango}</span>`
+: ""
+}
+
+</div>
+
+<button
+type="button"
+class="result-detail-button"
+data-infraccion-id="${escaparHTML(
+infraccion.id || ""
+)}"
+>
+Ver detalle
+</button>
+
+</article>
+`;
+}
+
+function formatearEuros(numero) {
+return new Intl.NumberFormat(
+"es-ES",
 {
-position: "fixed",
-left: "14px",
-right: "14px",
-bottom: "85px",
-zIndex: "9999",
-padding: "13px",
-borderRadius: "10px",
-background: "#172233",
-border:
-"1px solid #33465e",
-color: "#f2f5f8",
-textAlign: "center",
-fontSize: "12px",
-fontWeight: "700",
-boxShadow:
-"0 8px 30px rgba(0,0,0,.35)"
+style: "currency",
+currency: "EUR",
+maximumFractionDigits: 0
 }
+).format(numero);
+}
+
+function abrirDetalleInfraccion(id) {
+const infraccion =
+estado.infracciones.find(
+(item) => item.id === id
 );
-document.body.appendChild(
-elemento
-);
-setTimeout( () => {
-elemento.remove();
-},
-2500
+
+if (!infraccion) {
+return;
+}
+
+const palabras =
+Array.isArray(
+infraccion.palabrasClave
+)
+? infraccion.palabrasClave
+: [];
+
+const sancion =
+infraccion.sancion || {};
+
+abrirModal(
+infraccion.codigo ||
+"Infracción",
+`
+<div class="detail-content">
+
+<p>
+<strong>Gravedad:</strong>
+${escaparHTML(
+infraccion.gravedad || "-"
+)}
+</p>
+
+<p>
+<strong>Artículo:</strong>
+${escaparHTML(
+infraccion.articulo || "-"
+)}
+${
+infraccion.apartado
+? `.${escaparHTML(
+infraccion.apartado
+)}`
+: ""
+}
+</p>
+
+<h4>Conducta</h4>
+
+<p>
+${escaparHTML(
+infraccion.conducta || ""
+)}
+</p>
+
+${
+sancion.min !== undefined ||
+sancion.max !== undefined
+? `
+<h4>Sanción</h4>
+<p>
+${
+sancion.min !== undefined
+? `Mínimo: ${formatearEuros(
+sancion.min
+)}<br>`
+: ""
+}
+${
+sancion.max !== undefined
+? `Máximo: ${formatearEuros(
+sancion.max
+)}`
+: ""
+}
+</p>
+`
+: ""
+}
+
+${
+palabras.length
+? `
+<h4>Palabras clave</h4>
+<p>
+${palabras
+.map(
+escaparHTML
+)
+.join(", ")}
+</p>
+`
+: ""
+}
+
+</div>
+`,
+[]
 );
 }
-/* ============================================================
-ERROR
-============================================================ */
-function mostrarError(
-mensaje
-) {
+
+/* =========================================================
+ACTAS
+========================================================= */
+
+function cargarActas() {
+try {
+const guardadas =
+localStorage.getItem(
+CONFIG.STORAGE_ACTAS
+);
+
+estado.actas =
+guardadas
+? JSON.parse(guardadas)
+: [];
+
+if (!Array.isArray(estado.actas)) {
+estado.actas = [];
+}
+
+} catch (error) {
 console.error(
-mensaje
+"No se pudieron cargar las actas:",
+error
 );
-document
-.querySelector(
-".centinela-error"
+
+estado.actas = [];
+}
+
+renderizarActas();
+}
+
+function guardarActas() {
+localStorage.setItem(
+CONFIG.STORAGE_ACTAS,
+JSON.stringify(estado.actas)
+);
+}
+
+function configurarActas() {
+$("newActaButton")?.addEventListener(
+"click",
+() => abrirEditorActa()
+);
+
+$("closeActaEditor")?.addEventListener(
+"click",
+() => cerrarEditorActa()
+);
+
+$("cancelActaButton")?.addEventListener(
+"click",
+() => cerrarEditorActa()
+);
+
+$("actaForm")?.addEventListener(
+"submit",
+guardarActaDesdeFormulario
+);
+
+$("actaInfraccion")?.addEventListener(
+"input",
+actualizarPreviewInfraccion
+);
+
+renderizarActas();
+}
+
+function abrirEditorActa(acta = null) {
+const editor = $("actaEditor");
+const form = $("actaForm");
+
+if (!editor || !form) {
+return;
+}
+
+form.reset();
+
+const fecha =
+$("actaFecha");
+
+const hora =
+$("actaHora");
+
+if (fecha) {
+fecha.value =
+acta?.fecha ||
+new Date()
+.toISOString()
+.slice(0, 10);
+}
+
+if (hora) {
+hora.value =
+acta?.hora ||
+new Date()
+.toTimeString()
+.slice(0, 5);
+}
+
+if (acta) {
+$("actaNumero").value =
+acta.numero || "";
+
+$("actaNombre").value =
+acta.nombre || "";
+
+$("actaDni").value =
+acta.dni || "";
+
+$("actaDomicilio").value =
+acta.domicilio || "";
+
+$("actaLugar").value =
+acta.lugar || "";
+
+$("actaHechos").value =
+acta.hechos || "";
+
+$("actaInfraccion").value =
+acta.infraccion || "";
+
+$("actaObservaciones").value =
+acta.observaciones || "";
+
+form.dataset.editingId =
+acta.id || "";
+} else {
+delete form.dataset.editingId;
+}
+
+actualizarPreviewInfraccion();
+
+editor.classList.remove("hidden");
+
+editor.scrollIntoView({
+behavior: "smooth",
+block: "start"
+});
+}
+
+function cerrarEditorActa() {
+const editor = $("actaEditor");
+const form = $("actaForm");
+
+if (editor) {
+editor.classList.add("hidden");
+}
+
+if (form) {
+form.reset();
+delete form.dataset.editingId;
+}
+
+const preview =
+$("actaInfraccionPreview");
+
+if (preview) {
+preview.classList.add("hidden");
+preview.innerHTML = "";
+}
+}
+
+function obtenerValor(id) {
+return $(id)?.value?.trim() || "";
+}
+
+function guardarActaDesdeFormulario(evento) {
+evento.preventDefault();
+
+const form =
+evento.currentTarget;
+
+const acta = {
+id:
+form.dataset.editingId ||
+`acta-${Date.now()}`,
+
+numero:
+obtenerValor("actaNumero"),
+
+fecha:
+obtenerValor("actaFecha"),
+
+hora:
+obtenerValor("actaHora"),
+
+nombre:
+obtenerValor("actaNombre"),
+
+dni:
+obtenerValor("actaDni"),
+
+domicilio:
+obtenerValor("actaDomicilio"),
+
+lugar:
+obtenerValor("actaLugar"),
+
+hechos:
+obtenerValor("actaHechos"),
+
+infraccion:
+obtenerValor("actaInfraccion"),
+
+observaciones:
+obtenerValor("actaObservaciones"),
+
+actualizado:
+new Date().toISOString()
+};
+
+const indice =
+estado.actas.findIndex(
+(item) => item.id === acta.id
+);
+
+if (indice >= 0) {
+estado.actas[indice] = acta;
+mostrarToast("Acta actualizada.");
+} else {
+estado.actas.unshift(acta);
+mostrarToast("Acta guardada.");
+}
+
+guardarActas();
+renderizarActas();
+cerrarEditorActa();
+}
+
+function renderizarActas() {
+const lista =
+$("actasList");
+
+if (!lista) {
+return;
+}
+
+if (!estado.actas.length) {
+lista.innerHTML = `
+<div class="empty-state">
+<div class="empty-icon">📝</div>
+<h3>No hay actas guardadas</h3>
+<p>
+Pulsa «Nueva» para comenzar un acta.
+</p>
+</div>
+`;
+return;
+}
+
+lista.innerHTML =
+estado.actas
+.map((acta) => `
+<article class="acta-card">
+
+<div class="acta-card-header">
+<div>
+<span>
+Acta ${
+escaparHTML(
+acta.numero ||
+"sin número"
 )
-?.remove();
-const elemento =
-document.createElement(
-"div"
-);
-elemento.className =
-"centinela-error";
-elemento.textContent =
-mensaje;
-document.body.prepend(
-elemento
-);
 }
-/* ============================================================
-GRAVEDAD
-============================================================ */
-function claseGravedad(
-gravedad
-) {
-switch (
-normalizarGravedad(
-gravedad
+</span>
+
+<h3>
+${escaparHTML(
+acta.nombre ||
+"Persona no indicada"
+)}
+</h3>
+</div>
+
+<span>
+${escaparHTML(
+acta.fecha || ""
+)}
+</span>
+</div>
+
+<p>
+${escaparHTML(
+acta.infraccion ||
+"Sin infracción indicada"
+)}
+</p>
+
+<div class="form-actions">
+
+<button
+type="button"
+class="secondary-button"
+data-edit-acta="${
+escaparHTML(acta.id)
+}"
+>
+Editar
+</button>
+
+<button
+type="button"
+class="secondary-button danger"
+data-delete-acta="${
+escaparHTML(acta.id)
+}"
+>
+Borrar
+</button>
+
+</div>
+
+</article>
+`)
+.join("");
+}
+
+function editarActa(id) {
+const acta =
+estado.actas.find(
+(item) => item.id === id
+);
+
+if (acta) {
+abrirEditorActa(acta);
+}
+}
+
+function borrarActa(id) {
+const confirmado =
+window.confirm(
+"¿Quieres borrar esta acta?"
+);
+
+if (!confirmado) {
+return;
+}
+
+estado.actas =
+estado.actas.filter(
+(item) => item.id !== id
+);
+
+guardarActas();
+renderizarActas();
+mostrarToast("Acta borrada.");
+}
+
+function actualizarPreviewInfraccion() {
+const preview =
+$("actaInfraccionPreview");
+
+const input =
+$("actaInfraccion");
+
+if (!preview || !input) {
+return;
+}
+
+const valor =
+normalizarTexto(input.value);
+
+if (!valor) {
+preview.classList.add("hidden");
+preview.innerHTML = "";
+return;
+}
+
+const encontrada =
+estado.infracciones.find(
+(item) =>
+normalizarTexto(
+item.codigo
+) === valor ||
+normalizarTexto(
+item.id
+) === valor
+);
+
+if (!encontrada) {
+preview.classList.add("hidden");
+preview.innerHTML = "";
+return;
+}
+
+preview.classList.remove("hidden");
+
+preview.innerHTML = `
+<strong>
+${escaparHTML(
+encontrada.codigo || ""
+)}
+</strong>
+
+<p>
+${escaparHTML(
+encontrada.titulo || ""
+)}
+</p>
+
+<span>
+${escaparHTML(
+encontrada.gravedad || ""
+)}
+</span>
+`;
+}
+
+/* =========================================================
+NORMATIVA
+========================================================= */
+
+function configurarNormativa() {
+$("normativaSearch")?.addEventListener(
+"input",
+() => {
+estado.normativaBusqueda =
+$("normativaSearch").value || "";
+
+renderizarNormativa();
+}
+);
+
+$("clearNormativaSearch")?.addEventListener(
+"click",
+() => {
+const input =
+$("normativaSearch");
+
+if (input) {
+input.value = "";
+estado.normativaBusqueda = "";
+input.focus();
+}
+
+renderizarNormativa();
+}
+);
+
+$("closeNormativaViewer")?.addEventListener(
+"click",
+cerrarVisorNormativa
+);
+
+renderizarNormativa();
+}
+
+function renderizarNormativa() {
+const lista =
+$("normativaList");
+
+if (!lista) {
+return;
+}
+
+const texto =
+normalizarTexto(
+estado.normativaBusqueda
+);
+
+const ordenanzas =
+extraerOrdenanzas(
+estado.ordenanzas
+);
+
+const tarjetas = [
+{
+tipo: "lopsc",
+titulo: "Ley Orgánica 4/2015",
+descripcion:
+"Protección de la seguridad ciudadana",
+etiqueta: "LOPSC",
+icono: "⚖️"
+},
+...ordenanzas.map((ordenanza) => ({
+tipo: "ordenanza",
+id: ordenanza.id,
+titulo:
+ordenanza.nombre ||
+ordenanza.nombre_corto ||
+"Ordenanza municipal",
+descripcion:
+ordenanza.descripcion ||
+"",
+etiqueta:
+ordenanza.codigo ||
+"Ordenanza",
+icono: "🏛️"
+}))
+];
+
+const filtradas =
+texto
+? tarjetas.filter((tarjeta) =>
+normalizarTexto(
+[
+tarjeta.titulo,
+tarjeta.descripcion,
+tarjeta.etiqueta
+].join(" ")
+).includes(texto)
 )
+: tarjetas;
+
+lista.innerHTML =
+filtradas
+.map((tarjeta) => `
+<div class="normativa-card">
+
+<div class="normativa-icon">
+${tarjeta.icono}
+</div>
+
+<div class="normativa-info">
+
+<h3>
+${escaparHTML(
+tarjeta.titulo
+)}
+</h3>
+
+<p>
+${escaparHTML(
+tarjeta.descripcion
+)}
+</p>
+
+<span>
+${escaparHTML(
+tarjeta.etiqueta
+)}
+</span>
+
+</div>
+
+<button
+type="button"
+class="normativa-open"
+data-law="${
+escaparHTML(
+tarjeta.tipo
+)
+}"
+${
+tarjeta.id
+? `data-id="${escaparHTML(
+tarjeta.id
+)}"`
+: ""
+}
+>
+Ver
+</button>
+
+</div>
+`)
+.join("");
+
+if (!filtradas.length) {
+lista.innerHTML = `
+<div class="empty-state">
+<div class="empty-icon">🔎</div>
+<h3>Sin resultados</h3>
+<p>
+No se ha encontrado normativa
+con esa búsqueda.
+</p>
+</div>
+`;
+}
+}
+
+function abrirNormativa(tipo, id = "") {
+if (tipo === "lopsc") {
+abrirLOPSC();
+return;
+}
+
+if (tipo === "ordenanza") {
+abrirOrdenanza(id);
+}
+}
+
+function abrirLOPSC() {
+const articulos =
+extraerArticulos(
+estado.lopsc
+);
+
+const visor =
+$("normativaViewer");
+
+const contenido =
+$("viewerContent");
+
+if (!visor || !contenido) {
+return;
+}
+
+$("viewerTitle").textContent =
+"Ley Orgánica 4/2015";
+
+$("viewerSubtitle").textContent =
+"Protección de la seguridad ciudadana";
+
+if (!articulos.length) {
+contenido.innerHTML = `
+<div class="empty-state">
+<h3>LOPSC no disponible</h3>
+<p>
+No se han podido cargar los artículos.
+</p>
+</div>
+`;
+} else {
+contenido.innerHTML =
+articulos
+.map((articulo) => `
+<article class="law-article">
+
+<h4>
+Artículo ${
+escaparHTML(
+articulo.numero
+)
+}.
+${escaparHTML(
+articulo.titulo || ""
+)}
+</h4>
+
+<p>
+${escaparHTML(
+articulo.texto || ""
+)}
+</p>
+
+</article>
+`)
+.join("");
+}
+
+visor.classList.remove("hidden");
+
+visor.scrollIntoView({
+behavior: "smooth",
+block: "start"
+});
+}
+
+function abrirOrdenanza(id) {
+const ordenanzas =
+extraerOrdenanzas(
+estado.ordenanzas
+);
+
+const ordenanza =
+ordenanzas.find(
+(item) => item.id === id
+);
+
+if (!ordenanza) {
+return;
+}
+
+const visor =
+$("normativaViewer");
+
+const contenido =
+$("viewerContent");
+
+if (!visor || !contenido) {
+return;
+}
+
+$("viewerTitle").textContent =
+ordenanza.nombre ||
+ordenanza.nombre_corto ||
+"Ordenanza municipal";
+
+$("viewerSubtitle").textContent =
+ordenanza.codigo || "";
+
+const palabras =
+Array.isArray(
+ordenanza.palabras_clave
+)
+? ordenanza.palabras_clave
+: [];
+
+const fuente =
+ordenanza.fuente || {};
+
+contenido.innerHTML = `
+<article class="law-article">
+
+<h4>
+${escaparHTML(
+ordenanza.nombre ||
+ordenanza.nombre_corto ||
+""
+)}
+</h4>
+
+<p>
+${escaparHTML(
+ordenanza.descripcion || ""
+)}
+</p>
+
+${
+ordenanza.nota
+? `
+<p>
+<strong>Nota:</strong>
+${escaparHTML(
+ordenanza.nota
+)}
+</p>
+`
+: ""
+}
+
+${
+palabras.length
+? `
+<p>
+<strong>
+Palabras clave:
+</strong>
+${palabras
+.map(
+escaparHTML
+)
+.join(", ")}
+</p>
+`
+: ""
+}
+
+${
+fuente.url
+? `
+<p>
+<a
+href="${escaparHTML(
+fuente.url
+)}"
+target="_blank"
+rel="noopener noreferrer"
+>
+Consultar fuente oficial
+</a>
+</p>
+`
+: ""
+}
+
+</article>
+`;
+
+visor.classList.remove("hidden");
+
+visor.scrollIntoView({
+behavior: "smooth",
+block: "start"
+});
+}
+
+function cerrarVisorNormativa() {
+$("normativaViewer")?.classList.add(
+"hidden"
+);
+}
+
+/* =========================================================
+MODAL
+========================================================= */
+
+function abrirModal(
+titulo,
+contenido,
+acciones = []
 ) {
-case "Leve":
-return "gravedad-leve";
-case "Grave":
-return "gravedad-grave";
-case "Muy Grave":
-return "gravedad-muy-grave";
-default:
-return "";}
+const modal =
+$("appModal");
+
+if (!modal) {
+return;
 }
-/* ============================================================
-FECHA / HORA
-============================================================ */
-function obtenerFechaHoraLocal() {
-const ahora =
-new Date();
-const year =
-ahora.getFullYear();
-const month =
-String(
-ahora.getMonth() + 1
-).padStart(2, "0");
-const day =
-String(
-ahora.getDate()
-).padStart(2, "0");
-const hour =
-String(
-ahora.getHours()
-).padStart(2, "0");
-const minute =
-String(
-ahora.getMinutes()
-).padStart(2, "0");
-return `${year}-${month}-${day}T${hour}:${minute}`;
+
+$("modalTitle").textContent =
+titulo || "Centinela Code";
+
+$("modalBody").innerHTML =
+contenido || "";
+
+const contenedor =
+$("modalActions");
+
+contenedor.innerHTML = "";
+
+acciones.forEach((accion) => {
+
+const boton =
+document.createElement("button");
+
+boton.type = "button";
+boton.className =
+accion.className ||
+"primary-button";
+
+boton.textContent =
+accion.label || "Aceptar";
+
+boton.addEventListener(
+"click",
+() => {
+accion.onClick?.();
 }
+);
+
+contenedor.appendChild(boton);
+});
+
+modal.classList.remove("hidden");
+}
+
+function cerrarModal() {
+$("appModal")?.classList.add(
+"hidden"
+);
+}
+
+function configurarModal() {
+$("closeModal")?.addEventListener(
+"click",
+cerrarModal
+);
+
+$("modalOverlay")?.addEventListener(
+"click",
+cerrarModal
+);
+}
+
+/* =========================================================
+AJUSTES
+========================================================= */
+
+function configurarAjustes() {
+const version =
+$("appVersion");
+
+if (version) {
+version.textContent =
+CONFIG.VERSION;
+}
+
+$("reloadDataButton")?.addEventListener(
+"click",
+async () => {
+mostrarToast(
+"Recargando datos..."
+);
+
+await cargarDatos();
+}
+);
+
+$("clearDraftsButton")?.addEventListener(
+"click",
+() => {
+
+const confirmado =
+window.confirm(
+"¿Quieres borrar todas las actas guardadas?"
+);
+
+if (!confirmado) {
+return;
+}
+
+estado.actas = [];
+
+localStorage.removeItem(
+CONFIG.STORAGE_ACTAS
+);
+
+renderizarActas();
+
+mostrarToast(
+"Actas borradas."
+);
+}
+);
+}
+
+/* =========================================================
+EVENTOS DINÁMICOS
+========================================================= */
+
+function configurarEventosGlobales() {
+document.addEventListener(
+"click",
+(evento) => {
+
+const detalle =
+evento.target.closest(
+"[data-infraccion-id]"
+);
+
+if (detalle) {
+abrirDetalleInfraccion(
+detalle.dataset.infraccionId
+);
+return;
+}
+
+const normativa =
+evento.target.closest(
+".normativa-open"
+);
+
+if (normativa) {
+abrirNormativa(
+normativa.dataset.law,
+normativa.dataset.id || ""
+);
+return;
+}
+
+const editar =
+evento.target.closest(
+"[data-edit-acta]"
+);
+
+if (editar) {
+editarActa(
+editar.dataset.editActa
+);
+return;
+}
+
+const borrar =
+evento.target.closest(
+"[data-delete-acta]"
+);
+
+if (borrar) {
+borrarActa(
+borrar.dataset.deleteActa
+);
+}
+}
+);
+}
+
+/* =========================================================
+SERVICE WORKER
+========================================================= */
+
+function registrarServiceWorker() {
+if (!("serviceWorker" in navigator)) {
+return;
+}
+
+window.addEventListener(
+"load",
+async () => {
+try {
+const registro =
+await navigator.serviceWorker.register(
+"./service-worker.js",
+{
+updateViaCache: "none"
+}
+);
+
+console.log(
+"Centinela Code: Service Worker registrado.",
+registro.scope
+);
+
+registro.update().catch(
+() => {}
+);
+
+} catch (error) {
+console.warn(
+"Centinela Code: no se pudo registrar el Service Worker.",
+error
+);
+}
+}
+);
+}
+
+/* =========================================================
+EVENTOS DE RED
+========================================================= */
+
+function configurarRed() {
+window.addEventListener(
+"online",
+() => {
+actualizarRed();
+mostrarToast(
+"Conexión recuperada."
+);
+}
+);
+
+window.addEventListener(
+"offline",
+() => {
+actualizarRed();
+mostrarToast(
+"Sin conexión. Se utilizarán los datos locales."
+);
+}
+);
+
+actualizarRed();
+}
+
+/* =========================================================
+INICIALIZACIÓN
+========================================================= */
+
+async function iniciarAplicacion() {
+try {
+mostrarCarga(true);
+
+configurarNavegacion();
+configurarConsulta();
+configurarActas();
+configurarNormativa();
+configurarModal();
+configurarAjustes();
+configurarEventosGlobales();
+configurarRed();
+
+cargarActas();
+
+const version =
+$("appVersion");
+
+if (version) {
+version.textContent =
+CONFIG.VERSION;
+}
+
+await cargarDatos();
+
+} catch (error) {
+console.error(
+"Error inicializando Centinela Code:",
+error
+);
+
+mostrarToast(
+"La aplicación se ha iniciado con un error. Revisa la consola."
+);
+} finally {
+actualizarEstadoDatos();
+actualizarRed();
+
+setTimeout(() => {
+mostrarCarga(false);
+}, 250);
+}
+}
+
+/* =========================================================
+ARRANQUE
+========================================================= */
+
+if (
+document.readyState === "loading"
+) {
+document.addEventListener(
+"DOMContentLoaded",
+iniciarAplicacion,
+{ once: true }
+);
+} else {
+iniciarAplicacion();
+}
+
+registrarServiceWorker();
+
+/* =========================================================
+FIN app.js CENTINELA CODE
+========================================================= */
