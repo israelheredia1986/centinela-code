@@ -1,0 +1,1324 @@
+{
+"version": "3.0.0",
+"municipio": "San Roque",
+"provincia": "Cádiz",
+"comunidad": "Andalucía",
+"ultima_revision": "2026-08-26",
+
+"fuentes": {
+"portal_normativa": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas",
+"ordenanzas_generales": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales",
+"ordenanzas_generales_sanroque": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?language=es",
+"documentacion": "https://www.sanroque.es/documentos/"
+},
+
+"criterios": {
+"catalogada_oficialmente": "La ordenanza aparece en el catálogo o documentación oficial del Ayuntamiento.",
+"publicada_oficialmente": "Existe documento o publicación oficial municipal localizada.",
+"vigencia_pendiente": "La existencia está comprobada, pero no se afirma sin más que no haya modificaciones posteriores.",
+"derogada": "El Ayuntamiento identifica expresamente la documentación como derogada.",
+"en_revision_2025": "Existe documentación oficial de aprobación inicial de un nuevo texto o modificación.",
+"no_inferir": "Nunca se debe inventar una infracción, sanción o cuantía que no conste en el texto oficial."
+},
+
+"categorias": [
+{
+"id": "seguridad_ciudadana",
+"nombre": "Seguridad ciudadana y convivencia"
+},
+{
+"id": "trafico",
+"nombre": "Tráfico, circulación y movilidad"
+},
+{
+"id": "animales",
+"nombre": "Animales"
+},
+{
+"id": "alcohol_tabaco",
+"nombre": "Alcohol y tabaco"
+},
+{
+"id": "limpieza_residuos",
+"nombre": "Limpieza y residuos"
+},
+{
+"id": "medio_ambiente",
+"nombre": "Medio ambiente"
+},
+{
+"id": "via_publica",
+"nombre": "Vía pública"
+},
+{
+"id": "hosteleria",
+"nombre": "Hostelería y terrazas"
+},
+{
+"id": "comercio",
+"nombre": "Comercio"
+},
+{
+"id": "publicidad",
+"nombre": "Publicidad"
+},
+{
+"id": "playas",
+"nombre": "Playas"
+},
+{
+"id": "urbanismo",
+"nombre": "Urbanismo"
+},
+{
+"id": "sanidad",
+"nombre": "Sanidad"
+},
+{
+"id": "actividades",
+"nombre": "Actividades y establecimientos"
+}
+],
+
+"ordenanzas": [
+
+{
+  "id": "sr-trafico",
+  "codigo": "SR-TRAF-001",
+  "nombre": "Ordenanza Reguladora de Tráfico, Circulación y Seguridad Vial",
+  "nombre_corto": "Tráfico y Seguridad Vial",
+  "categoria": "trafico",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "muy_alta",
+  "descripcion": "Normativa municipal de tráfico, circulación y seguridad vial.",
+  "palabras_clave": [
+    "tráfico",
+    "trafico",
+    "circulación",
+    "circulacion",
+    "seguridad vial",
+    "vehículo",
+    "vehiculo",
+    "estacionamiento",
+    "aparcamiento",
+    "parada",
+    "vía pública",
+    "Policía Local"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C1"
+  },
+  "nota": "La ordenanza está localizada oficialmente. El articulado completo debe consultarse en el documento oficial antes de asignar una infracción concreta."
+},
+
+{
+  "id": "sr-ciclomotores",
+  "codigo": "SR-TRAF-002",
+  "nombre": "Ordenanza de Circulación de Ciclomotores",
+  "nombre_corto": "Ciclomotores",
+  "categoria": "trafico",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "alta",
+  "palabras_clave": [
+    "ciclomotor",
+    "ciclomotores",
+    "circulación",
+    "ruido",
+    "escape",
+    "tráfico",
+    "vía pública"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?page=1"
+  }
+},
+
+{
+  "id": "sr-aparcamiento",
+  "codigo": "SR-TRAF-003",
+  "nombre": "Ordenanza de Servicio de Ordenación y Regulación del Aparcamiento de Vehículos en la Vía Pública",
+  "nombre_corto": "Aparcamiento Regulado",
+  "categoria": "trafico",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "alta",
+  "palabras_clave": [
+    "ORA",
+    "aparcamiento",
+    "estacionamiento",
+    "zona regulada",
+    "vehículos",
+    "vía pública"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?language=es"
+  }
+},
+
+{
+  "id": "sr-retirada-vehiculos",
+  "codigo": "SR-TRAF-004",
+  "nombre": "Ordenanza de Retirada de Vehículos Abandonados en las Vías Públicas Municipales",
+  "nombre_corto": "Vehículos Abandonados",
+  "categoria": "trafico",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "alta",
+  "palabras_clave": [
+    "vehículo abandonado",
+    "vehiculo abandonado",
+    "retirada",
+    "depósito",
+    "grúa",
+    "grua",
+    "abandono"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?page=1"
+  }
+},
+
+{
+  "id": "sr-autocaravanas",
+  "codigo": "SR-TRAF-005",
+  "nombre": "Ordenanza Reguladora de Autocaravanas",
+  "nombre_corto": "Autocaravanas",
+  "categoria": "trafico",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "alta",
+  "palabras_clave": [
+    "autocaravana",
+    "estacionamiento",
+    "pernocta",
+    "área de servicio",
+    "punto de reciclaje",
+    "aguas grises",
+    "aguas negras",
+    "residuos",
+    "acampada"
+  ],
+  "articulos": [
+    {
+      "numero": "1",
+      "titulo": "Objeto y ámbito de aplicación",
+      "tipo": "general",
+      "policial": true,
+      "contenido_verificado": true,
+      "resumen": "Regula la distribución racional de espacios públicos y el estacionamiento temporal o itinerante de autocaravanas, procurando no entorpecer el tráfico rodado, preservar espacios naturales, minimizar impactos ambientales, garantizar la seguridad y favorecer la rotación."
+    },
+    {
+      "numero": "2",
+      "titulo": "Definiciones",
+      "tipo": "definiciones",
+      "policial": true,
+      "contenido_verificado": true,
+      "terminos": [
+        "Autocaravana",
+        "Estacionamiento",
+        "Zona de estacionamiento reservada",
+        "Punto de reciclaje",
+        "Área de servicio"
+      ]
+    },
+    {
+      "numero": "3",
+      "titulo": "Ubicación e instalación de zonas de estacionamiento, puntos de reciclaje y áreas de servicio",
+      "tipo": "instalaciones",
+      "policial": true,
+      "contenido_verificado": true
+    }
+  ],
+  "fuente": {
+    "tipo": "bop",
+    "url": "https://transparencia.sanroque.es/sites/default/files/2023-12/APROBACION%20DEFINITIVA%20ORD%20N%C2%BA%2058.pdf"
+  }
+},
+
+{
+  "id": "sr-animales",
+  "codigo": "SR-ANI-001",
+  "nombre": "Ordenanza Municipal sobre Protección, Tenencia y Circulación de Animales",
+  "nombre_corto": "Animales",
+  "categoria": "animales",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "muy_alta",
+  "palabras_clave": [
+    "animales",
+    "animal",
+    "perro",
+    "perros",
+    "perro potencialmente peligroso",
+    "PPP",
+    "licencia",
+    "registro",
+    "identificación",
+    "microchip",
+    "bozal",
+    "correa",
+    "abandono",
+    "incautación",
+    "recogida",
+    "Policía Local"
+  ],
+  "articulos": [
+    {
+      "numero": "33",
+      "titulo": "Clasificación de las infracciones",
+      "tipo": "sancionador",
+      "policial": true,
+      "contenido_verificado": true,
+      "muy_graves": [
+        "Maltrato de animales que cause invalidez o muerte",
+        "Abandono de animales",
+        "Mutilación con fines exclusivamente estéticos o sin utilidad",
+        "Depositar alimentos envenenados en espacios y lugares públicos salvo los empleados por empresas y servicios autorizados para control de plagas",
+        "Uso de animales en fiestas o espectáculos cuando puedan sufrir daños o malos tratos",
+        "Organización de peleas con y entre animales",
+        "Cesión de locales, terrenos o instalaciones para peleas",
+        "Utilización de animales por sus propietarios o poseedores para peleas",
+        "Tenencia de perros o animales potencialmente peligrosos sin licencia",
+        "Venta o transmisión de perro o animal potencialmente peligroso a quien carezca de licencia",
+        "Adiestramiento para activar agresividad o finalidades prohibidas",
+        "Adiestramiento de animales potencialmente peligrosos por persona sin certificado de capacitación",
+        "Organización o celebración de concursos, ejercicios, exhibiciones o espectáculos de animales potencialmente peligrosos destinados a demostrar agresividad"
+      ]
+    },
+    {
+      "numero": "34",
+      "titulo": "Sanciones",
+      "tipo": "sancionador",
+      "policial": true,
+      "contenido_verificado": true,
+      "cuantias": {
+        "leve": {
+          "min": 75,
+          "max": 500,
+          "moneda": "EUR"
+        },
+        "grave": {
+          "min": 501,
+          "max": 2000,
+          "moneda": "EUR"
+        },
+        "muy_grave": {
+          "min": 2001,
+          "max": 30000,
+          "moneda": "EUR"
+        }
+      },
+      "medidas_accesorias": [
+        "Clausura temporal de instalaciones, locales o establecimientos en los supuestos previstos",
+        "Prohibición temporal de actividades comerciales reguladas",
+        "Retirada preventiva o incautación de animales",
+        "Traslado al centro designado",
+        "Prohibición temporal de tenencia de animales",
+        "Suspensión temporal o definitiva de licencia para tenencia de animales potencialmente peligrosos",
+        "Suspensión del certificado de capacitación de adiestrador"
+      ]
+    },
+    {
+      "numero": "41",
+      "titulo": "Procedimiento de incautación",
+      "tipo": "policial",
+      "policial": true,
+      "contenido_verificado": true,
+      "palabras_clave": [
+        "incautación",
+        "Policía Local",
+        "recogida",
+        "animal"
+      ]
+    },
+    {
+      "numero": "42",
+      "titulo": "Inspección y vigilancia",
+      "tipo": "policial",
+      "policial": true,
+      "contenido_verificado": true,
+      "contenido": [
+        "El Ayuntamiento realiza inspecciones sobre tenencia de animales, higiene, salubridad, zoonosis, seguridad y animales potencialmente peligrosos.",
+        "La inspección se lleva a cabo por miembros de la Policía Local y técnicos municipales.",
+        "En el ejercicio de estas funciones se consideran agentes de la autoridad.",
+        "Los ciudadanos están obligados a colaborar con las inspecciones.",
+        "Los agentes de Policía Local deben denunciar hechos presuntamente constitutivos de infracción."
+      ]
+    }
+  ],
+  "fuente": {
+    "tipo": "ordenanza_oficial",
+    "url": "https://www.sanroque.es/sites/default/files//files_documentacion/2021/06/ORDENANZA_MUNICIPAL_SOBRE_PROTECCI%C3%93N%2C_TENENCIA_Y_CIRCULACI%C3%93N_DE_ANIMALES.pdf"
+  }
+},
+
+{
+  "id": "sr-alcohol-tabaco",
+  "codigo": "SR-ALC-001",
+  "nombre": "Ordenanza Reguladora de Publicidad, Venta y Consumo de Alcohol y Tabaco",
+  "nombre_corto": "Alcohol y Tabaco",
+  "categoria": "alcohol_tabaco",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "muy_alta",
+  "palabras_clave": [
+    "alcohol",
+    "bebidas alcohólicas",
+    "tabaco",
+    "venta",
+    "consumo",
+    "publicidad",
+    "menores",
+    "vía pública",
+    "establecimiento"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C1"
+  },
+  "nota": "No se han inventado artículos o cuantías mientras no se haya contrastado el articulado completo del documento."
+},
+
+{
+  "id": "sr-terrazas",
+  "codigo": "SR-HOS-001",
+  "nombre": "Ordenanza Municipal Reguladora de la Instalación de Terrazas y Veladores en Terrenos de Uso Público con Ocasión del Ejercicio de la Actividad de Hostelería",
+  "nombre_corto": "Terrazas y Veladores",
+  "categoria": "hosteleria",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "muy_alta",
+  "palabras_clave": [
+    "terraza",
+    "velador",
+    "hostelería",
+    "ocupación",
+    "vía pública",
+    "licencia",
+    "autorización",
+    "mesas",
+    "sillas",
+    "peatones"
+  ],
+  "articulos": [
+    {
+      "numero": "28",
+      "titulo": "Instalaciones sin licencia",
+      "tipo": "disciplinario",
+      "policial": true,
+      "contenido_verificado": true,
+      "medidas": [
+        "Retirada cautelar e inmediata",
+        "Depósito de la instalación",
+        "Retirada a costa de la persona responsable",
+        "Tramitación de sanciones correspondientes"
+      ],
+      "conductas": [
+        "Instalar terrazas sin licencia",
+        "Instalar veladores sin licencia",
+        "Instalar elementos auxiliares sin licencia",
+        "Ocupar suelo de uso público sin licencia",
+        "Mantener terrazas después de finalizar el periodo autorizado"
+      ]
+    },
+    {
+      "numero": "29",
+      "titulo": "Infracciones",
+      "tipo": "sancionador",
+      "policial": true,
+      "contenido_verificado": true,
+      "leves": [
+        {
+          "conducta": "Estado de suciedad de la terraza o entorno próximo cuando sea consecuencia de la actividad",
+          "sancion": {
+            "importe": 100,
+            "moneda": "EUR"
+          }
+        },
+        {
+          "conducta": "No adoptar medidas necesarias para evitar que usuarios de la terraza invadan zonas de paso de peatones",
+          "sancion": {
+            "importe": 100,
+            "moneda": "EUR"
+          }
+        }
+      ]
+    }
+  ],
+  "fuente": {
+    "tipo": "ordenanza_oficial",
+    "url": "https://www.sanroque.es/sites/default/files//files_documentacion/2013/08/ORDENANZA%20MUNICIPAL%20REGULADORA%20DE%20LA%20INSTALACI%C3%93N%20DE%20TERRAZAS%20Y%20VELADORES%20EN%20TERRENOS%20DE%20USO%20P%C3%9ABLICO%20CON%20OCASI%C3%93N%20DE%20EJERCICIO%20DE%20LA%20ACTIVIDAD%20DE%20HOSTELER%C3%8DA.pdf"
+  }
+},
+
+{
+  "id": "sr-comercio-ambulante",
+  "codigo": "SR-COM-001",
+  "nombre": "Ordenanza Municipal Reguladora de la Venta Ambulante",
+  "nombre_corto": "Comercio Ambulante",
+  "categoria": "comercio",
+  "estado": "en_revision_2025",
+  "aplicacion_policial": true,
+  "prioridad_policial": "muy_alta",
+  "descripcion": "Existe texto consolidado oficial, pero el Ayuntamiento publicó además anuncio de aprobación inicial de una nueva ordenanza en BOP nº 241 de 18/12/2025.",
+  "palabras_clave": [
+    "venta ambulante",
+    "comercio ambulante",
+    "mercadillo",
+    "venta callejera",
+    "autorización",
+    "puesto",
+    "vendedor",
+    "placa identificativa"
+  ],
+  "articulos": [
+    {
+      "numero": "1",
+      "titulo": "Objeto y definición",
+      "policial": true,
+      "contenido_verificado": true
+    },
+    {
+      "numero": "2",
+      "titulo": "Modalidades de comercio ambulante",
+      "policial": true,
+      "contenido_verificado": true,
+      "modalidades": [
+        "Mercadillos",
+        "Comercio callejero",
+        "Comercio itinerante"
+      ]
+    },
+    {
+      "numero": "3",
+      "titulo": "Actividades excluidas",
+      "policial": true,
+      "contenido_verificado": true
+    }
+  ],
+  "infracciones_texto_consolidado": {
+    "contenido_verificado": true,
+    "leves": [
+      "Las tipificadas como leves en el texto consolidado."
+    ],
+    "graves": [
+      "Reincidencia de infracciones leves en los términos del texto consolidado.",
+      "Incumplimiento de requisitos exigidos por la normativa de los productos objeto del comercio o comercio de productos no autorizados.",
+      "Desobediencia o negativa a suministrar información a la autoridad municipal o sus agentes en el cumplimiento de su misión.",
+      "Ejercicio incumpliendo condiciones de la autorización sobre lugar, fecha, horario, tamaño, ubicación o estructura de los puestos.",
+      "Ejercicio por personas distintas de las previstas en la autorización."
+    ],
+    "muy_graves": [
+      "Reincidencia en infracciones graves.",
+      "Carecer de autorización municipal.",
+      "Resistencia, coacción o amenaza a la autoridad municipal, funcionarios o agentes."
+    ],
+    "sanciones": {
+      "leve": {
+        "min": 0,
+        "max": 1500,
+        "moneda": "EUR"
+      },
+      "grave": {
+        "min": 1501,
+        "max": 3000,
+        "moneda": "EUR"
+      },
+      "muy_grave": {
+        "min": 3001,
+        "max": 18000,
+        "moneda": "EUR"
+      }
+    },
+    "medidas_provisionales": [
+      "Incautación de productos objeto de comercio no autorizados",
+      "Incautación de puestos",
+      "Incautación de instalaciones",
+      "Incautación de vehículos o medios utilizados para la actividad"
+    ]
+  },
+  "fuente": {
+    "texto_consolidado": "https://transparencia.sanroque.es/sites/default/files/2023-12/TextoConsolidadoOrdComercioAmbulante.pdf",
+    "pagina_oficial": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C2"
+  },
+  "advertencia": "Para una denuncia actual debe comprobarse si el nuevo texto aprobado inicialmente en 2025 sustituyó o modificó el régimen anterior."
+},
+
+{
+  "id": "sr-residuos",
+  "codigo": "SR-RES-001",
+  "nombre": "Ordenanza de Gestión de Residuos Sólidos y Limpieza Viaria",
+  "nombre_corto": "Residuos y Limpieza Viaria",
+  "categoria": "limpieza_residuos",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "alta",
+  "palabras_clave": [
+    "residuos",
+    "basura",
+    "limpieza",
+    "contenedor",
+    "vertido",
+    "abandono de residuos",
+    "suciedad",
+    "vía pública"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C2"
+  }
+},
+
+{
+  "id": "sr-escombros",
+  "codigo": "SR-RES-002",
+  "nombre": "Ordenanza Reguladora de Gestión de Escombros",
+  "nombre_corto": "Escombros",
+  "categoria": "limpieza_residuos",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "alta",
+  "palabras_clave": [
+    "escombros",
+    "residuos de construcción",
+    "obra",
+    "vertido",
+    "contenedor",
+    "vía pública"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C2"
+  }
+},
+
+{
+  "id": "sr-soterramiento-contenedores",
+  "codigo": "SR-RES-003",
+  "nombre": "Ordenanza sobre la Incorporación de Sistemas de Soterramiento de Contenedores de Residuos Sólidos Urbanos",
+  "nombre_corto": "Soterramiento de Contenedores",
+  "categoria": "limpieza_residuos",
+  "estado": "catalogada_oficialmente",
+  "aplicacion_policial": false,
+  "prioridad_policial": "media",
+  "palabras_clave": [
+    "contenedores",
+    "soterramiento",
+    "residuos",
+    "vía pública",
+    "circulación peatonal",
+    "circulación rodada"
+  ],
+  "articulos": [
+    {
+      "numero": "1",
+      "titulo": "Objetivo",
+      "contenido_verificado": true,
+      "resumen": "Regula la colocación de equipos de soterramiento procurando minimizar interferencias con la circulación peatonal y rodada, molestias y problemas de recogida."
+    },
+    {
+      "numero": "2",
+      "titulo": "Ámbito de aplicación",
+      "contenido_verificado": true
+    },
+    {
+      "numero": "4",
+      "titulo": "Responsables del cumplimiento",
+      "contenido_verificado": true,
+      "responsables": [
+        "Promotor",
+        "Propietario",
+        "Facultativo que proyecte o dirija las obras"
+      ]
+    }
+  ],
+  "fuente": {
+    "tipo": "ordenanza_oficial",
+    "url": "https://www.sanroque.es/sites/default/files/files_documentacion/2013/08/Ordenanza%20de%20Incorporaci%C3%B3n%20de%20Sistemas%20de%20Soterramiento%20de%20Contenedores%20de%20Residuos%20S%C3%B3lidos%20Urbanos.pdf"
+  }
+},
+
+{
+  "id": "sr-fachadas",
+  "codigo": "SR-LIM-001",
+  "nombre": "Ordenanza de Limpieza y Blanqueo de Fachadas",
+  "nombre_corto": "Limpieza y Blanqueo de Fachadas",
+  "categoria": "limpieza_residuos",
+  "estado": "catalogada_con_modificaciones",
+  "aplicacion_policial": true,
+  "prioridad_policial": "media",
+  "palabras_clave": [
+    "fachadas",
+    "blanqueo",
+    "limpieza",
+    "ornato",
+    "edificios",
+    "inmuebles"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_oficial",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?language=es"
+  }
+},
+
+{
+  "id": "sr-solares",
+  "codigo": "SR-URB-001",
+  "nombre": "Ordenanza Municipal Reguladora de la Limpieza y Vallado de Solares y Terrenos",
+  "nombre_corto": "Limpieza y Vallado de Solares",
+  "categoria": "urbanismo",
+  "estado": "catalogada_con_modificaciones",
+  "aplicacion_policial": true,
+  "prioridad_policial": "alta",
+  "palabras_clave": [
+    "solar",
+    "solares",
+    "terreno",
+    "vallado",
+    "limpieza",
+    "seguridad",
+    "salubridad",
+    "ornato",
+    "basura",
+    "Policía Local"
+  ],
+  "contenido_verificado": {
+    "fundamento": "Los propietarios deben mantener los terrenos en condiciones de seguridad, salubridad y ornato.",
+    "actuacion_policial": "La documentación municipal indica expresamente la existencia de denuncias tramitadas por Policía Local ante la OTM.",
+    "multa_maxima_mencionada_en_documentacion_municipal": 3000,
+    "moneda": "EUR"
+  },
+  "articulos": [],
+  "fuente": {
+    "ordenanza": "https://www.sanroque.es/sites/default/files/files_documentacion/2013/08/Ordenanza%20de%20Limpieza%20y%20Vallado%20de%20Solares%20y%20Terrenos.pdf",
+    "documentacion_municipal": "https://transparencia.sanroque.es/sites/default/files/2023-12/20181017_BANDO_SOBRE_ORDENANZA_MUNICIPAL_DE_LIMPIEZA_Y_VALLADO.pdf"
+  }
+},
+
+{
+  "id": "sr-zonas-ajardinadas",
+  "codigo": "SR-MA-001",
+  "nombre": "Ordenanza de Gestión de Zonas Ajardinadas y Arbolado Viario",
+  "nombre_corto": "Zonas Ajardinadas y Arbolado",
+  "categoria": "medio_ambiente",
+  "estado": "catalogada_con_modificacion",
+  "aplicacion_policial": true,
+  "prioridad_policial": "alta",
+  "palabras_clave": [
+    "parques",
+    "jardines",
+    "zonas verdes",
+    "árbol",
+    "arbolado",
+    "flores",
+    "ramas",
+    "mobiliario",
+    "fuego",
+    "residuos",
+    "animales",
+    "vehículos"
+  ],
+  "materias_documento": [
+    "Disposiciones Generales",
+    "Protección de los Elementos Vegetales",
+    "Protección y defensa del arbolado urbano",
+    "Protección de los Animales",
+    "Protección del Ambiente",
+    "Vehículos en los Parques",
+    "Protección del Mobiliario Urbano y Elementos Decorativos",
+    "Defensa del Arbolado",
+    "Protección del arbolado al inicio de obras",
+    "Implantación de Nuevas Zonas Verdes",
+    "Infracciones y Sanciones"
+  ],
+  "conductas_verificadas": [
+    "Cortar flores, ramas u otras partes vegetales.",
+    "Arrojar basura, residuos, cascotes, piedras, papeles, plásticos, grasas o productos perjudiciales.",
+    "Encender fuego en lugares no autorizados.",
+    "Utilizar jardines y zonas verdes urbanas para pastoreo.",
+    "Introducir especies invasoras que alteren el equilibrio de la zona."
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ordenanza_oficial",
+    "url": "https://www.sanroque.es/sites/default/files/files_documentacion/2013/08/Ordenanza%20de%20Zonas%20Ajardinadas%20y%20Arbolado%20Viario%281%29.pdf"
+  }
+},
+
+{
+  "id": "sr-pinar-rey",
+  "codigo": "SR-MA-002",
+  "nombre": "Ordenanza Municipal de Usos del Pinar del Rey",
+  "nombre_corto": "Pinar del Rey",
+  "categoria": "medio_ambiente",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "muy_alta",
+  "palabras_clave": [
+    "Pinar del Rey",
+    "acampada",
+    "estacionamiento",
+    "vehículo",
+    "residuos",
+    "basura",
+    "fuego",
+    "limpieza",
+    "zonas autorizadas"
+  ],
+  "articulos": [
+    {
+      "numero": "6",
+      "titulo": "Conductas prohibidas",
+      "contenido_verificado": true,
+      "conductas": [
+        "Circulación de vehículos a motor fuera de zona autorizada",
+        "Estacionamiento o aparcamiento fuera de zonas establecidas",
+        "Reiteración de paseos o vueltas con vehículos a motor",
+        "Limpieza de vehículos en el Pinar del Rey",
+        "Acampada fuera de zonas establecidas o sin autorización",
+        "Arrojar o dejar basuras, residuos u objetos",
+        "Dejar bolsas de basura fuera de los contenedores destinados a ello"
+      ],
+      "policial": true
+    },
+    {
+      "numero": "7",
+      "titulo": "Clasificación de las infracciones",
+      "contenido_verificado": true,
+      "clasificacion": {
+        "leve": [
+          "Reiteración de paseos o vueltas con vehículos a motor",
+          "Acampar fuera de las zonas establecidas o sin autorización",
+          "Dejar bolsas de basura fuera de los contenedores"
+        ],
+        "grave": [
+          "Circulación de vehículos a motor fuera de zona autorizada",
+          "Estacionamiento o aparcamiento fuera de zonas establecidas",
+          "Arrojar o dejar basuras, residuos u objetos"
+        ],
+        "muy_grave": [
+          "Conductas que el artículo 6 clasifica como muy graves en sus apartados correspondientes"
+        ]
+      }
+    },
+    {
+      "numero": "8",
+      "titulo": "Sanciones",
+      "contenido_verificado": true,
+      "cuantias": {
+        "leve": {
+          "min": 740,
+          "max": 740,
+          "moneda": "EUR"
+        },
+        "grave": {
+          "min": 740,
+          "max": 1500,
+          "moneda": "EUR"
+        },
+        "muy_grave": {
+          "min": 1500,
+          "max": 3000,
+          "moneda": "EUR"
+        }
+      }
+    }
+  ],
+  "fuente": {
+    "tipo": "ordenanza_oficial",
+    "url": "https://www.sanroque.es/sites/default/files/files_documentacion/2013/08/Ordenanza%20de%20Usos%20del%20Pinar%20del%20Rey.pdf"
+  }
+},
+
+{
+  "id": "sr-playas",
+  "codigo": "SR-PLAYA-001",
+  "nombre": "Ordenanza de Uso y Aprovechamientos de Playas",
+  "nombre_corto": "Playas",
+  "categoria": "playas",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "alta",
+  "palabras_clave": [
+    "playa",
+    "playas",
+    "arena",
+    "baño",
+    "litoral",
+    "limpieza",
+    "perros",
+    "vehículos",
+    "ocupación"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?language=es"
+  }
+},
+
+{
+  "id": "sr-publicidad-exterior",
+  "codigo": "SR-PUB-001",
+  "nombre": "Ordenanza de Gestión de la Publicidad Exterior",
+  "nombre_corto": "Publicidad Exterior",
+  "categoria": "publicidad",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "media",
+  "palabras_clave": [
+    "publicidad",
+    "cartel",
+    "carteles",
+    "anuncios",
+    "rótulos",
+    "rotulos",
+    "fachadas",
+    "vía pública"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C2"
+  }
+},
+
+{
+  "id": "sr-espectaculos",
+  "codigo": "SR-ACT-001",
+  "nombre": "Ordenanza de Espectáculos Públicos y Actividades Recreativas",
+  "nombre_corto": "Espectáculos y Actividades Recreativas",
+  "categoria": "actividades",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "alta",
+  "palabras_clave": [
+    "espectáculos",
+    "espectaculos",
+    "actividad recreativa",
+    "evento",
+    "fiesta",
+    "aforo",
+    "establecimiento",
+    "horario",
+    "licencia",
+    "seguridad"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?page=1"
+  }
+},
+
+{
+  "id": "sr-actividades-servicios",
+  "codigo": "SR-ACT-002",
+  "nombre": "Ordenanza Municipal Reguladora del Procedimiento de Declaración Responsable y Comunicación Previa para la Implantación de Actividades y Servicios",
+  "nombre_corto": "Declaración Responsable y Comunicación Previa",
+  "categoria": "actividades",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "media",
+  "palabras_clave": [
+    "declaración responsable",
+    "comunicación previa",
+    "actividad",
+    "establecimiento",
+    "apertura",
+    "licencia",
+    "inspección"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?language=es"
+  }
+},
+
+{
+  "id": "sr-inspeccion-sanitaria",
+  "codigo": "SR-SAN-001",
+  "nombre": "Ordenanza de Servicios de Inspección Sanitaria",
+  "nombre_corto": "Inspección Sanitaria",
+  "categoria": "sanidad",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "media",
+  "palabras_clave": [
+    "inspección",
+    "inspección sanitaria",
+    "sanidad",
+    "salubridad",
+    "higiene",
+    "establecimiento",
+    "alimentos"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C1"
+  }
+},
+
+{
+  "id": "sr-higienico-sanitarias",
+  "codigo": "SR-SAN-002",
+  "nombre": "Ordenanza Reguladora de las Condiciones Higiénico-Sanitarias y Protección de Consumidores en Establecimientos donde se Consuman Comidas y Bebidas",
+  "nombre_corto": "Condiciones Higiénico-Sanitarias",
+  "categoria": "sanidad",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "media",
+  "palabras_clave": [
+    "higiene",
+    "sanidad",
+    "salubridad",
+    "bar",
+    "restaurante",
+    "alimentos",
+    "bebidas",
+    "consumidores"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C1"
+  }
+},
+
+{
+  "id": "sr-garajes",
+  "codigo": "SR-VIA-001",
+  "nombre": "Ordenanza de Acceso a Locales Destinados a Garajes o Cocheras",
+  "nombre_corto": "Garajes y Cocheras",
+  "categoria": "via_publica",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "media",
+  "palabras_clave": [
+    "garaje",
+    "cochera",
+    "vado",
+    "acceso",
+    "vehículo",
+    "vehiculo",
+    "acera"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?page=1"
+  }
+},
+
+{
+  "id": "sr-quioscos",
+  "codigo": "SR-VIA-002",
+  "nombre": "Ordenanza Reguladora de Utilización de la Vía Pública e Instalación de Quioscos",
+  "nombre_corto": "Quioscos y Vía Pública",
+  "categoria": "via_publica",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "media",
+  "palabras_clave": [
+    "quiosco",
+    "quioscos",
+    "vía pública",
+    "ocupación",
+    "licencia",
+    "autorización"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?language=es"
+  }
+},
+
+{
+  "id": "sr-mercado-abastos",
+  "codigo": "SR-COM-002",
+  "nombre": "Ordenanza del Mercado de Abastos",
+  "nombre_corto": "Mercado de Abastos",
+  "categoria": "comercio",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": false,
+  "prioridad_policial": "media",
+  "palabras_clave": [
+    "mercado",
+    "puestos",
+    "venta",
+    "comercio",
+    "higiene",
+    "establecimientos"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C2"
+  }
+},
+
+{
+  "id": "sr-denominaciones-vias",
+  "codigo": "SR-VIA-003",
+  "nombre": "Ordenanza de Normas sobre Denominaciones y Cambios de Nombres de Vías y Espacios Públicos Urbanos",
+  "nombre_corto": "Denominaciones de Vías",
+  "categoria": "via_publica",
+  "estado": "catalogada_con_modificacion",
+  "aplicacion_policial": false,
+  "prioridad_policial": "baja",
+  "palabras_clave": [
+    "calle",
+    "vía",
+    "espacio público",
+    "denominación"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C2"
+  }
+},
+
+{
+  "id": "sr-ascensores",
+  "codigo": "SR-URB-002",
+  "nombre": "Ordenanza Municipal Reguladora de las Condiciones para la Instalación de Ascensores y Eliminación de Barreras Arquitectónicas en Edificios de Carácter Residencial",
+  "nombre_corto": "Ascensores y Barreras Arquitectónicas",
+  "categoria": "urbanismo",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": false,
+  "prioridad_policial": "baja",
+  "palabras_clave": [
+    "ascensor",
+    "accesibilidad",
+    "barreras arquitectónicas",
+    "edificio"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?language=es"
+  }
+},
+
+{
+  "id": "sr-ite",
+  "codigo": "SR-URB-003",
+  "nombre": "Ordenanza de Inspección Técnica de Edificios",
+  "nombre_corto": "Inspección Técnica de Edificios",
+  "categoria": "urbanismo",
+  "estado": "catalogada_con_modificacion",
+  "aplicacion_policial": false,
+  "prioridad_policial": "baja",
+  "palabras_clave": [
+    "ITE",
+    "inspección técnica",
+    "edificio",
+    "conservación"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/urbanisticas"
+  }
+},
+
+{
+  "id": "sr-edificaciones-no-urbanizable",
+  "codigo": "SR-URB-004",
+  "nombre": "Ordenanza Municipal para la Regularización del Régimen de las Edificaciones Existentes en el Suelo No Urbanizable",
+  "nombre_corto": "Edificaciones en Suelo No Urbanizable",
+  "categoria": "urbanismo",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": false,
+  "prioridad_policial": "baja",
+  "palabras_clave": [
+    "edificación",
+    "edificaciones",
+    "suelo no urbanizable",
+    "urbanismo"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?language=es"
+  }
+},
+
+{
+  "id": "sr-telecomunicaciones",
+  "codigo": "SR-URB-005",
+  "nombre": "Ordenanza de Localización de Elementos de Equipos de Telecomunicación",
+  "nombre_corto": "Telecomunicaciones",
+  "categoria": "urbanismo",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": false,
+  "prioridad_policial": "baja",
+  "palabras_clave": [
+    "antena",
+    "telecomunicaciones",
+    "instalación",
+    "urbanismo"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C1"
+  }
+},
+
+{
+  "id": "sr-captacion-solar",
+  "codigo": "SR-URB-006",
+  "nombre": "Ordenanza de Captación Solar para Usos Térmicos",
+  "nombre_corto": "Captación Solar",
+  "categoria": "urbanismo",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": false,
+  "prioridad_policial": "baja",
+  "palabras_clave": [
+    "energía solar",
+    "captación solar",
+    "instalaciones"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "portal_transparencia",
+    "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/urbanisticas"
+  }
+},
+
+{
+  "id": "sr-declaracion-responsable",
+  "codigo": "SR-ACT-003",
+  "nombre": "Ordenanza Declaración Responsable y Comunicación Previa",
+  "nombre_corto": "Declaración Responsable",
+  "categoria": "actividades",
+  "estado": "publicada_oficialmente",
+  "aplicacion_policial": true,
+  "prioridad_policial": "media",
+  "palabras_clave": [
+    "declaración responsable",
+    "comunicación previa",
+    "actividad",
+    "apertura",
+    "establecimiento",
+    "inspección"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "BOP / Ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?page=1"
+  }
+},
+
+{
+  "id": "sr-convivencia",
+  "codigo": "SR-CONV-001",
+  "nombre": "Ordenanza Reguladora de la Convivencia Ciudadana",
+  "nombre_corto": "Convivencia Ciudadana",
+  "categoria": "seguridad_ciudadana",
+  "estado": "derogada",
+  "aplicacion_policial": false,
+  "prioridad_policial": "historica",
+  "descripcion": "Ordenanza histórica de convivencia ciudadana. El propio catálogo municipal incluye documentación identificada como derogada.",
+  "palabras_clave": [
+    "convivencia",
+    "civismo",
+    "espacio público",
+    "ruido",
+    "molestias",
+    "conductas incívicas"
+  ],
+  "articulos": [],
+  "fuente": {
+    "tipo": "ayuntamiento",
+    "url": "https://www.sanroque.es/tipos-de-documentos/ordenanzas-generales?language=es"
+  },
+  "advertencia": "No utilizar como fundamento de una denuncia vigente."
+}
+],
+
+"busqueda_policial": {
+"descripcion": "Términos preparados para localizar rápidamente normativa municipal relevante.",
+"terminos": [
+"ruido",
+"ruidos",
+"molestias",
+"convivencia",
+"civismo",
+"alcohol",
+"tabaco",
+"menor",
+"bebidas alcohólicas",
+"perro",
+"perro potencialmente peligroso",
+"PPP",
+"animal abandonado",
+"animales",
+"bozal",
+"correa",
+"microchip",
+"licencia",
+"terraza",
+"velador",
+"hostelería",
+"ocupación de vía pública",
+"venta ambulante",
+"mercadillo",
+"puesto",
+"residuos",
+"basura",
+"contenedor",
+"vertido",
+"escombros",
+"limpieza",
+"solar",
+"vallado",
+"fachada",
+"jardines",
+"arbolado",
+"Pinar del Rey",
+"playa",
+"autocaravana",
+"estacionamiento",
+"ciclomotor",
+"vehículo abandonado",
+"publicidad",
+"carteles",
+"quiosco",
+"establecimiento",
+"inspección",
+"espectáculos",
+"actividad recreativa"
+]
+},
+
+"reglas_cent inela": {
+"mostrar_estado": true,
+"mostrar_fuente": true,
+"no_usar_derogada_como_vigente": true,
+"avisar_en_revision": true,
+"no_inventar_sanciones": true,
+"no_inventar_articulos": true,
+"no_inventar_cuantias": true,
+"priorizar_materias_policiales": true
+}
+}
