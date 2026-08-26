@@ -10,14 +10,14 @@ const CONFIG = {
 APP_NAME: "Centinela Code",
 VERSION: "1.0.0",
 DATA: {
- LOPSC: "./data/lopsc.json",
- INFRACCIONES: "./data/infracciones.json",
- ORDENANZAS: "./data/ordenanzas.json"
+LOPSC: "./data/lopsc.json",
+INFRACCIONES: "./data/infracciones.json",
+ORDENANZAS: "./data/ordenanzas.json"
 },
 STORAGE: {
- ACTAS: "centinela-code-actas",
- AGENTE: "centinela-code-agente",
- CONFIG: "centinela-code-config"
+ACTAS: "centinela-code-actas",
+AGENTE: "centinela-code-agente",
+CONFIG: "centinela-code-config"
 }
 };
 /* ============================================================
@@ -30,9 +30,9 @@ ordenanzas: [],
 resultados: [],
 actas: [],
 filtros: {
- texto: "",
- gravedad: "todas",
- articulo: "todos"
+texto: "",
+gravedad: "todas",
+articulo: "todos"
 },
 infraccionSeleccionada: null,
 actaActual: null,
@@ -48,41 +48,41 @@ document.addEventListener(
 iniciarCentinela
 );
 async function iniciarCentinela() {
- console.log(
- `${CONFIG.APP_NAME} ${CONFIG.VERSION}`
- ); try {
- cargarActas();
- cargarConfiguracion();
- registrarEventos();
- actualizarRed();
- await cargarDatos();
- inicializarInterfaz();
- const loadingScreen =
- document.getElementById("loadingScreen");
- if (loadingScreen) {
- loadingScreen.classList.add("hidden");
- loadingScreen.style.display = "none";
- }
- console.log(
- "Centinela Code: aplicación cargada correctamente."
- );
- } catch (error) {
- console.error(
- "Centinela Code: error durante el inicio:",
- error
- );
- const loadingScreen =
- document.getElementById("loadingScreen");
- if (loadingScreen) {
- loadingScreen.classList.add("hidden");
- loadingScreen.style.display = "none";
- }
- if (typeof mostrarError === "function") {
- mostrarError(
- "La aplicación se ha iniciado con algunos datos pendientes de cargar."
- );
- }
- }
+console.log(
+`${CONFIG.APP_NAME} ${CONFIG.VERSION}`
+); try {
+cargarActas();
+cargarConfiguracion();
+registrarEventos();
+actualizarRed();
+await cargarDatos();
+inicializarInterfaz();
+const loadingScreen =
+document.getElementById("loadingScreen");
+if (loadingScreen) {
+loadingScreen.classList.add("hidden");
+loadingScreen.style.display = "none";
+}
+console.log(
+"Centinela Code: aplicación cargada correctamente."
+);
+} catch (error) {
+console.error(
+"Centinela Code: error durante el inicio:",
+error
+);
+const loadingScreen =
+document.getElementById("loadingScreen");
+if (loadingScreen) {
+loadingScreen.classList.add("hidden");
+loadingScreen.style.display = "none";
+}
+if (typeof mostrarError === "function") {
+mostrarError(
+"La aplicación se ha iniciado con algunos datos pendientes de cargar."
+);
+}
+}
 }
 /* ============================================================
 CARGA GENERAL DE DATOS
@@ -90,81 +90,81 @@ CARGA GENERAL DE DATOS
 async function cargarDatos() {
 estado.erroresDatos = [];
 const resultados = await Promise.allSettled([
- cargarJSON(CONFIG.DATA.INFRACCIONES),
- cargarJSON(CONFIG.DATA.LOPSC),
- cargarJSON(CONFIG.DATA.ORDENANZAS)
+cargarJSON(CONFIG.DATA.INFRACCIONES),
+cargarJSON(CONFIG.DATA.LOPSC),
+cargarJSON(CONFIG.DATA.ORDENANZAS)
 ]);
 /* --------------------------------------------------------
- INFRACCIONES
- -------------------------------------------------------- */
+INFRACCIONES
+-------------------------------------------------------- */
 if (
- resultados[0].status === "fulfilled"
+resultados[0].status === "fulfilled"
 ) {
- estado.infracciones = normalizarInfracciones(
- resultados[0].value
- );
+estado.infracciones = normalizarInfracciones(
+resultados[0].value
+);
 } else {
- estado.infracciones = [];
- estado.erroresDatos.push(
- CONFIG.DATA.INFRACCIONES
- );
- console.error(
- "No se pudo cargar infracciones:",
- resultados[0].reason
- );
+estado.infracciones = [];
+estado.erroresDatos.push(
+CONFIG.DATA.INFRACCIONES
+);
+console.error(
+"No se pudo cargar infracciones:",
+resultados[0].reason
+);
 }
 /* --------------------------------------------------------
- LOPSC
- -------------------------------------------------------- */
+LOPSC
+-------------------------------------------------------- */
 if (
- resultados[1].status === "fulfilled"
+resultados[1].status === "fulfilled"
 ) {
- estado.normativa =
- normalizarNormativa(
- resultados[1].value
- );
+estado.normativa =
+normalizarNormativa(
+resultados[1].value
+);
 } else {
- estado.normativa = [];
- estado.erroresDatos.push(
- CONFIG.DATA.LOPSC
- );
- console.error(
- "No se pudo cargar LOPSC:",
- resultados[1].reason
- );
+estado.normativa = [];
+estado.erroresDatos.push(
+CONFIG.DATA.LOPSC
+);
+console.error(
+"No se pudo cargar LOPSC:",
+resultados[1].reason
+);
 }
 /* --------------------------------------------------------
- ORDENANZAS
- -------------------------------------------------------- */
+ORDENANZAS
+-------------------------------------------------------- */
 if (
- resultados[2].status === "fulfilled"
+resultados[2].status === "fulfilled"
 ) {
- estado.ordenanzas =
- normalizarOrdenanzas(
- resultados[2].value
- );
+estado.ordenanzas =
+normalizarOrdenanzas(
+resultados[2].value
+);
 } else {
- estado.ordenanzas = [];
- estado.erroresDatos.push(
- CONFIG.DATA.ORDENANZAS
- );
- console.error(
- "No se pudo cargar ordenanzas:",
- resultados[2].reason
- );
+estado.ordenanzas = [];
+estado.erroresDatos.push(
+CONFIG.DATA.ORDENANZAS
+);
+console.error(
+"No se pudo cargar ordenanzas:",
+resultados[2].reason
+);
 }estado.cargado = true;
 console.log(
- "CENTINELA CODE — DATOS",
- {
- infracciones:
- estado.infracciones.length,
- normativa:
- estado.normativa.length,
- ordenanzas:
- estado.ordenanzas.length,
- errores:
- estado.erroresDatos
- }
+"CENTINELA CODE — DATOS",
+{
+infracciones:
+estado.infracciones.length,
+normativa:
+estado.normativa.length,
+ordenanzas:
+estado.ordenanzas.length,
+errores:
+estado.erroresDatos
+}
 );
 }
 /* ============================================================
@@ -172,15 +172,15 @@ FETCH JSON
 ============================================================ */
 async function cargarJSON(ruta) {
 const respuesta = await fetch(
- ruta,
- {
- cache: "no-cache"
- }
+ruta,
+{
+cache: "no-cache"
+}
 );
 if (!respuesta.ok) {
- throw new Error(
- `HTTP ${respuesta.status}: ${ruta}`
- );
+throw new Error(
+`HTTP ${respuesta.status}: ${ruta}`
+);
 }
 return await respuesta.json();
 }
@@ -190,83 +190,83 @@ NORMALIZACIÓN DE INFRACCIONES
 function normalizarInfracciones(datos) {
 let lista = datos;
 if (
- datos &&
- Array.isArray(datos.infracciones)
+datos &&
+Array.isArray(datos.infracciones)
 ) {
- lista =
- datos.infracciones;
+lista =
+datos.infracciones;
 }
 if (!Array.isArray(lista)) {
- return [];
+return [];
 }
 return lista.map(
- (item, index) => { const articulo =
- String(
- item.articulo ??
- ""
- );
- const apartado =
- String(
- item.apartado ??
- ""
- );
- return {
- id:
- item.id ||
- `INF-${index + 1}`,
- ley:
- item.ley ||
- "LO 4/2015",
- articulo,
- apartado,
- codigo:
- item.codigo ||
- crearCodigo(
- articulo,
- apartado
- ),
- gravedad:
- normalizarGravedad(
- item.gravedad
- ),
- titulo:
- item.titulo ||
- item.nombre ||
- "Infracción",
- conducta:
- item.conducta ||
- item.descripcion ||
- "",
- sancion:
- normalizarSancion(
- item.sancion
- ),
- palabrasClave:
- normalizarArray(
- item.palabrasClave ||
- item.keywords ||
- []
- ),
- medidas:
- normalizarArray(
- item.medidas ||
- []
- ),
- observaciones:
- item.observaciones ||
- "",
- responsables: normalizarArray(
- item.responsables ||
- []
- ),
- fuente:
- item.fuente ||
- "BOE",
- url:
- item.url ||
- ""
- };
- }
+(item, index) => { const articulo =
+String(
+item.articulo ??
+""
+);
+const apartado =
+String(
+item.apartado ??
+""
+);
+return {
+id:
+item.id ||
+`INF-${index + 1}`,
+ley:
+item.ley ||
+"LO 4/2015",
+articulo,
+apartado,
+codigo:
+item.codigo ||
+crearCodigo(
+articulo,
+apartado
+),
+gravedad:
+normalizarGravedad(
+item.gravedad
+),
+titulo:
+item.titulo ||
+item.nombre ||
+"Infracción",
+conducta:
+item.conducta ||
+item.descripcion ||
+"",
+sancion:
+normalizarSancion(
+item.sancion
+),
+palabrasClave:
+normalizarArray(
+item.palabrasClave ||
+item.keywords ||
+[]
+),
+medidas:
+normalizarArray(
+item.medidas ||
+[]
+),
+observaciones:
+item.observaciones ||
+"",
+responsables: normalizarArray(
+item.responsables ||
+[]
+),
+fuente:
+item.fuente ||
+"BOE",
+url:
+item.url ||
+""
+};
+}
 );
 }
 /* ============================================================
@@ -274,27 +274,27 @@ NORMALIZACIÓN LOPSC
 ============================================================ */
 function normalizarNormativa(datos) {
 if (
- datos &&
- Array.isArray(datos.articulos)
+datos &&
+Array.isArray(datos.articulos)
 ) {
- return datos.articulos;
+return datos.articulos;
 }
 if (
- datos &&
- Array.isArray(datos.normativa)
+datos &&
+Array.isArray(datos.normativa)
 ) {
- return datos.normativa;
+return datos.normativa;
 }
 if (
- datos &&
- Array.isArray(datos.capitulos)
+datos &&
+Array.isArray(datos.capitulos)
 ) {
- return convertirCapitulosANormativa(
- datos.capitulos
- );
+return convertirCapitulosANormativa(
+datos.capitulos
+);
 }
 if (Array.isArray(datos)) {
- return datos;
+return datos;
 }
 return [];
 }
@@ -306,29 +306,29 @@ capitulos
 ) {
 const resultado = [];
 capitulos.forEach( capitulo => {
- const articulos =
- Array.isArray(
- capitulo.articulos
- )
- ? capitulo.articulos
- : [];
- articulos.forEach(
- articulo => {
- resultado.push({
- ...articulo,
- capitulo:
- articulo.capitulo ||
- capitulo.titulo ||
- capitulo.nombre ||
- "",
- capituloNumero:
- articulo.capituloNumero ||
- capitulo.numero ||
- ""
- });
- }
- );
- }
+const articulos =
+Array.isArray(
+capitulo.articulos
+)
+? capitulo.articulos
+: [];
+articulos.forEach(
+articulo => {
+resultado.push({
+...articulo,
+capitulo:
+articulo.capitulo ||
+capitulo.titulo ||
+capitulo.nombre ||
+"",
+capituloNumero:
+articulo.capituloNumero ||
+capitulo.numero ||
+""
+});
+}
+);
+}
 );
 return resultado;
 }
@@ -339,19 +339,19 @@ function normalizarOrdenanzas(
 datos
 ) {
 if (
- datos &&
- Array.isArray(datos.ordenanzas)
+datos &&
+Array.isArray(datos.ordenanzas)
 ) {
- return datos.ordenanzas;
+return datos.ordenanzas;
 }
 if (
- datos &&
- Array.isArray(datos.articulos)
+datos &&
+Array.isArray(datos.articulos)
 ) {
- return datos.articulos;
+return datos.articulos;
 }
 if (Array.isArray(datos)) {
- return datos;
+return datos;
 }
 return [];
 }
@@ -359,19 +359,19 @@ return [];
 ============================================================ */
 function normalizarArray(valor) {
 if (Array.isArray(valor)) {
- return valor;
+return valor;
 }
 if (
- typeof valor === "string" &&
- valor.trim()
+typeof valor === "string" &&
+valor.trim()
 ) {
- return valor
- .split(",")
- .map(
- item =>
- item.trim()
- )
- .filter(Boolean);
+return valor
+.split(",")
+.map(
+item =>
+item.trim()
+)
+.filter(Boolean);
 }
 return [];
 }
@@ -379,98 +379,102 @@ function normalizarGravedad(
 valor
 ) {
 if (!valor) {
- return "";
+return "";
 }
 const texto =
- String(valor)
- .trim()
- .toLowerCase();
+String(valor)
+.trim()
+.toLowerCase();
 if (
- texto === "leve" ||
- texto === "leves"
+texto === "leve" ||
+texto === "leves"
 ) {
- return "Leve";
+return "Leve";
 }
 if (
- texto === "grave" ||
- texto === "graves"
+texto === "grave" ||
+texto === "graves"
 ) {
- return "Grave";
+return "Grave";
 }
 if (
- texto.includes("muy") &&
- texto.includes("grave")
+texto.includes("muy") &&
+texto.includes("grave")
 ) {
- return "Muy Grave";
+return "Muy Grave";
 }
-return String(valor);}
-const numero =
- Number(valor);
-return Number.isFinite(numero)
- ? numerofunction convertirNumero(
+return String(valor);
+}
+
+function convertirNumero(
 valor
 ) {
 if (
- valor === null ||
- valor === undefined ||
- valor === ""
+valor === null ||
+valor === undefined ||
+valor === ""
 ) {
- return null;
-return {
- min:
- convertirNumero(
- sancion.min
- ),
- max:
- convertirNumero(
- sancion.max
- ),
- moneda:
- sancion.moneda ||
- "EUR",
- tramoMin:
- convertirNumero(
- sancion.tramoMin
- ),
- tramoMedio:
- convertirNumero(
- sancion.tramoMedio
- ),
- tramoMax:
- convertirNumero(
- sancion.tramoMax
- )
+return null;
+}
+const numero =
+Number(valor);
+return Number.isFinite(numero)
+? numero
+: null;
+}
+
 function normalizarSancion(
 sancion
 ) {
 if (!sancion) {
- return {
- min: null,
- max: null,
- moneda: "EUR",
- tramoMin: null,
- tramoMedio: null,
- tramoMax: null
- };
-}
-}
+return {
+min: null,
+max: null,
+moneda: "EUR",
+tramoMin: null,
+tramoMedio: null,
+tramoMax: null
 };
 }
- : null;
+return {
+min:
+convertirNumero(
+sancion.min
+),
+max:
+convertirNumero(
+sancion.max
+),
+moneda:
+sancion.moneda ||
+"EUR",
+tramoMin:
+convertirNumero(
+sancion.tramoMin
+),
+tramoMedio:
+convertirNumero(
+sancion.tramoMedio
+),
+tramoMax:
+convertirNumero(
+sancion.tramoMax
+)
+};
 }
 function crearCodigo(
 articulo,
 apartado
 ) {
 if (!articulo) {
- return "";
+return "";
 }
 if (
- apartado !== undefined &&
- apartado !== null &&
- apartado !== ""
+apartado !== undefined &&
+apartado !== null &&
+apartado !== ""
 ) {
- return `${articulo}.${apartado}`;
+return `${articulo}.${apartado}`;
 }
 return String(articulo);
 }
@@ -491,12 +495,12 @@ VERSIÓN
 ============================================================ */
 function actualizarVersion() {
 const elemento =
- document.getElementById(
- "app-version"
- );
+document.getElementById(
+"app-version"
+);
 if (elemento) {
- elemento.textContent =
- CONFIG.VERSION;
+elemento.textContent =
+CONFIG.VERSION;
 }
 }
 /* ============================================================
@@ -504,59 +508,59 @@ FILTROS
 ============================================================ */
 function configurarFiltros() {
 const selector = document.getElementById(
- "main-articulo"
- );
+"main-articulo"
+);
 if (!selector) {
- return;
+return;
 }
 const articulos =
- [
- ...new Set(
- estado.infracciones
- .map(
- item =>
- item.articulo
- )
- .filter(Boolean)
- )
- ];
+[
+...new Set(
+estado.infracciones
+.map(
+item =>
+item.articulo
+)
+.filter(Boolean)
+)
+];
 articulos.sort(
- (a, b) => {
- const numeroA =
- parseFloat(a);
- const numeroB =
- parseFloat(b);
- if (
- Number.isFinite(numeroA) &&
- Number.isFinite(numeroB)
- ) {
- return numeroA - numeroB;
- }
- return String(a)
- .localeCompare(
- String(b),
- "es"
- );
- }
+(a, b) => {
+const numeroA =
+parseFloat(a);
+const numeroB =
+parseFloat(b);
+if (
+Number.isFinite(numeroA) &&
+Number.isFinite(numeroB)
+) {
+return numeroA - numeroB;
+}
+return String(a)
+.localeCompare(
+String(b),
+"es"
+);
+}
 );
 selector.innerHTML = `
- <option value="todos">
- Todos los artículos
- </option>
+<option value="todos">
+Todos los artículos
+</option>
 `;
 articulos.forEach(
- articulo => {
- const option =
- document.createElement(
- "option"
- );
- option.value = articulo;
- option.textContent =
- `Artículo ${articulo}`;
- selector.appendChild(
- option
- );
- }
+articulo => {
+const option =
+document.createElement(
+"option"
+);
+option.value = articulo;
+option.textContent =
+`Artículo ${articulo}`;
+selector.appendChild(
+option
+);
+}
 );
 }
 /* ============================================================
@@ -564,106 +568,106 @@ BÚSQUEDA
 ============================================================ */
 function buscarInfracciones() {
 const texto =
- normalizarTexto(
- estado.filtros.texto
- );
+normalizarTexto(
+estado.filtros.texto
+);
 const gravedad =
- estado.filtros.gravedad;
+estado.filtros.gravedad;
 const articulo =
- estado.filtros.articulo;
+estado.filtros.articulo;
 estado.resultados =
- estado.infracciones.filter(
- infraccion => {
- if (
- gravedad &&
- gravedad !== "todas" &&
- infraccion.gravedad !==
- gravedad
- ) {
- return false;
- }
- if (
- articulo &&
- articulo !== "todos" &&
- String(
- infraccion.articulo
- ) !==
- String(articulo)
- ) {
- return false;
- }
- if (!texto) {
- return true;
- }
- const contenido =
- [
- infraccion.id,
- infraccion.codigo, infraccion.ley,
- infraccion.articulo,
- infraccion.apartado,
- infraccion.titulo,
- infraccion.conducta,
- infraccion.gravedad,
- ...infraccion
- .palabrasClave,
- ...infraccion
- .medidas,
- ...infraccion
- .responsables
- ]
- .join(" ");
- return normalizarTexto(
- contenido
- ).includes(
- texto
- );
- }
- );
+estado.infracciones.filter(
+infraccion => {
+if (
+gravedad &&
+gravedad !== "todas" &&
+infraccion.gravedad !==
+gravedad
+) {
+return false;
+}
+if (
+articulo &&
+articulo !== "todos" &&
+String(
+infraccion.articulo
+) !==
+String(articulo)
+) {
+return false;
+}
+if (!texto) {
+return true;
+}
+const contenido =
+[
+infraccion.id,
+infraccion.codigo, infraccion.ley,
+infraccion.articulo,
+infraccion.apartado,
+infraccion.titulo,
+infraccion.conducta,
+infraccion.gravedad,
+...infraccion
+.palabrasClave,
+...infraccion
+.medidas,
+...infraccion
+.responsables
+]
+.join(" ");
+return normalizarTexto(
+contenido
+).includes(
+texto
+);
+}
+);
 if (texto) {
- estado.resultados.sort(
- (a, b) => {
- const codigoA =
- normalizarTexto(
- a.codigo
- );
- const codigoB =
- normalizarTexto(
- b.codigo
- );
- if (
- codigoA === texto
- ) {
- return -1;
- }
- if (
- codigoB === texto
- ) {
- return 1;
- }
- const tituloA =
- normalizarTexto(
- a.titulo
- );
- const tituloB =
- normalizarTexto( b.titulo
- );
- if (
- tituloA.startsWith(
- texto
- )
- ) {
- return -1;
- }
- if (
- tituloB.startsWith(
- texto
- )
- ) {
- return 1;
- }
- return 0;
- }
- );
+estado.resultados.sort(
+(a, b) => {
+const codigoA =
+normalizarTexto(
+a.codigo
+);
+const codigoB =
+normalizarTexto(
+b.codigo
+);
+if (
+codigoA === texto
+) {
+return -1;
+}
+if (
+codigoB === texto
+) {
+return 1;
+}
+const tituloA =
+normalizarTexto(
+a.titulo
+);
+const tituloB =
+normalizarTexto( b.titulo
+);
+if (
+tituloA.startsWith(
+texto
+)
+) {
+return -1;
+}
+if (
+tituloB.startsWith(
+texto
+)
+) {
+return 1;
+}
+return 0;
+}
+);
 }
 renderizarResultados();
 actualizarContador();
@@ -675,46 +679,46 @@ function normalizarTexto(
 texto
 ) {
 return String(
- texto || ""
+texto || ""
 )
- .toLowerCase()
- .normalize("NFD")
- .replace(
- /[\u0300-\u036f]/g,
- ""
- )
- .trim();
+.toLowerCase()
+.normalize("NFD")
+.replace(
+/[\u0300-\u036f]/g,
+""
+)
+.trim();
 }
 /* ============================================================
 RENDER RESULTADOS
 ============================================================ */
 function renderizarResultados() {
 const contenedor =
- document.getElementById(
- "search-results"
- );
+document.getElementById(
+"search-results"
+);
 if (!contenedor) {
- return;
+return;
 }
 if (!estado.resultados.length) {
- contenedor.innerHTML = ` <div class="sin-resultados">
- <strong>
- No se han encontrado resultados
- </strong>
- <p>
- Prueba con otro código,
- artículo o palabra clave.
- </p>
- </div>
- `;
- return;
+contenedor.innerHTML = ` <div class="sin-resultados">
+<strong>
+No se han encontrado resultados
+</strong>
+<p>
+Prueba con otro código,
+artículo o palabra clave.
+</p>
+</div>
+`;
+return;
 }
 contenedor.innerHTML =
- estado.resultados
- .map(
- crearTarjetaInfraccion
- )
- .join("");
+estado.resultados
+.map(
+crearTarjetaInfraccion
+)
+.join("");
 }
 /* ============================================================
 TARJETA INFRACCIÓN
@@ -723,74 +727,74 @@ function crearTarjetaInfraccion(
 infraccion
 ) {
 const gravedadClass =
- claseGravedad(
- infraccion.gravedad
- );
+claseGravedad(
+infraccion.gravedad
+);
 return `
- <article
- class="infraccion-card"
- data-id="${escapeHTML(
- infraccion.id
- )}"
- >
- <div class="infraccion-top">
- <span class="infraccion-codigo">
- ${escapeHTML(
- infraccion.codigo
- )}
- </span>
- <span
- class="gravedad ${gravedadClass}"
- >
- ${escapeHTML(
- infraccion.gravedad
- )}
- </span>
- </div>
- <h3>
- ${escapeHTML(
- infraccion.titulo
- )} </h3>
- <div class="articulo">
- Artículo
- ${escapeHTML(
- infraccion.articulo
- )}
- ${
- infraccion.apartado
- ? ` · apartado ${escapeHTML(
- infraccion.apartado
- )}`
- : ""
- }
- </div>
- <p>
- ${escapeHTML(
- infraccion.conducta
- )}
- </p>
- ${renderizarSancion(
- infraccion.sancion
- )}
- <div class="acciones-infraccion">
- <button
- type="button"
- onclick="verInfraccion('${escapeJS(
- infraccion.id
- )}')"
- >
- VER DETALLE
- </button>
- <button
- type="button"
- onclick="iniciarActaDesdeInfraccion('${escapeJS(
- infraccion.id
- )}')"
- >
- CREAR ACTA
- </button>
- </div>
- </article>
+<article
+class="infraccion-card"
+data-id="${escapeHTML(
+infraccion.id
+)}"
+>
+<div class="infraccion-top">
+<span class="infraccion-codigo">
+${escapeHTML(
+infraccion.codigo
+)}
+</span>
+<span
+class="gravedad ${gravedadClass}"
+>
+${escapeHTML(
+infraccion.gravedad
+)}
+</span>
+</div>
+<h3>
+${escapeHTML(
+infraccion.titulo
+)} </h3>
+<div class="articulo">
+Artículo
+${escapeHTML(
+infraccion.articulo
+)}
+${
+infraccion.apartado
+? ` · apartado ${escapeHTML(
+infraccion.apartado
+)}`
+: ""
+}
+</div>
+<p>
+${escapeHTML(
+infraccion.conducta
+)}
+</p>
+${renderizarSancion(
+infraccion.sancion
+)}
+<div class="acciones-infraccion">
+<button
+type="button"
+onclick="verInfraccion('${escapeJS(
+infraccion.id
+)}')"
+>
+VER DETALLE
+</button>
+<button
+type="button"
+onclick="iniciarActaDesdeInfraccion('${escapeJS(
+infraccion.id
+)}')"
+>
+CREAR ACTA
+</button>
+</div>
+</article>
 `;
 }
 /* ============================================================
@@ -800,33 +804,33 @@ function renderizarSancion(
 sancion
 ) {
 if (!sancion) {
- return "";
+return "";
 }const min =
- formatearEuros(
- sancion.min
- );
+formatearEuros(
+sancion.min
+);
 const max =
- formatearEuros(
- sancion.max
- );
+formatearEuros(
+sancion.max
+);
 if (
- min === "-" &&
- max === "-"
+min === "-" &&
+max === "-"
 ) {
- return "";
+return "";
 }
 return `
- <div class="sancion">
- <strong>
- Sanción:
- </strong>
- ${min}
- ${
- max !== "-"
- ? ` — ${max}`
- : ""
- }
- </div>
+<div class="sancion">
+<strong>
+Sanción:
+</strong>
+${min}
+${
+max !== "-"
+? ` — ${max}`
+: ""
+}
+</div>
 `;
 }
 /* ============================================================
@@ -836,160 +840,160 @@ function verInfraccion(
 id
 ) {
 const infraccion =
- estado.infracciones.find(
- item =>
- String(item.id) ===
- String(id)
- );
+estado.infracciones.find(
+item =>
+String(item.id) ===
+String(id)
+);
 if (!infraccion) {
- return;
+return;
 }
 estado.infraccionSeleccionada =
- infraccion;
+infraccion;
 const contenedor =
- document.getElementById(
- "search-results"
- );
+document.getElementById(
+"search-results"
+);
 if (!contenedor) { return;
 }
 contenedor.innerHTML = `
- <div class="detalle-infraccion">
- <button
- type="button"
- onclick="buscarInfracciones()"
-  >
+<div class="detalle-infraccion">
+<button
+type="button"
+onclick="buscarInfracciones()"
+>
 ← Volver a resultados
- </button>
- <div class="infraccion-top">
- <span class="infraccion-codigo">
- ${escapeHTML(
- infraccion.codigo
- )}
- </span>
- <span
- class="gravedad ${claseGravedad(
- infraccion.gravedad
- )}"
- >
- ${escapeHTML(
- infraccion.gravedad
- )}
- </span>
- </div>
- <h2>
- ${escapeHTML(
- infraccion.titulo
- )}
- </h2>
- <p>
- <strong>
- Artículo:
- </strong>
- ${escapeHTML(
- infraccion.articulo
- )}
- ${
- infraccion.apartado
- ? `.${escapeHTML(
- infraccion.apartado
- )}`
- : ""
- }
- </p>
- <h3>
- Conducta
- </h3> <p>
- ${escapeHTML(
- infraccion.conducta
- )}
- </p>
- <h3>
- Sanción
- </h3>
- ${renderizarSancion(
- infraccion.sancion
- )}
- ${
- infraccion.palabrasClave.length
- ? `
- <h3>
- Palabras clave
- </h3>
- <div>
- ${infraccion
- .palabrasClave
- .map(
- palabra =>
- `<span class="tag">
- ${escapeHTML(
- palabra
- )}
- </span>`
- )
- .join("")}
- </div>
- `
- : ""
- }
- ${
- infraccion.medidas.length
- ? `
- <h3>
- Medidas asociadas
- </h3>
- <div>
- ${infraccion
- .medidas
- .map(
- medida =>
- `<span class="tag">
- ${escapeHTML(
- medida
- )}
- </span>`
- )
- .join("")}
- </div>
- `
- : ""
- }
- ${ infraccion.observaciones
- ? `
- <h3>
- Observaciones
- </h3>
- <p>
- ${escapeHTML(
- infraccion.observaciones
- )}
- </p>
- `
- : ""
- }
- ${
- infraccion.fuente
- ? `
- <p class="fuente">
- <strong>
- Fuente:
- </strong>
- ${escapeHTML(
- infraccion.fuente
- )}
- </p>
- `
- : ""
- }
- <hr>
- <button
- type="button"
- onclick="iniciarActaDesdeInfraccion('${escapeJS(
- infraccion.id
- )}')"
- >
- CREAR ACTA CON ESTA INFRACCIÓN
- </button>
- </div>
+</button>
+<div class="infraccion-top">
+<span class="infraccion-codigo">
+${escapeHTML(
+infraccion.codigo
+)}
+</span>
+<span
+class="gravedad ${claseGravedad(
+infraccion.gravedad
+)}"
+>
+${escapeHTML(
+infraccion.gravedad
+)}
+</span>
+</div>
+<h2>
+${escapeHTML(
+infraccion.titulo
+)}
+</h2>
+<p>
+<strong>
+Artículo:
+</strong>
+${escapeHTML(
+infraccion.articulo
+)}
+${
+infraccion.apartado
+? `.${escapeHTML(
+infraccion.apartado
+)}`
+: ""
+}
+</p>
+<h3>
+Conducta
+</h3> <p>
+${escapeHTML(
+infraccion.conducta
+)}
+</p>
+<h3>
+Sanción
+</h3>
+${renderizarSancion(
+infraccion.sancion
+)}
+${
+infraccion.palabrasClave.length
+? `
+<h3>
+Palabras clave
+</h3>
+<div>
+${infraccion
+.palabrasClave
+.map(
+palabra =>
+`<span class="tag">
+${escapeHTML(
+palabra
+)}
+</span>`
+)
+.join("")}
+</div>
+`
+: ""
+}
+${
+infraccion.medidas.length
+? `
+<h3>
+Medidas asociadas
+</h3>
+<div>
+${infraccion
+.medidas
+.map(
+medida =>
+`<span class="tag">
+${escapeHTML(
+medida
+)}
+</span>`
+)
+.join("")}
+</div>
+`
+: ""
+}
+${ infraccion.observaciones
+? `
+<h3>
+Observaciones
+</h3>
+<p>
+${escapeHTML(
+infraccion.observaciones
+)}
+</p>
+`
+: ""
+}
+${
+infraccion.fuente
+? `
+<p class="fuente">
+<strong>
+Fuente:
+</strong>
+${escapeHTML(
+infraccion.fuente
+)}
+</p>
+`
+: ""
+}
+<hr>
+<button
+type="button"
+onclick="iniciarActaDesdeInfraccion('${escapeJS(
+infraccion.id
+)}')"
+>
+CREAR ACTA CON ESTA INFRACCIÓN
+</button>
+</div>
 `;
 }
 /* ============================================================
@@ -997,207 +1001,207 @@ NORMATIVA
 ============================================================ */
 function configurarNormativa() {
 const boton =
- document.getElementById(
- "open-lopsc"
- );
+document.getElementById(
+"open-lopsc"
+);
 if (boton) {
- boton.onclick =
- mostrarLOPSC;
+boton.onclick =
+mostrarLOPSC;
 }const botonInfracciones =
- document.getElementById(
- "open-infracciones"
- );
+document.getElementById(
+"open-infracciones"
+);
 if (botonInfracciones) {
- botonInfracciones.onclick =
- () => {
- mostrarSeccionInterna(
- "consulta"
- );
- };
+botonInfracciones.onclick =
+() => {
+mostrarSeccionInterna(
+"consulta"
+);
+};
 }
 }
 function mostrarLOPSC() {
 mostrarSeccionInterna(
- "normativa"
+"normativa"
 );
 const viewer =
- document.getElementById(
- "normativa-viewer"
- );
+document.getElementById(
+"normativa-viewer"
+);
 if (!viewer) {
- return;
+return;
 }
 viewer.classList.remove(
- "hidden"
+"hidden"
 );
 if (!estado.normativa.length) {
- viewer.innerHTML = `
- <div class="empty-state">
- <strong>
- LOPSC no cargada
- </strong>
- <p>
- Comprueba que exista:
- data/lopsc.json
- </p>
- </div>
- `;
- return;
+viewer.innerHTML = `
+<div class="empty-state">
+<strong>
+LOPSC no cargada
+</strong>
+<p>
+Comprueba que exista:
+data/lopsc.json
+</p>
+</div>
+`;
+return;
 }
 viewer.innerHTML = `
- <div class="viewer-header">
- <div>
- <span class="section-kicker">
- LEGISLACIÓN </span>
- <h3>
- Ley Orgánica 4/2015
- </h3>
- <small>
- Protección de la Seguridad Ciudadana
- </small>
- </div>
- <button
- type="button"
- onclick="
- document
- .getElementById(
- 'normativa-viewer'
- )
- .classList
- .add('hidden')
- "
- >
- Cerrar
- </button>
- </div>
- <div class="normativa-search">
- <input
- type="search"
- id="normativa-search-input"
- placeholder="Buscar artículo o texto..."
- autocomplete="off"
- >
- </div>
- <div
- id="normativa-articulos"
- class="normativa-articulos"
- ></div>
+<div class="viewer-header">
+<div>
+<span class="section-kicker">
+LEGISLACIÓN </span>
+<h3>
+Ley Orgánica 4/2015
+</h3>
+<small>
+Protección de la Seguridad Ciudadana
+</small>
+</div>
+<button
+type="button"
+onclick="
+document
+.getElementById(
+'normativa-viewer'
+)
+.classList
+.add('hidden')
+"
+>
+Cerrar
+</button>
+</div>
+<div class="normativa-search">
+<input
+type="search"
+id="normativa-search-input"
+placeholder="Buscar artículo o texto..."
+autocomplete="off"
+>
+</div>
+<div
+id="normativa-articulos"
+class="normativa-articulos"
+></div>
 `;
 renderizarNormativa(
- estado.normativa
+estado.normativa
 );
 const buscador =
- document.getElementById(
- "normativa-search-input"
- );
+document.getElementById(
+"normativa-search-input"
+);
 buscador?.addEventListener(
- "input",
- evento => {
- const texto =
- normalizarTexto(
- evento.target.value
- );
- if (!texto) {
- renderizarNormativa( estado.normativa
- );
- return;
- }
- const filtrados =
- estado.normativa.filter(
- articulo => {
- return normalizarTexto(
- JSON.stringify(
- articulo
- )
- ).includes(
- texto
- );
- }
- );
- renderizarNormativa(
- filtrados
- );
- }
+"input",
+evento => {
+const texto =
+normalizarTexto(
+evento.target.value
+);
+if (!texto) {
+renderizarNormativa( estado.normativa
+);
+return;
+}
+const filtrados =
+estado.normativa.filter(
+articulo => {
+return normalizarTexto(
+JSON.stringify(
+articulo
+)
+).includes(
+texto
+);
+}
+);
+renderizarNormativa(
+filtrados
+);
+}
 );
 }
 function renderizarNormativa(
 articulos
 ) {
 const contenedor =
- document.getElementById(
- "normativa-articulos"
- );
+document.getElementById(
+"normativa-articulos"
+);
 if (!contenedor) {
- return;
+return;
 }
 if (!articulos.length) {
- contenedor.innerHTML = `
- <div class="empty-state">
- <strong>
- No se encontraron artículos
- </strong>
- </div>
- `;
- return;
+contenedor.innerHTML = `
+<div class="empty-state">
+<strong>
+No se encontraron artículos
+</strong>
+</div>
+`;
+return;
 }
 contenedor.innerHTML =
- articulos
- .map(
- crearArticuloNormativo
- )
- .join("");
+articulos
+.map(
+crearArticuloNormativo
+)
+.join("");
 }
 function crearArticuloNormativo(
 articulo) {
 const numero =
- articulo.numero ||
- articulo.articulo ||
- articulo.id ||
- "";
+articulo.numero ||
+articulo.articulo ||
+articulo.id ||
+"";
 const titulo =
- articulo.titulo ||
- articulo.nombre ||
- "";
+articulo.titulo ||
+articulo.nombre ||
+"";
 const texto =
- articulo.texto ||
- articulo.contenido ||
- articulo.descripcion ||
- "";
+articulo.texto ||
+articulo.contenido ||
+articulo.descripcion ||
+"";
 return `
- <article class="normativa-articulo">
- <div class="normativa-articulo-header">
- <strong>
- Artículo ${escapeHTML(
- numero
- )}
- </strong>
- ${
- titulo
- ? `<span>
- ${escapeHTML(
- titulo
- )}
- </span>`
- : ""
- }
- </div>
- <div class="normativa-texto">
- ${formatearTextoLegal(
- texto
- )}
- </div>
- </article>
+<article class="normativa-articulo">
+<div class="normativa-articulo-header">
+<strong>
+Artículo ${escapeHTML(
+numero
+)}
+</strong>
+${
+titulo
+? `<span>
+${escapeHTML(
+titulo
+)}
+</span>`
+: ""
+}
+</div>
+<div class="normativa-texto">
+${formatearTextoLegal(
+texto
+)}
+</div>
+</article>
 `;
 }
 function formatearTextoLegal(
 texto
 ) {
 return escapeHTML(
- texto
+texto
 )
 .replace(
- /\n/g,
- "<br>"
+/\n/g,
+"<br>"
 );
 }
 /* ============================================================ACTAS
@@ -1206,94 +1210,94 @@ function iniciarActaDesdeInfraccion(
 id
 ) {
 const infraccion =
- estado.infracciones.find(
- item =>
- String(item.id) ===
- String(id)
- );
+estado.infracciones.find(
+item =>
+String(item.id) ===
+String(id)
+);
 if (!infraccion) {
- return;
+return;
 }
 estado.infraccionSeleccionada =
- infraccion;
+infraccion;
 estado.modo =
- "acta";
+"acta";
 estado.actaActual = {
- id:
- generarIdActa(),
- fechaCreacion:
- new Date().toISOString(),
- estado:
- "borrador",
- infraccion: {
- id:
- infraccion.id,
- codigo:
- infraccion.codigo,
- ley:
- infraccion.ley,
- articulo:
- infraccion.articulo,
- apartado:
- infraccion.apartado,
- gravedad:
- infraccion.gravedad,
- titulo:
- infraccion.titulo,
- conducta:
- infraccion.conducta,
- sancion:
- infraccion.sancion
- },
- agente: {
- identificador: "", nombre: "",
- unidad: ""
- },
- denunciado: {
- nombre: "",
- documento: "",
- domicilio: "",
- observaciones: ""
- },
- hechos: "",
- lugar: "",
- fechaHora:
- obtenerFechaHoraLocal(),
- medidas: [],
- observaciones: ""
+id:
+generarIdActa(),
+fechaCreacion:
+new Date().toISOString(),
+estado:
+"borrador",
+infraccion: {
+id:
+infraccion.id,
+codigo:
+infraccion.codigo,
+ley:
+infraccion.ley,
+articulo:
+infraccion.articulo,
+apartado:
+infraccion.apartado,
+gravedad:
+infraccion.gravedad,
+titulo:
+infraccion.titulo,
+conducta:
+infraccion.conducta,
+sancion:
+infraccion.sancion
+},
+agente: {
+identificador: "", nombre: "",
+unidad: ""
+},
+denunciado: {
+nombre: "",
+documento: "",
+domicilio: "",
+observaciones: ""
+},
+hechos: "",
+lugar: "",
+fechaHora:
+obtenerFechaHoraLocal(),
+medidas: [],
+observaciones: ""
 };
 mostrarFormularioActa();
 }
 function activarModoActa() {
 estado.modo =
- "acta";
+"acta";
 estado.infraccionSeleccionada =
- null;
+null;
 estado.actaActual = {
- id:
- generarIdActa(),
- fechaCreacion:
- new Date().toISOString(),
- estado:
- "borrador",
- infraccion:
- null,
- agente: {
- identificador: "",
- nombre: "",
- unidad: ""
- },
- denunciado: {
- nombre: "",
- documento: "",
- domicilio: "",
- observaciones: ""
- },
- hechos: "",
- lugar: "", fechaHora:
- obtenerFechaHoraLocal(),
- medidas: [],
- observaciones: ""
+id:
+generarIdActa(),
+fechaCreacion:
+new Date().toISOString(),
+estado:
+"borrador",
+infraccion:
+null,
+agente: {
+identificador: "",
+nombre: "",
+unidad: ""
+},
+denunciado: {
+nombre: "",
+documento: "",
+domicilio: "",
+observaciones: ""
+},
+hechos: "",
+lugar: "", fechaHora:
+obtenerFechaHoraLocal(),
+medidas: [],
+observaciones: ""
 };
 mostrarFormularioActa();
 }
@@ -1302,280 +1306,280 @@ FORMULARIO ACTA
 ============================================================ */
 function mostrarFormularioActa() {
 mostrarSeccionInterna(
- "actas"
+"actas"
 );
 const contenedor =
- document.getElementById(
- "drafts-container"
- );
+document.getElementById(
+"drafts-container"
+);
 if (!contenedor) {
- return;
+return;
 }
 const acta =
- estado.actaActual;
+estado.actaActual;
 if (!acta) {
- return;
+return;
 }
 contenedor.innerHTML = `
- <div class="acta-container">
- <div class="acta-header">
-  <button
- type="button"
- onclick="mostrarMenuActas()"
- >
+<div class="acta-container">
+<div class="acta-header">
+<button
+type="button"
+onclick="mostrarMenuActas()"
+>
 ← Volver
- </button>
- <h2>
- Nueva acta
- </h2>
- </div>
- ${
- acta.infraccion
- ? `
- <div class="acta-infraccion">
- <strong>
- Infracción seleccionada </strong>
- <h3>
- ${escapeHTML(
- acta.infraccion.codigo
- )}
- ·
- ${escapeHTML(
- acta.infraccion.titulo
- )}
- </h3>
- <p>
- Artículo
- ${escapeHTML(
- acta.infraccion.articulo
- )}
- ·
- ${escapeHTML(
- acta.infraccion.gravedad
- )}
- </p>
- </div>
- `
- : `
- <div class="acta-aviso">
- <strong>
- Acta sin tipificar
- </strong>
- <p>
- Puedes completar el acta
- y seleccionar posteriormente
- la infracción correspondiente.
- </p>
- </div>
- `
- }
- <form
- id="form-acta"
- class="formulario-acta"
- >
- <h3>
- Agente actuante
- </h3>
- <label>
- Identificador profesional
- </label>
- <input
- type="text"
- name="agenteIdentificador"
- autocomplete="off"
- >
- <label>
- Nombre
- </label>
- <input
- type="text" name="agenteNombre"
- autocomplete="off"
- >
- <label>
- Unidad
- </label>
- <input
- type="text"
- name="agenteUnidad"
- autocomplete="off"
- >
- <h3>
- Denunciado
- </h3>
- <label>
- Nombre y apellidos
- </label>
- <input
- type="text"
- name="denunciadoNombre"
- autocomplete="off"
- >
- <label>
- Documento
- </label>
- <input
- type="text"
- name="denunciadoDocumento"
- autocomplete="off"
- >
- <label>
- Domicilio
- </label>
- <input
- type="text"
- name="denunciadoDomicilio"
- autocomplete="off"
- >
- <h3>
- Lugar y momento
- </h3>
- <label>
- Lugar de los hechos
- </label>
- <input
- type="text"
- name="lugar"
- autocomplete="off"
- >
- <label>
- Fecha y hora
- </label> <input
- type="datetime-local"
- name="fechaHora"
- >
- <h3>
- Hechos
- </h3>
- <textarea
- name="hechos"
- rows="7"
- placeholder="Describa objetivamente los hechos..."
- ></textarea>
- <h3>
- Medidas
- </h3>
- <div class="medidas">
- ${crearChecksMedidas()}
- </div>
- <h3>
- Observaciones
- </h3>
- <textarea
- name="observaciones"
- rows="5"
- ></textarea>
- <button
- type="submit"
- class="btn-principal"
- >
- GUARDAR BORRADOR
- </button>
- </form>
- </div>
+</button>
+<h2>
+Nueva acta
+</h2>
+</div>
+${
+acta.infraccion
+? `
+<div class="acta-infraccion">
+<strong>
+Infracción seleccionada </strong>
+<h3>
+${escapeHTML(
+acta.infraccion.codigo
+)}
+·
+${escapeHTML(
+acta.infraccion.titulo
+)}
+</h3>
+<p>
+Artículo
+${escapeHTML(
+acta.infraccion.articulo
+)}
+·
+${escapeHTML(
+acta.infraccion.gravedad
+)}
+</p>
+</div>
+`
+: `
+<div class="acta-aviso">
+<strong>
+Acta sin tipificar
+</strong>
+<p>
+Puedes completar el acta
+y seleccionar posteriormente
+la infracción correspondiente.
+</p>
+</div>
+`
+}
+<form
+id="form-acta"
+class="formulario-acta"
+>
+<h3>
+Agente actuante
+</h3>
+<label>
+Identificador profesional
+</label>
+<input
+type="text"
+name="agenteIdentificador"
+autocomplete="off"
+>
+<label>
+Nombre
+</label>
+<input
+type="text" name="agenteNombre"
+autocomplete="off"
+>
+<label>
+Unidad
+</label>
+<input
+type="text"
+name="agenteUnidad"
+autocomplete="off"
+>
+<h3>
+Denunciado
+</h3>
+<label>
+Nombre y apellidos
+</label>
+<input
+type="text"
+name="denunciadoNombre"
+autocomplete="off"
+>
+<label>
+Documento
+</label>
+<input
+type="text"
+name="denunciadoDocumento"
+autocomplete="off"
+>
+<label>
+Domicilio
+</label>
+<input
+type="text"
+name="denunciadoDomicilio"
+autocomplete="off"
+>
+<h3>
+Lugar y momento
+</h3>
+<label>
+Lugar de los hechos
+</label>
+<input
+type="text"
+name="lugar"
+autocomplete="off"
+>
+<label>
+Fecha y hora
+</label> <input
+type="datetime-local"
+name="fechaHora"
+>
+<h3>
+Hechos
+</h3>
+<textarea
+name="hechos"
+rows="7"
+placeholder="Describa objetivamente los hechos..."
+></textarea>
+<h3>
+Medidas
+</h3>
+<div class="medidas">
+${crearChecksMedidas()}
+</div>
+<h3>
+Observaciones
+</h3>
+<textarea
+name="observaciones"
+rows="5"
+></textarea>
+<button
+type="submit"
+class="btn-principal"
+>
+GUARDAR BORRADOR
+</button>
+</form>
+</div>
 `;
 rellenarFormularioActa();
 const formulario =
- document.getElementById(
- "form-acta"
- );
+document.getElementById(
+"form-acta"
+);
 formulario?.addEventListener(
- "submit",
- guardarActaDesdeFormulario
+"submit",
+guardarActaDesdeFormulario
 );
 }
 /* ============================================================
 MEDIDAS
 ============================================================ */function crearChecksMedidas() {
 const medidas = [
- "Intervención de sustancias",
- "Intervención de arma u objeto",
- "Intervención de efectos",
- "Retirada de objetos",
- "Inmovilización de vehículo",
- "Otra medida"
+"Intervención de sustancias",
+"Intervención de arma u objeto",
+"Intervención de efectos",
+"Retirada de objetos",
+"Inmovilización de vehículo",
+"Otra medida"
 ];
 return medidas
- .map(
- medida => `
- <label class="check-medida">
- <input
- type="checkbox"
- name="medida"
- value="${escapeHTML(
- medida
- )}"
- >
- <span>
- ${escapeHTML(
- medida
- )}
- </span>
- </label>
- `
- )
- .join("");
+.map(
+medida => `
+<label class="check-medida">
+<input
+type="checkbox"
+name="medida"
+value="${escapeHTML(
+medida
+)}"
+>
+<span>
+${escapeHTML(
+medida
+)}
+</span>
+</label>
+`
+)
+.join("");
 }
 /* ============================================================
 RELLENAR ACTA
 ============================================================ */
 function rellenarFormularioActa() {
 const acta =
- estado.actaActual;
+estado.actaActual;
 const form =
- document.getElementById(
- "form-acta"
- );
+document.getElementById(
+"form-acta"
+);
 if (!acta || !form) {
- return;
+return;
 }
 form.elements.agenteIdentificador.value =
- acta.agente?.identificador ||
- "";
+acta.agente?.identificador ||
+"";
 form.elements.agenteNombre.value =
- acta.agente?.nombre || "";
+acta.agente?.nombre || "";
 form.elements.agenteUnidad.value =
- acta.agente?.unidad ||
- "";
+acta.agente?.unidad ||
+"";
 form.elements.denunciadoNombre.value =
- acta.denunciado?.nombre ||
- "";
+acta.denunciado?.nombre ||
+"";
 form.elements.denunciadoDocumento.value =
- acta.denunciado?.documento ||
- "";
+acta.denunciado?.documento ||
+"";
 form.elements.denunciadoDomicilio.value =
- acta.denunciado?.domicilio ||
- "";
+acta.denunciado?.domicilio ||
+"";
 form.elements.lugar.value =
- acta.lugar ||
- "";
+acta.lugar ||
+"";
 form.elements.fechaHora.value =
- convertirAInputFecha(
- acta.fechaHora
- );
+convertirAInputFecha(
+acta.fechaHora
+);
 form.elements.hechos.value =
- acta.hechos ||
- "";
+acta.hechos ||
+"";
 form.elements.observaciones.value =
- acta.observaciones ||
- "";
+acta.observaciones ||
+"";
 const medidas =
- Array.isArray(
- acta.medidas
- )
- ? acta.medidas
- : [];
+Array.isArray(
+acta.medidas
+)
+? acta.medidas
+: [];
 form
- .querySelectorAll(
- 'input[name="medida"]'
- )
- .forEach(
- checkbox => {
- checkbox.checked =
- medidas.includes(
- checkbox.value
- );
- }
- );
+.querySelectorAll(
+'input[name="medida"]'
+)
+.forEach(
+checkbox => {
+checkbox.checked =
+medidas.includes(
+checkbox.value
+);
+}
+);
 }
 /* ============================================================
 GUARDAR ACTA
@@ -1584,95 +1588,95 @@ function guardarActaDesdeFormulario(evento
 ) {
 evento.preventDefault();
 const form =
- evento.currentTarget;
+evento.currentTarget;
 const acta =
- estado.actaActual;
+estado.actaActual;
 if (!acta) {
- return;
+return;
 }
 acta.agente = {
- identificador:
- form.elements
- .agenteIdentificador
- .value
- .trim(),
- nombre:
- form.elements
- .agenteNombre
- .value
- .trim(),
- unidad:
- form.elements
- .agenteUnidad
- .value
- .trim()
+identificador:
+form.elements
+.agenteIdentificador
+.value
+.trim(),
+nombre:
+form.elements
+.agenteNombre
+.value
+.trim(),
+unidad:
+form.elements
+.agenteUnidad
+.value
+.trim()
 };
 acta.denunciado = {
- nombre:
- form.elements
- .denunciadoNombre
- .value
- .trim(),
- documento:
- form.elements
- .denunciadoDocumento
- .value
- .trim(),
- domicilio:
- form.elements
- .denunciadoDomicilio
- .value
- .trim(),
- observaciones:
- ""
+nombre:
+form.elements
+.denunciadoNombre
+.value
+.trim(),
+documento:
+form.elements
+.denunciadoDocumento
+.value
+.trim(),
+domicilio:
+form.elements
+.denunciadoDomicilio
+.value
+.trim(),
+observaciones:
+""
 };
 acta.lugar =
- form.elements
- .lugar
- .value .trim();
+form.elements
+.lugar
+.value .trim();
 acta.fechaHora =
- form.elements
- .fechaHora
- .value;
+form.elements
+.fechaHora
+.value;
 acta.hechos =
- form.elements
- .hechos
- .value
- .trim();
+form.elements
+.hechos
+.value
+.trim();
 acta.observaciones =
- form.elements
- .observaciones
- .value
- .trim();
+form.elements
+.observaciones
+.value
+.trim();
 acta.medidas =
- Array.from(
- form.querySelectorAll(
- 'input[name="medida"]:checked'
- )
- )
- .map(
- checkbox =>
- checkbox.value
- );
+Array.from(
+form.querySelectorAll(
+'input[name="medida"]:checked'
+)
+)
+.map(
+checkbox =>
+checkbox.value
+);
 acta.estado =
- "borrador";
+"borrador";
 const indice =
- estado.actas.findIndex(
- item =>
- item.id ===
- acta.id
- );
+estado.actas.findIndex(
+item =>
+item.id ===
+acta.id
+);
 if (indice >= 0) {
- estado.actas[indice] =
- acta;
+estado.actas[indice] =
+acta;
 } else {
- estado.actas.push(
- acta
- );
+estado.actas.push(
+acta
+);
 }
 guardarActas();
 mostrarNotificacion(
- "Acta guardada correctamente."
+"Acta guardada correctamente."
 );
 mostrarMenuActas();
 }
@@ -1680,11 +1684,11 @@ mostrarMenuActas();
 MENÚ ACTAS============================================================ */
 function mostrarMenuActas() {
 estado.modo =
- "consulta";
+"consulta";
 estado.actaActual =
- null;
+null;
 mostrarSeccionInterna(
- "actas"
+"actas"
 );
 mostrarBorradores();
 }
@@ -1693,83 +1697,83 @@ BORRADORES
 ============================================================ */
 function mostrarBorradores() {
 const container =
- document.getElementById(
- "drafts-container"
- );
+document.getElementById(
+"drafts-container"
+);
 if (!container) {
- return;
+return;
 }
 if (!estado.actas.length) {
- container.innerHTML = `
- <div class="empty-state">
- <strong>
- No hay borradores
- </strong>
- <p>
- Las actas que guardes
- aparecerán aquí.
- </p>
- </div>
- `;
- return;
+container.innerHTML = `
+<div class="empty-state">
+<strong>
+No hay borradores
+</strong>
+<p>
+Las actas que guardes
+aparecerán aquí.
+</p>
+</div>
+`;
+return;
 }
 container.innerHTML = `
- <div>
- ${estado.actas
- .slice()
- .reverse()
- .map(
- crearTarjetaBorrador
- )
- .join("")}
- </div>`;
+<div>
+${estado.actas
+.slice()
+.reverse()
+.map(
+crearTarjetaBorrador
+)
+.join("")}
+</div>`;
 }
 function crearTarjetaBorrador(
 acta
 ) {
 const codigo =
- acta.infraccion?.codigo ||
- "Sin tipificar";
+acta.infraccion?.codigo ||
+"Sin tipificar";
 const titulo =
- acta.infraccion?.titulo ||
- "Acta sin infracción";
+acta.infraccion?.titulo ||
+"Acta sin infracción";
 return `
- <div class="draft-card">
- <strong>
- ${escapeHTML(
- codigo
- )}
- </strong>
- <span>
- ${escapeHTML(
- titulo
- )}
- </span>
- <small>
- ${escapeHTML(
- acta.lugar ||
- "Lugar no indicado"
- )}
- </small>
- <div class="acciones-infraccion">
- <button
- type="button"
- onclick="editarActa('${escapeJS(
- acta.id
- )}')"
- >
- EDITAR
- </button>
- <button
- type="button"
- onclick="eliminarActa('${escapeJS(
- acta.id
- )}')"
- >
- ELIMINAR
- </button>
- </div>
- </div>
+<div class="draft-card">
+<strong>
+${escapeHTML(
+codigo
+)}
+</strong>
+<span>
+${escapeHTML(
+titulo
+)}
+</span>
+<small>
+${escapeHTML(
+acta.lugar ||
+"Lugar no indicado"
+)}
+</small>
+<div class="acciones-infraccion">
+<button
+type="button"
+onclick="editarActa('${escapeJS(
+acta.id
+)}')"
+>
+EDITAR
+</button>
+<button
+type="button"
+onclick="eliminarActa('${escapeJS(
+acta.id
+)}')"
+>
+ELIMINAR
+</button>
+</div>
+</div>
 `;
 }
 /* ============================================================
@@ -1778,19 +1782,19 @@ EDITAR ACTA
 function editarActa(id
 ) {
 const acta =
- estado.actas.find(
- item =>
- item.id === id
- );
+estado.actas.find(
+item =>
+item.id === id
+);
 if (!acta) {
- return;
+return;
 }
 estado.actaActual =
- JSON.parse(
- JSON.stringify(
- acta
- )
- );
+JSON.parse(
+JSON.stringify(
+acta
+)
+);
 mostrarFormularioActa();
 }
 /* ============================================================
@@ -1800,17 +1804,17 @@ function eliminarActa(
 id
 ) {
 const confirmar =
- window.confirm(
- "¿Eliminar este borrador?"
- );
+window.confirm(
+"¿Eliminar este borrador?"
+);
 if (!confirmar) {
- return;
+return;
 }
 estado.actas =
- estado.actas.filter(
- item =>
- item.id !== id
- );
+estado.actas.filter(
+item =>
+item.id !== id
+);
 guardarActas();
 mostrarBorradores();
 }
@@ -1819,46 +1823,46 @@ LOCAL STORAGE
 ============================================================ */
 function cargarActas() {
 try {
- const datos =
- localStorage.getItem(
- CONFIG.STORAGE.ACTAS
- );
- estado.actas =
- datos ? JSON.parse(
- datos
- )
- : [];
- if (
- !Array.isArray(
- estado.actas
- )
- ) {
- estado.actas = [];
- }
+const datos =
+localStorage.getItem(
+CONFIG.STORAGE.ACTAS
+);
+estado.actas =
+datos ? JSON.parse(
+datos
+)
+: [];
+if (
+!Array.isArray(
+estado.actas
+)
+) {
+estado.actas = [];
+}
 } catch (error) {
- console.error(
- "Error leyendo actas:",
- error
- );
- estado.actas = [];
+console.error(
+"Error leyendo actas:",
+error
+);
+estado.actas = [];
 }
 }
 function guardarActas() {
 try {
- localStorage.setItem(
- CONFIG.STORAGE.ACTAS,
- JSON.stringify(
- estado.actas
- )
- );
+localStorage.setItem(
+CONFIG.STORAGE.ACTAS,
+JSON.stringify(
+estado.actas
+)
+);
 } catch (error) {
- console.error(
- "Error guardando actas:",
- error
- );
- mostrarError(
- "No se pudo guardar el borrador."
- );
+console.error(
+"Error guardando actas:",
+error
+);
+mostrarError(
+"No se pudo guardar el borrador."
+);
 }
 }
 /* ============================================================
@@ -1866,31 +1870,31 @@ CONFIGURACIÓN
 ============================================================ */
 function cargarConfiguracion() {
 try {
- const datos =
- localStorage.getItem(
- CONFIG.STORAGE.CONFIG
- );
- if (!datos) {
- return;
- }
- const configuracion =
- JSON.parse(
- datos );
- if (
- configuracion &&
- configuracion.agente
- ) {
- localStorage.setItem(
- CONFIG.STORAGE.AGENTE,
- JSON.stringify(
- configuracion.agente
- )
- );
- }
+const datos =
+localStorage.getItem(
+CONFIG.STORAGE.CONFIG
+);
+if (!datos) {
+return;
+}
+const configuracion =
+JSON.parse(
+datos );
+if (
+configuracion &&
+configuracion.agente
+) {
+localStorage.setItem(
+CONFIG.STORAGE.AGENTE,
+JSON.stringify(
+configuracion.agente
+)
+);
+}
 } catch (error) {
- console.warn(
- "No hay configuración válida."
- );
+console.warn(
+"No hay configuración válida."
+);
 }
 }
 /* ============================================================
@@ -1898,180 +1902,180 @@ EVENTOS
 ============================================================ */
 function registrarEventos() {
 /*
- * NAVEGACIÓN
- */
+* NAVEGACIÓN
+*/
 document
- .querySelectorAll(
- ".nav-button"
- )
- .forEach(
- boton => {
- boton.addEventListener(
- "click",
- () => {
- mostrarSeccionInterna(
- boton.dataset.section
- );
- }
- );
- }
- );
+.querySelectorAll(
+".nav-button"
+)
+.forEach(
+boton => {
+boton.addEventListener(
+"click",
+() => {
+mostrarSeccionInterna(
+boton.dataset.section
+);
+}
+);
+}
+);
 /*
- * BUSCADOR
- */
+* BUSCADOR
+*/
 const search =
- document.getElementById(
- "main-search"
- );
+document.getElementById(
+"main-search"
+);
 search?.addEventListener(
- "input",
- evento => {
- estado.filtros.texto =
- evento.target.value;
- buscarInfracciones(); }
+"input",
+evento => {
+estado.filtros.texto =
+evento.target.value;
+buscarInfracciones(); }
 );
 /*
- * GRAVEDAD
- */
+* GRAVEDAD
+*/
 document
- .getElementById(
- "main-gravedad"
- )
- ?.addEventListener(
- "change",
- evento => {
- estado.filtros.gravedad =
- evento.target.value;
- buscarInfracciones();
- }
- );
+.getElementById(
+"main-gravedad"
+)
+?.addEventListener(
+"change",
+evento => {
+estado.filtros.gravedad =
+evento.target.value;
+buscarInfracciones();
+}
+);
 /*
- * ARTÍCULO
- */
+* ARTÍCULO
+*/
 document
- .getElementById(
- "main-articulo"
- )
- ?.addEventListener(
- "change",
- evento => {
- estado.filtros.articulo =
- evento.target.value;
- buscarInfracciones();
- }
- );
+.getElementById(
+"main-articulo"
+)
+?.addEventListener(
+"change",
+evento => {
+estado.filtros.articulo =
+evento.target.value;
+buscarInfracciones();
+}
+);
 /*
- * LIMPIAR
- */
+* LIMPIAR
+*/
 document
- .getElementById(
- "clear-search"
- )
- ?.addEventListener(
- "click",
- () => {
- const input =
- document.getElementById(
- "main-search"
- );
- if (input) {
- input.value = "";
- }
- estado.filtros.texto =
- "";
- buscarInfracciones(); input?.focus();
- }
- );
+.getElementById(
+"clear-search"
+)
+?.addEventListener(
+"click",
+() => {
+const input =
+document.getElementById(
+"main-search"
+);
+if (input) {
+input.value = "";
+}
+estado.filtros.texto =
+"";
+buscarInfracciones(); input?.focus();
+}
+);
 /*
- * NUEVA ACTA
- */
+* NUEVA ACTA
+*/
 document
- .getElementById(
- "new-acta-button"
- )
- ?.addEventListener(
- "click",
- activarModoActa
- );
+.getElementById(
+"new-acta-button"
+)
+?.addEventListener(
+"click",
+activarModoActa
+);
 /*
- * BORRADORES
- */
+* BORRADORES
+*/
 document
- .getElementById(
- "drafts-button"
- )
- ?.addEventListener(
- "click",
- mostrarBorradores
- );
+.getElementById(
+"drafts-button"
+)
+?.addEventListener(
+"click",
+mostrarBorradores
+);
 /*
- * ACCESO RÁPIDO CONSULTA
- */
+* ACCESO RÁPIDO CONSULTA
+*/
 document
- .getElementById(
- "quick-search"
- )
- ?.addEventListener(
- "click",
- () => {
- mostrarSeccionInterna(
- "consulta"
- );
- setTimeout(
- () => {
- document
- .getElementById(
- "main-search"
- )
- ?.focus();
- },
- 100
- );
- }
- );
+.getElementById(
+"quick-search"
+)
+?.addEventListener(
+"click",
+() => {
+mostrarSeccionInterna(
+"consulta"
+);
+setTimeout(
+() => {
+document
+.getElementById(
+"main-search"
+)
+?.focus();
+},
+100
+);
+}
+);
 /*
- * ACCESO RÁPIDO ACTA
- */
+* ACCESO RÁPIDO ACTA
+*/
 document .getElementById(
- "quick-acta"
- )
- ?.addEventListener(
- "click",
- activarModoActa
- );
+"quick-acta"
+)
+?.addEventListener(
+"click",
+activarModoActa
+);
 /*
- * NORMATIVA
- */
+* NORMATIVA
+*/
 document
- .getElementById(
- "open-lopsc"
- )
- ?.addEventListener(
- "click",
- mostrarLOPSC
- );
+.getElementById(
+"open-lopsc"
+)
+?.addEventListener(
+"click",
+mostrarLOPSC
+);
 document
- .getElementById(
- "open-infracciones"
- )
- ?.addEventListener(
- "click",
- () => {
- mostrarSeccionInterna(
- "consulta"
- );
- }
- );
+.getElementById(
+"open-infracciones"
+)
+?.addEventListener(
+"click",
+() => {
+mostrarSeccionInterna(
+"consulta"
+);
+}
+);
 /*
- * RED
- */
+* RED
+*/
 window.addEventListener(
- "online",
- actualizarRed
+"online",
+actualizarRed
 );
 window.addEventListener(
- "offline",
- actualizarRed
+"offline",
+actualizarRed
 );
 }
 /* ============================================================
@@ -2081,71 +2085,71 @@ function mostrarSeccionInterna(
 nombre
 ) {
 const secciones = {
- consulta:
- document.getElementById(
- "consulta-section"
- ),
- actas:
- document.getElementById(
- "actas-section" ),
- normativa:
- document.getElementById(
- "normativa-section"
- ),
- ajustes:
- document.getElementById(
- "ajustes-section"
- )
+consulta:
+document.getElementById(
+"consulta-section"
+),
+actas:
+document.getElementById(
+"actas-section" ),
+normativa:
+document.getElementById(
+"normativa-section"
+),
+ajustes:
+document.getElementById(
+"ajustes-section"
+)
 };
 const bienvenida =
- document.getElementById(
- "welcome-section"
- );
+document.getElementById(
+"welcome-section"
+);
 bienvenida?.classList.add(
- "hidden"
+"hidden"
 );
 Object.values(
- secciones
+secciones
 ).forEach(
- section => {
- section?.classList.add(
- "hidden"
- );
- }
+section => {
+section?.classList.add(
+"hidden"
+);
+}
 );
 secciones[nombre]
- ?.classList.remove(
- "hidden"
- );
+?.classList.remove(
+"hidden"
+);
 document
- .querySelectorAll(
- ".nav-button"
- )
- .forEach(
- boton => {
- boton.classList.toggle(
- "active",
- boton.dataset.section ===
- nombre
- );
- }
- );
+.querySelectorAll(
+".nav-button"
+)
+.forEach(
+boton => {
+boton.classList.toggle(
+"active",
+boton.dataset.section ===
+nombre
+);
+}
+);
 const status =
- document.getElementById(
- "header-status"
- );
+document.getElementById(
+"header-status"
+);
 if (status) {
- status.textContent =
- nombre.toUpperCase();
+status.textContent =
+nombre.toUpperCase();
 }if (
- nombre === "actas"
+nombre === "actas"
 ) {
- mostrarBorradores();
+mostrarBorradores();
 }
 if (
- nombre === "consulta"
+nombre === "consulta"
 ) {
- buscarInfracciones();
+buscarInfracciones();
 }
 }
 /* ============================================================
@@ -2153,47 +2157,47 @@ ESTADÍSTICAS
 ============================================================ */
 function actualizarEstadisticas() {
 const total =
- document.getElementById(
- "stat-total"
- );
+document.getElementById(
+"stat-total"
+);
 const leves =
- document.getElementById(
- "stat-leves"
- );
+document.getElementById(
+"stat-leves"
+);
 const graves =
- document.getElementById(
- "stat-graves"
- );
+document.getElementById(
+"stat-graves"
+);
 const muyGraves =
- document.getElementById(
- "stat-muy-graves"
- );
+document.getElementById(
+"stat-muy-graves"
+);
 if (total) {
- total.textContent =
- estado.infracciones.length;
+total.textContent =
+estado.infracciones.length;
 }
 if (leves) {
- leves.textContent =
- estado.infracciones.filter(
- item =>
- item.gravedad ===
- "Leve"
- ).length;
+leves.textContent =
+estado.infracciones.filter(
+item =>
+item.gravedad ===
+"Leve"
+).length;
 }
 if (graves) {
- graves.textContent =
- estado.infracciones.filter(
- item =>
- item.gravedad ===
- "Grave"
- ).length;
+graves.textContent =
+estado.infracciones.filter(
+item =>
+item.gravedad ===
+"Grave"
+).length;
 }if (muyGraves) {
- muyGraves.textContent =
- estado.infracciones.filter(
- item =>
- item.gravedad ===
- "Muy Grave"
- ).length;
+muyGraves.textContent =
+estado.infracciones.filter(
+item =>
+item.gravedad ===
+"Muy Grave"
+).length;
 }
 }
 /* ============================================================
@@ -2201,85 +2205,85 @@ ESTADO DATOS
 ============================================================ */
 function actualizarEstadoDatos() {
 const elemento =
- document.getElementById(
- "data-status"
- );
+document.getElementById(
+"data-status"
+);
 if (!elemento) {
- return;
+return;
 }
 if (
- estado.erroresDatos.length
+estado.erroresDatos.length
 ) {
- elemento.textContent =
- "REVISAR DATOS";
- return;
+elemento.textContent =
+"REVISAR DATOS";
+return;
 }
 elemento.textContent =
- estado.infracciones.length
- ? "CARGADA"
- : "SIN DATOS";
+estado.infracciones.length
+? "CARGADA"
+: "SIN DATOS";
 }
 /* ============================================================
 CONTADOR
 ============================================================ */
 function actualizarContador() {
 const contador =
- document.getElementById(
- "search-result-count"
- );
+document.getElementById(
+"search-result-count"
+);
 if (!contador) {
- return;
+return;
 }
 contador.textContent =
- `${estado.resultados.length} resultado(s)`;
+`${estado.resultados.length} resultado(s)`;
 }
 /* ============================================================
 RED
 ============================================================ */
 function actualizarRed() {const online =
- navigator.onLine;
+navigator.onLine;
 const network =
- document.getElementById(
- "network-status"
- );
+document.getElementById(
+"network-status"
+);
 const welcome =
- document.getElementById(
- "welcome-connection"
- );
+document.getElementById(
+"welcome-connection"
+);
 const consulta =
- document.getElementById(
- "consulta-status"
- );
+document.getElementById(
+"consulta-status"
+);
 if (online) {
- if (network) {
- network.textContent =
- "ONLINE";
- }
- if (welcome) {
- welcome.textContent =
- "● Conectado";
- welcome.className =
- "connection-indicator online";
- }
- if (consulta) {
- consulta.textContent =
- "ONLINE";
- }
+if (network) {
+network.textContent =
+"ONLINE";
+}
+if (welcome) {
+welcome.textContent =
+"● Conectado";
+welcome.className =
+"connection-indicator online";
+}
+if (consulta) {
+consulta.textContent =
+"ONLINE";
+}
 } else {
- if (network) {
- network.textContent =
- "OFFLINE";
- }
- if (welcome) {
- welcome.textContent =
- "● Modo offline";
- welcome.className =
- "connection-indicator offline";
- }
- if (consulta) {
- consulta.textContent =
- "OFFLINE READY";
- }
+if (network) {
+network.textContent =
+"OFFLINE";
+}
+if (welcome) {
+welcome.textContent =
+"● Modo offline";
+welcome.className =
+"connection-indicator offline";
+}
+if (consulta) {
+consulta.textContent =
+"OFFLINE READY";
+}
 }
 }/* ============================================================
 NOTIFICACIONES
@@ -2288,46 +2292,46 @@ function mostrarNotificacion(
 mensaje
 ) {
 document
- .querySelector(
- ".centinela-notificacion"
- )
- ?.remove();
+.querySelector(
+".centinela-notificacion"
+)
+?.remove();
 const elemento =
- document.createElement(
- "div"
- );
+document.createElement(
+"div"
+);
 elemento.className =
- "centinela-notificacion";
+"centinela-notificacion";
 elemento.textContent =
- mensaje;
+mensaje;
 Object.assign(
- elemento.style,
- {
- position: "fixed",
- left: "14px",
- right: "14px",
- bottom: "85px",
- zIndex: "9999",
- padding: "13px",
- borderRadius: "10px",
- background: "#172233",
- border:
- "1px solid #33465e",
- color: "#f2f5f8",
- textAlign: "center",
- fontSize: "12px",
- fontWeight: "700",
- boxShadow:
- "0 8px 30px rgba(0,0,0,.35)"
- }
+elemento.style,
+{
+position: "fixed",
+left: "14px",
+right: "14px",
+bottom: "85px",
+zIndex: "9999",
+padding: "13px",
+borderRadius: "10px",
+background: "#172233",
+border:
+"1px solid #33465e",
+color: "#f2f5f8",
+textAlign: "center",
+fontSize: "12px",
+fontWeight: "700",
+boxShadow:
+"0 8px 30px rgba(0,0,0,.35)"
+}
 );
 document.body.appendChild(
- elemento
+elemento
 );
 setTimeout( () => {
- elemento.remove();
- },
- 2500
+elemento.remove();
+},
+2500
 );
 }
 /* ============================================================
@@ -2337,23 +2341,23 @@ function mostrarError(
 mensaje
 ) {
 console.error(
- mensaje
+mensaje
 );
 document
- .querySelector(
- ".centinela-error"
- )
- ?.remove();
+.querySelector(
+".centinela-error"
+)
+?.remove();
 const elemento =
- document.createElement(
- "div"
- );
+document.createElement(
+"div"
+);
 elemento.className =
- "centinela-error";
+"centinela-error";
 elemento.textContent =
- mensaje;
+mensaje;
 document.body.prepend(
- elemento
+elemento
 );
 }
 /* ============================================================
@@ -2363,27 +2367,42 @@ function claseGravedad(
 gravedad
 ) {
 switch (
- normalizarGravedad(
- gravedad
- )
+normalizarGravedad(
+gravedad
+)
 ) {
- case "Leve":
- return "gravedad-leve";
- case "Grave":
- return "gravedad-grave";
- case "Muy Grave":
- return "gravedad-muy-grave";
- default:
- return "";}
+case "Leve":
+return "gravedad-leve";
+case "Grave":
+return "gravedad-grave";
+case "Muy Grave":
+return "gravedad-muy-grave";
+default:
+return "";}
 }
 /* ============================================================
 FECHA / HORA
 ============================================================ */
 function obtenerFechaHoraLocal() {
 const ahora =
- new Date();
+new Date();
 const year =
- ahora.getFullYear();
+ahora.getFullYear();
 const month =
- String(
- ahora.ge
+String(
+ahora.getMonth() + 1
+).padStart(2, "0");
+const day =
+String(
+ahora.getDate()
+).padStart(2, "0");
+const hour =
+String(
+ahora.getHours()
+).padStart(2, "0");
+const minute =
+String(
+ahora.getMinutes()
+).padStart(2, "0");
+return `${year}-${month}-${day}T${hour}:${minute}`;
+}
