@@ -1,1372 +1,999 @@
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
->
+/* ============================================================
+   CENTINELA CODE
+   SERVICE WORKER DEFINITIVO
+   Versión 3.0.1
+   ============================================================ */
 
-<meta
-    name="theme-color"
-    content="#0f172a"
->
-
-<meta
-    name="description"
-    content="Centinela Code - Consulta normativa y asistencia para la redacción de actas de Policía Local."
->
-
-<meta
-    name="mobile-web-app-capable"
-    content="yes"
->
-
-<meta
-    name="apple-mobile-web-app-capable"
-    content="yes"
->
-
-<meta
-    name="apple-mobile-web-app-status-bar-style"
-    content="black-translucent"
->
-
-<meta
-    name="apple-mobile-web-app-title"
-    content="Centinela Code"
->
-
-<title>Centinela Code</title>
-
-<link
-    rel="manifest"
-    href="manifest.json"
->
-
-<link
-    rel="stylesheet"
-    href="style.css"
->
-<!-- =====================================================
-     CABECERA
-====================================================== -->
-
-<header class="app-header">
-
-    <div class="header-brand">
-
-        <div
-            class="brand-icon"
-            aria-hidden="true"
-        >
-            🛡️
-        </div>
-
-        <div class="brand-text">
-
-            <h1>Centinela Code</h1>
-
-            <span>
-                Consulta normativa policial
-            </span>
-
-        </div>
-
-    </div>
-
-    <button
-        id="headerSearchButton"
-        class="header-action"
-        type="button"
-        aria-label="Buscar"
-        title="Buscar"
-    >
-        🔎
-    </button>
-
-</header>
+"use strict";
 
 
-<!-- =====================================================
-     CONTENIDO PRINCIPAL
-====================================================== -->
+/* ============================================================
+   CONFIGURACIÓN
+   ============================================================ */
 
-<main class="main-content">
+const CACHE_VERSION = "3.0.1";
 
-    <!-- =================================================
-         PANTALLA INICIO
-    ================================================== -->
+const CACHE_STATIC =
+    `centinela-static-v${CACHE_VERSION}`;
 
-    <section
-        id="section-home"
-        class="app-section active"
-        data-section="home"
-    >
+const CACHE_DATA =
+    `centinela-data-v${CACHE_VERSION}`;
 
-        <div class="welcome-card">
-
-            <div class="welcome-icon">
-                🛡️
-            </div>
-
-            <div>
-
-                <h2>
-                    Centinela Code
-                </h2>
-
-                <p>
-                    Consulta rápida de normativa,
-                    infracciones y herramientas para
-                    la elaboración de actas.
-                </p>
-
-            </div>
-
-        </div>
+const CACHE_RUNTIME =
+    `centinela-runtime-v${CACHE_VERSION}`;
 
 
-        <!-- =============================================
-             ACCESOS RÁPIDOS
-        ============================================== -->
+/* ============================================================
+   ARCHIVOS PRINCIPALES
+   ============================================================ */
 
-        <div class="section-heading">
+const STATIC_FILES = [
+    "./",
+    "./index.html",
+    "./style.css",
+    "./app.js",
+    "./manifest.json"
+];
 
-            <h2>
-                Acceso rápido
-            </h2>
 
-        </div>
+/* ============================================================
+   DATOS LOCALES
+   ============================================================ */
+
+const DATA_FILES = [
+    "./data/lopsc.json",
+    "./data/ordenanzas.json",
+    "./data/infracciones.json"
+];
 
 
-        <div class="quick-actions">
+/* ============================================================
+   INSTALACIÓN
+   ============================================================ */
 
-            <button
-                type="button"
-                class="quick-action"
-                data-target="consulta"
+self.addEventListener(
+    "install",
+    event => {
+
+        console.log(
+            "[Centinela SW] Instalando versión",
+            CACHE_VERSION
+        );
+
+        event.waitUntil(
+
+            Promise.all([
+
+                caches.open(
+                    CACHE_STATIC
+                ).then(
+                    cache => {
+
+                        return cache.addAll(
+                            STATIC_FILES
+                        );
+
+                    }
+                ),
+
+                caches.open(
+                    CACHE_DATA
+                ).then(
+                    cache => {
+
+                        return cache.addAll(
+                            DATA_FILES
+                        );
+
+                    }
+                )
+
+            ]).then(
+                () => {
+
+                    console.log(
+                        "[Centinela SW] Caché inicial creada."
+                    );
+
+                    return self.skipWaiting();
+
+                }
+            )
+
+        );
+
+    }
+);
+
+
+/* ============================================================
+   ACTIVACIÓN
+   ============================================================ */
+
+self.addEventListener(
+    "activate",
+    event => {
+
+        console.log(
+            "[Centinela SW] Activando versión",
+            CACHE_VERSION
+        );
+
+        event.waitUntil(
+
+            caches.keys()
+                .then(
+                    cacheNames => {
+
+                        return Promise.all(
+
+                            cacheNames
+
+                                .filter(
+                                    cacheName => {
+
+                                        return (
+                                            cacheName !== CACHE_STATIC &&
+                                            cacheName !== CACHE_DATA &&
+                                            cacheName !== CACHE_RUNTIME
+                                        );
+
+                                    }
+                                )
+
+                                .map(
+                                    cacheName => {
+
+                                        console.log(
+                                            "[Centinela SW] Eliminando caché antigua:",
+                                            cacheName
+                                        );
+
+                                        return caches.delete(
+                                            cacheName
+                                        );
+
+                                    }
+                                )
+
+                        );
+
+                    }
+                )
+
+                .then(
+                    () => {
+
+                        return self.clients.claim();
+
+                    }
+                )
+
+                .then(
+                    () => {
+
+                        return avisarClientesNuevaVersion();
+
+                    }
+                )
+
+        );
+
+    }
+);
+
+
+/* ============================================================
+   FETCH
+   ============================================================ */
+
+self.addEventListener(
+    "fetch",
+    event => {
+
+        const request =
+            event.request;
+
+
+        /* --------------------------------------------------------
+           SOLO PETICIONES GET
+        -------------------------------------------------------- */
+
+        if (
+            request.method !== "GET"
+        ) {
+
+            return;
+
+        }
+
+
+        /* --------------------------------------------------------
+           NO INTERCEPTAR PETICIONES EXTERNAS
+        -------------------------------------------------------- */
+
+        if (
+            !request.url.startsWith(
+                self.location.origin
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        const url =
+            new URL(
+                request.url
+            );
+
+
+        /* --------------------------------------------------------
+           ARCHIVOS JSON
+           
+           Network First:
+           1. Intenta red
+           2. Guarda datos nuevos
+           3. Si no hay red usa caché
+        -------------------------------------------------------- */
+
+        if (
+            esArchivoDatos(
+                url.pathname
+            )
+        ) {
+
+            event.respondWith(
+                estrategiaDatos(
+                    request
+                )
+            );
+
+            return;
+
+        }
+
+
+        /* --------------------------------------------------------
+           ARCHIVOS ESTÁTICOS
+           
+           Cache First:
+           1. Busca caché
+           2. Si no existe usa red
+           3. Guarda respuesta
+        -------------------------------------------------------- */
+
+        if (
+            esArchivoEstatico(
+                url.pathname
+            )
+        ) {
+
+            event.respondWith(
+                estrategiaEstaticos(
+                    request
+                )
+            );
+
+            return;
+
+        }
+
+
+        /* --------------------------------------------------------
+           NAVEGACIÓN
+        -------------------------------------------------------- */
+
+        if (
+            request.mode === "navigate"
+        ) {
+
+            event.respondWith(
+                estrategiaNavegacion(
+                    request
+                )
+            );
+
+            return;
+
+        }
+
+
+        /* --------------------------------------------------------
+           RESTO DE PETICIONES
+        -------------------------------------------------------- */
+
+        event.respondWith(
+            estrategiaRuntime(
+                request
+            )
+        );
+
+    }
+);
+
+
+/* ============================================================
+   IDENTIFICAR ARCHIVOS DE DATOS
+   ============================================================ */
+
+function esArchivoDatos(
+    pathname
+) {
+
+    return (
+
+        pathname.endsWith(
+            "/lopsc.json"
+        )
+
+        ||
+
+        pathname.endsWith(
+            "/ordenanzas.json"
+        )
+
+        ||
+
+        pathname.endsWith(
+            "/infracciones.json"
+        )
+
+    );
+
+}
+
+
+/* ============================================================
+   IDENTIFICAR ARCHIVOS ESTÁTICOS
+   ============================================================ */
+
+function esArchivoEstatico(
+    pathname
+) {
+
+    return (
+
+        pathname.endsWith(
+            "/index.html"
+        )
+
+        ||
+
+        pathname.endsWith(
+            "/style.css"
+        )
+
+        ||
+
+        pathname.endsWith(
+            "/app.js"
+        )
+
+        ||
+
+        pathname.endsWith(
+            "/manifest.json"
+        )
+
+    );
+
+}
+
+
+/* ============================================================
+   ESTRATEGIA DATOS
+   ============================================================ */
+
+async function estrategiaDatos(
+    request
+) {
+
+    try {
+
+        const respuestaRed =
+            await fetch(
+                request,
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (
+            respuestaRed &&
+            respuestaRed.ok
+        ) {
+
+            const cache =
+                await caches.open(
+                    CACHE_DATA
+                );
+
+
+            await cache.put(
+                request,
+                respuestaRed.clone()
+            );
+
+
+            return respuestaRed;
+
+        }
+
+
+        throw new Error(
+            "Respuesta de red no válida"
+        );
+
+    }
+
+    catch (
+        error
+    ) {
+
+        console.warn(
+            "[Centinela SW] Sin red para datos:",
+            request.url
+        );
+
+
+        const respuestaCache =
+            await caches.match(
+                request
+            );
+
+
+        if (
+            respuestaCache
+        ) {
+
+            return respuestaCache;
+
+        }
+
+
+        return new Response(
+
+            JSON.stringify({
+
+                error: true,
+
+                offline: true,
+
+                mensaje:
+                    "Los datos no están disponibles sin conexión."
+
+            }),
+
+            {
+
+                status: 503,
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json; charset=utf-8"
+
+                }
+
+            }
+
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   ESTRATEGIA ARCHIVOS ESTÁTICOS
+   ============================================================ */
+
+async function estrategiaEstaticos(
+    request
+) {
+
+    const cache =
+        await caches.open(
+            CACHE_STATIC
+        );
+
+
+    const respuestaCache =
+        await cache.match(
+            request
+        );
+
+
+    if (
+        respuestaCache
+    ) {
+
+        return respuestaCache;
+
+    }
+
+
+    try {
+
+        const respuestaRed =
+            await fetch(
+                request
+            );
+
+
+        if (
+            respuestaRed &&
+            respuestaRed.ok
+        ) {
+
+            await cache.put(
+                request,
+                respuestaRed.clone()
+            );
+
+        }
+
+
+        return respuestaRed;
+
+    }
+
+    catch (
+        error
+    ) {
+
+        return (
+            respuestaCache ||
+            respuestaOffline()
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   ESTRATEGIA NAVEGACIÓN
+   ============================================================ */
+
+async function estrategiaNavegacion(
+    request
+) {
+
+    try {
+
+        const respuestaRed =
+            await fetch(
+                request,
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (
+            respuestaRed &&
+            respuestaRed.ok
+        ) {
+
+            const cache =
+                await caches.open(
+                    CACHE_STATIC
+                );
+
+
+            await cache.put(
+                "./index.html",
+                respuestaRed.clone()
+            );
+
+
+            return respuestaRed;
+
+        }
+
+
+        throw new Error(
+            "Navegación no disponible"
+        );
+
+    }
+
+    catch (
+        error
+    ) {
+
+        const paginaCache =
+            await caches.match(
+                "./index.html"
+            );
+
+
+        if (
+            paginaCache
+        ) {
+
+            return paginaCache;
+
+        }
+
+
+        return respuestaOffline();
+
+    }
+
+}
+
+
+/* ============================================================
+   ESTRATEGIA RUNTIME
+   ============================================================ */
+
+async function estrategiaRuntime(
+    request
+) {
+
+    const cache =
+        await caches.open(
+            CACHE_RUNTIME
+        );
+
+
+    const respuestaCache =
+        await cache.match(
+            request
+        );
+
+
+    if (
+        respuestaCache
+    ) {
+
+        return respuestaCache;
+
+    }
+
+
+    try {
+
+        const respuestaRed =
+            await fetch(
+                request
+            );
+
+
+        if (
+            respuestaRed &&
+            respuestaRed.ok
+        ) {
+
+            await cache.put(
+                request,
+                respuestaRed.clone()
+            );
+
+        }
+
+
+        return respuestaRed;
+
+    }
+
+    catch (
+        error
+    ) {
+
+        if (
+            respuestaCache
+        ) {
+
+            return respuestaCache;
+
+        }
+
+
+        return new Response(
+            "",
+            {
+                status: 503,
+                statusText: "Offline"
+            }
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   RESPUESTA OFFLINE
+   ============================================================ */
+
+function respuestaOffline() {
+
+    return new Response(
+
+        `
+        <!DOCTYPE html>
+
+        <html lang="es">
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1.0"
             >
 
-                <span class="quick-action-icon">
-                    🔎
-                </span>
-
-                <span class="quick-action-text">
-
-                    <strong>
-                        Consulta
-                    </strong>
-
-                    <small>
-                        Buscar infracciones y normativa
-                    </small>
-
-                </span>
-
-            </button>
-
-
-            <button
-                type="button"
-                class="quick-action"
-                data-target="actas"
+            <meta
+                name="theme-color"
+                content="#0f172a"
             >
 
-                <span class="quick-action-icon">
-                    📝
-                </span>
-
-                <span class="quick-action-text">
-
-                    <strong>
-                        Crear acta
-                    </strong>
-
-                    <small>
-                        Redactar y guardar un acta
-                    </small>
-
-                </span>
-
-            </button>
-
-
-            <button
-                type="button"
-                class="quick-action"
-                data-target="normativa"
-            >
-
-                <span class="quick-action-icon">
-                    ⚖️
-                </span>
-
-                <span class="quick-action-text">
-
-                    <strong>
-                        Normativa
-                    </strong>
-
-                    <small>
-                        Consultar legislación
-                    </small>
-
-                </span>
-
-            </button>
-
-        </div>
-
-
-        <!-- =============================================
-             ESTADO DEL SISTEMA
-        ============================================== -->
-
-        <div class="section-heading">
-
-            <h2>
-                Estado del sistema
-            </h2>
-
-        </div>
-
-
-        <div class="status-card">
-
-            <div class="status-row">
-
-                <span>
-                    📚 Base normativa
-                </span>
-
-                <strong
-                    id="homeNormativaStatus"
-                    class="status-value"
-                >
-                    Cargando...
-                </strong>
-
-            </div>
-
-
-            <div class="status-row">
-
-                <span>
-                    📋 Infracciones
-                </span>
-
-                <strong
-                    id="homeInfraccionesStatus"
-                    class="status-value"
-                >
-                    Cargando...
-                </strong>
-
-            </div>
-
-
-            <div class="status-row">
-
-                <span>
-                    🏛️ Ordenanzas
-                </span>
-
-                <strong
-                    id="homeOrdenanzasStatus"
-                    class="status-value"
-                >
-                    Cargando...
-                </strong>
-
-            </div>
-
-
-            <div class="status-row">
-
-                <span>
-                    📡 Conexión
-                </span>
-
-                <strong
-                    id="homeNetworkStatus"
-                    class="status-value"
-                >
-                    Comprobando...
-                </strong>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         CONSULTA
-    ================================================== -->
-
-    <section
-        id="section-consulta"
-        class="app-section"
-        data-section="consulta"
-    >
-
-        <div class="page-title">
-
-            <div>
-
-                <h2>
-                    Consulta
-                </h2>
-
-                <p>
-                    Busca rápidamente una infracción,
-                    artículo o conducta.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <!-- BUSCADOR -->
-
-        <div class="search-box">
-
-            <span
-                class="search-icon"
-                aria-hidden="true"
-            >
-                🔎
-            </span>
-
-            <input
-                id="consultaSearch"
-                type="search"
-                placeholder="Buscar por código, artículo, palabra..."
-                autocomplete="off"
-                aria-label="Buscar infracciones"
-            >
-
-            <button
-                id="clearConsultaSearch"
-                type="button"
-                class="clear-search"
-                aria-label="Borrar búsqueda"
-                title="Borrar"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-        <!-- FILTROS -->
-
-        <div class="filters">
-
-            <button
-                type="button"
-                class="filter-chip active"
-                data-severity="all"
-            >
-                Todas
-            </button>
-
-            <button
-                type="button"
-                class="filter-chip"
-                data-severity="Leve"
-            >
-                Leves
-            </button>
-
-            <button
-                type="button"
-                class="filter-chip"
-                data-severity="Grave"
-            >
-                Graves
-            </button>
-
-            <button
-                type="button"
-                class="filter-chip"
-                data-severity="Muy Grave"
-            >
-                Muy graves
-            </button>
-
-        </div>
-
-
-        <!-- RESULTADOS -->
-
-        <div class="results-header">
-
-            <span>
-                Resultados
-            </span>
-
-            <strong id="consultaResultCount">
-                0
-            </strong>
-
-        </div>
-
-
-        <div
-            id="consultaResults"
-            class="results-list"
-        >
-
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    🔎
-                </div>
-
-                <h3>
-                    Buscar infracción
-                </h3>
-
-                <p>
-                    Introduce un código, artículo o
-                    palabra clave para comenzar.
-                </p>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         ACTAS
-    ================================================== -->
-
-    <section
-        id="section-actas"
-        class="app-section"
-        data-section="actas"
-    >
-
-        <div class="page-title">
-
-            <div>
-
-                <h2>
-                    Actas
-                </h2>
-
-                <p>
-                    Redacción y gestión de actas.
-                </p>
-
-            </div>
-
-            <button
-                id="newActaButton"
-                type="button"
-                class="primary-button"
-            >
-                + Nueva
-            </button>
-
-        </div>
-
-
-        <!-- NUEVA ACTA -->
-
-        <div
-            id="actaEditor"
-            class="acta-editor hidden"
-        >
-
-            <div class="card-header">
-
-                <h3>
-                    Nueva acta
-                </h3>
-
-                <button
-                    id="closeActaEditor"
-                    type="button"
-                    class="icon-button"
-                    aria-label="Cerrar"
-                >
-                    ×
-                </button>
-
-            </div>
-
-
-            <form id="actaForm">
-
-                <!-- DATOS DEL ACTA -->
-
-                <div class="form-section">
-
-                    <h4>
-                        Datos del acta
-                    </h4>
-
-
-                    <div class="form-group">
-
-                        <label for="actaNumero">
-                            Número de acta
-                        </label>
-
-                        <input
-                            id="actaNumero"
-                            name="numero"
-                            type="text"
-                            placeholder="Número de acta"
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="actaFecha">
-                            Fecha
-                        </label>
-
-                        <input
-                            id="actaFecha"
-                            name="fecha"
-                            type="date"
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="actaHora">
-                            Hora
-                        </label>
-
-                        <input
-                            id="actaHora"
-                            name="hora"
-                            type="time"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <!-- DATOS DEL INTERESADO -->
-
-                <div class="form-section">
-
-                    <h4>
-                        Persona denunciada
-                    </h4>
-
-
-                    <div class="form-group">
-
-                        <label for="actaNombre">
-                            Nombre y apellidos
-                        </label>
-
-                        <input
-                            id="actaNombre"
-                            name="nombre"
-                            type="text"
-                            autocomplete="off"
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="actaDni">
-                            DNI / NIE
-                        </label>
-
-                        <input
-                            id="actaDni"
-                            name="dni"
-                            type="text"
-                            autocomplete="off"
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="actaDomicilio">
-                            Domicilio
-                        </label>
-
-                        <input
-                            id="actaDomicilio"
-                            name="domicilio"
-                            type="text"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <!-- HECHOS -->
-
-                <div class="form-section">
-
-                    <h4>
-                        Hechos
-                    </h4>
-
-
-                    <div class="form-group">
-
-                        <label for="actaLugar">
-                            Lugar
-                        </label>
-
-                        <input
-                            id="actaLugar"
-                            name="lugar"
-                            type="text"
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="actaHechos">
-                            Descripción de los hechos
-                        </label>
-
-                        <textarea
-                            id="actaHechos"
-                            name="hechos"
-                            rows="7"
-                            placeholder="Describa los hechos observados..."
-                        ></textarea>
-
-                    </div>
-
-                </div>
-
-
-                <!-- INFRACCIÓN -->
-
-                <div class="form-section">
-
-                    <h4>
-                        Infracción
-                    </h4>
-
-
-                    <div class="form-group">
-
-                        <label for="actaInfraccion">
-                            Código / artículo
-                        </label>
-
-                        <input
-                            id="actaInfraccion"
-                            name="infraccion"
-                            type="text"
-                            placeholder="Ej.: 36.16"
-                            autocomplete="off"
-                        >
-
-                    </div>
-
-
-                    <div
-                        id="actaInfraccionPreview"
-                        class="infraccion-preview hidden"
-                    >
-                    </div>
-
-                </div>
-
-
-                <!-- OBSERVACIONES -->
-
-                <div class="form-section">
-
-                    <h4>
-                        Observaciones
-                    </h4>
-
-
-                    <div class="form-group">
-
-                        <textarea
-                            id="actaObservaciones"
-                            name="observaciones"
-                            rows="5"
-                            placeholder="Observaciones adicionales..."
-                        ></textarea>
-
-                    </div>
-
-                </div>
-
-
-                <!-- BOTONES -->
-
-                <div class="form-actions">
-
-                    <button
-                        type="button"
-                        id="cancelActaButton"
-                        class="secondary-button"
-                    >
-                        Cancelar
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="primary-button"
-                    >
-                        Guardar acta
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-
-        <!-- LISTA DE ACTAS -->
-
-        <div
-            id="actasList"
-            class="actas-list"
-        >
-
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    📝
-                </div>
-
-                <h3>
-                    No hay actas guardadas
-                </h3>
-
-                <p>
-                    Pulsa «Nueva» para comenzar un acta.
-                </p>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         NORMATIVA
-    ================================================== -->
-
-    <section
-        id="section-normativa"
-        class="app-section"
-        data-section="normativa"
-    >
-
-        <div class="page-title">
-
-            <div>
-
-                <h2>
-                    Normativa
-                </h2>
-
-                <p>
-                    Consulta la legislación disponible
-                    en la aplicación.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <!-- BUSCADOR NORMATIVA -->
-
-        <div class="search-box">
-
-            <span
-                class="search-icon"
-                aria-hidden="true"
-            >
-                🔎
-            </span>
-
-            <input
-                id="normativaSearch"
-                type="search"
-                placeholder="Buscar artículo o texto..."
-                autocomplete="off"
-                aria-label="Buscar normativa"
-            >
-
-            <button
-                id="clearNormativaSearch"
-                type="button"
-                class="clear-search"
-                aria-label="Borrar búsqueda"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-        <!-- LISTA NORMATIVA -->
-
-        <div
-            id="normativaList"
-            class="normativa-list"
-        >
-
-            <div class="normativa-card">
-
-                <div class="normativa-icon">
-                    ⚖️
-                </div>
-
-                <div class="normativa-info">
-
-                    <h3>
-                        Ley Orgánica 4/2015
-                    </h3>
-
-                    <p>
-                        Protección de la seguridad ciudadana
-                    </p>
-
-                    <span>
-                        LOPSC
-                    </span>
-
-                </div>
-
-                <button
-                    type="button"
-                    class="normativa-open"
-                    data-law="lopsc"
-                >
-                    Ver
-                </button>
-
-            </div>
-
-
-            <div class="normativa-card">
-
-                <div class="normativa-icon">
-                    🏛️
-                </div>
-
-                <div class="normativa-info">
-
-                    <h3>
-                        Ordenanzas municipales
-                    </h3>
-
-                    <p>
-                        Normativa municipal disponible
-                    </p>
-
-                    <span>
-                        Ordenanzas
-                    </span>
-
-                </div>
-
-                <button
-                    type="button"
-                    class="normativa-open"
-                    data-law="ordenanzas"
-                >
-                    Ver
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- VISOR DE NORMATIVA -->
-
-        <div
-            id="normativaViewer"
-            class="normativa-viewer hidden"
-        >
-
-            <div class="viewer-header">
-
-                <button
-                    id="closeNormativaViewer"
-                    type="button"
-                    class="icon-button"
-                    aria-label="Cerrar normativa"
-                >
-                    ←
-                </button>
-
-                <div>
-
-                    <h3 id="viewerTitle">
-                        Normativa
-                    </h3>
-
-                    <span id="viewerSubtitle">
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div
-                id="viewerContent"
-                class="viewer-content"
-            >
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         AJUSTES
-    ================================================== -->
-
-    <section
-        id="section-ajustes"
-        class="app-section"
-        data-section="ajustes"
-    >
-
-        <div class="page-title">
-
-            <div>
-
-                <h2>
-                    Ajustes
-                </h2>
-
-                <p>
-                    Configuración de Centinela Code.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <!-- INFORMACIÓN DE LA APP -->
-
-        <div class="settings-card">
-
-            <div class="settings-card-header">
-
-                <span class="settings-icon">
-                    🛡️
-                </span>
-
-                <div>
-
-                    <h3>
-                        Centinela Code
-                    </h3>
-
-                    <p>
-                        Aplicación de consulta normativa
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="settings-row">
-
-                <span>
-                    Versión
-                </span>
-
-                <strong id="appVersion">
-                    1.0.0
-                </strong>
-
-            </div>
-
-
-            <div class="settings-row">
-
-                <span>
-                    Estado
-                </span>
-
-                <strong
-                    id="appStatus"
-                    class="status-value"
-                >
-                    Operativa
-                </strong>
-
-            </div>
-
-
-            <div class="settings-row">
-
-                <span>
-                    Modo
-                </span>
-
-                <strong id="appMode">
-                    Offline / Online
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <!-- DATOS -->
-
-        <div class="settings-card">
-
-            <div class="settings-card-title">
-                Datos
-            </div>
-
-
-            <button
-                id="reloadDataButton"
-                type="button"
-                class="settings-button"
-            >
-
-                <span>
-                    🔄
-                </span>
-
-                <span>
-                    Recargar datos
-                </span>
-
-            </button>
-
-
-            <button
-                id="clearDraftsButton"
-                type="button"
-                class="settings-button danger"
-            >
-
-                <span>
-                    🗑️
-                </span>
-
-                <span>
-                    Borrar actas guardadas
-                </span>
-
-            </button>
-
-        </div>
-
-
-        <!-- ESTADO DE LOS ARCHIVOS -->
-
-        <div class="settings-card">
-
-            <div class="settings-card-title">
-                Estado de las bases de datos
-            </div>
-
-
-            <div class="settings-data-status">
-
-                <div class="data-status-row">
-
-                    <span>
-                        LOPSC
-                    </span>
-
-                    <strong id="settingsLopscStatus">
-                        Pendiente
-                    </strong>
-
-                </div>
-
-
-                <div class="data-status-row">
-
-                    <span>
-                        Infracciones
-                    </span>
-
-                    <strong id="settingsInfraccionesStatus">
-                        Pendiente
-                    </strong>
-
-                </div>
-
-
-                <div class="data-status-row">
-
-                    <span>
-                        Ordenanzas
-                    </span>
-
-                    <strong id="settingsOrdenanzasStatus">
-                        Pendiente
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- INFORMACIÓN -->
-
-        <div class="settings-card">
-
-            <div class="settings-card-title">
-                Información
-            </div>
-
-            <p class="settings-description">
-
-                Centinela Code está diseñada para facilitar
-                la consulta de normativa y la preparación
-                de actas durante el servicio.
-
-            </p>
-
-            <p class="settings-description">
-
-                La aplicación puede funcionar sin conexión
-                cuando los datos necesarios se encuentran
-                almacenados localmente.
-
-            </p>
-
-        </div>
-
-    </section>
-
-</main>
-
-
-<!-- =====================================================
-     BARRA DE NAVEGACIÓN INFERIOR
-====================================================== -->
-
-<nav
-    id="bottomNavigation"
-    class="bottom-navigation"
-    aria-label="Navegación principal"
->
-
-    <button
-        type="button"
-        class="nav-item active"
-        data-section="home"
-        aria-label="Inicio"
-    >
-
-        <span class="nav-icon">
-            🏠
-        </span>
-
-        <span class="nav-label">
-            Inicio
-        </span>
-
-    </button>
-
-
-    <button
-        type="button"
-        class="nav-item"
-        data-section="consulta"
-        aria-label="Consulta"
-    >
-
-        <span class="nav-icon">
-            🔎
-        </span>
-
-        <span class="nav-label">
-            Consulta
-        </span>
-
-    </button>
-
-
-    <button
-        type="button"
-        class="nav-item"
-        data-section="actas"
-        aria-label="Actas"
-    >
-
-        <span class="nav-icon">
-            📝
-        </span>
-
-        <span class="nav-label">
-            Actas
-        </span>
-
-    </button>
-
-
-    <button
-        type="button"
-        class="nav-item"
-        data-section="normativa"
-        aria-label="Normativa"
-    >
-
-        <span class="nav-icon">
-            ⚖️
-        </span>
-
-        <span class="nav-label">
-            Normativa
-        </span>
-
-    </button>
-
-
-    <button
-        type="button"
-        class="nav-item"
-        data-section="ajustes"
-        aria-label="Ajustes"
-    >
-
-        <span class="nav-icon">
-            ⚙️
-        </span>
-
-        <span class="nav-label">
-            Ajustes
-        </span>
-
-    </button>
-
-</nav>
-
-
-<!-- =====================================================
-     MODAL GENERAL
-====================================================== -->
-
-<div
-    id="appModal"
-    class="modal hidden"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="modalTitle"
->
-
-    <div
-        class="modal-overlay"
-        id="modalOverlay"
-    ></div>
-
-
-    <div class="modal-container">
-
-        <div class="modal-header">
-
-            <h3 id="modalTitle">
+            <title>
                 Centinela Code
-            </h3>
+            </title>
 
-            <button
-                id="closeModal"
-                type="button"
-                class="icon-button"
-                aria-label="Cerrar"
-            >
-                ×
-            </button>
+            <style>
 
-        </div>
+                html,
+                body {
 
+                    margin: 0;
 
-        <div
-            id="modalBody"
-            class="modal-body"
-        >
-        </div>
+                    padding: 0;
 
+                    min-height: 100%;
 
-        <div
-            id="modalActions"
-            class="modal-actions"
-        >
-        </div>
+                    background: #020617;
 
-    </div>
+                    color: #f8fafc;
 
-</div>
+                    font-family:
+                        Arial,
+                        Helvetica,
+                        sans-serif;
+
+                }
 
 
-<!-- =====================================================
-     TOAST / AVISOS
-====================================================== -->
+                body {
 
-<div
-    id="toast"
-    class="toast"
-    role="status"
-    aria-live="polite"
->
-    <span id="toastMessage"></span>
-</div>
+                    display: flex;
+
+                    align-items: center;
+
+                    justify-content: center;
+
+                    padding: 24px;
+
+                    box-sizing: border-box;
+
+                }
 
 
-<!-- =====================================================
-     INDICADOR DE CARGA
-====================================================== -->
+                .offline {
 
-<div
-    id="loadingScreen"
-    class="loading-screen"
->
+                    max-width: 420px;
 
-    <div class="loading-logo">
-        🛡️
-    </div>
+                    text-align: center;
 
-    <h2>
-        Centinela Code
-    </h2>
+                }
 
-    <p>
-        Cargando aplicación...
-    </p>
 
-    <div class="loading-spinner"></div>
+                h1 {
 
-</div>
-<script src="app.js" defer ></script> <script> if ("serviceWorker" in navigator) { window.addEventListener("load", function () { navigator.serviceWorker .register("service-worker.js") .then(function (registration) { console.log( "Centinela Code: Service Worker registrado.", registration.scope ); }) .catch(function (error) { console.warn( "Centinela Code: no se pudo registrar el Service Worker.", error ); }); }); } </script>
+                    margin-bottom: 12px;
+
+                }
+
+
+                p {
+
+                    color: #cbd5e1;
+
+                    line-height: 1.5;
+
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+            <main class="offline">
+
+                <h1>
+                    🛡️ Centinela Code
+                </h1>
+
+                <p>
+                    La aplicación se encuentra
+                    sin conexión.
+                </p>
+
+                <p>
+                    Todavía no existe una copia local
+                    disponible de esta página.
+                </p>
+
+                <p>
+                    Vuelve a abrir Centinela Code
+                    cuando haya conexión.
+                </p>
+
+            </main>
+
+        </body>
+
+        </html>
+        `,
+
+        {
+
+            status: 503,
+
+            statusText: "Offline",
+
+            headers: {
+
+                "Content-Type":
+                    "text/html; charset=utf-8"
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+   AVISAR A LAS PÁGINAS ABIERTAS
+   ============================================================ */
+
+async function avisarClientesNuevaVersion() {
+
+    const clientes =
+        await self.clients.matchAll(
+            {
+                type: "window"
+            }
+        );
+
+
+    clientes.forEach(
+        cliente => {
+
+            cliente.postMessage({
+
+                type:
+                    "CENTINELA_SW_ACTUALIZADO",
+
+                version:
+                    CACHE_VERSION
+
+            });
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   MENSAJES DESDE APP.JS
+   ============================================================ */
+
+self.addEventListener(
+    "message",
+    event => {
+
+        if (
+            !event.data
+        ) {
+
+            return;
+
+        }
+
+
+        /* --------------------------------------------------------
+           FORZAR ACTUALIZACIÓN
+        -------------------------------------------------------- */
+
+        if (
+            event.data.type ===
+            "SKIP_WAITING"
+        ) {
+
+            self.skipWaiting();
+
+            return;
+
+        }
+
+
+        /* --------------------------------------------------------
+           LIMPIAR CACHÉ
+        -------------------------------------------------------- */
+
+        if (
+            event.data.type ===
+            "CLEAR_CACHE"
+        ) {
+
+            event.waitUntil(
+
+                caches.keys()
+                    .then(
+                        keys => {
+
+                            return Promise.all(
+
+                                keys.map(
+                                    key => {
+
+                                        return caches.delete(
+                                            key
+                                        );
+
+                                    }
+                                )
+
+                            );
+
+                        }
+                    )
+
+            );
+
+            return;
+
+        }
+
+
+        /* --------------------------------------------------------
+           COMPROBAR VERSIÓN
+        -------------------------------------------------------- */
+
+        if (
+            event.data.type ===
+            "GET_VERSION"
+        ) {
+
+            if (
+                event.source
+            ) {
+
+                event.source.postMessage({
+
+                    type:
+                        "CENTINELA_SW_VERSION",
+
+                    version:
+                        CACHE_VERSION
+
+                });
+
+            }
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   FIN SERVICE WORKER
+   CENTINELA CODE 3.0.1
+   ============================================================ */
+   |
