@@ -1,0 +1,1069 @@
+{
+"version": "1.0.0",
+"fuente": "Ley Orgánica 4/2015",
+"ley": "LO 4/2015",
+"boe": "BOE-A-2015-3442",
+"ultimaActualizacionBOE": "23/02/2021",
+"infracciones": [
+{
+"id": "LOPSC-35-01",
+"codigo": "35.1",
+"ley": "LO 4/2015",
+"articulo": "35",
+"apartado": "1",
+"gravedad": "Muy Grave",
+"titulo": "Reuniones o manifestaciones no comunicadas o prohibidas en infraestructuras críticas",
+"conducta": "Reuniones o manifestaciones no comunicadas o prohibidas en infraestructuras o instalaciones en las que se prestan servicios básicos para la comunidad o en sus inmediaciones, así como la intrusión en sus recintos, incluido su sobrevuelo, cuando se haya generado un riesgo para la vida o la integridad física de las personas.",
+"sancion": {
+"min": 30001,
+"max": 600000,
+"moneda": "EUR"
+},
+"palabrasClave": [
+"reunion",
+"manifestacion",
+"infraestructura",
+"instalacion",
+"servicios basicos",
+"intrusion",
+"sobrevuelo",
+"riesgo"
+],
+"responsables": [
+"organizadores",
+"promotores"
+],
+"fuente": "BOE"
+},
+{
+"id": "LOPSC-35-02",
+"codigo": "35.2",
+"ley": "LO 4/2015",
+"articulo": "35",
+"apartado": "2",
+"gravedad": "Muy Grave",
+"titulo": "Armas, explosivos, cartuchería o pirotecnia con perjuicios muy graves",
+"conducta": "Fabricación, reparación, almacenamiento, circulación, comercio, transporte, distribución, adquisición, certificación, enajenación o utilización de armas reglamentarias, explosivos catalogados, cartuchería o artículos pirotécnicos incumpliendo la normativa, careciendo de la documentación o autorización requeridas o excediendo los límites autorizados, cuando no sea delito y se causen perjuicios muy graves. También la omisión, insuficiencia o falta de eficacia de las medidas de seguridad o precauciones obligatorias cuando se causen dichos perjuicios.",
+"sancion": {
+"min": 30001,
+"max": 600000,
+"moneda": "EUR"
+},
+"palabrasClave": [
+"arma",
+"armas",
+"explosivos",
+"cartucheria",
+"pirotecnia",
+"autorizacion",
+"documentacion",
+"medidas de seguridad",
+"perjuicios muy graves"
+],
+"fuente": "BOE"
+},
+{
+"id": "LOPSC-35-03",
+"codigo": "35.3",
+"ley": "LO 4/2015",
+"articulo": "35",
+"apartado": "3",
+"gravedad": "Muy Grave",
+"titulo": "Espectáculos o actividades recreativas prohibidos o suspendidos",
+"conducta": "Celebración de espectáculos públicos o actividades recreativas quebrantando la prohibición o suspensión ordenada por la autoridad correspondiente por razones de seguridad pública.",
+"sancion": {
+"min": 30001,
+"max": 600000,
+"moneda": "EUR"
+},
+"palabrasClave": [
+"espectaculo",
+"actividad recreativa",
+"prohibicion",
+"suspension",
+"seguridad publica"
+],
+"fuente": "BOE"
+},
+{
+"id": "LOPSC-35-04",
+"codigo": "35.4",
+"ley": "LO 4/2015",
+"articulo": "35",
+"apartado": "4",
+"gravedad": "Muy Grave",
+"titulo": "Proyección de haces de luz sobre conductores o pilotos",
+"conducta": "Proyección de haces de luz, mediante cualquier tipo de dispositivo, sobre pilotos o conductores de medios de transporte que puedan deslumbrarles o distraer su atención y provocar accidentes.",
+"sancion": {
+"min": 30001,
+"max": 600000,
+"moneda": "EUR"
+},
+"palabrasClave": [
+"laser",
+"haz de luz",
+"deslumbramiento",
+"conductor",
+"piloto",
+"accidente"
+],
+"fuente": "BOE"
+},
+
+{
+  "id": "LOPSC-36-01",
+  "codigo": "36.1",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "1",
+  "gravedad": "Grave",
+  "titulo": "Perturbación de la seguridad ciudadana en actos públicos",
+  "conducta": "Perturbación de la seguridad ciudadana en actos públicos, espectáculos deportivos o culturales, solemnidades, oficios religiosos u otras reuniones a las que asistan numerosas personas, cuando no sea constitutiva de infracción penal.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "perturbacion",
+    "seguridad ciudadana",
+    "acto publico",
+    "espectaculo",
+    "reunion"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-02",
+  "codigo": "36.2",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "2",
+  "gravedad": "Grave",
+  "titulo": "Perturbación grave ante sedes legislativas",
+  "conducta": "Perturbación grave de la seguridad ciudadana con ocasión de reuniones o manifestaciones frente a las sedes del Congreso de los Diputados, el Senado y las asambleas legislativas de las comunidades autónomas, aunque no estuvieran reunidas, cuando no constituya infracción penal.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "perturbacion",
+    "congreso",
+    "senado",
+    "asamblea legislativa",
+    "manifestacion",
+    "reunion"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-03",
+  "codigo": "36.3",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "3",
+  "gravedad": "Grave",
+  "titulo": "Desórdenes y obstaculización grave de la vía pública",
+  "conducta": "Causar desórdenes en vías, espacios o establecimientos públicos, u obstaculizar la vía pública con mobiliario urbano, vehículos, contenedores, neumáticos u otros objetos, cuando se ocasione una alteración grave de la seguridad ciudadana.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "desordenes",
+    "obstaculizacion",
+    "via publica",
+    "contenedor",
+    "vehiculo",
+    "mobiliario urbano"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-04",
+  "codigo": "36.4",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "4",
+  "gravedad": "Grave",
+  "titulo": "Obstrucción al ejercicio legítimo de funciones públicas",
+  "conducta": "Actos de obstrucción destinados a impedir a cualquier autoridad, empleado público o corporación oficial el ejercicio legítimo de sus funciones, el cumplimiento o la ejecución de acuerdos o resoluciones administrativas o judiciales, al margen de los procedimientos legalmente establecidos y cuando no sean constitutivos de delito.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "obstruccion",
+    "autoridad",
+    "empleado publico",
+    "resolucion",
+    "acuerdo"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-05",
+  "codigo": "36.5",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "5",
+  "gravedad": "Grave",
+  "titulo": "Obstrucción de servicios de emergencia",
+  "conducta": "Acciones u omisiones que impidan u obstaculicen el funcionamiento de los servicios de emergencia, provocando o incrementando un riesgo para la vida o integridad de las personas o daños en los bienes, o agravando las consecuencias del suceso.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "emergencias",
+    "ambulancia",
+    "bomberos",
+    "policia",
+    "obstruccion",
+    "riesgo"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-06",
+  "codigo": "36.6",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "6",
+  "gravedad": "Grave",
+  "titulo": "Desobediencia, resistencia o negativa a identificarse",
+  "conducta": "Desobediencia o resistencia a la autoridad o a sus agentes en el ejercicio de sus funciones, cuando no sea constitutiva de delito, así como la negativa a identificarse a requerimiento de la autoridad o de sus agentes o la alegación de datos falsos o inexactos en los procesos de identificación.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "desobediencia",
+    "resistencia",
+    "identificacion",
+    "datos falsos",
+    "agente",
+    "autoridad"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-07",
+  "codigo": "36.7",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "7",
+  "gravedad": "Grave",
+  "titulo": "Negativa a la disolución de reuniones o manifestaciones",
+  "conducta": "Negativa a la disolución de reuniones y manifestaciones en lugares de tránsito público ordenada por la autoridad competente cuando concurran los supuestos previstos en el artículo 5 de la Ley Orgánica 9/1983.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "negativa",
+    "disolucion",
+    "reunion",
+    "manifestacion",
+    "autoridad",
+    "orden"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-08",
+  "codigo": "36.8",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "8",
+  "gravedad": "Grave",
+  "titulo": "Perturbación de reunión o manifestación lícita",
+  "conducta": "Perturbación del desarrollo de una reunión o manifestación lícita cuando no constituya infracción penal.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "perturbacion",
+    "reunion",
+    "manifestacion",
+    "concentracion"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-09",
+  "codigo": "36.9",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "9",
+  "gravedad": "Grave",
+  "titulo": "Intrusión en infraestructuras o instalaciones",
+  "conducta": "Intrusión en infraestructuras o instalaciones en las que se prestan servicios básicos para la comunidad, incluyendo su sobrevuelo, cuando se haya producido una interferencia grave en su funcionamiento.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "intrusion",
+    "infraestructura",
+    "instalacion",
+    "servicios basicos",
+    "sobrevuelo",
+    "interferencia"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-10",
+  "codigo": "36.10",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "10",
+  "gravedad": "Grave",
+  "titulo": "Armas prohibidas o uso negligente, temerario o intimidatorio",
+  "conducta": "Portar, exhibir o usar armas prohibidas, así como portar, exhibir o usar armas de modo negligente, temerario o intimidatorio, o fuera de los lugares habilitados para su uso, aun cuando en este último caso se tuviera licencia, siempre que no constituya infracción penal.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "arma",
+    "arma prohibida",
+    "negligente",
+    "temerario",
+    "intimidatorio",
+    "licencia"
+  ],
+  "medidas": [
+    "Intervención de arma u objeto",
+    "Comiso"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-11",
+  "codigo": "36.11",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "11",
+  "gravedad": "Grave",
+  "titulo": "Solicitud o aceptación de servicios sexuales retribuidos en determinados lugares",
+  "conducta": "Solicitud o aceptación por el demandante de servicios sexuales retribuidos en zonas de tránsito público próximas a lugares destinados al uso de menores, como centros educativos, parques infantiles o espacios de ocio accesibles a menores, o cuando por el lugar puedan generar un riesgo para la seguridad vial.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "servicios sexuales",
+    "prostitucion",
+    "menores",
+    "centro educativo",
+    "parque infantil",
+    "seguridad vial"
+  ],
+  "observaciones": "Los agentes requerirán a las personas que ofrezcan estos servicios para que se abstengan de hacerlo en dichos lugares.",
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-12",
+  "codigo": "36.12",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "12",
+  "gravedad": "Grave",
+  "titulo": "Incumplimiento de normativa sobre armas, explosivos y pirotecnia",
+  "conducta": "Fabricación, reparación, almacenamiento, circulación, comercio, transporte, distribución, adquisición, certificación, enajenación o utilización de armas reglamentarias, explosivos catalogados, cartuchería o artículos pirotécnicos incumpliendo la normativa, careciendo de documentación o autorización o excediendo los límites autorizados cuando no sea delito, así como la omisión, insuficiencia o falta de eficacia de las medidas de seguridad o precauciones obligatorias.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "armas",
+    "explosivos",
+    "cartucheria",
+    "pirotecnia",
+    "autorizacion",
+    "documentacion"
+  ],
+  "medidas": [
+    "Intervención de arma u objeto"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-13",
+  "codigo": "36.13",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "13",
+  "gravedad": "Grave",
+  "titulo": "Negativa de acceso u obstrucción de inspecciones y controles",
+  "conducta": "Negativa de acceso o obstrucción deliberada de las inspecciones o controles reglamentarios establecidos conforme a la Ley en fábricas, locales, establecimientos, embarcaciones y aeronaves.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "inspeccion",
+    "control",
+    "obstruccion",
+    "fabrica",
+    "local",
+    "establecimiento",
+    "embarcacion",
+    "aeronave"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-14",
+  "codigo": "36.14",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "14",
+  "gravedad": "Grave",
+  "titulo": "Uso indebido de uniformes, insignias o equipamiento oficial",
+  "conducta": "Uso público e indebido de uniformes, insignias o condecoraciones oficiales, o réplicas de los mismos, así como otros elementos del equipamiento de los cuerpos policiales o servicios de emergencia que puedan generar engaño sobre la condición de quien los use, cuando no sea delito.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "uniforme",
+    "insignia",
+    "condecoracion",
+    "policia",
+    "emergencias",
+    "equipamiento"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-15",
+  "codigo": "36.15",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "15",
+  "gravedad": "Grave",
+  "titulo": "Falta de colaboración con las Fuerzas y Cuerpos de Seguridad",
+  "conducta": "Falta de colaboración con las Fuerzas y Cuerpos de Seguridad en la averiguación de delitos o en la prevención de acciones que puedan poner en riesgo la seguridad ciudadana en los supuestos previstos en el artículo 7.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "colaboracion",
+    "policia",
+    "fuerzas y cuerpos de seguridad",
+    "delito",
+    "prevencion",
+    "seguridad ciudadana"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-16",
+  "codigo": "36.16",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "16",
+  "gravedad": "Grave",
+  "titulo": "Consumo o tenencia ilícita de drogas en lugares públicos",
+  "conducta": "Consumo o tenencia ilícitos de drogas tóxicas, estupefacientes o sustancias psicotrópicas, aunque no estén destinadas al tráfico, en lugares, vías, establecimientos públicos o transportes colectivos, así como abandono de instrumentos u otros efectos empleados para ello en dichos lugares.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "drogas",
+    "estupefacientes",
+    "sustancias psicotropicas",
+    "consumo",
+    "tenencia",
+    "via publica"
+  ],
+  "medidas": [
+    "Intervención de sustancias",
+    "Intervención de efectos"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-17",
+  "codigo": "36.17",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "17",
+  "gravedad": "Grave",
+  "titulo": "Traslado de personas para facilitar acceso a drogas",
+  "conducta": "Traslado de personas mediante cualquier tipo de vehículo con el objeto de facilitar su acceso a drogas tóxicas, estupefacientes o sustancias psicotrópicas, siempre que no constituya delito.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "drogas",
+    "traslado",
+    "vehiculo",
+    "facilitar acceso"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-18",
+  "codigo": "36.18",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "18",
+  "gravedad": "Grave",
+  "titulo": "Plantación o cultivo ilícito visible al público",
+  "conducta": "Ejecución de actos de plantación y cultivo ilícitos de drogas tóxicas, estupefacientes o sustancias psicotrópicas en lugares visibles al público, cuando no sean constitutivos de infracción penal.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "cultivo",
+    "plantacion",
+    "drogas",
+    "visible al publico"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-19",
+  "codigo": "36.19",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "19",
+  "gravedad": "Grave",
+  "titulo": "Tolerancia del consumo o tráfico de drogas en establecimientos",
+  "conducta": "Tolerancia del consumo ilegal o tráfico de drogas tóxicas, estupefacientes o sustancias psicotrópicas en locales o establecimientos públicos o falta de diligencia para impedirlos por parte de propietarios, administradores o encargados.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "drogas",
+    "trafico",
+    "local",
+    "establecimiento",
+    "tolerancia"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-20",
+  "codigo": "36.20",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "20",
+  "gravedad": "Grave",
+  "titulo": "Carencia de registros u omisión de comunicaciones obligatorias",
+  "conducta": "Carencia de los registros previstos en la Ley para las actividades con trascendencia para la seguridad ciudadana o la omisión de comunicaciones obligatorias.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "registro",
+    "registros",
+    "comunicacion",
+    "obligacion",
+    "seguridad ciudadana"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-21",
+  "codigo": "36.21",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "21",
+  "gravedad": "Grave",
+  "titulo": "Datos falsos para obtener documentación",
+  "conducta": "Alegación de datos o circunstancias falsos para la obtención de las documentaciones previstas en la Ley, siempre que no constituya infracción penal.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "datos falsos",
+    "documentacion",
+    "documento",
+    "alegacion",
+    "identidad"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-22",
+  "codigo": "36.22",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "22",
+  "gravedad": "Grave",
+  "titulo": "Incumplimiento de restricciones de navegación",
+  "conducta": "Incumplimiento de las restricciones a la navegación reglamentariamente impuestas a las embarcaciones de alta velocidad y aeronaves ligeras.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "navegacion",
+    "embarcacion",
+    "alta velocidad",
+    "aeronave",
+    "restricciones"
+  ],
+  "observaciones": "Conforme a la STC 13/2021, el precepto debe interpretarse en relación con restricciones impuestas por motivos de seguridad ciudadana y con un perjuicio real o amenaza concreta para dicha seguridad.",
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-36-23",
+  "codigo": "36.23",
+  "ley": "LO 4/2015",
+  "articulo": "36",
+  "apartado": "23",
+  "gravedad": "Grave",
+  "titulo": "Uso no autorizado de imágenes o datos de agentes en determinados supuestos",
+  "conducta": "Uso no autorizado de imágenes o datos personales o profesionales de autoridades o miembros de las Fuerzas y Cuerpos de Seguridad que pueda poner en peligro la seguridad personal o familiar de los agentes, de las instalaciones protegidas o poner en riesgo el éxito de una operación, con respeto al derecho fundamental a la información.",
+  "sancion": {
+    "min": 601,
+    "max": 30000,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "imagenes",
+    "agente",
+    "policia",
+    "datos personales",
+    "seguridad",
+    "operacion"
+  ],
+  "observaciones": "Debe aplicarse conforme a la interpretación constitucional vigente, incluida la STC 172/2020 y la STC 13/2021. El inciso declarado inconstitucional y nulo no se incorpora al contenido operativo.",
+  "fuente": "BOE"
+},
+
+{
+  "id": "LOPSC-37-01",
+  "codigo": "37.1",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "1",
+  "gravedad": "Leve",
+  "titulo": "Reuniones o manifestaciones incumpliendo la normativa",
+  "conducta": "Celebración de reuniones en lugares de tránsito público o de manifestaciones incumpliendo lo previsto en los artículos 4.2, 8, 9, 10 y 11 de la Ley Orgánica 9/1983, correspondiendo la responsabilidad a los organizadores o promotores.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "reunion",
+    "manifestacion",
+    "organizador",
+    "promotor",
+    "comunicacion"
+  ],
+  "responsables": [
+    "organizadores",
+    "promotores"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-02",
+  "codigo": "37.2",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "2",
+  "gravedad": "Leve",
+  "titulo": "Exhibición intimidatoria de objetos peligrosos",
+  "conducta": "Exhibición de objetos peligrosos para la vida e integridad física de las personas con ánimo intimidatorio, siempre que no constituya delito o infracción grave.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "objeto peligroso",
+    "intimidacion",
+    "exhibicion"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-03",
+  "codigo": "37.3",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "3",
+  "gravedad": "Leve",
+  "titulo": "Incumplimiento de restricciones de circulación peatonal o itinerario",
+  "conducta": "Incumplimiento de las restricciones de circulación peatonal o itinerario con ocasión de un acto público, reunión o manifestación, cuando provoquen alteraciones menores en el normal desarrollo de los mismos.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "circulacion peatonal",
+    "itinerario",
+    "acto publico",
+    "reunion",
+    "manifestacion"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-04",
+  "codigo": "37.4",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "4",
+  "gravedad": "Leve",
+  "titulo": "Falta de respeto y consideración a agentes",
+  "conducta": "Faltas de respeto y consideración cuyo destinatario sea un miembro de las Fuerzas y Cuerpos de Seguridad en el ejercicio de sus funciones de protección de la seguridad, cuando no sean constitutivas de infracción penal.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "falta de respeto",
+    "agente",
+    "policia",
+    "consideracion"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-05",
+  "codigo": "37.5",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "5",
+  "gravedad": "Leve",
+  "titulo": "Actos contra la libertad e indemnidad sexual o exhibición obscena",
+  "conducta": "Realización o incitación a la realización de actos que atenten contra la libertad e indemnidad sexual, o ejecución de actos de exhibición obscena, cuando no constituya infracción penal.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "libertad sexual",
+    "indemnidad sexual",
+    "exhibicion obscena",
+    "actos sexuales"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-06",
+  "codigo": "37.6",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "6",
+  "gravedad": "Leve",
+  "titulo": "Proyección de haces de luz sobre agentes",
+  "conducta": "Proyección de haces de luz, mediante cualquier tipo de dispositivo, sobre miembros de las Fuerzas y Cuerpos de Seguridad para impedir o dificultar el ejercicio de sus funciones.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "laser",
+    "luz",
+    "agente",
+    "policia",
+    "deslumbramiento",
+    "impedir funciones"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-07",
+  "codigo": "37.7",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "7",
+  "gravedad": "Leve",
+  "titulo": "Ocupación de inmueble o vía pública",
+  "conducta": "Ocupación de cualquier inmueble, vivienda o edificio ajenos, o permanencia en ellos contra la voluntad de su propietario, arrendatario o titular de otro derecho sobre el mismo, cuando no constituya infracción penal. También la ocupación de la vía pública infringiendo la Ley o contra la decisión de la autoridad competente, incluida la venta ambulante no autorizada.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "ocupacion",
+    "inmueble",
+    "vivienda",
+    "edificio",
+    "via publica",
+    "venta ambulante"
+  ],
+  "observaciones": "Debe aplicarse conforme a la interpretación efectuada por el Tribunal Constitucional.",
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-08",
+  "codigo": "37.8",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "8",
+  "gravedad": "Leve",
+  "titulo": "Falta de medidas sobre documentación de armas y explosivos",
+  "conducta": "Omisión o insuficiencia de medidas para garantizar la conservación de la documentación de armas y explosivos, así como falta de denuncia de su pérdida o sustracción.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "armas",
+    "explosivos",
+    "documentacion",
+    "perdida",
+    "sustraccion",
+    "denuncia"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-09",
+  "codigo": "37.9",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "9",
+  "gravedad": "Leve",
+  "titulo": "Irregularidades en registros con trascendencia para la seguridad",
+  "conducta": "Irregularidades en la cumplimentación de los registros previstos en la Ley con trascendencia para la seguridad ciudadana, incluyendo la alegación de datos o circunstancias falsos o la omisión de comunicaciones obligatorias dentro de los plazos establecidos, siempre que no constituya infracción penal.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "registro",
+    "datos falsos",
+    "comunicacion",
+    "plazo",
+    "seguridad ciudadana"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-10",
+  "codigo": "37.10",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "10",
+  "gravedad": "Leve",
+  "titulo": "Incumplimiento de la obligación de obtener documentación personal",
+  "conducta": "Incumplimiento de la obligación de obtener la documentación personal legalmente exigida, así como omisión negligente de la denuncia de su sustracción o extravío.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "dni",
+    "documentacion",
+    "extravio",
+    "sustraccion",
+    "denuncia"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-11",
+  "codigo": "37.11",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "11",
+  "gravedad": "Leve",
+  "titulo": "Negligencia en custodia de documentación personal",
+  "conducta": "Negligencia en la custodia y conservación de la documentación personal legalmente exigida, considerándose como tal la tercera y posteriores pérdidas o extravíos en el plazo de un año.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "dni",
+    "perdida",
+    "extravios",
+    "documentacion",
+    "negligencia"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-12",
+  "codigo": "37.12",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "12",
+  "gravedad": "Leve",
+  "titulo": "Negativa a entregar documentación personal",
+  "conducta": "Negativa a entregar la documentación personal legalmente exigida cuando se hubiese acordado su retirada o retención.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "documentacion",
+    "dni",
+    "negativa",
+    "entrega",
+    "retirada",
+    "retencion"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-13",
+  "codigo": "37.13",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "13",
+  "gravedad": "Leve",
+  "titulo": "Daños o deslucimiento de bienes",
+  "conducta": "Daños o deslucimiento de bienes muebles o inmuebles de uso o servicio público, así como de bienes muebles o inmuebles privados en la vía pública, cuando no constituyan infracción penal.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "daños",
+    "deslucimiento",
+    "grafiti",
+    "bien publico",
+    "bien privado",
+    "via publica"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-14",
+  "codigo": "37.14",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "14",
+  "gravedad": "Leve",
+  "titulo": "Escalamiento de edificios o monumentos sin autorización",
+  "conducta": "Escalamiento de edificios o monumentos sin autorización cuando exista un riesgo cierto de que se ocasionen daños a las personas o a los bienes.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "escalamiento",
+    "edificio",
+    "monumento",
+    "sin autorizacion",
+    "riesgo"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-15",
+  "codigo": "37.15",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "15",
+  "gravedad": "Leve",
+  "titulo": "Remoción de vallas o elementos de seguridad",
+  "conducta": "Remoción de vallas, encintados u otros elementos fijos o móviles colocados por las Fuerzas y Cuerpos de Seguridad para delimitar perímetros de seguridad, aun con carácter preventivo, cuando no constituya infracción grave.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "valla",
+    "encintado",
+    "perimetro",
+    "seguridad",
+    "policia",
+    "remocion"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-16",
+  "codigo": "37.16",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "16",
+  "gravedad": "Leve",
+  "titulo": "Animales peligrosos o abandono de animales",
+  "conducta": "Dejar sueltos o en condiciones de causar daños animales feroces o dañinos, así como abandonar animales domésticos en condiciones en que pueda peligrar su vida.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "animal",
+    "perro",
+    "animal peligroso",
+    "animal dañino",
+    "abandono"
+  ],
+  "fuente": "BOE"
+},
+{
+  "id": "LOPSC-37-17",
+  "codigo": "37.17",
+  "ley": "LO 4/2015",
+  "articulo": "37",
+  "apartado": "17",
+  "gravedad": "Leve",
+  "titulo": "Consumo de bebidas alcohólicas con perturbación grave",
+  "conducta": "Consumo de bebidas alcohólicas en lugares, vías, establecimientos o transportes públicos cuando perturbe gravemente la tranquilidad ciudadana.",
+  "sancion": {
+    "min": 100,
+    "max": 600,
+    "moneda": "EUR"
+  },
+  "palabrasClave": [
+    "alcohol",
+    "bebidas alcoholicas",
+    "via publica",
+    "botellon",
+    "tranquilidad ciudadana"
+  ],
+  "fuente": "BOE"
+}
+]
+}
