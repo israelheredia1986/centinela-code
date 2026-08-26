@@ -1,3 +1,13 @@
+/*
+CENTINELA CODE - SERVICE WORKER
+Versión corregida 5.0.0
+
+IMPORTANTE:
+- Se han corregido las comillas tipográficas que rompían JavaScript.
+- Se han corregido los comentarios inválidos.
+- No se interceptan peticiones externas.
+- HTML: red primero y caché como respaldo.
+- CSS/JS/JSON/manifest: red primero y caché como respaldo.
 */
 
 const CACHE_NAME = "centinela-code-v5";
