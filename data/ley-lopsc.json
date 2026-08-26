@@ -1,0 +1,365 @@
+{
+"ley": "Ley Orgánica 4/2015, de 30 de marzo, de protección de la seguridad ciudadana",
+"abreviatura": "LO 4/2015",
+"fecha": "30 de marzo de 2015",
+"boe": "BOE-A-2015-3442",
+"ultima_modificacion": "23 de febrero de 2021",
+"articulos": [
+{
+"numero": 1,
+"titulo": "Objeto",
+"texto": "La presente Ley tiene por objeto la regulación de un conjunto plural y diversificado de actuaciones de distinta naturaleza orientadas a la tutela de la seguridad ciudadana, mediante la protección de personas y bienes y el mantenimiento de la tranquilidad de los ciudadanos."
+},
+{
+"numero": 2,
+"titulo": "Ámbito de aplicación",
+"texto": "Las disposiciones de esta Ley son aplicables en todo el territorio nacional, sin perjuicio de las competencias que, en su caso, hayan asumido las comunidades autónomas en materia de seguridad ciudadana."
+},
+{
+"numero": 3,
+"titulo": "Fines",
+"texto": "Constituyen los fines de esta Ley la protección del libre ejercicio de los derechos fundamentales y las libertades públicas y los demás derechos reconocidos y amparados por el ordenamiento jurídico; la garantía del normal funcionamiento de las instituciones; la preservación de la seguridad y la convivencia ciudadanas; el respeto a las leyes; la protección de las personas y bienes; la pacífica utilización de vías y espacios públicos; la garantía de las condiciones de normalidad en la prestación de los servicios básicos para la comunidad; la prevención de la comisión de delitos e infracciones administrativas directamente relacionadas con los fines indicados y la sanción de las de esta naturaleza tipificadas en esta Ley; y la transparencia en la actuación de los poderes públicos en materia de seguridad ciudadana."
+},
+{
+"numero": 4,
+"titulo": "Principios rectores de la acción de los poderes públicos en relación con la seguridad ciudadana",
+"texto": "El ejercicio de las potestades y facultades reconocidas por esta Ley a las administraciones públicas y, específicamente, a las autoridades y demás órganos competentes en materia de seguridad ciudadana y a los miembros de las Fuerzas y Cuerpos de Seguridad se regirá por los principios de legalidad, igualdad de trato y no discriminación, oportunidad, proporcionalidad, eficacia, eficiencia y responsabilidad, y se someterá al control administrativo y jurisdiccional.\n\nEn particular, las disposiciones de los capítulos III y V deberán interpretarse y aplicarse del modo más favorable a la plena efectividad de los derechos fundamentales y libertades públicas, singularmente de los derechos de reunión y manifestación, las libertades de expresión e información, la libertad sindical y el derecho de huelga.\n\nEn particular, la actuación de los miembros de las Fuerzas y Cuerpos de Seguridad está sujeta a los principios básicos de actuación regulados en el artículo 5 de la Ley Orgánica 2/1986, de 13 de marzo, de Fuerzas y Cuerpos de Seguridad.\n\nLa actividad de intervención se justifica por la existencia de una amenaza concreta o de un comportamiento objetivamente peligroso que, razonablemente, sea susceptible de provocar un perjuicio real para la seguridad ciudadana."
+},
+{
+"numero": 5,
+"titulo": "Autoridades y órganos competentes",
+"texto": "Corresponde al Gobierno, a través del Ministerio del Interior y de los demás órganos y autoridades competentes y de las Fuerzas y Cuerpos de Seguridad a sus órdenes, la preparación, dirección y ejecución de la política en relación con la administración general de la seguridad ciudadana, sin perjuicio de las competencias atribuidas a otras administraciones públicas en dicha materia."
+},
+{
+"numero": 6,
+"titulo": "Cooperación interadministrativa",
+"texto": "La Administración General del Estado y las demás administraciones públicas con competencias en materia de seguridad ciudadana se regirán, en sus relaciones, por los principios de cooperación y lealtad institucional, facilitándose la información de acuerdo con la legislación vigente y la asistencia técnica necesarias en el ejercicio de sus respectivas atribuciones."
+},
+{
+"numero": 7,
+"titulo": "Deber de colaboración",
+"texto": "Todas las autoridades y funcionarios públicos, en el ámbito de sus respectivas competencias y de acuerdo con su normativa específica, deberán colaborar con las autoridades y órganos competentes en materia de seguridad ciudadana y prestarles el auxilio que sea posible y adecuado para la consecución de los fines relacionados con la seguridad ciudadana."
+},
+{
+"numero": 8,
+"titulo": "Deber de colaboración de los particulares",
+"texto": "Los particulares tienen el deber de colaborar con las Fuerzas y Cuerpos de Seguridad siempre que ello sea necesario para la prevención y persecución de delitos e infracciones administrativas."
+},
+{
+"numero": 9,
+"titulo": "Identificación de personas",
+"texto": "Las autoridades y sus agentes podrán requerir la identificación de las personas en los supuestos previstos legalmente, de conformidad con las condiciones y garantías establecidas en esta Ley."
+},
+{
+"numero": 10,
+"titulo": "Comprobaciones y registros en lugares públicos",
+"texto": "Los agentes de las Fuerzas y Cuerpos de Seguridad podrán practicar las comprobaciones y registros establecidos legalmente cuando resulte necesario para prevenir delitos e infracciones administrativas."
+},
+{
+"numero": 11,
+"titulo": "Entrada y registro en domicilio",
+"texto": "Los agentes de las Fuerzas y Cuerpos de Seguridad solamente podrán entrar y registrar domicilios en los casos y con las garantías establecidos por la Constitución y las leyes."
+},
+
+{
+  "numero": 12,
+  "titulo": "Prevención y mantenimiento de la seguridad ciudadana",
+  "texto": "Las autoridades competentes adoptarán las medidas necesarias para prevenir situaciones que puedan alterar la seguridad ciudadana y garantizar el ejercicio de los derechos y libertades."
+},
+{
+  "numero": 13,
+  "titulo": "Reuniones y manifestaciones",
+  "texto": "Las autoridades a las que se refiere esta Ley adoptarán las medidas necesarias para proteger la celebración de reuniones y manifestaciones, impidiendo que se perturbe la seguridad ciudadana."
+},
+{
+  "numero": 14,
+  "titulo": "Órdenes y prohibiciones",
+  "texto": "Las autoridades competentes podrán dictar las órdenes y prohibiciones necesarias cuando resulte imprescindible para garantizar la seguridad ciudadana, de acuerdo con los principios de legalidad y proporcionalidad."
+},
+{
+  "numero": 15,
+  "titulo": "Protección de personas y bienes",
+  "texto": "Las Fuerzas y Cuerpos de Seguridad adoptarán las medidas necesarias para proteger a las personas y los bienes frente a amenazas o riesgos que puedan afectar a la seguridad ciudadana."
+},
+{
+  "numero": 16,
+  "titulo": "Disolución de reuniones y manifestaciones",
+  "texto": "Las autoridades competentes podrán acordar la disolución de reuniones en lugares de tránsito público y manifestaciones en los supuestos previstos legalmente. También podrán disolver concentraciones de vehículos en las vías públicas y retirar vehículos u obstáculos cuando impidan, pongan en peligro o dificulten la circulación."
+},
+{
+  "numero": 17,
+  "titulo": "Restricción del tránsito y controles",
+  "texto": "Los agentes de las Fuerzas y Cuerpos de Seguridad podrán limitar o restringir la circulación o permanencia en vías o lugares públicos cuando resulte necesario para prevenir delitos, infracciones o situaciones de riesgo."
+},
+{
+  "numero": 18,
+  "titulo": "Comprobaciones y registros en lugares públicos",
+  "texto": "Los agentes podrán practicar comprobaciones en personas, bienes y vehículos cuando existan indicios de que puedan haberse utilizado para la comisión de una infracción o puedan contener instrumentos, efectos u otros objetos relevantes."
+},
+{
+  "numero": 19,
+  "titulo": "Disposiciones comunes a las diligencias de identificación, registro y comprobación",
+  "texto": "Las diligencias de identificación, registro y comprobación deberán realizarse con respeto a los principios de proporcionalidad, igualdad de trato y no discriminación."
+},
+{
+  "numero": 20,
+  "titulo": "Registros corporales externos",
+  "texto": "Podrá practicarse el registro corporal externo y superficial de la persona cuando existan indicios racionales para suponer que puede conducir al hallazgo de instrumentos, efectos u otros objetos relevantes para el mantenimiento de la seguridad ciudadana."
+},
+{
+  "numero": 21,
+  "titulo": "Medidas de seguridad extraordinarias",
+  "texto": "Las autoridades competentes podrán adoptar medidas extraordinarias cuando concurran situaciones de grave riesgo o emergencia que hagan necesario proteger a las personas y bienes."
+},
+{
+  "numero": 22,
+  "titulo": "Uso de videocámaras",
+  "texto": "La utilización de videocámaras por las Fuerzas y Cuerpos de Seguridad se realizará de acuerdo con la normativa específica aplicable y con respeto a los derechos fundamentales."
+},
+{
+  "numero": 23,
+  "titulo": "Reuniones y manifestaciones",
+  "texto": "Las autoridades a las que se refiere esta Ley adoptarán las medidas necesarias para proteger la celebración de reuniones y manifestaciones, impidiendo que se perturbe la seguridad ciudadana.\n\nLas medidas de intervención para el mantenimiento o el restablecimiento de la seguridad ciudadana en reuniones y manifestaciones serán graduales y proporcionadas a las circunstancias. La disolución constituirá el último recurso.\n\nAntes de adoptar las medidas correspondientes, las unidades actuantes deberán avisar de tales medidas a las personas afectadas, pudiendo hacerlo verbalmente si la urgencia lo hiciera imprescindible."
+},
+{
+  "numero": 24,
+  "titulo": "Colaboración entre las Fuerzas y Cuerpos de Seguridad",
+  "texto": "En los casos a que se refiere el artículo anterior, las Fuerzas y Cuerpos de Seguridad colaborarán mutuamente en los términos previstos en su Ley orgánica reguladora."
+},
+{
+  "numero": 25,
+  "titulo": "Obligaciones de registro documental",
+  "texto": "Las personas físicas o jurídicas que ejerzan actividades relevantes para la seguridad ciudadana, como las de hospedaje, transporte de personas, acceso comercial a servicios telefónicos o telemáticos de uso público, comercio o reparación de objetos usados, alquiler o desguace de vehículos de motor, compraventa de joyas y metales, objetos u obras de arte, cerrajería de seguridad, centros gestores de residuos metálicos y otras actividades legalmente determinadas, estarán sujetas a las obligaciones de registro documental e información establecidas por la normativa aplicable."
+},
+{
+  "numero": 26,
+  "titulo": "Establecimientos e instalaciones obligados a adoptar medidas de seguridad",
+  "texto": "Los establecimientos e instalaciones obligados legalmente deberán adoptar las medidas de seguridad previstas en la normativa aplicable."
+},
+{
+  "numero": 27,
+  "titulo": "Espectáculos y actividades recreativas",
+  "texto": "Las autoridades competentes podrán adoptar las medidas necesarias para garantizar la seguridad en espectáculos públicos y actividades recreativas."
+},
+{
+  "numero": 28,
+  "titulo": "Control administrativo sobre armas, explosivos y otros elementos",
+  "texto": "Corresponde al Estado el control de la fabricación, reparación, almacenamiento, circulación, comercio, transporte, distribución, adquisición, certificación, enajenación y utilización de armas, explosivos, cartuchería y artículos pirotécnicos, en los términos establecidos por la normativa específica."
+},
+{
+  "numero": 29,
+  "titulo": "Medidas de control sobre armas y explosivos",
+  "texto": "Las autoridades competentes ejercerán las facultades de inspección, control e intervención previstas en la legislación específica sobre armas, explosivos, cartuchería y artículos pirotécnicos."
+},
+{
+  "numero": 30,
+  "titulo": "Sujetos responsables",
+  "texto": "La responsabilidad por las infracciones cometidas en materia de seguridad ciudadana se determinará conforme a las reglas establecidas en esta Ley."
+},
+{
+  "numero": 31,
+  "titulo": "Exención de responsabilidad",
+  "texto": "No existirá responsabilidad administrativa en los supuestos expresamente previstos por la legislación aplicable."
+},
+{
+  "numero": 32,
+  "titulo": "Órganos competentes",
+  "texto": "Son órganos competentes para sancionar los previstos en esta Ley, de acuerdo con la distribución de competencias establecida legalmente."
+},
+{
+  "numero": 33,
+  "titulo": "Graduación de las sanciones",
+  "texto": "En la imposición de las sanciones se tendrán en cuenta las circunstancias concurrentes, la entidad del riesgo producido, la gravedad de los perjuicios ocasionados, la reincidencia y demás criterios establecidos legalmente."
+},
+{
+  "numero": 34,
+  "titulo": "Clasificación de las infracciones",
+  "texto": "Las infracciones tipificadas en esta Ley se clasifican en muy graves, graves y leves."
+},
+{
+  "numero": 35,
+  "titulo": "Infracciones muy graves",
+  "texto": "Son infracciones muy graves las conductas tipificadas como tales en este artículo, entre ellas la celebración de espectáculos públicos o actividades recreativas quebrantando la prohibición o suspensión ordenada por la autoridad competente por razones de seguridad pública, cuando se produzcan determinadas circunstancias legalmente previstas."
+},
+{
+  "numero": 36,
+  "titulo": "Infracciones graves",
+  "texto": "Son infracciones graves las conductas tipificadas en este artículo, entre ellas la perturbación de la seguridad ciudadana en actos públicos, espectáculos deportivos o culturales, solemnidades y oficios religiosos; la perturbación grave de la seguridad ciudadana en reuniones o manifestaciones; la desobediencia o resistencia a la autoridad o sus agentes cuando no constituya delito; la negativa a identificarse; el consumo o tenencia ilícitos de drogas tóxicas, estupefacientes o sustancias psicotrópicas en lugares, vías, establecimientos públicos o transportes colectivos; el traslado de personas con el objeto de facilitarles el acceso a drogas; la plantación y cultivo ilícitos de drogas en lugares visibles al público; la tolerancia del consumo ilegal o tráfico de drogas en locales o establecimientos públicos; la falta de colaboración con las Fuerzas y Cuerpos de Seguridad en los supuestos previstos legalmente; la perturbación del desarrollo de reuniones o manifestaciones lícitas; la intrusión en infraestructuras o instalaciones en las que se prestan servicios básicos cuando se produzca una interferencia grave; portar, exhibir o usar armas prohibidas o utilizarlas de modo negligente, temerario o intimidatorio; determinadas conductas relacionadas con servicios sexuales retribuidos en zonas de tránsito público; incumplimientos en materia de armas, explosivos, cartuchería o artículos pirotécnicos; obstrucción de inspecciones o controles reglamentarios; uso indebido de uniformes, insignias o equipamiento policial o de emergencia; y las demás conductas expresamente tipificadas en este artículo."
+},
+{
+  "numero": 37,
+  "titulo": "Infracciones leves",
+  "texto": "Son infracciones leves las conductas tipificadas en este artículo, entre ellas las faltas de respeto y consideración cuyo destinatario sea un miembro de las Fuerzas y Cuerpos de Seguridad en el ejercicio de sus funciones de protección de la seguridad, siempre que estas conductas no sean constitutivas de infracción penal; la exhibición de objetos peligrosos para la vida e integridad física de las personas con ánimo intimidatorio cuando no constituya delito o infracción grave; el incumplimiento de las restricciones de circulación peatonal o de itinerarios establecidas por los agentes; las omisiones o insuficiencias de medidas de seguridad obligatorias cuando no sean infracción grave o muy grave; y las demás conductas expresamente tipificadas en este artículo."
+},
+{
+  "numero": 38,
+  "titulo": "Prescripción de las infracciones",
+  "texto": "Las infracciones administrativas tipificadas en esta Ley prescribirán en los plazos establecidos legalmente según su clasificación."
+},
+{
+  "numero": 39,
+  "titulo": "Sanciones",
+  "texto": "Las infracciones tipificadas en esta Ley podrán ser sancionadas con multas y, en los supuestos legalmente previstos, con otras consecuencias administrativas."
+},
+{
+  "numero": 40,
+  "titulo": "Graduación de las sanciones",
+  "texto": "Las multas se graduarán atendiendo a las circunstancias y criterios establecidos en esta Ley."
+},
+{
+  "numero": 41,
+  "titulo": "Habilitación reglamentaria",
+  "texto": "Se habilita al Gobierno para establecer reglamentariamente los criterios de aplicación y desarrollo de las previsiones sancionadoras de esta Ley."
+},
+{
+  "numero": 42,
+  "titulo": "Reparación del daño e indemnización",
+  "texto": "Si las conductas sancionadas hubieran ocasionado daños o perjuicios a la Administración Pública, la resolución que ponga fin al procedimiento podrá exigir la reparación de los daños causados y la indemnización correspondiente."
+},
+{
+  "numero": 43,
+  "titulo": "Registro Central de Infracciones contra la Seguridad Ciudadana",
+  "texto": "Se crea el Registro Central de Infracciones contra la Seguridad Ciudadana, en los términos establecidos por esta Ley y su normativa de desarrollo."
+},
+{
+  "numero": 44,
+  "titulo": "Régimen jurídico",
+  "texto": "El procedimiento administrativo sancionador se regirá por las disposiciones generales sobre procedimiento administrativo, con las especialidades establecidas en esta Ley."
+},
+{
+  "numero": 45,
+  "titulo": "Carácter subsidiario del procedimiento administrativo sancionador respecto del penal",
+  "texto": "No podrán sancionarse administrativamente los hechos que hayan sido objeto de condena penal cuando exista identidad de sujeto, hecho y fundamento, en los términos establecidos legalmente."
+},
+{
+  "numero": 46,
+  "titulo": "Acceso a los datos de otras administraciones públicas",
+  "texto": "Las autoridades y órganos competentes para imponer sanciones de acuerdo con esta Ley podrán acceder a los datos relativos a los sujetos infractores que estén directamente relacionados con la investigación de los hechos constitutivos de infracción, con las garantías de seguridad, integridad y disponibilidad establecidas por la normativa de protección de datos."
+},
+{
+  "numero": 47,
+  "titulo": "Medidas provisionales anteriores al procedimiento",
+  "texto": "Los agentes de la autoridad intervendrán y aprehenderán cautelarmente los instrumentos utilizados para la comisión de la infracción, así como el dinero, frutos o productos directamente obtenidos, en los supuestos previstos legalmente."
+},
+{
+  "numero": 48,
+  "titulo": "Actuaciones previas",
+  "texto": "Con anterioridad a la iniciación del procedimiento sancionador podrán realizarse actuaciones previas con objeto de determinar, con la mayor precisión posible, los hechos susceptibles de motivar la incoación del procedimiento, las personas responsables y las circunstancias relevantes."
+},
+{
+  "numero": 49,
+  "titulo": "Medidas de carácter provisional",
+  "texto": "Iniciado el procedimiento sancionador, el órgano competente podrá adoptar las medidas provisionales que resulten necesarias para asegurar la eficacia de la resolución que pudiera recaer."
+},
+{
+  "numero": 50,
+  "titulo": "Caducidad del procedimiento",
+  "texto": "El procedimiento caducará cuando transcurra el plazo máximo establecido legalmente sin que se haya dictado y notificado resolución."
+},
+{
+  "numero": 51,
+  "titulo": "Efectos de la resolución",
+  "texto": "La resolución que ponga fin al procedimiento será ejecutiva cuando corresponda conforme a la legislación aplicable y producirá los efectos previstos legalmente."
+},
+{
+  "numero": 52,
+  "titulo": "Valor probatorio de las declaraciones de los agentes de la autoridad",
+  "texto": "En los procedimientos sancionadores que se instruyan en las materias objeto de esta Ley, las denuncias, atestados o actas formulados por los agentes de la autoridad que hubiesen presenciado los hechos, previa ratificación en caso de haber sido negados por los denunciados, constituirán base suficiente para adoptar la resolución que proceda, salvo prueba en contrario y sin perjuicio de las pruebas que puedan aportar los interesados."
+},
+{
+  "numero": 53,
+  "titulo": "Ejecución de la sanción",
+  "texto": "Las sanciones serán ejecutivas desde el momento establecido legalmente y podrán ser objeto de ejecución conforme a la normativa administrativa aplicable."
+},
+{
+  "numero": 54,
+  "titulo": "Procedimiento abreviado",
+  "texto": "Una vez notificado el acuerdo de incoación del procedimiento para la sanción de infracciones graves o leves, el interesado podrá reconocer voluntariamente su responsabilidad y realizar el pago voluntario de la multa en los términos y con los efectos establecidos legalmente."
+}
+],
+"disposiciones": [
+{
+"tipo": "adicional",
+"numero": 1,
+"titulo": "Régimen de control de precursores de drogas y explosivos",
+"texto": "Se establecen las previsiones correspondientes al régimen de control de precursores de drogas y explosivos."
+},
+{
+"tipo": "adicional",
+"numero": 2,
+"titulo": "Régimen de protección de las infraestructuras críticas",
+"texto": "Las previsiones de esta Ley se aplicarán sin perjuicio de lo establecido en la normativa específica sobre protección de infraestructuras críticas."
+},
+{
+"tipo": "adicional",
+"numero": 3,
+"titulo": "Comparecencia obligatoria en los procedimientos para la obtención del Documento Nacional de Identidad y el pasaporte",
+"texto": "Se establecen las previsiones relativas a la comparecencia obligatoria en los procedimientos para la obtención del Documento Nacional de Identidad y el pasaporte."
+},
+{
+"tipo": "adicional",
+"numero": 4,
+"titulo": "Comunicaciones del Registro Civil",
+"texto": "Se establecen las comunicaciones que correspondan entre el Registro Civil y las autoridades competentes."
+},
+{
+"tipo": "adicional",
+"numero": 5,
+"titulo": "Suspensión de sanciones pecuniarias impuestas por infracciones en materia de consumo de drogas cometidas por menores de edad",
+"texto": "Se establecen las condiciones para la suspensión de sanciones pecuniarias impuestas por determinadas infracciones relacionadas con el consumo de drogas cometidas por menores de edad."
+},
+{
+"tipo": "adicional",
+"numero": 6,
+"titulo": "Infraestructuras e instalaciones en las que se prestan servicios básicos para la comunidad",
+"texto": "Se establecen previsiones específicas para las infraestructuras e instalaciones en las que se prestan servicios básicos para la comunidad."
+},
+{
+"tipo": "adicional",
+"numero": 7,
+"titulo": "No incremento de gasto público",
+"texto": "La aplicación de esta Ley no supondrá incremento de gasto público."
+}
+],
+"disposiciones_transitorias": [
+{
+"numero": 1,
+"titulo": "Procedimientos sancionadores iniciados a la entrada en vigor de esta Ley",
+"texto": "Los procedimientos sancionadores iniciados antes de la entrada en vigor de esta Ley se regirán por la normativa anterior en los términos establecidos legalmente."
+}
+],
+"disposiciones_derogatorias": [
+{
+"numero": 1,
+"titulo": "Derogación normativa",
+"texto": "Queda derogada la normativa que resulte incompatible con lo dispuesto en esta Ley, en los términos establecidos en su disposición derogatoria única."
+}
+],
+"disposiciones_finales": [
+{
+"numero": 1,
+"titulo": "Régimen especial de Ceuta y Melilla",
+"texto": "Se establece el régimen especial aplicable en las Ciudades de Ceuta y Melilla."
+},
+{
+"numero": 2,
+"titulo": "Títulos competenciales",
+"texto": "Las disposiciones de esta Ley se dictan al amparo del artículo 149.1.29.ª de la Constitución, que atribuye al Estado la competencia exclusiva en materia de seguridad pública, excepto los artículos 28 y 29, que se dictan al amparo del artículo 149.1.26.ª."
+},
+{
+"numero": 3,
+"titulo": "Preceptos que tienen carácter de Ley orgánica",
+"texto": "Tienen carácter orgánico los preceptos de esta Ley relacionados en esta disposición final."
+},
+{
+"numero": 4,
+"titulo": "Habilitación para el desarrollo reglamentario",
+"texto": "Se habilita al Gobierno, en el ámbito de sus competencias, para dictar las disposiciones necesarias para el desarrollo y aplicación de lo establecido en esta Ley."
+},
+{
+"numero": 5,
+"titulo": "Entrada en vigor",
+"texto": "La presente Ley entrará en vigor al día siguiente de su publicación en el Boletín Oficial del Estado."
+}
+]
+}
