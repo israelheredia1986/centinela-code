@@ -1,16 +1,21 @@
 /*
+=========================================================
 CENTINELA CODE - SERVICE WORKER
-Versión corregida 5.0.0
-
-IMPORTANTE:
-- Se han corregido las comillas tipográficas que rompían JavaScript.
-- Se han corregido los comentarios inválidos.
-- No se interceptan peticiones externas.
-- HTML: red primero y caché como respaldo.
-- CSS/JS/JSON/manifest: red primero y caché como respaldo.
+Versión corregida 6.0
+=========================================================
+Objetivos:
+- Evitar que un caché antiguo bloquee la aplicación.
+- No usar cache.addAll() para archivos que puedan faltar.
+- Intentar siempre red primero.
+- Usar caché como respaldo cuando no haya conexión.
+- Limpiar versiones antiguas automáticamente.
+- Permitir actualización desde app.js mediante mensajes.
+=========================================================
 */
 
-const CACHE_NAME = "centinela-code-v5";
+"use strict";
+
+const CACHE_NAME = "centinela-code-v6";
 
 const APP_FILES = [
 "./",
@@ -34,7 +39,35 @@ event.waitUntil(
 caches.open(CACHE_NAME)
 .then(function (cache) {
 
-return cache.addAll(APP_FILES);
+return Promise.all(
+APP_FILES.map(function (url) {
+
+return fetch(url, {
+cache: "no-store"
+})
+.then(function (response) {
+
+if (!response.ok) {
+throw new Error(
+"No se pudo cargar: " + url
+);
+}
+
+return cache.put(url, response);
+})
+.catch(function (error) {
+
+console.warn(
+"Centinela Code: no se pudo precargar " +
+url,
+error
+);
+
+return null;
+});
+
+})
+);
 
 })
 .then(function () {
@@ -47,6 +80,7 @@ return self.skipWaiting();
 
 });
 
+
 /* =====================================================
 ACTIVACIÓN
 ===================================================== */
@@ -56,19 +90,26 @@ self.addEventListener("activate", function (event) {
 event.waitUntil(
 
 caches.keys()
-.then(function (cacheNames) {
+.then(function (keys) {
 
 return Promise.all(
 
-cacheNames.map(function (cacheName) {
+keys.map(function (key) {
 
-if (cacheName !== CACHE_NAME) {
+if (
+key.startsWith("centinela-code-") &&
+key !== CACHE_NAME
+) {
 
-return caches.delete(cacheName);
+console.log(
+"Centinela Code: eliminando caché antigua:",
+key
+);
 
+return caches.delete(key);
 }
 
-return Promise.resolve();
+return null;
 
 })
 
@@ -85,41 +126,40 @@ return self.clients.claim();
 
 });
 
+
 /* =====================================================
 PETICIONES
 ===================================================== */
 
 self.addEventListener("fetch", function (event) {
 
-if (event.request.method !== "GET") {
+const request = event.request;
 
+if (request.method !== "GET") {
 return;
-
 }
 
-const requestURL = new URL(event.request.url);
+const url = new URL(request.url);
 
-/* -------------------------------------------------
-No interceptar peticiones de otros dominios
-------------------------------------------------- */
+/*
+* Solo controlamos peticiones del mismo origen.
+* No interferimos con webs externas, APIs, imágenes
+* externas ni recursos de terceros.
+*/
 
-if (requestURL.origin !== self.location.origin) {
-
+if (url.origin !== self.location.origin) {
 return;
-
 }
-
-/* -------------------------------------------------
-NAVEGACIÓN / HTML
-------------------------------------------------- */
-
-if (event.request.mode === "navigate") {
 
 event.respondWith(
 
-fetch(event.request)
-
+fetch(request)
 .then(function (networkResponse) {
+
+/*
+* Guardamos una copia válida para poder
+* trabajar posteriormente sin conexión.
+*/
 
 if (
 networkResponse &&
@@ -133,13 +173,18 @@ caches.open(CACHE_NAME)
 .then(function (cache) {
 
 cache.put(
-"./index.html",
+request,
 responseClone
 );
 
 })
-.catch(function () {
-/* La caché no debe bloquear la respuesta */
+.catch(function (error) {
+
+console.warn(
+"Centinela Code: error guardando caché.",
+error
+);
+
 });
 
 }
@@ -147,117 +192,86 @@ responseClone
 return networkResponse;
 
 })
-
 .catch(function () {
 
-return caches.match("./index.html")
+/*
+* Si no hay conexión, buscamos primero la
+* petición exacta en la caché.
+*/
 
+return caches.match(request)
 .then(function (cachedResponse) {
 
 if (cachedResponse) {
-
 return cachedResponse;
+}
 
+/*
+* Para navegación, intentamos devolver
+* index.html como respaldo.
+*/
+
+if (
+request.mode === "navigate"
+) {
+
+return caches.match(
+"./index.html"
+)
+.then(function (indexResponse) {
+
+if (indexResponse) {
+return indexResponse;
 }
 
 return new Response(
-
-"<!DOCTYPE html>" +
-"<html lang='es'>" +
-"<head>" +
-"<meta charset='UTF-8'>" +
-"<meta name='viewport' content='width=device-width,initial-scale=1'>" +
-"<title>Centinela Code</title>" +
-"</head>" +
-"<body>" +
-"<h1>Centinela Code</h1>" +
-"<p>La aplicación no está disponible sin conexión.</p>" +
-"</body>" +
-"</html>",
-
+`
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+<title>Centinela Code</title>
+</head>
+<body>
+<h1>Centinela Code</h1>
+<p>
+La aplicación está sin conexión
+y todavía no existe una copia
+local disponible de esta página.
+</p>
+</body>
+</html>
+`,
 {
 status: 503,
-statusText: "Offline",
 headers: {
 "Content-Type":
 "text/html; charset=utf-8"
 }
 }
-
 );
 
 });
 
-})
-
-);
-
-return;
-
 }
 
-/* -------------------------------------------------
-ARCHIVOS LOCALES
-------------------------------------------------- */
-
-event.respondWith(
-
-fetch(event.request)
-
-.then(function (networkResponse) {
-
-if (
-networkResponse &&
-networkResponse.ok
-) {
-
-const responseClone =
-networkResponse.clone();
-
-caches.open(CACHE_NAME)
-.then(function (cache) {
-
-cache.put(
-event.request,
-responseClone
-);
-
-})
-.catch(function () {
-/* La caché no debe bloquear la respuesta */
-});
-
-}
-
-return networkResponse;
-
-})
-
-.catch(function () {
-
-return caches.match(event.request)
-
-.then(function (cachedResponse) {
-
-if (cachedResponse) {
-
-return cachedResponse;
-
-}
+/*
+* Para recursos que no existen en caché,
+* devolvemos un 503 en lugar de lanzar
+* un error que pueda romper la aplicación.
+*/
 
 return new Response(
-
 "Recurso no disponible sin conexión.",
-
 {
 status: 503,
-statusText: "Offline",
 headers: {
 "Content-Type":
 "text/plain; charset=utf-8"
 }
 }
-
 );
 
 });
@@ -267,6 +281,7 @@ headers: {
 );
 
 });
+
 
 /* =====================================================
 MENSAJES DESDE APP.JS
@@ -275,26 +290,24 @@ MENSAJES DESDE APP.JS
 self.addEventListener("message", function (event) {
 
 if (!event.data) {
-
 return;
-
 }
 
-/* -------------------------------------------------
-ACTIVAR INMEDIATAMENTE
-------------------------------------------------- */
+/*
+* Activar inmediatamente una nueva versión.
+*/
 
 if (event.data.type === "SKIP_WAITING") {
 
 self.skipWaiting();
 
 return;
-
 }
 
-/* -------------------------------------------------
-BORRAR TODAS LAS CACHÉS
-------------------------------------------------- */
+
+/*
+* Borrar completamente la caché de Centinela Code.
+*/
 
 if (event.data.type === "CLEAR_CACHE") {
 
@@ -307,7 +320,17 @@ return Promise.all(
 
 keys.map(function (key) {
 
+if (
+key.startsWith(
+"centinela-code-"
+)
+) {
+
 return caches.delete(key);
+
+}
+
+return null;
 
 })
 
@@ -318,12 +341,12 @@ return caches.delete(key);
 );
 
 return;
-
 }
 
-/* -------------------------------------------------
-COMPROBAR VERSIÓN
-------------------------------------------------- */
+
+/*
+* Pedir al Service Worker su versión actual.
+*/
 
 if (event.data.type === "GET_VERSION") {
 
@@ -339,10 +362,37 @@ version: CACHE_NAME
 
 }
 
+return;
 }
 
 });
 
+
 /* =====================================================
-FIN SERVICE WORKER CENTINELA CODE 5.0.0
+AVISAR A LAS PÁGINAS ABIERTAS DE UNA NUEVA VERSIÓN
+===================================================== */
+
+async function avisarClientesNuevaVersion() {
+
+const clientes = await self.clients.matchAll({
+type: "window"
+});
+
+clientes.forEach(function (cliente) {
+
+cliente.postMessage({
+
+type: "CENTINELA_SW_ACTUALIZADO",
+
+version: CACHE_NAME
+
+});
+
+});
+
+}
+
+
+/* =====================================================
+FIN SERVICE WORKER
 ===================================================== */
