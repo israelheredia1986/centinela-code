@@ -1,137 +1,69 @@
-/*
-=========================================================
-CENTINELA CODE - SERVICE WORKER
-Versión corregida 6.0
-=========================================================
-Objetivos:
-- Evitar que un caché antiguo bloquee la aplicación.
-- No usar cache.addAll() para archivos que puedan faltar.
-- Intentar siempre red primero.
-- Usar caché como respaldo cuando no haya conexión.
-- Limpiar versiones antiguas automáticamente.
-- Permitir actualización desde app.js mediante mensajes.
-=========================================================
-*/
+/* ============================================================
+CENTINELA CODE — SERVICE WORKER
+ACTUALIZACIÓN FORZADA DE CACHÉ
+============================================================ */
 
-"use strict";
+const CACHE_VERSION = "centinela-code-v20260827-03";
+const DATA_CACHE = `${CACHE_VERSION}-data`;
 
-const CACHE_NAME = "centinela-code-v6";
-
-const APP_FILES = [
+const APP_SHELL = [
 "./",
 "./index.html",
 "./style.css",
 "./app.js",
-"./manifest.json",
-"./data/lopsc.json",
-"./data/infracciones.json",
-"./data/ordenanzas.json"
+"./manifest.json"
 ];
 
-/* =====================================================
-INSTALACIÓN
-===================================================== */
-
-self.addEventListener("install", function (event) {
+self.addEventListener("install", event => {
+self.skipWaiting();
 
 event.waitUntil(
-
-caches.open(CACHE_NAME)
-.then(function (cache) {
-
-return Promise.all(
-APP_FILES.map(function (url) {
-
-return fetch(url, {
-cache: "no-store"
-})
-.then(function (response) {
-
-if (!response.ok) {
-throw new Error(
-"No se pudo cargar: " + url
-);
-}
-
-return cache.put(url, response);
-})
-.catch(function (error) {
-
+caches.open(CACHE_VERSION)
+.then(cache =>
+cache.addAll(APP_SHELL).catch(error =>
 console.warn(
-"Centinela Code: no se pudo precargar " +
-url,
+"Centinela Code: error cacheando archivos.",
 error
+)
+)
+)
 );
-
-return null;
 });
 
-})
-);
-
-})
-.then(function () {
-
-return self.skipWaiting();
-
-})
-
-);
-
-});
-
-
-/* =====================================================
-ACTIVACIÓN
-===================================================== */
-
-self.addEventListener("activate", function (event) {
-
+self.addEventListener("activate", event => {
 event.waitUntil(
+(async () => {
+const keys = await caches.keys();
 
-caches.keys()
-.then(function (keys) {
-
-return Promise.all(
-
-keys.map(function (key) {
-
-if (
+await Promise.all(
+keys
+.filter(key =>
 key.startsWith("centinela-code-") &&
-key !== CACHE_NAME
-) {
-
-console.log(
-"Centinela Code: eliminando caché antigua:",
-key
+key !== CACHE_VERSION &&
+key !== DATA_CACHE
+)
+.map(key => caches.delete(key))
 );
 
-return caches.delete(key);
-}
+await self.clients.claim();
 
-return null;
-
-})
-
-);
-
-})
-.then(function () {
-
-return self.clients.claim();
-
-})
-
-);
-
+const clients =
+await self.clients.matchAll({
+type: "window",
+includeUncontrolled: true
 });
 
+for (const client of clients) {
+client.postMessage({
+type: "CENTINELA_SW_UPDATED",
+version: CACHE_VERSION
+});
+}
+})()
+);
+});
 
-/* =====================================================
-PETICIONES
-===================================================== */
-
-self.addEventListener("fetch", function (event) {
+self.addEventListener("fetch", event => {
 
 const request = event.request;
 
@@ -141,130 +73,87 @@ return;
 
 const url = new URL(request.url);
 
-/*
-* Solo controlamos peticiones del mismo origen.
-* No interferimos con webs externas, APIs, imágenes
-* externas ni recursos de terceros.
-*/
-
 if (url.origin !== self.location.origin) {
 return;
 }
 
+const path = url.pathname.toLowerCase();
+
+const mainFile =
+path.endsWith("/") ||
+path.endsWith("/index.html") ||
+path.endsWith("/app.js") ||
+path.endsWith("/style.css") ||
+path.endsWith("/manifest.json");
+
+if (mainFile) {
 event.respondWith(
+networkFirst(request)
+);
+return;
+}
 
-fetch(request)
-.then(function (networkResponse) {
+const dataFile =
+path.endsWith("/infracciones.json") ||
+path.endsWith("/lopsc.json");
 
-/*
-* Guardamos una copia válida para poder
-* trabajar posteriormente sin conexión.
-*/
+if (dataFile) {
+event.respondWith(
+networkFirstData(request)
+);
+return;
+}
 
-if (
-networkResponse &&
-networkResponse.ok
-) {
+event.respondWith(
+cacheFirstWithNetworkUpdate(request)
+);
+});
 
-const responseClone =
-networkResponse.clone();
+async function networkFirst(request) {
 
-caches.open(CACHE_NAME)
-.then(function (cache) {
+const cache =
+await caches.open(CACHE_VERSION);
 
-cache.put(
+try {
+
+const response =
+await fetch(
+new Request(request, {
+cache: "no-store"
+})
+);
+
+if (response && response.ok) {
+await cache.put(
 request,
-responseClone
+response.clone()
 );
-
-})
-.catch(function (error) {
-
-console.warn(
-"Centinela Code: error guardando caché.",
-error
-);
-
-});
-
+return response;
 }
 
-return networkResponse;
+throw new Error("Respuesta HTTP no válida.");
 
-})
-.catch(function () {
+} catch (error) {
 
-/*
-* Si no hay conexión, buscamos primero la
-* petición exacta en la caché.
-*/
+const cached =
+await cache.match(request);
 
-return caches.match(request)
-.then(function (cachedResponse) {
-
-if (cachedResponse) {
-return cachedResponse;
+if (cached) {
+return cached;
 }
 
-/*
-* Para navegación, intentamos devolver
-* index.html como respaldo.
-*/
+if (request.mode === "navigate") {
 
-if (
-request.mode === "navigate"
-) {
+const fallback =
+await cache.match("./index.html");
 
-return caches.match(
-"./index.html"
-)
-.then(function (indexResponse) {
-
-if (indexResponse) {
-return indexResponse;
+if (fallback) {
+return fallback;
+}
 }
 
 return new Response(
-`
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-<title>Centinela Code</title>
-</head>
-<body>
-<h1>Centinela Code</h1>
-<p>
-La aplicación está sin conexión
-y todavía no existe una copia
-local disponible de esta página.
-</p>
-</body>
-</html>
-`,
-{
-status: 503,
-headers: {
-"Content-Type":
-"text/html; charset=utf-8"
-}
-}
-);
-
-});
-
-}
-
-/*
-* Para recursos que no existen en caché,
-* devolvemos un 503 en lugar de lanzar
-* un error que pueda romper la aplicación.
-*/
-
-return new Response(
-"Recurso no disponible sin conexión.",
+"Centinela Code no está disponible.",
 {
 status: 503,
 headers: {
@@ -273,126 +162,150 @@ headers: {
 }
 }
 );
+}
+}
 
-});
+async function networkFirstData(request) {
 
+const cache =
+await caches.open(DATA_CACHE);
+
+try {
+
+const response =
+await fetch(
+new Request(request, {
+cache: "no-store"
 })
-
 );
 
-});
+if (response && response.ok) {
+await cache.put(
+request,
+response.clone()
+);
+return response;
+}
 
+throw new Error(
+"No se pudieron actualizar los datos."
+);
 
-/* =====================================================
-MENSAJES DESDE APP.JS
-===================================================== */
+} catch (error) {
 
-self.addEventListener("message", function (event) {
+const cached =
+await cache.match(request);
+
+if (cached) {
+return cached;
+}
+
+return new Response(
+JSON.stringify({
+error:
+"Datos no disponibles sin conexión."
+}),
+{
+status: 503,
+headers: {
+"Content-Type":
+"application/json; charset=utf-8"
+}
+}
+);
+}
+}
+
+async function cacheFirstWithNetworkUpdate(request) {
+
+const cache =
+await caches.open(CACHE_VERSION);
+
+const cached =
+await cache.match(request);
+
+const network =
+fetch(
+new Request(request, {
+cache: "no-store"
+})
+)
+.then(response => {
+
+if (response && response.ok) {
+cache.put(
+request,
+response.clone()
+);
+}
+
+return response;
+
+})
+.catch(() => null);
+
+if (cached) {
+return cached;
+}
+
+const response =
+await network;
+
+if (response) {
+return response;
+}
+
+return new Response(
+"",
+{ status: 503 }
+);
+}
+
+self.addEventListener("message", event => {
 
 if (!event.data) {
 return;
 }
 
-/*
-* Activar inmediatamente una nueva versión.
-*/
-
-if (event.data.type === "SKIP_WAITING") {
-
+if (
+event.data.type ===
+"SKIP_WAITING"
+) {
 self.skipWaiting();
-
-return;
 }
 
-
-/*
-* Borrar completamente la caché de Centinela Code.
-*/
-
-if (event.data.type === "CLEAR_CACHE") {
+if (
+event.data.type ===
+"CLEAR_CENTINELA_CACHE"
+) {
 
 event.waitUntil(
-
 caches.keys()
-.then(function (keys) {
-
-return Promise.all(
-
-keys.map(function (key) {
-
-if (
+.then(keys =>
+Promise.all(
+keys
+.filter(key =>
 key.startsWith(
 "centinela-code-"
 )
-) {
-
-return caches.delete(key);
-
-}
-
-return null;
-
-})
-
+)
+.map(key =>
+caches.delete(key)
+)
+)
+)
 );
-
-})
-
-);
-
-return;
 }
-
-
-/*
-* Pedir al Service Worker su versión actual.
-*/
-
-if (event.data.type === "GET_VERSION") {
-
-if (event.source) {
-
-event.source.postMessage({
-
-type: "CENTINELA_SW_VERSION",
-
-version: CACHE_NAME
-
 });
 
-}
-
-return;
-}
-
-});
-
-
-/* =====================================================
-AVISAR A LAS PÁGINAS ABIERTAS DE UNA NUEVA VERSIÓN
-===================================================== */
-
-async function avisarClientesNuevaVersion() {
-
-const clientes = await self.clients.matchAll({
-type: "window"
-});
-
-clientes.forEach(function (cliente) {
-
-cliente.postMessage({
-
-type: "CENTINELA_SW_ACTUALIZADO",
-
-version: CACHE_NAME
-
-});
-
-});
-
-}
-
-
-/* =====================================================
+/* ============================================================
 FIN SERVICE WORKER
-===================================================== */
+============================================================ */
+PASOS
+1. GitHub → service-worker.js → Editar.
+2. Borra TODO el contenido antiguo.
+3. Copia TODO el código anterior desde el ODT.
+4. Pégalo completo.
+5. Commit changes.
+6. Espera unos minutos.
+7. Abre nuevamente Centinela Code.
