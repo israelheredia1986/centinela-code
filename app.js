@@ -11,13 +11,7 @@ CONFIGURACIÓN
 
 const CONFIG = {
 APP_NAME: "Centinela Code",
-VERSION: "1.1.0",
-
-SUPABASE: {
-URL: "https://okuygqbaliaeavhyezri.supabase.co",
-KEY: "sb_publishable_fbEAcJZxMv8PD3VB3Bcx6A_l_8BdP2m",
-TABLE: "actas"
-},
+VERSION: "1.0.0",
 
 DATA: {
 LOPSC: "./data/lopsc.json",
@@ -60,13 +54,7 @@ modo: "consulta",
 
 cargado: false,
 
-erroresDatos: [],
-
-usuario: null,
-supabase: null,
-autenticado: false,
-authInicializado: false,
-authCargando: true
+erroresDatos: []
 };
 
 /* ============================================================
@@ -84,28 +72,43 @@ console.log(
 `${CONFIG.APP_NAME} ${CONFIG.VERSION}`
 );
 
-actualizarRed();
+try {
 
-await inicializarAutenticacion();
+const autenticado =
+await iniciarAutenticacion();
 
-if (!estado.autenticado) {
-estado.authCargando = false;
-bloquearAplicacion();
+if (!autenticado) {
 return;
 }
+
+cargarActas();
 
 cargarConfiguracion();
 
 registrarEventos();
 
-await cargarDatos();
+actualizarRed();
 
-await cargarActas();
+await cargarDatos();
 
 inicializarInterfaz();
 
-estado.authCargando = false;
-actualizarInterfazUsuario();
+ocultarPantallaCarga();
+
+} catch (error) {
+
+console.error(
+"Error iniciando Centinela Code:",
+error
+);
+
+ocultarPantallaCarga();
+
+mostrarError(
+"No se pudo iniciar la aplicación. " +
+"Comprueba la conexión y vuelve a intentarlo."
+);
+}
 }
 
 /* ============================================================
@@ -677,6 +680,677 @@ return `${articulo}.${apartado}`;
 
 return String(articulo);
 }
+
+
+/* ============================================================
+AUTENTICACIÓN SUPABASE
+============================================================ */
+
+const SUPABASE_CONFIG = {
+URL: "https://okuygqbaliaeavhyezri.supabase.co",
+PUBLISHABLE_KEY:
+"sb_publishable_fbEAcJZxMv8PD3VB3Bcx6A_l_8BdP2m"
+};
+
+let clienteSupabase = null;
+let usuarioActual = null;
+let autenticacionInicializada = false;
+
+/* ------------------------------------------------------------
+CARGAR LIBRERÍA SUPABASE
+------------------------------------------------------------ */
+
+function cargarLibreriaSupabase() {
+
+return new Promise(
+(resolve, reject) => {
+
+if (
+window.supabase &&
+typeof window.supabase.createClient ===
+"function"
+) {
+resolve();
+return;
+}
+
+const existente =
+document.querySelector(
+'script[data-centinela-supabase="true"]'
+);
+
+if (existente) {
+
+existente.addEventListener(
+"load",
+() => resolve(),
+{ once: true }
+);
+
+existente.addEventListener(
+"error",
+() => reject(
+new Error(
+"No se pudo cargar Supabase."
+)
+),
+{ once: true }
+);
+
+return;
+}
+
+const script =
+document.createElement("script");
+
+script.src =
+"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
+script.async = true;
+
+script.dataset.centinelaSupabase =
+"true";
+
+script.onload =
+() => {
+
+if (
+window.supabase &&
+typeof window.supabase.createClient ===
+"function"
+) {
+resolve();
+} else {
+reject(
+new Error(
+"La librería Supabase se cargó pero no está disponible."
+)
+);
+}
+};
+
+script.onerror =
+() => reject(
+new Error(
+"No se pudo cargar la librería Supabase."
+)
+);
+
+document.head.appendChild(
+script
+);
+}
+);
+}
+
+/* ------------------------------------------------------------
+PANTALLA DE LOGIN
+------------------------------------------------------------ */
+
+function crearPantallaLogin() {
+
+let pantalla =
+document.getElementById(
+"centinelaLogin"
+);
+
+if (pantalla) {
+return pantalla;
+}
+
+pantalla =
+document.createElement("div");
+
+pantalla.id =
+"centinelaLogin";
+
+pantalla.innerHTML = `
+<div class="centinela-login-backdrop"></div>
+
+<div class="centinela-login-card">
+
+<div class="centinela-login-logo">
+<img
+src="logo-centinela.png"
+alt="Centinela Code"
+>
+</div>
+
+<div class="centinela-login-title">
+Centinela Code
+</div>
+
+<div class="centinela-login-subtitle">
+Acceso profesional
+</div>
+
+<form id="centinelaLoginForm">
+
+<label class="centinela-login-label">
+Usuario / correo electrónico
+
+<input
+id="centinelaLoginEmail"
+type="email"
+autocomplete="username"
+required
+placeholder="usuario@correo.es"
+>
+</label>
+
+<label class="centinela-login-label">
+Contraseña
+
+<input
+id="centinelaLoginPassword"
+type="password"
+autocomplete="current-password"
+required
+placeholder="Contraseña"
+>
+</label>
+
+<button
+id="centinelaLoginButton"
+type="submit"
+class="centinela-login-button"
+>
+Entrar
+</button>
+
+<div
+id="centinelaLoginMessage"
+class="centinela-login-message"
+role="alert"
+></div>
+
+</form>
+
+</div>
+`;
+
+document.body.appendChild(
+pantalla
+);
+
+const style =
+document.createElement("style");
+
+style.textContent = `
+#centinelaLogin {
+position: fixed;
+inset: 0;
+z-index: 999999;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 22px;
+box-sizing: border-box;
+font-family: inherit;
+}
+
+.centinela-login-backdrop {
+position: absolute;
+inset: 0;
+background:
+radial-gradient(
+circle at 50% 10%,
+rgba(37, 116, 205, .20),
+transparent 42%
+),
+rgba(2, 8, 23, .97);
+backdrop-filter: blur(10px);
+}
+
+.centinela-login-card {
+position: relative;
+width: min(420px, 100%);
+box-sizing: border-box;
+padding: 30px 24px 25px;
+border: 1px solid rgba(91, 158, 225, .35);
+border-radius: 25px;
+background:
+linear-gradient(
+145deg,
+rgba(14, 32, 57, .98),
+rgba(3, 13, 28, .98)
+);
+box-shadow:
+0 30px 80px rgba(0,0,0,.62),
+inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.centinela-login-logo {
+width: 86px;
+height: 86px;
+margin: 0 auto 18px;
+overflow: hidden;
+border-radius: 23px;
+box-shadow:
+0 0 30px rgba(42, 132, 235, .18);
+}
+
+.centinela-login-logo img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+}
+
+.centinela-login-title {
+text-align: center;
+color: #f8fbff;
+font-size: 25px;
+font-weight: 800;
+letter-spacing: .2px;
+}
+
+.centinela-login-subtitle {
+margin: 5px 0 24px;
+text-align: center;
+color: #8fa8c5;
+font-size: 13px;
+}
+
+.centinela-login-label {
+display: block;
+margin: 0 0 16px;
+color: #cddbf0;
+font-size: 12px;
+font-weight: 700;
+}
+
+.centinela-login-label input {
+display: block;
+width: 100%;
+box-sizing: border-box;
+margin-top: 7px;
+padding: 14px 15px;
+border: 1px solid #29435f;
+border-radius: 13px;
+outline: none;
+background: #071426;
+color: #f8fbff;
+font: inherit;
+}
+
+.centinela-login-label input:focus {
+border-color: #4d9ce8;
+box-shadow: 0 0 0 3px rgba(77,156,232,.12);
+}
+
+.centinela-login-button {
+width: 100%;
+margin-top: 5px;
+padding: 14px;
+border: 1px solid rgba(111,183,255,.35);
+border-radius: 13px;
+background:
+linear-gradient(
+135deg,
+#1267b4,
+#174b82
+);
+color: white;
+font: inherit;
+font-weight: 800;
+cursor: pointer;
+box-shadow:
+0 12px 25px rgba(10,91,170,.28);
+}
+
+.centinela-login-button:disabled {
+opacity: .65;
+cursor: wait;
+}
+
+.centinela-login-message {
+min-height: 20px;
+margin-top: 13px;
+text-align: center;
+color: #ffb4b4;
+font-size: 12px;
+line-height: 1.45;
+}
+`;
+
+document.head.appendChild(
+style
+);
+
+return pantalla;
+}
+
+/* ------------------------------------------------------------
+AUTENTICACIÓN
+------------------------------------------------------------ */
+
+async function iniciarAutenticacion() {
+
+const loading =
+document.getElementById(
+"loadingScreen"
+);
+
+try {
+
+await cargarLibreriaSupabase();
+
+clienteSupabase =
+window.supabase.createClient(
+SUPABASE_CONFIG.URL,
+SUPABASE_CONFIG.PUBLISHABLE_KEY
+);
+
+autenticacionInicializada =
+true;
+
+const resultadoSesion =
+await clienteSupabase.auth.getSession();
+
+if (
+resultadoSesion.error
+) {
+throw resultadoSesion.error;
+}
+
+if (
+resultadoSesion.data &&
+resultadoSesion.data.session
+) {
+
+usuarioActual =
+resultadoSesion.data.session.user;
+
+ocultarPantallaLogin();
+
+return true;
+}
+
+if (loading) {
+loading.style.display = "none";
+}
+
+const login =
+crearPantallaLogin();
+
+login.style.display =
+"flex";
+
+configurarFormularioLogin();
+
+return false;
+
+} catch (error) {
+
+console.error(
+"Error de autenticación:",
+error
+);
+
+if (loading) {
+loading.style.display = "none";
+}
+
+const login =
+crearPantallaLogin();
+
+login.style.display =
+"flex";
+
+configurarFormularioLogin();
+
+mostrarMensajeLogin(
+"No se pudo conectar con el sistema de acceso. " +
+"Comprueba la conexión a Internet."
+);
+
+return false;
+}
+}
+
+function configurarFormularioLogin() {
+
+if (
+document.body.dataset.centinelaLoginConfigured ===
+"true"
+) {
+return;
+}
+
+const form =
+document.getElementById(
+"centinelaLoginForm"
+);
+
+if (!form) {
+return;
+}
+
+document.body.dataset.centinelaLoginConfigured =
+"true";
+
+form.addEventListener(
+"submit",
+async evento => {
+
+evento.preventDefault();
+
+const email =
+document.getElementById(
+"centinelaLoginEmail"
+)
+?.value
+.trim();
+
+const password =
+document.getElementById(
+"centinelaLoginPassword"
+)
+?.value;
+
+const button =
+document.getElementById(
+"centinelaLoginButton"
+);
+
+if (!email || !password) {
+mostrarMensajeLogin(
+"Introduce usuario y contraseña."
+);
+return;
+}
+
+if (button) {
+button.disabled = true;
+button.textContent =
+"Comprobando...";
+}
+
+mostrarMensajeLogin("");
+
+try {
+
+const resultado =
+await clienteSupabase.auth.signInWithPassword({
+email,
+password
+});
+
+if (
+resultado.error
+) {
+throw resultado.error;
+}
+
+usuarioActual =
+resultado.data.user;
+
+ocultarPantallaLogin();
+
+if (loadingScreenVisible()) {
+ocultarPantallaCarga();
+}
+
+await iniciarAplicacionTrasLogin();
+
+} catch (error) {
+
+console.error(
+"Error de login:",
+error
+);
+
+mostrarMensajeLogin(
+"Usuario o contraseña incorrectos."
+);
+
+if (button) {
+button.disabled = false;
+button.textContent =
+"Entrar";
+}
+}
+}
+);
+}
+
+async function iniciarAplicacionTrasLogin() {
+
+try {
+
+cargarActas();
+
+cargarConfiguracion();
+
+registrarEventos();
+
+actualizarRed();
+
+await cargarDatos();
+
+inicializarInterfaz();
+
+ocultarPantallaCarga();
+
+} catch (error) {
+
+console.error(
+"Error después del login:",
+error
+);
+
+ocultarPantallaCarga();
+
+mostrarError(
+"Has iniciado sesión, pero no se han podido cargar " +
+"todos los datos de la aplicación."
+);
+}
+}
+
+function mostrarMensajeLogin(
+mensaje
+) {
+
+const elemento =
+document.getElementById(
+"centinelaLoginMessage"
+);
+
+if (elemento) {
+elemento.textContent =
+mensaje || "";
+}
+}
+
+function ocultarPantallaLogin() {
+
+const pantalla =
+document.getElementById(
+"centinelaLogin"
+);
+
+if (pantalla) {
+pantalla.style.display =
+"none";
+}
+}
+
+function loadingScreenVisible() {
+
+const loading =
+document.getElementById(
+"loadingScreen"
+);
+
+return !!(
+loading &&
+loading.style.display !==
+"none"
+);
+}
+
+function ocultarPantallaCarga() {
+
+const loading =
+document.getElementById(
+"loadingScreen"
+);
+
+if (!loading) {
+return;
+}
+
+loading.style.opacity =
+"0";
+
+loading.style.pointerEvents =
+"none";
+
+setTimeout(
+() => {
+loading.style.display =
+"none";
+},
+220
+);
+}
+
+/* ------------------------------------------------------------
+SESIÓN
+------------------------------------------------------------ */
+
+async function cerrarSesionCentinela() {
+
+if (
+!clienteSupabase
+) {
+return;
+}
+
+const resultado =
+await clienteSupabase.auth.signOut();
+
+if (
+resultado.error
+) {
+console.error(
+"Error cerrando sesión:",
+resultado.error
+);
+return;
+}
+
+usuarioActual =
+null;
+
+location.reload();
+}
+
+window.cerrarSesionCentinela =
+cerrarSesionCentinela;
+
 
 /* ============================================================
 INTERFAZ
@@ -1872,12 +2546,6 @@ mostrarFormularioActa();
 
 function activarModoActa() {
 
-if (!estado.autenticado) {
-bloquearAplicacion();
-return;
-}
-
-
 estado.modo =
 "acta";
 
@@ -2362,7 +3030,7 @@ checkbox.value
 GUARDAR ACTA
 ============================================================ */
 
-async function guardarActaDesdeFormulario(
+function guardarActaDesdeFormulario(
 evento
 ) {
 
@@ -2496,11 +3164,21 @@ acta
 }
 
 
-await guardarActaEnSupabase(acta);
+guardarActas();
+
+if (
+usuarioActual &&
+clienteSupabase
+) {
+guardarActaEnSupabase(
+acta
+);
+}
 
 mostrarNotificacion(
-"Acta guardada correctamente en la base de datos."
+"Acta guardada correctamente."
 );
+
 
 mostrarMenuActas();
 }
@@ -2687,7 +3365,7 @@ mostrarFormularioActa();
 ELIMINAR ACTA
 ============================================================ */
 
-async function eliminarActa(
+function eliminarActa(
 id
 ) {
 
@@ -2709,490 +3387,216 @@ item =>
 item.id !== id
 );
 
-await eliminarActaDeSupabase(id);
+
+guardarActas();
 
 mostrarBorradores();
 }
 
+
 /* ============================================================
-SUPABASE + AUTENTICACIÓN
+GUARDADO DE ACTAS EN SUPABASE
 ============================================================ */
 
-const SUPABASE_CDN =
-"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";
+async function guardarActaEnSupabase(
+acta
+) {
 
-async function cargarLibreriaSupabase() {
-
-if (window.supabase?.createClient) {
+if (
+!clienteSupabase ||
+!usuarioActual ||
+!acta
+) {
 return;
 }
 
-await new Promise((resolve, reject) => {
-
-const script = document.createElement("script");
-script.src = SUPABASE_CDN;
-script.async = true;
-
-script.onload = resolve;
-script.onerror = () => reject(
-new Error("No se pudo cargar la librería de Supabase.")
-);
-
-document.head.appendChild(script);
-});
-}
-
-async function inicializarAutenticacion() {
-
 try {
 
-await cargarLibreriaSupabase();
+const registro = {
+usuario_id:
+usuarioActual.id,
 
-estado.supabase = window.supabase.createClient(
-CONFIG.SUPABASE.URL,
-CONFIG.SUPABASE.KEY,
-{
-auth: {
-persistSession: true,
-autoRefreshToken: true,
-detectSessionInUrl: true
-}
-}
-);
+numero_acta:
+acta.id || null,
+
+fecha_acta:
+acta.fechaHora
+? String(
+acta.fechaHora
+).substring(
+0,
+10
+)
+: null,
+
+hora_acta:
+acta.fechaHora &&
+String(
+acta.fechaHora
+).length >= 16
+? String(
+acta.fechaHora
+).substring(
+11,
+16
+)
+: null,
+
+agente:
+acta.agente?.nombre ||
+"",
+
+municipio:
+acta.agente?.unidad ||
+"",
+
+persona_identificada:
+acta.denunciado?.nombre ||
+"",
+
+dni_nie:
+acta.denunciado?.documento ||
+"",
+
+hecho:
+acta.hechos ||
+"",
+
+lugar:
+acta.lugar ||
+"",
+
+infraccion_codigo:
+acta.infraccion?.codigo ||
+"",
+
+infraccion_articulo:
+acta.infraccion?.articulo ||
+"",
+
+infraccion_descripcion:
+acta.infraccion?.conducta ||
+acta.infraccion?.titulo ||
+"",
+
+gravedad:
+acta.infraccion?.gravedad ||
+"",
+
+observaciones:
+acta.observaciones ||
+"",
+
+contenido_completo:
+JSON.stringify(
+acta
+),
+
+estado:
+acta.estado ||
+"borrador"
+};
 
 const resultado =
-await estado.supabase.auth.getSession();
+await clienteSupabase
+.from("actas")
+.insert(
+registro
+);
 
-estado.usuario =
-resultado.data?.session?.user || null;
+if (
+resultado.error
+) {
+console.error(
+"No se pudo guardar el acta en Supabase:",
+resultado.error
+);
 
-estado.autenticado =
-Boolean(estado.usuario);
+mostrarError(
+"El acta se guardó en este dispositivo, " +
+"pero no se pudo sincronizar con la base de datos."
+);
 
-estado.authInicializado = true;
-
-estado.supabase.auth.onAuthStateChange(
-async (_evento, session) => {
-
-estado.usuario =
-session?.user || null;
-
-estado.autenticado =
-Boolean(estado.usuario);
-
-actualizarInterfazUsuario();
-
-if (estado.autenticado) {
-await cargarActas();
-desbloquearAplicacion();
-} else {
-estado.actas = [];
-bloquearAplicacion();
+return;
 }
-}
+
+console.log(
+"Acta sincronizada con Supabase."
 );
 
 } catch (error) {
 
 console.error(
-"Error inicializando autenticación:",
+"Error sincronizando acta:",
 error
 );
-
-estado.authInicializado = true;
-estado.autenticado = false;
-
-mostrarError(
-"No se pudo conectar con el sistema de identificación."
-);
-}
-}
-
-function crearPantallaLogin() {
-
-if (document.getElementById("centinela-auth-screen")) {
-return;
-}
-
-const pantalla = document.createElement("div");
-pantalla.id = "centinela-auth-screen";
-
-Object.assign(pantalla.style, {
-position: "fixed",
-inset: "0",
-zIndex: "100000",
-display: "flex",
-alignItems: "center",
-justifyContent: "center",
-padding: "24px",
-boxSizing: "border-box",
-background: "radial-gradient(circle at top, #10284a 0%, #030817 55%, #01040b 100%)",
-color: "#f4f7fb",
-fontFamily: "Arial, Helvetica, sans-serif"
-});
-
-pantalla.innerHTML = `
-<div style="width:100%;max-width:420px;border:1px solid rgba(82,151,255,.35);border-radius:28px;padding:28px;box-sizing:border-box;background:linear-gradient(145deg,rgba(15,39,72,.98),rgba(5,13,27,.98));box-shadow:0 20px 60px rgba(0,0,0,.55)">
-<div style="text-align:center;margin-bottom:24px">
-<div style="font-size:58px;line-height:1">🛡️</div>
-<h1 style="margin:12px 0 6px;font-size:30px">Centinela Code</h1>
-<p style="margin:0;color:#9eb0c8">Acceso profesional</p>
-</div>
-
-<form id="centinela-login-form">
-<label style="display:block;margin:0 0 7px;font-weight:700">Correo electrónico</label>
-<input id="centinela-login-email" type="email" autocomplete="username" required placeholder="agente@ejemplo.es" style="width:100%;box-sizing:border-box;padding:15px;border-radius:14px;border:1px solid #29476d;background:#071325;color:#fff;margin-bottom:15px;font-size:16px">
-
-<label style="display:block;margin:0 0 7px;font-weight:700">Contraseña</label>
-<input id="centinela-login-password" type="password" autocomplete="current-password" required placeholder="••••••••" style="width:100%;box-sizing:border-box;padding:15px;border-radius:14px;border:1px solid #29476d;background:#071325;color:#fff;margin-bottom:18px;font-size:16px">
-
-<button type="submit" style="width:100%;padding:15px;border:0;border-radius:14px;background:linear-gradient(135deg,#1769e0,#0b3b9e);color:#fff;font-size:16px;font-weight:800">INICIAR SESIÓN</button>
-<button type="button" id="centinela-reset-password" style="width:100%;margin-top:10px;padding:12px;border:0;background:transparent;color:#8fc1ff;font-weight:700">¿Has olvidado la contraseña?</button>
-<div id="centinela-login-message" style="min-height:22px;margin-top:14px;text-align:center;color:#ffb4b4;font-size:13px"></div>
-</form>
-
-<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08);text-align:center;color:#70839e;font-size:12px">
-Acceso protegido · Registro de actas por usuario
-</div>
-</div>`;
-
-document.body.appendChild(pantalla);
-
-const form = document.getElementById("centinela-login-form");
-const message = document.getElementById("centinela-login-message");
-
-form?.addEventListener("submit", async event => {
-
-event.preventDefault();
-
-if (!estado.supabase) {
-message.textContent = "El sistema de identificación todavía no está disponible.";
-return;
-}
-
-const email =
-document.getElementById("centinela-login-email")?.value.trim();
-
-const password =
-document.getElementById("centinela-login-password")?.value;
-
-message.textContent = "Comprobando acceso...";
-
-const { error } =
-await estado.supabase.auth.signInWithPassword({
-email,
-password
-});
-
-if (error) {
-message.textContent = traducirErrorAuth(error.message);
-return;
-}
-
-message.textContent = "Acceso correcto.";
-});
-
-document.getElementById("centinela-reset-password")?.addEventListener(
-"click",
-async () => {
-
-const email =
-document.getElementById("centinela-login-email")?.value.trim();
-
-if (!email) {
-message.textContent = "Escribe primero tu correo electrónico.";
-return;
-}
-
-const { error } =
-await estado.supabase.auth.resetPasswordForEmail(
-email,
-{ redirectTo: window.location.origin + window.location.pathname }
-);
-
-message.textContent = error
-? traducirErrorAuth(error.message)
-: "Te hemos enviado las instrucciones para restablecer la contraseña.";
-}
-);
-}
-
-function bloquearAplicacion() {
-
-crearPantallaLogin();
-
-const pantalla =
-document.getElementById("centinela-auth-screen");
-
-if (pantalla) {
-pantalla.style.display = "flex";
-}
-
-actualizarInterfazUsuario();
-}
-
-function desbloquearAplicacion() {
-
-const pantalla =
-document.getElementById("centinela-auth-screen");
-
-if (pantalla) {
-pantalla.style.display = "none";
-}
-}
-
-function traducirErrorAuth(mensaje) {
-
-const texto = String(mensaje || "").toLowerCase();
-
-if (texto.includes("invalid login credentials")) {
-return "Correo o contraseña incorrectos.";
-}
-
-if (texto.includes("email not confirmed")) {
-return "Debes confirmar el correo electrónico antes de entrar.";
-}
-
-if (texto.includes("too many requests")) {
-return "Demasiados intentos. Espera unos minutos y vuelve a intentarlo.";
-}
-
-return "No se ha podido iniciar sesión. Comprueba los datos.";
-}
-
-function actualizarInterfazUsuario() {
-
-const usuario = estado.usuario;
-
-let indicador =
-document.getElementById("centinela-user-indicator");
-
-if (!indicador && usuario && document.body) {
-
-indicador = document.createElement("button");
-indicador.id = "centinela-user-indicator";
-indicador.type = "button";
-
-Object.assign(indicador.style, {
-position: "fixed",
-top: "10px",
-right: "12px",
-zIndex: "9000",
-border: "1px solid rgba(92,159,255,.35)",
-borderRadius: "12px",
-background: "rgba(7,19,37,.88)",
-color: "#dceaff",
-padding: "8px 10px",
-fontSize: "11px",
-fontWeight: "700",
-backdropFilter: "blur(8px)"
-});
-
-document.body.appendChild(indicador);
-
-indicador.addEventListener("click", async () => {
-
-if (!estado.supabase) return;
-
-const confirmar =
-window.confirm(
-`Sesión activa: ${estado.usuario?.email || "usuario"}.\n\n¿Quieres cerrar sesión?`
-);
-
-if (!confirmar) return;
-
-await estado.supabase.auth.signOut();
-});
-}
-
-if (indicador) {
-if (usuario) {
-indicador.textContent = `👤 ${usuario.email || "Usuario"}`;
-indicador.style.display = "block";
-} else {
-indicador.style.display = "none";
-}
 }
 }
 
 /* ============================================================
-ACTAS EN SUPABASE
+LOCAL STORAGE
 ============================================================ */
 
-async function cargarActas() {
-
-if (!estado.supabase || !estado.usuario) {
-estado.actas = [];
-return;
-}
+function cargarActas() {
 
 try {
 
-const { data, error } =
-await estado.supabase
-.from(CONFIG.SUPABASE.TABLE)
-.select("*")
-.eq("usuario_id", estado.usuario.id)
-.order("created_at", { ascending: false });
+const datos =
+localStorage.getItem(
+CONFIG.STORAGE.ACTAS
+);
 
-if (error) {
-console.error("Error cargando actas:", error);
+
+estado.actas =
+datos
+? JSON.parse(
+datos
+)
+: [];
+
+
+if (
+!Array.isArray(
+estado.actas
+)
+) {
+
 estado.actas = [];
-mostrarError("No se pudieron cargar tus actas guardadas.");
-return;
 }
-
-estado.actas = (data || []).map(fila => {
-
-const contenido =
-fila.contenido ??
-fila.acta ??
-fila.data ??
-fila.datos ??
-{};
-
-if (typeof contenido === "object" && contenido !== null) {
-return {
-...contenido,
-id: fila.id || contenido.id,
-usuario_id: fila.usuario_id
-};
-}
-
-try {
-return {
-...JSON.parse(contenido),
-id: fila.id,
-usuario_id: fila.usuario_id
-};
-} catch {
-return {
-id: fila.id,
-estado: "borrador",
-observaciones: String(contenido || "")
-};
-}
-});
-
-mostrarBorradores();
 
 } catch (error) {
 
-console.error("Error cargando actas:", error);
+console.error(
+"Error leyendo actas:",
+error
+);
+
 estado.actas = [];
 }
 }
 
-async function guardarActaEnSupabase(acta) {
+function guardarActas() {
 
-if (!estado.supabase || !estado.usuario) {
-throw new Error("No hay una sesión de usuario activa.");
-}
+try {
 
-const contenido = {
-...acta,
-usuario_id: estado.usuario.id,
-usuario_email: estado.usuario.email || ""
-};
-
-const fila = {
-usuario_id: estado.usuario.id,
-contenido,
-updated_at: new Date().toISOString()
-};
-
-let resultado;
-
-if (acta.id && esUUID(acta.id)) {
-
-resultado =
-await estado.supabase
-.from(CONFIG.SUPABASE.TABLE)
-.update(fila)
-.eq("id", acta.id)
-.eq("usuario_id", estado.usuario.id)
-.select()
-.single();
-
-} else {
-
-const nuevoId =
-crypto.randomUUID
-? crypto.randomUUID()
-: null;
-
-const insertFila = {
-...fila
-};
-
-if (nuevoId) {
-insertFila.id = nuevoId;
-acta.id = nuevoId;
-contenido.id = nuevoId;
-}
-
-resultado =
-await estado.supabase
-.from(CONFIG.SUPABASE.TABLE)
-.insert(insertFila)
-.select()
-.single();
-}
-
-if (resultado.error) {
-console.error("Error guardando acta:", resultado.error);
-throw new Error(
-resultado.error.message ||
-"No se pudo guardar el acta."
-);
-}
-
-const guardada = resultado.data;
-
-if (guardada) {
-const indice =
-estado.actas.findIndex(
-item => item.id === guardada.id
+localStorage.setItem(
+CONFIG.STORAGE.ACTAS,
+JSON.stringify(
+estado.actas
+)
 );
 
-const actaGuardada = {
-...(guardada.contenido || acta),
-id: guardada.id,
-usuario_id: guardada.usuario_id
-};
+} catch (error) {
 
-if (indice >= 0) {
-estado.actas[indice] = actaGuardada;
-} else {
-estado.actas.push(actaGuardada);
-}
-}
-}
-
-async function eliminarActaDeSupabase(id) {
-
-if (!estado.supabase || !estado.usuario || !esUUID(id)) {
-return;
-}
-
-const { error } =
-await estado.supabase
-.from(CONFIG.SUPABASE.TABLE)
-.delete()
-.eq("id", id)
-.eq("usuario_id", estado.usuario.id);
-
-if (error) {
-console.error("Error eliminando acta:", error);
-mostrarError("El acta se quitó de la pantalla, pero no pudo eliminarse de la base de datos.");
-}
-}
-
-function esUUID(valor) {
-
-return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-String(valor || "")
+console.error(
+"Error guardando actas:",
+error
 );
+
+mostrarError(
+"No se pudo guardar el borrador."
+);
+}
 }
 
 /* ============================================================
@@ -4238,6 +4642,12 @@ estado;
 window.CONFIG =
 CONFIG;
 
+window.usuarioActual =
+usuarioActual;
+
+window.clienteSupabase =
+clienteSupabase;
+
 window.buscarInfracciones =
 buscarInfracciones;
 
@@ -4271,3 +4681,11 @@ mostrarLOPSC;
 /* ============================================================
 FIN APP.JS
 ============================================================ */
+QUÉ HACER
+1. Abre app.js en GitHub.
+2. Borra TODO el contenido antiguo.
+3. Copia TODO el código de este documento y pégalo.
+4. Guarda/Commit.
+5. Espera a que GitHub Pages publique el cambio.
+6. Abre Centinela Code y prueba el mismo usuario y contraseña.
+7. Si el Service Worker sirve la versión anterior, la app mostrará el error en pantalla en vez de quedarse cargando indefinidamente.
