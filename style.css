@@ -1181,4 +1181,3 @@ Sustituye COMPLETAMENTE el manifest.json actual por este código. Así la instal
 }
 ]
 }
-ORDEN DESDE EL MÓVIL: 1) sustituye style.css completo; 2) sube logo-centinela.png a la misma carpeta que index.html; 3) sustituye manifest.json completo; 4) guarda/commit en GitHub; 5) abre la web y recarga. Si sigue apareciendo el icono antiguo, desinstala la PWA anterior y vuelve a instalarla porque Android puede conservar el icono anterior en caché.
