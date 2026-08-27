@@ -868,384 +868,464 @@ BÚSQUEDA
 
 function buscarInfracciones() {
 
-    const texto = normalizarTexto(
-        estado.filtros.texto || ""
+const texto =
+    normalizarTexto(
+        estado.filtros.texto
     );
 
-    const gravedad = estado.filtros.gravedad;
-    const articulo = estado.filtros.articulo;
 
-    /*
-     * BÚSQUEDA SEGURA:
-     * No usamos includes() sobre un texto gigante.
-     * Una búsqueda textual solo es válida cuando coincide
-     * con una palabra/frase completa en los campos relevantes.
-     *
-     * Además, las sustancias/drogas tienen un mapa jurídico
-     * explícito hacia los apartados de la LOPSC que regulan
-     * conductas relacionadas con drogas.
-     */
-    const sinonimosDrogas = new Set([
-        "cocaina",
-        "cocaína",
-        "coca",
-        "coca en polvo",
-        "cocaina en polvo",
-        "cocaína en polvo",
-        "hachis",
-        "hachís",
-        "hash",
-        "resina de cannabis",
-        "marihuana",
-        "marihuanas",
-        "marijuana",
-        "cannabis",
-        "porro",
-        "porros",
-        "grifa",
-        "droga",
-        "drogas",
-        "estupefaciente",
-        "estupefacientes",
-        "sustancia estupefaciente",
-        "sustancias estupefacientes",
-        "sustancia psicotropica",
-        "sustancia psicotrópica",
-        "sustancias psicotropicas",
-        "sustancias psicotrópicas"
-    ].map(normalizarTexto));
+const gravedad =
+    estado.filtros.gravedad;
 
-    const apartadosDrogas = new Set([
+
+const articulo =
+    estado.filtros.articulo;
+
+
+/*
+ * BÚSQUEDA SEGURA
+ *
+ * No se utiliza includes() sobre un bloque de texto completo.
+ * Esto evita falsos positivos como:
+ *
+ *   gato -> obliGATOrias
+ *
+ * La búsqueda textual exige coincidencia de palabra completa.
+ *
+ * Además se mantienen búsquedas jurídicas especiales para
+ * sustancias y drogas aunque esos términos no estén escritos
+ * literalmente en todos los registros del JSON.
+ */
+const terminosDrogas =
+    new Set(
+        [
+            "cocaina",
+            "cocaína",
+            "hachis",
+            "hachís",
+            "marihuana",
+            "marihuanas",
+            "marijuana",
+            "cannabis",
+            "porro",
+            "porros",
+            "grifa",
+            "droga",
+            "drogas",
+            "estupefaciente",
+            "estupefacientes",
+            "sustancia estupefaciente",
+            "sustancias estupefacientes",
+            "sustancia psicotropica",
+            "sustancia psicotrópica",
+            "sustancias psicotropicas",
+            "sustancias psicotrópicas"
+        ].map(
+            termino =>
+                normalizarTexto(termino)
+        )
+    );
+
+
+function contienePalabraCompleta(
+    campo,
+    consulta
+) {
+
+const textoCampo =
+    normalizarTexto(campo);
+
+
+const textoConsulta =
+    normalizarTexto(consulta);
+
+
+if (
+    !textoCampo ||
+    !textoConsulta
+) {
+    return false;
+}
+
+
+/*
+ * normalizarTexto elimina tildes, por lo que
+ * cocaina y cocaína quedan equivalentes.
+ *
+ * Los límites no dependen de \b porque \b
+ * puede comportarse de forma poco intuitiva
+ * con caracteres españoles.
+ */
+const escapado =
+    textoConsulta
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(
+            palabra =>
+                palabra.replace(
+                    /[.*+?^${}()|[\]\\]/g,
+                    "\\$&"
+                )
+        )
+        .join("\\s+");
+
+
+try {
+
+return new RegExp(
+    `(^|[^a-z0-9ñ])${escapado}(?=$|[^a-z0-9ñ])`,
+    "i"
+).test(
+    textoCampo
+);
+
+} catch (error) {
+
+console.warn(
+    "Error construyendo búsqueda:",
+    error
+);
+
+return false;
+}
+}
+
+
+function coincideCodigo(
+    infraccion,
+    consulta
+) {
+
+const consultaLimpia =
+    normalizarTexto(
+        consulta
+    ).replace(
+        /\s+/g,
+        ""
+    );
+
+
+if (!consultaLimpia) {
+    return false;
+}
+
+
+const valores =
+    [
+        infraccion.id,
+        infraccion.codigo,
+        infraccion.articulo,
+        infraccion.apartado
+    ];
+
+
+return valores.some(
+    valor => {
+
+        const limpio =
+            normalizarTexto(
+                valor
+            ).replace(
+                /\s+/g,
+                ""
+            );
+
+        return (
+            limpio &&
+            limpio === consultaLimpia
+        );
+    }
+    );
+}
+
+
+function esBusquedaDroga(
+    consulta
+) {
+
+return terminosDrogas.has(
+    normalizarTexto(
+        consulta
+    )
+);
+}
+
+
+function esApartadoDrogas(
+    infraccion
+) {
+
+const articuloNumero =
+    normalizarTexto(
+        infraccion.articulo
+    );
+
+
+const apartadoNumero =
+    normalizarTexto(
+        infraccion.apartado
+    );
+
+
+return (
+    articuloNumero === "36" &&
+    [
         "16",
         "17",
         "18",
         "19"
-    ]);
+    ].includes(
+        apartadoNumero
+    )
+);
+}
 
-    function esFraseExacta(textoCampo, consulta) {
 
-        const campo = normalizarTexto(textoCampo);
-        const termino = normalizarTexto(consulta);
-
-        if (!campo || !termino) {
-            return false;
-        }
-
-        /*
-         * Escapamos caracteres especiales para construir
-         * una expresión que exija límites de palabra reales.
-         * Esto evita casos como:
-         * gato -> obliGATOrias
-         */
-        const palabras = termino
-            .split(/\s+/)
-            .filter(Boolean)
-            .map(
-                palabra =>
-                    palabra.replace(
-                        /[.*+?^${}()|[\]\\]/g,
-                        "\\$&"
-                    )
-            );
-
-        if (!palabras.length) {
-            return false;
-        }
-
-        const patron = palabras.join("\\s+");
-
-        try {
-
-            return new RegExp(
-                `(^|[^a-z0-9áéíóúüñ])${patron}(?=$|[^a-z0-9áéíóúüñ])`,
-                "i"
-            ).test(campo);
-
-        } catch (error) {
-
-            console.warn(
-                "Error en búsqueda:",
-                error
-            );
-
-            return false;
-        }
-    }
-
-    function esCoincidenciaCodigo(infraccion, consulta) {
-
-        const codigo =
-            normalizarTexto(infraccion.codigo);
-
-        const id =
-            normalizarTexto(infraccion.id);
-
-        const articuloTexto =
-            normalizarTexto(infraccion.articulo);
-
-        const apartadoTexto =
-            normalizarTexto(infraccion.apartado);
-
-        const consultaLimpia =
-            normalizarTexto(consulta)
-                .replace(/\s+/g, "");
-
-        if (!consultaLimpia) {
-            return false;
-        }
-
-        if (
-            codigo &&
-            codigo.replace(/\s+/g, "") === consultaLimpia
-        ) {
-            return true;
-        }
-
-        if (
-            id &&
-            id.replace(/\s+/g, "") === consultaLimpia
-        ) {
-            return true;
-        }
-
-        if (
-            articuloTexto &&
-            articuloTexto.replace(/\s+/g, "") === consultaLimpia
-        ) {
-            return true;
-        }
-
-        if (
-            apartadoTexto &&
-            apartadoTexto.replace(/\s+/g, "") === consultaLimpia
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    function esCoincidenciaRelevante(infraccion, consulta) {
-
-        if (!consulta) {
-            return true;
-        }
-
-        /*
-         * 1. Códigos y artículos.
-         */
-        if (
-            esCoincidenciaCodigo(
-                infraccion,
-                consulta
-            )
-        ) {
-            return true;
-        }
-
-        /*
-         * 2. Drogas: búsqueda semántica controlada.
-         *
-         * El JSON actual contiene la conducta jurídica de los
-         * apartados 36.16 a 36.19, pero no necesariamente nombres
-         * de sustancias en palabrasClave. Por eso los términos
-         * de drogas se vinculan explícitamente a esos apartados.
-         */
-        if (
-            sinonimosDrogas.has(
-                normalizarTexto(consulta)
-            )
-        ) {
-
-            const articuloNumero =
-                normalizarTexto(
-                    infraccion.articulo
-                );
-
-            const apartadoNumero =
-                normalizarTexto(
-                    infraccion.apartado
-                );
+estado.resultados =
+    estado.infracciones.filter(
+        infraccion => {
 
             if (
-                articuloNumero === "36" &&
-                apartadosDrogas.has(
-                    apartadoNumero
-                )
+                gravedad &&
+                gravedad !== "todas" &&
+                infraccion.gravedad !==
+                    gravedad
             ) {
+
+                return false;
+            }
+
+
+            if (
+                articulo &&
+                articulo !== "todos" &&
+                String(
+                    infraccion.articulo
+                ) !==
+                    String(articulo)
+            ) {
+
+                return false;
+            }
+
+
+            if (!texto) {
+
                 return true;
             }
-        }
 
-        /*
-         * 3. Palabras clave reales del registro.
-         * Coincidencia completa, nunca fragmentos.
-         */
-        const palabrasClave =
-            Array.isArray(
-                infraccion.palabrasClave
-            )
-                ? infraccion.palabrasClave
-                : [];
 
-        if (
-            palabrasClave.some(
-                palabra =>
-                    esFraseExacta(
-                        palabra,
-                        consulta
-                    )
-            )
-        ) {
-            return true;
-        }
-
-        /*
-         * 4. Título.
-         */
-        if (
-            esFraseExacta(
-                infraccion.titulo,
-                consulta
-            )
-        ) {
-            return true;
-        }
-
-        /*
-         * 5. Conducta.
-         */
-        if (
-            esFraseExacta(
-                infraccion.conducta,
-                consulta
-            )
-        ) {
-            return true;
-        }
-
-        /*
-         * 6. Ley.
-         */
-        if (
-            esFraseExacta(
-                infraccion.ley,
-                consulta
-            )
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    estado.resultados =
-        estado.infracciones.filter(
-            infraccion => {
-
-                if (
-                    gravedad &&
-                    gravedad !== "todas" &&
-                    gravedad !== "all" &&
-                    infraccion.gravedad !==
-                        gravedad
-                ) {
-                    return false;
-                }
-
-                if (
-                    articulo &&
-                    articulo !== "todos" &&
-                    String(
-                        infraccion.articulo
-                    ) !==
-                        String(articulo)
-                ) {
-                    return false;
-                }
-
-                return esCoincidenciaRelevante(
+            /*
+             * 1. Código / artículo exacto.
+             */
+            if (
+                coincideCodigo(
                     infraccion,
                     texto
+                )
+            ) {
+
+                return true;
+            }
+
+
+            /*
+             * 2. Búsqueda jurídica controlada
+             * para drogas.
+             *
+             * Los registros 36.16-36.19 describen
+             * conductas relacionadas con drogas,
+             * aunque el nombre de la sustancia
+             * concreta no aparezca en palabrasClave.
+             */
+            if (
+                esBusquedaDroga(
+                    texto
+                ) &&
+                esApartadoDrogas(
+                    infraccion
+                )
+            ) {
+
+                return true;
+            }
+
+
+            /*
+             * 3. Palabras clave.
+             * Coincidencia de palabra/frase completa.
+             */
+            const palabrasClave =
+                Array.isArray(
+                    infraccion.palabrasClave
+                )
+                    ? infraccion.palabrasClave
+                    : [];
+
+
+            if (
+                palabrasClave.some(
+                    palabra =>
+                        contienePalabraCompleta(
+                            palabra,
+                            texto
+                        )
+                )
+            ) {
+
+                return true;
+            }
+
+
+            /*
+             * 4. Título.
+             */
+            if (
+                contienePalabraCompleta(
+                    infraccion.titulo,
+                    texto
+                )
+            ) {
+
+                return true;
+            }
+
+
+            /*
+             * 5. Conducta.
+             */
+            if (
+                contienePalabraCompleta(
+                    infraccion.conducta,
+                    texto
+                )
+            ) {
+
+                return true;
+            }
+
+
+            /*
+             * 6. Ley.
+             */
+            if (
+                contienePalabraCompleta(
+                    infraccion.ley,
+                    texto
+                )
+            ) {
+
+                return true;
+            }
+
+
+            return false;
+        }
+    );
+
+
+/*
+ * ORDENACIÓN
+ *
+ * Los códigos exactos aparecen primero.
+ * Después las coincidencias de palabras clave.
+ */
+if (texto) {
+
+    estado.resultados.sort(
+        (a, b) => {
+
+            const codigoA =
+                normalizarTexto(
+                    a.codigo
                 );
+
+
+            const codigoB =
+                normalizarTexto(
+                    b.codigo
+                );
+
+
+            if (
+                codigoA === texto
+            ) {
+
+                return -1;
             }
-        );
 
-    /*
-     * Ordenación:
-     * - código exacto primero;
-     * - después palabras clave;
-     * - después título/conducta.
-     */
-    if (texto) {
 
-        estado.resultados.sort(
-            (a, b) => {
+            if (
+                codigoB === texto
+            ) {
 
-                const aCodigo =
-                    normalizarTexto(a.codigo);
-
-                const bCodigo =
-                    normalizarTexto(b.codigo);
-
-                if (aCodigo === texto) {
-                    return -1;
-                }
-
-                if (bCodigo === texto) {
-                    return 1;
-                }
-
-                const aPalabras =
-                    Array.isArray(a.palabrasClave)
-                        ? a.palabrasClave
-                        : [];
-
-                const bPalabras =
-                    Array.isArray(b.palabrasClave)
-                        ? b.palabrasClave
-                        : [];
-
-                const aKeyword =
-                    aPalabras.some(
-                        palabra =>
-                            esFraseExacta(
-                                palabra,
-                                texto
-                            )
-                    );
-
-                const bKeyword =
-                    bPalabras.some(
-                        palabra =>
-                            esFraseExacta(
-                                palabra,
-                                texto
-                            )
-                    );
-
-                if (
-                    aKeyword &&
-                    !bKeyword
-                ) {
-                    return -1;
-                }
-
-                if (
-                    bKeyword &&
-                    !aKeyword
-                ) {
-                    return 1;
-                }
-
-                return 0;
+                return 1;
             }
-        );
-    }
 
-    renderizarResultados();
 
-    actualizarContador();
+            const palabrasA =
+                Array.isArray(
+                    a.palabrasClave
+                )
+                    ? a.palabrasClave
+                    : [];
+
+
+            const palabrasB =
+                Array.isArray(
+                    b.palabrasClave
+                )
+                    ? b.palabrasClave
+                    : [];
+
+
+            const claveA =
+                palabrasA.some(
+                    palabra =>
+                        contienePalabraCompleta(
+                            palabra,
+                            texto
+                        )
+                );
+
+
+            const claveB =
+                palabrasB.some(
+                    palabra =>
+                        contienePalabraCompleta(
+                            palabra,
+                            texto
+                        )
+                );
+
+
+            if (
+                claveA &&
+                !claveB
+            ) {
+
+                return -1;
+            }
+
+
+            if (
+                claveB &&
+                !claveA
+            ) {
+
+                return 1;
+            }
+
+
+            return 0;
+        }
+    );
+}
+
+
+renderizarResultados();
+
+actualizarContador();
 }
 
 /* ============================================================
