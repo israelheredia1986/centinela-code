@@ -86,27 +86,10 @@ console.log(
 
 actualizarRed();
 
-/*
- * La pantalla de acceso se muestra inmediatamente.
- * No dejamos al usuario bloqueado en "Cargando aplicación..."
- * mientras se descarga Supabase.
- */
-bloquearAplicacion();
-
-try {
-    await inicializarAutenticacion();
-} catch (error) {
-    console.error("Error durante la autenticación:", error);
-}
-
-estado.authCargando = false;
+await inicializarAutenticacion();
 
 if (!estado.autenticado) {
-    mostrarMensajeLogin(
-        estado.supabase
-            ? "Inicia sesión para acceder a Centinela Code."
-            : "No se pudo cargar el sistema de acceso. Comprueba tu conexión a Internet y recarga la aplicación."
-    );
+    estado.authCargando = false;
     bloquearAplicacion();
     return;
 }
@@ -121,14 +104,8 @@ await cargarActas();
 
 inicializarInterfaz();
 
+estado.authCargando = false;
 actualizarInterfazUsuario();
-}
-
-function mostrarMensajeLogin(mensaje) {
-    const elemento = document.getElementById("centinela-login-message");
-    if (elemento) {
-        elemento.textContent = mensaje || "";
-    }
 }
 
 /* ============================================================
@@ -234,8 +211,6 @@ if (
 }
 
 
-actualizarEstadoInicioDatos();
-
 estado.cargado = true;
 
 
@@ -263,48 +238,23 @@ FETCH JSON
 
 async function cargarJSON(ruta) {
 
-const controlador = new AbortController();
-const temporizador = setTimeout(
-    () => controlador.abort(),
-    10000
+const respuesta = await fetch(
+    ruta,
+    {
+        cache: "no-cache"
+    }
 );
 
-/*
- * no-store evita que una versión antigua de la PWA deje
- * los datos en "Cargando..." por una respuesta cacheada.
- * El parámetro de versión también fuerza una petición nueva.
- */
-const separador = ruta.includes("?") ? "&" : "?";
-const urlActualizada = `${ruta}${separador}v=${encodeURIComponent(CONFIG.VERSION)}-${Date.now()}`;
 
-try {
-    const respuesta = await fetch(
-        urlActualizada,
-        {
-            cache: "no-store",
-            signal: controlador.signal
-        }
+if (!respuesta.ok) {
+
+    throw new Error(
+        `HTTP ${respuesta.status}: ${ruta}`
     );
-
-    if (!respuesta.ok) {
-        throw new Error(
-            `HTTP ${respuesta.status}: ${ruta}`
-        );
-    }
-
-    return await respuesta.json();
-
-} catch (error) {
-
-    if (error?.name === "AbortError") {
-        throw new Error(`Tiempo agotado cargando ${ruta}`);
-    }
-
-    throw error;
-
-} finally {
-    clearTimeout(temporizador);
 }
+
+
+return await respuesta.json();
 }
 
 /* ============================================================
@@ -868,464 +818,112 @@ BÚSQUEDA
 
 function buscarInfracciones() {
 
-const texto =
-    normalizarTexto(
-        estado.filtros.texto
-    );
+    const texto = normalizarTexto(estado.filtros.texto);
+    const gravedad = estado.filtros.gravedad;
+    const articulo = estado.filtros.articulo;
 
+    // Alias jurídicos de drogas para LOPSC art. 36.16.
+    const aliasDrogas = new Set([
+        "cocaina", "cocaína", "coca",
+        "cocaina en polvo",
+        "hachis", "hachís", "hash",
+        "resina de cannabis",
+        "marihuana", "marihuanas", "marijuana",
+        "cannabis", "porro", "porros", "grifa",
+        "droga", "drogas",
+        "estupefaciente", "estupefacientes",
+        "sustancia estupefaciente", "sustancias estupefacientes",
+        "psicotropica", "psicotrópica",
+        "psicotropicas", "psicotrópicas",
+        "sustancia psicotropica", "sustancia psicotrópica",
+        "sustancias psicotropicas", "sustancias psicotrópicas"
+    ].map(normalizarTexto));
 
-const gravedad =
-    estado.filtros.gravedad;
+    const esAliasDrogas = aliasDrogas.has(texto);
 
-
-const articulo =
-    estado.filtros.articulo;
-
-
-/*
- * BÚSQUEDA SEGURA
- *
- * No se utiliza includes() sobre un bloque de texto completo.
- * Esto evita falsos positivos como:
- *
- *   gato -> obliGATOrias
- *
- * La búsqueda textual exige coincidencia de palabra completa.
- *
- * Además se mantienen búsquedas jurídicas especiales para
- * sustancias y drogas aunque esos términos no estén escritos
- * literalmente en todos los registros del JSON.
- */
-const terminosDrogas =
-    new Set(
-        [
-            "cocaina",
-            "cocaína",
-            "hachis",
-            "hachís",
-            "marihuana",
-            "marihuanas",
-            "marijuana",
-            "cannabis",
-            "porro",
-            "porros",
-            "grifa",
-            "droga",
-            "drogas",
-            "estupefaciente",
-            "estupefacientes",
-            "sustancia estupefaciente",
-            "sustancias estupefacientes",
-            "sustancia psicotropica",
-            "sustancia psicotrópica",
-            "sustancias psicotropicas",
-            "sustancias psicotrópicas"
-        ].map(
-            termino =>
-                normalizarTexto(termino)
-        )
-    );
-
-
-function contienePalabraCompleta(
-    campo,
-    consulta
-) {
-
-const textoCampo =
-    normalizarTexto(campo);
-
-
-const textoConsulta =
-    normalizarTexto(consulta);
-
-
-if (
-    !textoCampo ||
-    !textoConsulta
-) {
-    return false;
-}
-
-
-/*
- * normalizarTexto elimina tildes, por lo que
- * cocaina y cocaína quedan equivalentes.
- *
- * Los límites no dependen de \b porque \b
- * puede comportarse de forma poco intuitiva
- * con caracteres españoles.
- */
-const escapado =
-    textoConsulta
-        .split(/\s+/)
-        .filter(Boolean)
-        .map(
-            palabra =>
-                palabra.replace(
-                    /[.*+?^${}()|[\]\\]/g,
-                    "\\$&"
-                )
-        )
-        .join("\\s+");
-
-
-try {
-
-return new RegExp(
-    `(^|[^a-z0-9ñ])${escapado}(?=$|[^a-z0-9ñ])`,
-    "i"
-).test(
-    textoCampo
-);
-
-} catch (error) {
-
-console.warn(
-    "Error construyendo búsqueda:",
-    error
-);
-
-return false;
-}
-}
-
-
-function coincideCodigo(
-    infraccion,
-    consulta
-) {
-
-const consultaLimpia =
-    normalizarTexto(
-        consulta
-    ).replace(
-        /\s+/g,
-        ""
-    );
-
-
-if (!consultaLimpia) {
-    return false;
-}
-
-
-const valores =
-    [
-        infraccion.id,
-        infraccion.codigo,
-        infraccion.articulo,
-        infraccion.apartado
-    ];
-
-
-return valores.some(
-    valor => {
-
-        const limpio =
-            normalizarTexto(
-                valor
-            ).replace(
-                /\s+/g,
-                ""
-            );
-
-        return (
-            limpio &&
-            limpio === consultaLimpia
-        );
+    function palabraCompleta(campo, termino) {
+        const valor = normalizarTexto(campo);
+        if (!valor || !termino) return false;
+        const escapado = termino.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return new RegExp("(?:^|[^a-z0-9áéíóúüñ])" + escapado + "(?:$|[^a-z0-9áéíóúüñ])", "i").test(valor);
     }
-    );
-}
 
+    estado.resultados = estado.infracciones.filter(infraccion => {
 
-function esBusquedaDroga(
-    consulta
-) {
-
-return terminosDrogas.has(
-    normalizarTexto(
-        consulta
-    )
-);
-}
-
-
-function esApartadoDrogas(
-    infraccion
-) {
-
-const articuloNumero =
-    normalizarTexto(
-        infraccion.articulo
-    );
-
-
-const apartadoNumero =
-    normalizarTexto(
-        infraccion.apartado
-    );
-
-
-return (
-    articuloNumero === "36" &&
-    [
-        "16",
-        "17",
-        "18",
-        "19"
-    ].includes(
-        apartadoNumero
-    )
-);
-}
-
-
-estado.resultados =
-    estado.infracciones.filter(
-        infraccion => {
-
-            if (
-                gravedad &&
-                gravedad !== "todas" &&
-                infraccion.gravedad !==
-                    gravedad
-            ) {
-
-                return false;
-            }
-
-
-            if (
-                articulo &&
-                articulo !== "todos" &&
-                String(
-                    infraccion.articulo
-                ) !==
-                    String(articulo)
-            ) {
-
-                return false;
-            }
-
-
-            if (!texto) {
-
-                return true;
-            }
-
-
-            /*
-             * 1. Código / artículo exacto.
-             */
-            if (
-                coincideCodigo(
-                    infraccion,
-                    texto
-                )
-            ) {
-
-                return true;
-            }
-
-
-            /*
-             * 2. Búsqueda jurídica controlada
-             * para drogas.
-             *
-             * Los registros 36.16-36.19 describen
-             * conductas relacionadas con drogas,
-             * aunque el nombre de la sustancia
-             * concreta no aparezca en palabrasClave.
-             */
-            if (
-                esBusquedaDroga(
-                    texto
-                ) &&
-                esApartadoDrogas(
-                    infraccion
-                )
-            ) {
-
-                return true;
-            }
-
-
-            /*
-             * 3. Palabras clave.
-             * Coincidencia de palabra/frase completa.
-             */
-            const palabrasClave =
-                Array.isArray(
-                    infraccion.palabrasClave
-                )
-                    ? infraccion.palabrasClave
-                    : [];
-
-
-            if (
-                palabrasClave.some(
-                    palabra =>
-                        contienePalabraCompleta(
-                            palabra,
-                            texto
-                        )
-                )
-            ) {
-
-                return true;
-            }
-
-
-            /*
-             * 4. Título.
-             */
-            if (
-                contienePalabraCompleta(
-                    infraccion.titulo,
-                    texto
-                )
-            ) {
-
-                return true;
-            }
-
-
-            /*
-             * 5. Conducta.
-             */
-            if (
-                contienePalabraCompleta(
-                    infraccion.conducta,
-                    texto
-                )
-            ) {
-
-                return true;
-            }
-
-
-            /*
-             * 6. Ley.
-             */
-            if (
-                contienePalabraCompleta(
-                    infraccion.ley,
-                    texto
-                )
-            ) {
-
-                return true;
-            }
-
-
+        if (
+            gravedad &&
+            gravedad !== "todas" &&
+            infraccion.gravedad !== gravedad
+        ) {
             return false;
         }
-    );
 
-
-/*
- * ORDENACIÓN
- *
- * Los códigos exactos aparecen primero.
- * Después las coincidencias de palabras clave.
- */
-if (texto) {
-
-    estado.resultados.sort(
-        (a, b) => {
-
-            const codigoA =
-                normalizarTexto(
-                    a.codigo
-                );
-
-
-            const codigoB =
-                normalizarTexto(
-                    b.codigo
-                );
-
-
-            if (
-                codigoA === texto
-            ) {
-
-                return -1;
-            }
-
-
-            if (
-                codigoB === texto
-            ) {
-
-                return 1;
-            }
-
-
-            const palabrasA =
-                Array.isArray(
-                    a.palabrasClave
-                )
-                    ? a.palabrasClave
-                    : [];
-
-
-            const palabrasB =
-                Array.isArray(
-                    b.palabrasClave
-                )
-                    ? b.palabrasClave
-                    : [];
-
-
-            const claveA =
-                palabrasA.some(
-                    palabra =>
-                        contienePalabraCompleta(
-                            palabra,
-                            texto
-                        )
-                );
-
-
-            const claveB =
-                palabrasB.some(
-                    palabra =>
-                        contienePalabraCompleta(
-                            palabra,
-                            texto
-                        )
-                );
-
-
-            if (
-                claveA &&
-                !claveB
-            ) {
-
-                return -1;
-            }
-
-
-            if (
-                claveB &&
-                !claveA
-            ) {
-
-                return 1;
-            }
-
-
-            return 0;
+        if (
+            articulo &&
+            articulo !== "todos" &&
+            String(infraccion.articulo) !== String(articulo)
+        ) {
+            return false;
         }
-    );
-}
 
+        if (!texto) return true;
 
-renderizarResultados();
+        const codigo = normalizarTexto(infraccion.codigo);
+        const id = normalizarTexto(infraccion.id);
+        const art = normalizarTexto(infraccion.articulo);
+        const apartado = normalizarTexto(infraccion.apartado);
+        const titulo = normalizarTexto(infraccion.titulo);
+        const conducta = normalizarTexto(infraccion.conducta);
+        const ley = normalizarTexto(infraccion.ley);
+        const palabras = Array.isArray(infraccion.palabrasClave)
+            ? infraccion.palabrasClave.map(normalizarTexto)
+            : [];
 
-actualizarContador();
+        // Códigos y artículos: coincidencia exacta.
+        if (codigo === texto || id === texto) return true;
+        if (`${art}.${apartado}` === texto) return true;
+        if (art === texto) return true;
+
+        // Drogas: alias explícitos apuntan al bloque 36.16.
+        if (esAliasDrogas) {
+            if (art === "36" && apartado === "16") return true;
+            if (codigo === "36.16") return true;
+        }
+
+        // Palabras clave: palabra/frase completa, nunca fragmentos.
+        if (palabras.some(p => p === texto || palabraCompleta(p, texto))) {
+            return true;
+        }
+
+        // Título: palabra o frase completa, nunca una parte de otra palabra.
+        if (palabraCompleta(titulo, texto)) return true;
+
+        // Conducta: palabra completa. Esto evita gato -> obliGATOrias.
+        if (palabraCompleta(conducta, texto)) return true;
+
+        // Ley: coincidencia exacta.
+        if (ley === texto) return true;
+
+        return false;
+    });
+
+    if (texto) {
+        estado.resultados.sort((a, b) => {
+            const codigoA = normalizarTexto(a.codigo);
+            const codigoB = normalizarTexto(b.codigo);
+            const tituloA = normalizarTexto(a.titulo);
+            const tituloB = normalizarTexto(b.titulo);
+
+            if (codigoA === texto && codigoB !== texto) return -1;
+            if (codigoB === texto && codigoA !== texto) return 1;
+            if (tituloA === texto && tituloB !== texto) return -1;
+            if (tituloB === texto && tituloA !== texto) return 1;
+            return 0;
+        });
+    }
+
+    renderizarResultados();
+    actualizarContador();
 }
 
 /* ============================================================
@@ -3072,100 +2670,18 @@ if (window.supabase?.createClient) {
     return;
 }
 
-const existente = document.querySelector(
-    'script[data-centinela-supabase="true"]'
-);
-
-if (existente) {
-    if (window.supabase?.createClient) return;
-
-    await esperarCargaSupabase(existente);
-    return;
-}
-
 await new Promise((resolve, reject) => {
 
     const script = document.createElement("script");
     script.src = SUPABASE_CDN;
     script.async = true;
-    script.dataset.centinelaSupabase = "true";
 
-    let finalizado = false;
-
-    const finalizar = (funcion) => {
-        if (finalizado) return;
-        finalizado = true;
-        clearTimeout(temporizador);
-        funcion();
-    };
-
-    const temporizador = setTimeout(() => {
-        finalizar(() => reject(
-            new Error("Tiempo agotado cargando la librería de Supabase.")
-        ));
-    }, 8000);
-
-    script.onload = () => {
-        finalizar(() => {
-            if (window.supabase?.createClient) {
-                script.dataset.centinelaLoaded = "true";
-                resolve();
-            } else {
-                reject(new Error(
-                    "La librería de Supabase se cargó pero no está disponible."
-                ));
-            }
-        });
-    };
-
-    script.onerror = () => {
-        finalizar(() => reject(
-            new Error("No se pudo cargar la librería de Supabase.")
-        ));
-    };
+    script.onload = resolve;
+    script.onerror = () => reject(
+        new Error("No se pudo cargar la librería de Supabase.")
+    );
 
     document.head.appendChild(script);
-});
-}
-
-function esperarCargaSupabase(script) {
-
-return new Promise((resolve, reject) => {
-
-    let finalizado = false;
-
-    const finalizar = (funcion) => {
-        if (finalizado) return;
-        finalizado = true;
-        clearTimeout(temporizador);
-        funcion();
-    };
-
-    const temporizador = setTimeout(() => {
-        if (window.supabase?.createClient) {
-            finalizar(resolve);
-        } else {
-            finalizar(() => reject(
-                new Error("Tiempo agotado esperando a Supabase.")
-            ));
-        }
-    }, 8000);
-
-    script.addEventListener("load", () => {
-        if (window.supabase?.createClient) {
-            finalizar(resolve);
-        } else {
-            finalizar(() => reject(
-                new Error("Supabase se cargó pero no está disponible.")
-            ));
-        }
-    }, { once: true });
-
-    script.addEventListener("error", () => {
-        finalizar(() => reject(
-            new Error("No se pudo cargar Supabase.")
-        ));
-    }, { once: true });
 });
 }
 
@@ -3188,15 +2704,7 @@ try {
     );
 
     const resultado =
-        await Promise.race([
-            estado.supabase.auth.getSession(),
-            new Promise((_, reject) =>
-                setTimeout(
-                    () => reject(new Error("Tiempo agotado comprobando la sesión.")),
-                    8000
-                )
-            )
-        ]);
+        await estado.supabase.auth.getSession();
 
     estado.usuario =
         resultado.data?.session?.user || null;
@@ -4108,37 +3616,6 @@ if (muyGraves) {
                 item.gravedad ===
                 "Muy Grave"
         ).length;
-}
-}
-
-/* ============================================================
-ESTADO DATOS — INICIO
-============================================================ */
-
-function actualizarEstadoInicioDatos() {
-
-const elementos = {
-    normativa: document.getElementById("homeNormativaStatus"),
-    infracciones: document.getElementById("homeInfraccionesStatus"),
-    ordenanzas: document.getElementById("homeOrdenanzasStatus")
-};
-
-if (elementos.normativa) {
-    elementos.normativa.textContent = estado.normativa.length
-        ? `OK · ${estado.normativa.length}`
-        : "Sin datos";
-}
-
-if (elementos.infracciones) {
-    elementos.infracciones.textContent = estado.infracciones.length
-        ? `OK · ${estado.infracciones.length}`
-        : "Sin datos";
-}
-
-if (elementos.ordenanzas) {
-    elementos.ordenanzas.textContent = estado.ordenanzas.length
-        ? `OK · ${estado.ordenanzas.length}`
-        : "Sin datos";
 }
 }
 
