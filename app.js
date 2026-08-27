@@ -141,36 +141,48 @@ clearTimeout(temporizador);
 }
 } 
 
-function extraerInfracciones(datos) { 
-if (Array.isArray(datos)) { 
-return datos; 
+function extraerInfracciones(datos) {
+if (Array.isArray(datos)) {
+return datos;
+}
+
+if (datos && Array.isArray(datos.infracciones)) {
+return datos.infracciones;
+}
+
+if (datos && datos.infracciones && typeof datos.infracciones === "object") {
+return Object.values(datos.infracciones);
+}
+
+return [];
 } 
 
-if (datos && Array.isArray(datos.infracciones)) { 
-return datos.infracciones; 
+function extraerArticulos(datos) {
+if (datos && Array.isArray(datos.articulos)) {
+return datos.articulos;
+}
+
+if (datos && datos.articulos && typeof datos.articulos === "object") {
+return Object.values(datos.articulos);
+}
+
+return [];
 } 
 
-return []; 
-} 
+function extraerOrdenanzas(datos) {
+if (Array.isArray(datos)) {
+return datos;
+}
 
-function extraerArticulos(datos) { 
-if (datos && Array.isArray(datos.articulos)) { 
-return datos.articulos; 
-} 
+if (datos && Array.isArray(datos.ordenanzas)) {
+return datos.ordenanzas;
+}
 
-return []; 
-} 
+if (datos && datos.ordenanzas && typeof datos.ordenanzas === "object") {
+return Object.values(datos.ordenanzas);
+}
 
-function extraerOrdenanzas(datos) { 
-if (Array.isArray(datos)) { 
-return datos; 
-} 
-
-if (datos && Array.isArray(datos.ordenanzas)) { 
-return datos.ordenanzas; 
-} 
-
-return []; 
+return [];
 } 
 
 async function cargarDatos() { 
@@ -409,66 +421,106 @@ actualizarBusqueda();
 }); 
 } 
 
-function actualizarBusqueda() { 
-const input = $("consultaSearch"); 
+function puntuacionBusqueda(infraccion, texto) {
+const termino = normalizarTexto(texto);
+if (!termino) return 0;
 
-const texto = 
-normalizarTexto( 
-input ? input.value : "" 
-); 
+const codigo = normalizarTexto(infraccion.codigo);
+const id = normalizarTexto(infraccion.id);
+const articulo = normalizarTexto(infraccion.articulo);
+const apartado = normalizarTexto(infraccion.apartado);
+const titulo = normalizarTexto(infraccion.titulo);
+const conducta = normalizarTexto(infraccion.conducta);
+const ley = normalizarTexto(infraccion.ley);
+const palabras = Array.isArray(infraccion.palabrasClave)
+? infraccion.palabrasClave.map(normalizarTexto)
+: [];
 
-const gravedad = 
-estado.gravedad; 
+// Palabras que deben localizar el bloque de drogas de la LOPSC.
+const sinonimosDrogas = [
+"cocaina", "coca", "cocaina en polvo",
+"hachis", "hash", "resina de cannabis",
+"marihuana", "marijuana", "cannabis",
+"porro", "porros", "grifa",
+"estupefaciente", "estupefacientes",
+"droga", "drogas", "sustancia estupefaciente",
+"sustancias estupefacientes", "sustancia psicotropica",
+"sustancias psicotropicas"
+];
 
-estado.resultados = 
-estado.infracciones.filter((infraccion) => { 
+const esDroga = sinonimosDrogas.includes(termino) ||
+(sinonimosDrogas.some(x => x.includes(termino)) && termino.length >= 4);
 
-if ( 
-gravedad !== "all" && 
-String( 
-infraccion.gravedad || "" 
-) !== gravedad 
-) { 
-return false; 
-} 
+if (esDroga && /^lops[c]?-/i.test(infraccion.id || "")) {
+const apartadoNumero = String(infraccion.apartado || "");
+if (apartadoNumero === "16") return 1000;
+if (apartadoNumero === "17") return 700;
+if (apartadoNumero === "18") return 700;
+if (apartadoNumero === "19") return 700;
+}
 
-if (!texto) { 
-return false; 
-} 
+// Coincidencias fuertes.
+if (codigo === termino || id === termino) return 1000;
+if (codigo === `lopsc-${termino}`) return 1000;
+if (`${articulo}.${apartado}` === termino) return 1000;
 
-const palabras = Array.isArray( 
-infraccion.palabrasClave 
-) 
-? infraccion.palabrasClave 
-: []; 
+// Palabras clave: deben pesar mucho más que el texto libre.
+if (palabras.includes(termino)) return 900;
+if (palabras.some(p => p === termino || p.startsWith(termino) && termino.length >= 4)) return 800;
 
-const responsables = Array.isArray( 
-infraccion.responsables 
-) 
-? infraccion.responsables 
-: []; 
+// Título y ley.
+if (titulo === termino) return 750;
+if (titulo.startsWith(termino)) return 700;
+if (titulo.includes(termino)) return 600;
 
-const contenido = [ 
-infraccion.id, 
-infraccion.codigo, 
-infraccion.ley, 
-infraccion.articulo, 
-infraccion.apartado, 
-infraccion.titulo, 
-infraccion.conducta, 
-infraccion.gravedad, 
-...palabras, 
-...responsables 
-].join(" "); 
+if (ley === termino) return 550;
 
-return normalizarTexto( 
-contenido 
-).includes(texto); 
-}); 
+// Conducta/texto libre: coincidencia débil.
+if (conducta.includes(termino)) return 120;
 
-ordenarResultados(texto); 
-renderizarResultados(); 
-} 
+return 0;
+}
+
+function actualizarBusqueda() {
+const input = $("consultaSearch");
+const texto = normalizarTexto(input ? input.value : "");
+const gravedad = estado.gravedad;
+
+if (!texto) {
+estado.resultados = [];
+renderizarResultados();
+return;
+}
+
+const candidatos = [];
+
+estado.infracciones.forEach((infraccion) => {
+if (gravedad !== "all" && normalizarTexto(infraccion.gravedad) !== normalizarTexto(gravedad)) {
+return;
+}
+
+const puntuacion = puntuacionBusqueda(infraccion, texto);
+if (puntuacion > 0) {
+candidatos.push({ infraccion, puntuacion });
+}
+});
+
+candidatos.sort((a, b) => {
+if (b.puntuacion !== a.puntuacion) return b.puntuacion - a.puntuacion;
+return String(a.infraccion.codigo || "").localeCompare(
+String(b.infraccion.codigo || ""),
+"es",
+{ numeric: true }
+);
+});
+
+// No mostramos coincidencias débiles del texto completo como si fueran relevantes.
+estado.resultados = candidatos
+.filter(item => item.puntuacion >= 500)
+.map(item => item.infraccion);
+
+renderizarResultados();
+}
 
 function ordenarResultados(texto) { 
 if (!texto) { 
@@ -1344,6 +1396,7 @@ Sin enlace
 type="button" 
 class="normativa-open" 
 data-law="${escaparHTML(tarjeta.tipo)}" 
+data-id="${escaparHTML(tarjeta.id || "")}" 
 > 
 Ver 
 </button> 
@@ -1959,3 +2012,4 @@ iniciarAplicacion();
 } 
 
 registrarServiceWorker();
+
