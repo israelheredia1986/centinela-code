@@ -11,13 +11,7 @@ CONFIGURACIÓN
 
 const CONFIG = {
 APP_NAME: "Centinela Code",
-VERSION: "1.1.0",
-
-SUPABASE: {
-    URL: "https://okuygqbaliaeavhyezri.supabase.co",
-    KEY: "sb_publishable_fbEAcJZxMv8PD3VB3Bcx6A_l_8BdP2m",
-    TABLE: "actas"
-},
+VERSION: "1.0.0",
 
 DATA: {
     LOPSC: "./data/lopsc.json",
@@ -60,13 +54,7 @@ modo: "consulta",
 
 cargado: false,
 
-erroresDatos: [],
-
-usuario: null,
-supabase: null,
-autenticado: false,
-authInicializado: false,
-authCargando: true
+erroresDatos: []
 };
 
 /* ============================================================
@@ -80,32 +68,54 @@ iniciarCentinela
 
 async function iniciarCentinela() {
 
-console.log(
-    `${CONFIG.APP_NAME} ${CONFIG.VERSION}`
-);
+    console.log(
+        `${CONFIG.APP_NAME} ${CONFIG.VERSION}`
+    );
 
-actualizarRed();
+    try {
 
-await inicializarAutenticacion();
+        cargarActas();
+        cargarConfiguracion();
+        registrarEventos();
+        actualizarRed();
 
-if (!estado.autenticado) {
-    estado.authCargando = false;
-    bloquearAplicacion();
-    return;
-}
+        await cargarDatos();
 
-cargarConfiguracion();
+        inicializarInterfaz();
 
-registrarEventos();
+        const loadingScreen =
+            document.getElementById("loadingScreen");
 
-await cargarDatos();
+        if (loadingScreen) {
+            loadingScreen.classList.add("hidden");
+            loadingScreen.style.display = "none";
+        }
 
-await cargarActas();
+        console.log(
+            "Centinela Code: aplicación cargada correctamente."
+        );
 
-inicializarInterfaz();
+    } catch (error) {
 
-estado.authCargando = false;
-actualizarInterfazUsuario();
+        console.error(
+            "Centinela Code: error durante el inicio:",
+            error
+        );
+
+        const loadingScreen =
+            document.getElementById("loadingScreen");
+
+        if (loadingScreen) {
+            loadingScreen.classList.add("hidden");
+            loadingScreen.style.display = "none";
+        }
+
+        if (typeof mostrarError === "function") {
+            mostrarError(
+                "La aplicación se ha iniciado con algunos datos pendientes de cargar."
+            );
+        }
+    }
 }
 
 /* ============================================================
@@ -704,18 +714,11 @@ VERSIÓN
 ============================================================ */
 
 function actualizarVersion() {
+    const elemento =
+        document.getElementById("appVersion") ||
+        document.getElementById("app-version");
 
-const elemento =
-    document.getElementById(
-        "app-version"
-    );
-
-
-if (elemento) {
-
-    elemento.textContent =
-        CONFIG.VERSION;
-}
+    if (elemento) elemento.textContent = CONFIG.VERSION;
 }
 
 /* ============================================================
@@ -723,93 +726,22 @@ FILTROS
 ============================================================ */
 
 function configurarFiltros() {
+    const selector = document.getElementById("main-articulo");
+    if (!selector) return;
 
-const selector =
-    document.getElementById(
-        "main-articulo"
-    );
+    const articulos = [...new Set(
+        estado.infracciones.map(item => item.articulo).filter(Boolean)
+    )].sort((a,b) => Number(a)-Number(b));
 
+    selector.innerHTML =
+        `<option value="todos">Todos los artículos</option>`;
 
-if (!selector) {
-
-    return;
-}
-
-
-const articulos =
-    [
-        ...new Set(
-
-            estado.infracciones
-                .map(
-                    item =>
-                        item.articulo
-                )
-                .filter(Boolean)
-
-        )
-    ];
-
-
-articulos.sort(
-    (a, b) => {
-
-        const numeroA =
-            parseFloat(a);
-
-        const numeroB =
-            parseFloat(b);
-
-
-        if (
-            Number.isFinite(numeroA) &&
-            Number.isFinite(numeroB)
-        ) {
-
-            return numeroA - numeroB;
-        }
-
-
-        return String(a)
-            .localeCompare(
-                String(b),
-                "es"
-            );
-    }
-);
-
-
-selector.innerHTML = `
-
-    <option value="todos">
-        Todos los artículos
-    </option>
-
-`;
-
-
-articulos.forEach(
-    articulo => {
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-
-        option.value =
-            articulo;
-
-
-        option.textContent =
-            `Artículo ${articulo}`;
-
-
-        selector.appendChild(
-            option
-        );
-    }
-);
+    articulos.forEach(articulo => {
+        const option = document.createElement("option");
+        option.value = articulo;
+        option.textContent = `Artículo ${articulo}`;
+        selector.appendChild(option);
+    });
 }
 
 /* ============================================================
@@ -817,170 +749,88 @@ BÚSQUEDA
 ============================================================ */
 
 function buscarInfracciones() {
+    const texto = normalizarTexto(estado.filtros.texto);
+    const gravedad = estado.filtros.gravedad;
+    const articulo = estado.filtros.articulo;
 
-const texto =
-    normalizarTexto(
-        estado.filtros.texto
-    );
+    const tokens = texto.split(/\s+/).filter(Boolean);
+    const esCodigo = /^\d+(?:\.\d+)?$/.test(texto);
 
+    estado.resultados = estado.infracciones.filter(infraccion => {
+        if (gravedad && gravedad !== "todas" &&
+            normalizarGravedad(infraccion.gravedad) !== normalizarGravedad(gravedad)) {
+            return false;
+        }
 
-const gravedad =
-    estado.filtros.gravedad;
+        if (articulo && articulo !== "todos" &&
+            String(infraccion.articulo) !== String(articulo)) {
+            return false;
+        }
 
+        if (!texto) return true;
 
-const articulo =
-    estado.filtros.articulo;
+        const codigo = normalizarTexto(infraccion.codigo);
+        const articuloTexto = normalizarTexto(infraccion.articulo);
+        const apartado = normalizarTexto(infraccion.apartado);
+        const titulo = normalizarTexto(infraccion.titulo);
+        const conducta = normalizarTexto(infraccion.conducta);
+        const ley = normalizarTexto(infraccion.ley);
+        const claves = normalizarArray(infraccion.palabrasClave)
+            .map(normalizarTexto)
+            .filter(Boolean);
 
-
-estado.resultados =
-    estado.infracciones.filter(
-        infraccion => {
-
-            if (
-                gravedad &&
-                gravedad !== "todas" &&
-                infraccion.gravedad !==
-                    gravedad
-            ) {
-
-                return false;
-            }
-
-
-            if (
-                articulo &&
-                articulo !== "todos" &&
-                String(
-                    infraccion.articulo
-                ) !==
-                    String(articulo)
-            ) {
-
-                return false;
-            }
-
-
-            if (!texto) {
-
+        // Búsqueda estructural de códigos/artículos.
+        if (esCodigo) {
+            if (codigo === texto ||
+                articuloTexto === texto ||
+                `${articuloTexto}.${apartado}` === texto) {
                 return true;
             }
-
-
-            const contenido =
-                [
-
-                    infraccion.id,
-
-                    infraccion.codigo,
-
-                    infraccion.ley,
-
-                    infraccion.articulo,
-
-                    infraccion.apartado,
-
-                    infraccion.titulo,
-
-                    infraccion.conducta,
-
-                    infraccion.gravedad,
-
-                    ...infraccion
-                        .palabrasClave,
-
-                    ...infraccion
-                        .medidas,
-
-                    ...infraccion
-                        .responsables
-
-                ]
-                .join(" ");
-
-
-            return normalizarTexto(
-                contenido
-            ).includes(
-                texto
-            );
         }
-    );
 
-
-if (texto) {
-
-    estado.resultados.sort(
-        (a, b) => {
-
-            const codigoA =
-                normalizarTexto(
-                    a.codigo
-                );
-
-
-            const codigoB =
-                normalizarTexto(
-                    b.codigo
-                );
-
-
-            if (
-                codigoA === texto
-            ) {
-
-                return -1;
-            }
-
-
-            if (
-                codigoB === texto
-            ) {
-
-                return 1;
-            }
-
-
-            const tituloA =
-                normalizarTexto(
-                    a.titulo
-                );
-
-
-            const tituloB =
-                normalizarTexto(
-                    b.titulo
-                );
-
-
-            if (
-                tituloA.startsWith(
-                    texto
-                )
-            ) {
-
-                return -1;
-            }
-
-
-            if (
-                tituloB.startsWith(
-                    texto
-                )
-            ) {
-
-                return 1;
-            }
-
-
-            return 0;
+        // Las palabras clave son entradas controladas: coincidencia exacta.
+        if (claves.some(clave => clave === texto)) {
+            return true;
         }
-    );
+
+        // Título, conducta y ley: palabras completas, nunca fragmentos.
+        const campos = [titulo, conducta, ley];
+        return tokens.length > 0 && tokens.every(token =>
+            campos.some(campo => {
+                const patron = new RegExp(
+                    `(^|[^a-z0-9áéíóúüñ])${escapeRegExp(token)}([^a-z0-9áéíóúüñ]|$)`,
+                    "i"
+                );
+                return patron.test(campo);
+            })
+        );
+    });
+
+    estado.resultados.sort((a,b) => {
+        const score = item => {
+            const codigo = normalizarTexto(item.codigo);
+            const articuloTexto = normalizarTexto(item.articulo);
+            const titulo = normalizarTexto(item.titulo);
+            const conducta = normalizarTexto(item.conducta);
+            const claves = normalizarArray(item.palabrasClave).map(normalizarTexto);
+
+            if (codigo === texto) return 1000;
+            if (articuloTexto === texto) return 900;
+            if (claves.includes(texto)) return 800;
+            if (titulo === texto) return 700;
+            if (titulo.startsWith(texto + " ")) return 600;
+            if (new RegExp(`(^|[^a-z0-9áéíóúüñ])${escapeRegExp(texto)}([^a-z0-9áéíóúüñ]|$)`, "i").test(conducta)) return 300;
+            return 100;
+        };
+        return score(b)-score(a);
+    });
+
+    renderizarResultados();
+    actualizarContador();
 }
 
-
-renderizarResultados();
-
-actualizarContador();
+function escapeRegExp(valor) {
+    return String(valor).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /* ============================================================
@@ -1008,48 +858,23 @@ RENDER RESULTADOS
 ============================================================ */
 
 function renderizarResultados() {
+    const contenedor =
+        document.getElementById("consultaResults") ||
+        document.getElementById("search-results");
 
-const contenedor =
-    document.getElementById(
-        "search-results"
-    );
+    if (!contenedor) return;
 
+    if (!estado.resultados.length) {
+        contenedor.innerHTML = `
+            <div class="sin-resultados">
+                <strong>No se han encontrado resultados</strong>
+                <p>Prueba con otro código, artículo o palabra clave.</p>
+            </div>`;
+        return;
+    }
 
-if (!contenedor) {
-
-    return;
-}
-
-
-if (!estado.resultados.length) {
-
-    contenedor.innerHTML = `
-
-        <div class="sin-resultados">
-
-            <strong>
-                No se han encontrado resultados
-            </strong>
-
-            <p>
-                Prueba con otro código,
-                artículo o palabra clave.
-            </p>
-
-        </div>
-
-    `;
-
-    return;
-}
-
-
-contenedor.innerHTML =
-    estado.resultados
-        .map(
-            crearTarjetaInfraccion
-        )
-        .join("");
+    contenedor.innerHTML =
+        estado.resultados.map(crearTarjetaInfraccion).join("");
 }
 
 /* ============================================================
@@ -1492,202 +1317,114 @@ if (botonInfracciones) {
 }
 
 function mostrarLOPSC() {
-
-mostrarSeccionInterna(
-    "normativa"
-);
-
-
-const viewer =
-    document.getElementById(
-        "normativa-viewer"
-    );
-
-
-if (!viewer) {
-
-    return;
+    mostrarSeccionInterna("normativa");
+    mostrarNormativaPorLey("lopsc");
 }
 
+function mostrarNormativaPorLey(ley) {
+    const viewer = document.getElementById("normativaViewer");
+    const content = document.getElementById("viewerContent");
 
-viewer.classList.remove(
-    "hidden"
-);
+    if (!viewer || !content) return;
 
+    viewer.classList.remove("hidden");
 
-if (!estado.normativa.length) {
+    if (ley === "ordenanzas") {
+        const title = document.getElementById("viewerTitle");
+        const subtitle = document.getElementById("viewerSubtitle");
+        if (title) title.textContent = "Ordenanzas municipales";
+        if (subtitle) subtitle.textContent = "Normativa municipal disponible";
 
-    viewer.innerHTML = `
-
-        <div class="empty-state">
-
-            <strong>
-                LOPSC no cargada
-            </strong>
-
-            <p>
-                Comprueba que exista:
-                data/lopsc.json
-            </p>
-
-        </div>
-
-    `;
-
-    return;
-}
-
-
-viewer.innerHTML = `
-
-    <div class="viewer-header">
-
-        <div>
-
-            <span class="section-kicker">
-                LEGISLACIÓN
-            </span>
-
-            <h3>
-                Ley Orgánica 4/2015
-            </h3>
-
-            <small>
-                Protección de la Seguridad Ciudadana
-            </small>
-
-        </div>
-
-        <button
-            type="button"
-            onclick="
-                document
-                    .getElementById(
-                        'normativa-viewer'
-                    )
-                    .classList
-                    .add('hidden')
-            "
-        >
-            Cerrar
-        </button>
-
-    </div>
-
-
-    <div class="normativa-search">
-
-        <input
-            type="search"
-            id="normativa-search-input"
-            placeholder="Buscar artículo o texto..."
-            autocomplete="off"
-        >
-
-    </div>
-
-
-    <div
-        id="normativa-articulos"
-        class="normativa-articulos"
-    ></div>
-
-`;
-
-
-renderizarNormativa(
-    estado.normativa
-);
-
-
-const buscador =
-    document.getElementById(
-        "normativa-search-input"
-    );
-
-
-buscador?.addEventListener(
-    "input",
-    evento => {
-
-        const texto =
-            normalizarTexto(
-                evento.target.value
-            );
-
-
-        if (!texto) {
-
-            renderizarNormativa(
-                estado.normativa
-            );
-
-            return;
-        }
-
-
-        const filtrados =
-            estado.normativa.filter(
-                articulo => {
-
-                    return normalizarTexto(
-                        JSON.stringify(
-                            articulo
-                        )
-                    ).includes(
-                        texto
-                    );
-                }
-            );
-
-
-        renderizarNormativa(
-            filtrados
-        );
+        content.innerHTML = estado.ordenanzas.length
+            ? estado.ordenanzas.map(item => crearArticuloOrdenanza(item)).join("")
+            : `<div class="empty-state"><strong>No hay ordenanzas cargadas.</strong></div>`;
+        return;
     }
-);
+
+    const title = document.getElementById("viewerTitle");
+    const subtitle = document.getElementById("viewerSubtitle");
+    if (title) title.textContent = "Ley Orgánica 4/2015";
+    if (subtitle) subtitle.textContent = "Protección de la seguridad ciudadana";
+
+    renderizarNormativaEnContenedor(estado.normativa, content);
 }
 
-function renderizarNormativa(
-articulos
-) {
+function cerrarNormativaViewer() {
+    document.getElementById("normativaViewer")?.classList.add("hidden");
+}
 
-const contenedor =
-    document.getElementById(
-        "normativa-articulos"
+function renderizarNormativaEnContenedor(articulos, contenedor) {
+    if (!articulos || !articulos.length) {
+        contenedor.innerHTML =
+            `<div class="empty-state"><strong>No se encontraron artículos.</strong></div>`;
+        return;
+    }
+    contenedor.innerHTML = articulos.map(crearArticuloNormativo).join("");
+}
+
+function renderizarListaNormativa(filtro = "") {
+    const contenedor = document.getElementById("normativaList");
+    if (!contenedor) return;
+
+    const texto = normalizarTexto(filtro);
+
+    const tarjetas = [
+        {
+            ley: "lopsc",
+            titulo: "Ley Orgánica 4/2015",
+            descripcion: "Protección de la seguridad ciudadana",
+            etiqueta: "LOPSC"
+        },
+        {
+            ley: "ordenanzas",
+            titulo: "Ordenanzas municipales",
+            descripcion: "Normativa municipal disponible",
+            etiqueta: "Ordenanzas"
+        }
+    ].filter(item =>
+        !texto ||
+        normalizarTexto(`${item.titulo} ${item.descripcion} ${item.etiqueta}`).includes(texto)
     );
 
-
-if (!contenedor) {
-
-    return;
-}
-
-
-if (!articulos.length) {
-
-    contenedor.innerHTML = `
-
-        <div class="empty-state">
-
-            <strong>
-                No se encontraron artículos
-            </strong>
-
+    contenedor.innerHTML = tarjetas.map(item => `
+        <div class="normativa-card">
+            <div class="normativa-icon">⚖️</div>
+            <div class="normativa-info">
+                <h3>${escapeHTML(item.titulo)}</h3>
+                <p>${escapeHTML(item.descripcion)}</p>
+                <span>${escapeHTML(item.etiqueta)}</span>
+            </div>
+            <button type="button" class="normativa-open" data-law="${escapeHTML(item.ley)}">Ver</button>
         </div>
+    `).join("");
 
-    `;
-
-    return;
+    contenedor.querySelectorAll(".normativa-open").forEach(boton => {
+        boton.addEventListener("click", () => mostrarNormativaPorLey(boton.dataset.law));
+    });
 }
 
+function crearArticuloOrdenanza(item) {
+    const titulo = item.titulo || item.nombre || item.ordenanza || "Ordenanza municipal";
+    const numero = item.numero || item.articulo || item.id || "";
+    const texto = item.texto || item.contenido || item.descripcion || "";
 
-contenedor.innerHTML =
-    articulos
-        .map(
-            crearArticuloNormativo
-        )
-        .join("");
+    return `
+        <article class="normativa-articulo">
+            <div class="normativa-articulo-header">
+                <strong>${escapeHTML(numero)}</strong>
+                <span>${escapeHTML(titulo)}</span>
+            </div>
+            <div class="normativa-texto">${formatearTextoLegal(texto)}</div>
+        </article>
+    `;
+}
+
+function renderizarNormativa(articulos) {
+    const contenedor =
+        document.getElementById("viewerContent") ||
+        document.getElementById("normativa-articulos");
+
+    if (contenedor) renderizarNormativaEnContenedor(articulos, contenedor);
 }
 
 function crearArticuloNormativo(
@@ -1871,12 +1608,6 @@ mostrarFormularioActa();
 }
 
 function activarModoActa() {
-
-if (!estado.autenticado) {
-    bloquearAplicacion();
-    return;
-}
-
 
 estado.modo =
     "acta";
@@ -2362,7 +2093,7 @@ form
 GUARDAR ACTA
 ============================================================ */
 
-async function guardarActaDesdeFormulario(
+function guardarActaDesdeFormulario(
 evento
 ) {
 
@@ -2496,11 +2227,13 @@ if (indice >= 0) {
 }
 
 
-await guardarActaEnSupabase(acta);
+guardarActas();
+
 
 mostrarNotificacion(
-    "Acta guardada correctamente en la base de datos."
+    "Acta guardada correctamente."
 );
+
 
 mostrarMenuActas();
 }
@@ -2687,7 +2420,7 @@ mostrarFormularioActa();
 ELIMINAR ACTA
 ============================================================ */
 
-async function eliminarActa(
+function eliminarActa(
 id
 ) {
 
@@ -2709,490 +2442,76 @@ estado.actas =
             item.id !== id
     );
 
-await eliminarActaDeSupabase(id);
+
+guardarActas();
 
 mostrarBorradores();
 }
 
 /* ============================================================
-SUPABASE + AUTENTICACIÓN
+LOCAL STORAGE
 ============================================================ */
 
-const SUPABASE_CDN =
-"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";
-
-async function cargarLibreriaSupabase() {
-
-if (window.supabase?.createClient) {
-    return;
-}
-
-await new Promise((resolve, reject) => {
-
-    const script = document.createElement("script");
-    script.src = SUPABASE_CDN;
-    script.async = true;
-
-    script.onload = resolve;
-    script.onerror = () => reject(
-        new Error("No se pudo cargar la librería de Supabase.")
-    );
-
-    document.head.appendChild(script);
-});
-}
-
-async function inicializarAutenticacion() {
+function cargarActas() {
 
 try {
 
-    await cargarLibreriaSupabase();
+    const datos =
+        localStorage.getItem(
+            CONFIG.STORAGE.ACTAS
+        );
 
-    estado.supabase = window.supabase.createClient(
-        CONFIG.SUPABASE.URL,
-        CONFIG.SUPABASE.KEY,
-        {
-            auth: {
-                persistSession: true,
-                autoRefreshToken: true,
-                detectSessionInUrl: true
-            }
-        }
+
+    estado.actas =
+        datos
+            ? JSON.parse(
+                datos
+            )
+            : [];
+
+
+    if (
+        !Array.isArray(
+            estado.actas
+        )
+    ) {
+
+        estado.actas = [];
+    }
+
+} catch (error) {
+
+    console.error(
+        "Error leyendo actas:",
+        error
     );
 
-    const resultado =
-        await estado.supabase.auth.getSession();
+    estado.actas = [];
+}
+}
 
-    estado.usuario =
-        resultado.data?.session?.user || null;
+function guardarActas() {
 
-    estado.autenticado =
-        Boolean(estado.usuario);
+try {
 
-    estado.authInicializado = true;
-
-    estado.supabase.auth.onAuthStateChange(
-        async (_evento, session) => {
-
-            estado.usuario =
-                session?.user || null;
-
-            estado.autenticado =
-                Boolean(estado.usuario);
-
-            actualizarInterfazUsuario();
-
-            if (estado.autenticado) {
-                await cargarActas();
-                desbloquearAplicacion();
-            } else {
-                estado.actas = [];
-                bloquearAplicacion();
-            }
-        }
+    localStorage.setItem(
+        CONFIG.STORAGE.ACTAS,
+        JSON.stringify(
+            estado.actas
+        )
     );
 
 } catch (error) {
 
     console.error(
-        "Error inicializando autenticación:",
+        "Error guardando actas:",
         error
     );
 
-    estado.authInicializado = true;
-    estado.autenticado = false;
-
     mostrarError(
-        "No se pudo conectar con el sistema de identificación."
+        "No se pudo guardar el borrador."
     );
 }
-}
-
-function crearPantallaLogin() {
-
-if (document.getElementById("centinela-auth-screen")) {
-    return;
-}
-
-const pantalla = document.createElement("div");
-pantalla.id = "centinela-auth-screen";
-
-Object.assign(pantalla.style, {
-    position: "fixed",
-    inset: "0",
-    zIndex: "100000",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "24px",
-    boxSizing: "border-box",
-    background: "radial-gradient(circle at top, #10284a 0%, #030817 55%, #01040b 100%)",
-    color: "#f4f7fb",
-    fontFamily: "Arial, Helvetica, sans-serif"
-});
-
-pantalla.innerHTML = `
-<div style="width:100%;max-width:420px;border:1px solid rgba(82,151,255,.35);border-radius:28px;padding:28px;box-sizing:border-box;background:linear-gradient(145deg,rgba(15,39,72,.98),rgba(5,13,27,.98));box-shadow:0 20px 60px rgba(0,0,0,.55)">
-    <div style="text-align:center;margin-bottom:24px">
-        <div style="font-size:58px;line-height:1">🛡️</div>
-        <h1 style="margin:12px 0 6px;font-size:30px">Centinela Code</h1>
-        <p style="margin:0;color:#9eb0c8">Acceso profesional</p>
-    </div>
-
-    <form id="centinela-login-form">
-        <label style="display:block;margin:0 0 7px;font-weight:700">Correo electrónico</label>
-        <input id="centinela-login-email" type="email" autocomplete="username" required placeholder="agente@ejemplo.es" style="width:100%;box-sizing:border-box;padding:15px;border-radius:14px;border:1px solid #29476d;background:#071325;color:#fff;margin-bottom:15px;font-size:16px">
-
-        <label style="display:block;margin:0 0 7px;font-weight:700">Contraseña</label>
-        <input id="centinela-login-password" type="password" autocomplete="current-password" required placeholder="••••••••" style="width:100%;box-sizing:border-box;padding:15px;border-radius:14px;border:1px solid #29476d;background:#071325;color:#fff;margin-bottom:18px;font-size:16px">
-
-        <button type="submit" style="width:100%;padding:15px;border:0;border-radius:14px;background:linear-gradient(135deg,#1769e0,#0b3b9e);color:#fff;font-size:16px;font-weight:800">INICIAR SESIÓN</button>
-        <button type="button" id="centinela-reset-password" style="width:100%;margin-top:10px;padding:12px;border:0;background:transparent;color:#8fc1ff;font-weight:700">¿Has olvidado la contraseña?</button>
-        <div id="centinela-login-message" style="min-height:22px;margin-top:14px;text-align:center;color:#ffb4b4;font-size:13px"></div>
-    </form>
-
-    <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08);text-align:center;color:#70839e;font-size:12px">
-        Acceso protegido · Registro de actas por usuario
-    </div>
-</div>`;
-
-document.body.appendChild(pantalla);
-
-const form = document.getElementById("centinela-login-form");
-const message = document.getElementById("centinela-login-message");
-
-form?.addEventListener("submit", async event => {
-
-    event.preventDefault();
-
-    if (!estado.supabase) {
-        message.textContent = "El sistema de identificación todavía no está disponible.";
-        return;
-    }
-
-    const email =
-        document.getElementById("centinela-login-email")?.value.trim();
-
-    const password =
-        document.getElementById("centinela-login-password")?.value;
-
-    message.textContent = "Comprobando acceso...";
-
-    const { error } =
-        await estado.supabase.auth.signInWithPassword({
-            email,
-            password
-        });
-
-    if (error) {
-        message.textContent = traducirErrorAuth(error.message);
-        return;
-    }
-
-    message.textContent = "Acceso correcto.";
-});
-
-document.getElementById("centinela-reset-password")?.addEventListener(
-    "click",
-    async () => {
-
-        const email =
-            document.getElementById("centinela-login-email")?.value.trim();
-
-        if (!email) {
-            message.textContent = "Escribe primero tu correo electrónico.";
-            return;
-        }
-
-        const { error } =
-            await estado.supabase.auth.resetPasswordForEmail(
-                email,
-                { redirectTo: window.location.origin + window.location.pathname }
-            );
-
-        message.textContent = error
-            ? traducirErrorAuth(error.message)
-            : "Te hemos enviado las instrucciones para restablecer la contraseña.";
-    }
-);
-}
-
-function bloquearAplicacion() {
-
-crearPantallaLogin();
-
-const pantalla =
-    document.getElementById("centinela-auth-screen");
-
-if (pantalla) {
-    pantalla.style.display = "flex";
-}
-
-actualizarInterfazUsuario();
-}
-
-function desbloquearAplicacion() {
-
-const pantalla =
-    document.getElementById("centinela-auth-screen");
-
-if (pantalla) {
-    pantalla.style.display = "none";
-}
-}
-
-function traducirErrorAuth(mensaje) {
-
-const texto = String(mensaje || "").toLowerCase();
-
-if (texto.includes("invalid login credentials")) {
-    return "Correo o contraseña incorrectos.";
-}
-
-if (texto.includes("email not confirmed")) {
-    return "Debes confirmar el correo electrónico antes de entrar.";
-}
-
-if (texto.includes("too many requests")) {
-    return "Demasiados intentos. Espera unos minutos y vuelve a intentarlo.";
-}
-
-return "No se ha podido iniciar sesión. Comprueba los datos.";
-}
-
-function actualizarInterfazUsuario() {
-
-const usuario = estado.usuario;
-
-let indicador =
-    document.getElementById("centinela-user-indicator");
-
-if (!indicador && usuario && document.body) {
-
-    indicador = document.createElement("button");
-    indicador.id = "centinela-user-indicator";
-    indicador.type = "button";
-
-    Object.assign(indicador.style, {
-        position: "fixed",
-        top: "10px",
-        right: "12px",
-        zIndex: "9000",
-        border: "1px solid rgba(92,159,255,.35)",
-        borderRadius: "12px",
-        background: "rgba(7,19,37,.88)",
-        color: "#dceaff",
-        padding: "8px 10px",
-        fontSize: "11px",
-        fontWeight: "700",
-        backdropFilter: "blur(8px)"
-    });
-
-    document.body.appendChild(indicador);
-
-    indicador.addEventListener("click", async () => {
-
-        if (!estado.supabase) return;
-
-        const confirmar =
-            window.confirm(
-                `Sesión activa: ${estado.usuario?.email || "usuario"}.\n\n¿Quieres cerrar sesión?`
-            );
-
-        if (!confirmar) return;
-
-        await estado.supabase.auth.signOut();
-    });
-}
-
-if (indicador) {
-    if (usuario) {
-        indicador.textContent = `👤 ${usuario.email || "Usuario"}`;
-        indicador.style.display = "block";
-    } else {
-        indicador.style.display = "none";
-    }
-}
-}
-
-/* ============================================================
-ACTAS EN SUPABASE
-============================================================ */
-
-async function cargarActas() {
-
-if (!estado.supabase || !estado.usuario) {
-    estado.actas = [];
-    return;
-}
-
-try {
-
-    const { data, error } =
-        await estado.supabase
-            .from(CONFIG.SUPABASE.TABLE)
-            .select("*")
-            .eq("usuario_id", estado.usuario.id)
-            .order("created_at", { ascending: false });
-
-    if (error) {
-        console.error("Error cargando actas:", error);
-        estado.actas = [];
-        mostrarError("No se pudieron cargar tus actas guardadas.");
-        return;
-    }
-
-    estado.actas = (data || []).map(fila => {
-
-        const contenido =
-            fila.contenido ??
-            fila.acta ??
-            fila.data ??
-            fila.datos ??
-            {};
-
-        if (typeof contenido === "object" && contenido !== null) {
-            return {
-                ...contenido,
-                id: fila.id || contenido.id,
-                usuario_id: fila.usuario_id
-            };
-        }
-
-        try {
-            return {
-                ...JSON.parse(contenido),
-                id: fila.id,
-                usuario_id: fila.usuario_id
-            };
-        } catch {
-            return {
-                id: fila.id,
-                estado: "borrador",
-                observaciones: String(contenido || "")
-            };
-        }
-    });
-
-    mostrarBorradores();
-
-} catch (error) {
-
-    console.error("Error cargando actas:", error);
-    estado.actas = [];
-}
-}
-
-async function guardarActaEnSupabase(acta) {
-
-if (!estado.supabase || !estado.usuario) {
-    throw new Error("No hay una sesión de usuario activa.");
-}
-
-const contenido = {
-    ...acta,
-    usuario_id: estado.usuario.id,
-    usuario_email: estado.usuario.email || ""
-};
-
-const fila = {
-    usuario_id: estado.usuario.id,
-    contenido,
-    updated_at: new Date().toISOString()
-};
-
-let resultado;
-
-if (acta.id && esUUID(acta.id)) {
-
-    resultado =
-        await estado.supabase
-            .from(CONFIG.SUPABASE.TABLE)
-            .update(fila)
-            .eq("id", acta.id)
-            .eq("usuario_id", estado.usuario.id)
-            .select()
-            .single();
-
-} else {
-
-    const nuevoId =
-        crypto.randomUUID
-            ? crypto.randomUUID()
-            : null;
-
-    const insertFila = {
-        ...fila
-    };
-
-    if (nuevoId) {
-        insertFila.id = nuevoId;
-        acta.id = nuevoId;
-        contenido.id = nuevoId;
-    }
-
-    resultado =
-        await estado.supabase
-            .from(CONFIG.SUPABASE.TABLE)
-            .insert(insertFila)
-            .select()
-            .single();
-}
-
-if (resultado.error) {
-    console.error("Error guardando acta:", resultado.error);
-    throw new Error(
-        resultado.error.message ||
-        "No se pudo guardar el acta."
-    );
-}
-
-const guardada = resultado.data;
-
-if (guardada) {
-    const indice =
-        estado.actas.findIndex(
-            item => item.id === guardada.id
-        );
-
-    const actaGuardada = {
-        ...(guardada.contenido || acta),
-        id: guardada.id,
-        usuario_id: guardada.usuario_id
-    };
-
-    if (indice >= 0) {
-        estado.actas[indice] = actaGuardada;
-    } else {
-        estado.actas.push(actaGuardada);
-    }
-}
-}
-
-async function eliminarActaDeSupabase(id) {
-
-if (!estado.supabase || !estado.usuario || !esUUID(id)) {
-    return;
-}
-
-const { error } =
-    await estado.supabase
-        .from(CONFIG.SUPABASE.TABLE)
-        .delete()
-        .eq("id", id)
-        .eq("usuario_id", estado.usuario.id);
-
-if (error) {
-    console.error("Error eliminando acta:", error);
-    mostrarError("El acta se quitó de la pantalla, pero no pudo eliminarse de la base de datos.");
-}
-}
-
-function esUUID(valor) {
-
-return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    String(valor || "")
-);
 }
 
 /* ============================================================
@@ -3247,363 +2566,129 @@ EVENTOS
 ============================================================ */
 
 function registrarEventos() {
+    document.querySelectorAll(
+        ".nav-item, .nav-button, .quick-action"
+    ).forEach(boton => {
+        if (boton.dataset.centinelaEvent === "true") return;
+        const destino = boton.dataset.section || boton.dataset.target;
+        if (!destino) return;
+        boton.dataset.centinelaEvent = "true";
+        boton.addEventListener("click", () => mostrarSeccionInterna(destino));
+    });
 
-/*
- * NAVEGACIÓN
- */
+    const search =
+        document.getElementById("consultaSearch") ||
+        document.getElementById("main-search");
 
-document
-    .querySelectorAll(
-        ".nav-button"
-    )
-    .forEach(
-        boton => {
-
-            boton.addEventListener(
-                "click",
-                () => {
-
-                    mostrarSeccionInterna(
-                        boton.dataset.section
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-/*
- * BUSCADOR
- */
-
-const search =
-    document.getElementById(
-        "main-search"
-    );
-
-
-search?.addEventListener(
-    "input",
-    evento => {
-
-        estado.filtros.texto =
-            evento.target.value;
-
+    search?.addEventListener("input", evento => {
+        estado.filtros.texto = evento.target.value || "";
         buscarInfracciones();
+    });
 
-    }
-);
-
-
-/*
- * GRAVEDAD
- */
-
-document
-    .getElementById(
-        "main-gravedad"
-    )
-    ?.addEventListener(
-        "change",
-        evento => {
-
-            estado.filtros.gravedad =
-                evento.target.value;
-
+    document.querySelectorAll(
+        "#clearConsultaSearch, #clear-search"
+    ).forEach(boton => {
+        boton.addEventListener("click", () => {
+            if (search) search.value = "";
+            estado.filtros.texto = "";
             buscarInfracciones();
+            search?.focus();
+        });
+    });
 
-        }
-    );
+    document.querySelectorAll(".filter-chip[data-severity]")
+        .forEach(boton => {
+            boton.addEventListener("click", () => {
+                const valor = boton.dataset.severity || "all";
+                estado.filtros.gravedad = valor === "all" ? "todas" : valor;
+                document.querySelectorAll(".filter-chip[data-severity]")
+                    .forEach(item => item.classList.toggle("active", item === boton));
+                buscarInfracciones();
+            });
+        });
 
+    document.getElementById("main-articulo")?.addEventListener("change", evento => {
+        estado.filtros.articulo = evento.target.value;
+        buscarInfracciones();
+    });
 
-/*
- * ARTÍCULO
- */
+    document.querySelectorAll("#newActaButton, #new-acta-button")
+        .forEach(boton => boton.addEventListener("click", activarModoActa));
 
-document
-    .getElementById(
-        "main-articulo"
-    )
-    ?.addEventListener(
-        "change",
-        evento => {
+    document.getElementById("closeActaEditor")
+        ?.addEventListener("click", () =>
+            document.getElementById("actaEditor")?.classList.add("hidden")
+        );
 
-            estado.filtros.articulo =
-                evento.target.value;
+    document.getElementById("cancelActaButton")
+        ?.addEventListener("click", () =>
+            document.getElementById("actaEditor")?.classList.add("hidden")
+        );
 
-            buscarInfracciones();
+    document.getElementById("closeNormativaViewer")
+        ?.addEventListener("click", cerrarNormativaViewer);
 
-        }
-    );
-
-
-/*
- * LIMPIAR
- */
-
-document
-    .getElementById(
-        "clear-search"
-    )
-    ?.addEventListener(
-        "click",
-        () => {
-
-            const input =
-                document.getElementById(
-                    "main-search"
-                );
-
-
-            if (input) {
-
-                input.value = "";
-            }
-
-
-            estado.filtros.texto =
-                "";
-
-
-            buscarInfracciones();
-
+    document.getElementById("clearNormativaSearch")
+        ?.addEventListener("click", () => {
+            const input = document.getElementById("normativaSearch");
+            if (input) input.value = "";
+            renderizarListaNormativa("");
             input?.focus();
+        });
 
-        }
-    );
+    document.getElementById("normativaSearch")
+        ?.addEventListener("input", evento =>
+            renderizarListaNormativa(evento.target.value || "")
+        );
 
+    document.getElementById("reloadDataButton")
+        ?.addEventListener("click", async () => {
+            await cargarDatos();
+            inicializarInterfaz();
+            mostrarNotificacion("Datos recargados");
+        });
 
-/*
- * NUEVA ACTA
- */
+    document.getElementById("clearDraftsButton")
+        ?.addEventListener("click", () => {
+            if (confirm("¿Borrar todas las actas guardadas?")) {
+                localStorage.removeItem(CONFIG.STORAGE.ACTAS);
+                cargarActas();
+                mostrarBorradores();
+                mostrarNotificacion("Actas eliminadas");
+            }
+        });
 
-document
-    .getElementById(
-        "new-acta-button"
-    )
-    ?.addEventListener(
-        "click",
-        activarModoActa
-    );
-
-
-/*
- * BORRADORES
- */
-
-document
-    .getElementById(
-        "drafts-button"
-    )
-    ?.addEventListener(
-        "click",
-        mostrarBorradores
-    );
-
-
-/*
- * ACCESO RÁPIDO CONSULTA
- */
-
-document
-    .getElementById(
-        "quick-search"
-    )
-    ?.addEventListener(
-        "click",
-        () => {
-
-            mostrarSeccionInterna(
-                "consulta"
-            );
-
-
-            setTimeout(
-                () => {
-
-                    document
-                        .getElementById(
-                            "main-search"
-                        )
-                        ?.focus();
-
-                },
-                100
-            );
-
-        }
-    );
-
-
-/*
- * ACCESO RÁPIDO ACTA
- */
-
-document
-    .getElementById(
-        "quick-acta"
-    )
-    ?.addEventListener(
-        "click",
-        activarModoActa
-    );
-
-
-/*
- * NORMATIVA
- */
-
-document
-    .getElementById(
-        "open-lopsc"
-    )
-    ?.addEventListener(
-        "click",
-        mostrarLOPSC
-    );
-
-
-document
-    .getElementById(
-        "open-infracciones"
-    )
-    ?.addEventListener(
-        "click",
-        () => {
-
-            mostrarSeccionInterna(
-                "consulta"
-            );
-
-        }
-    );
-
-
-/*
- * RED
- */
-
-window.addEventListener(
-    "online",
-    actualizarRed
-);
-
-
-window.addEventListener(
-    "offline",
-    actualizarRed
-);
+    window.addEventListener("online", actualizarRed);
+    window.addEventListener("offline", actualizarRed);
 }
 
 /* ============================================================
 NAVEGACIÓN
 ============================================================ */
 
-function mostrarSeccionInterna(
-nombre
-) {
+function mostrarSeccionInterna(nombre) {
+    const secciones = {
+        home: document.getElementById("section-home"),
+        consulta: document.getElementById("section-consulta"),
+        actas: document.getElementById("section-actas"),
+        normativa: document.getElementById("section-normativa"),
+        ajustes: document.getElementById("section-ajustes")
+    };
 
-const secciones = {
-
-    consulta:
-        document.getElementById(
-            "consulta-section"
-        ),
-
-    actas:
-        document.getElementById(
-            "actas-section"
-        ),
-
-    normativa:
-        document.getElementById(
-            "normativa-section"
-        ),
-
-    ajustes:
-        document.getElementById(
-            "ajustes-section"
-        )
-
-};
-
-
-const bienvenida =
-    document.getElementById(
-        "welcome-section"
-    );
-
-
-bienvenida?.classList.add(
-    "hidden"
-);
-
-
-Object.values(
-    secciones
-).forEach(
-    section => {
-
-        section?.classList.add(
-            "hidden"
-        );
-
-    }
-);
-
-
-secciones[nombre]
-    ?.classList.remove(
-        "hidden"
-    );
-
-
-document
-    .querySelectorAll(
-        ".nav-button"
-    )
-    .forEach(
-        boton => {
-
-            boton.classList.toggle(
-                "active",
-                boton.dataset.section ===
-                    nombre
-            );
-
+    Object.entries(secciones).forEach(([clave, section]) => {
+        if (section) {
+            section.classList.toggle("hidden", clave !== nombre);
+            section.classList.toggle("active", clave === nombre);
         }
-    );
+    });
 
+    document.querySelectorAll(".nav-item, .nav-button").forEach(boton => {
+        boton.classList.toggle("active", boton.dataset.section === nombre);
+    });
 
-const status =
-    document.getElementById(
-        "header-status"
-    );
-
-
-if (status) {
-
-    status.textContent =
-        nombre.toUpperCase();
-}
-
-
-if (
-    nombre === "actas"
-) {
-
-    mostrarBorradores();
-}
-
-
-if (
-    nombre === "consulta"
-) {
-
-    buscarInfracciones();
-}
+    if (nombre === "consulta") buscarInfracciones();
+    if (nombre === "actas") mostrarBorradores();
+    if (nombre === "normativa") renderizarListaNormativa("");
 }
 
 /* ============================================================
@@ -3681,34 +2766,38 @@ ESTADO DATOS
 ============================================================ */
 
 function actualizarEstadoDatos() {
+    const homeNormativa = document.getElementById("homeNormativaStatus");
+    const homeInfracciones = document.getElementById("homeInfraccionesStatus");
+    const homeOrdenanzas = document.getElementById("homeOrdenanzasStatus");
 
-const elemento =
-    document.getElementById(
-        "data-status"
-    );
+    if (homeNormativa) {
+        homeNormativa.textContent = estado.normativa.length
+            ? `${estado.normativa.length} artículos`
+            : "SIN DATOS";
+    }
 
+    if (homeInfracciones) {
+        homeInfracciones.textContent = estado.infracciones.length
+            ? `${estado.infracciones.length} cargadas`
+            : "SIN DATOS";
+    }
 
-if (!elemento) {
+    if (homeOrdenanzas) {
+        homeOrdenanzas.textContent = estado.ordenanzas.length
+            ? `${estado.ordenanzas.length} cargadas`
+            : "SIN DATOS";
+    }
 
-    return;
-}
+    const settings = [
+        ["settingsLopscStatus", estado.normativa.length],
+        ["settingsInfraccionesStatus", estado.infracciones.length],
+        ["settingsOrdenanzasStatus", estado.ordenanzas.length]
+    ];
 
-
-if (
-    estado.erroresDatos.length
-) {
-
-    elemento.textContent =
-        "REVISAR DATOS";
-
-    return;
-}
-
-
-elemento.textContent =
-    estado.infracciones.length
-        ? "CARGADA"
-        : "SIN DATOS";
+    settings.forEach(([id, cantidad]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = cantidad ? `CARGADA (${cantidad})` : "ERROR";
+    });
 }
 
 /* ============================================================
@@ -3716,21 +2805,11 @@ CONTADOR
 ============================================================ */
 
 function actualizarContador() {
+    const contador =
+        document.getElementById("consultaResultCount") ||
+        document.getElementById("search-result-count");
 
-const contador =
-    document.getElementById(
-        "search-result-count"
-    );
-
-
-if (!contador) {
-
-    return;
-}
-
-
-contador.textContent =
-    `${estado.resultados.length} resultado(s)`;
+    if (contador) contador.textContent = estado.resultados.length;
 }
 
 /* ============================================================
@@ -3738,79 +2817,30 @@ RED
 ============================================================ */
 
 function actualizarRed() {
+    const online = navigator.onLine;
 
-const online =
-    navigator.onLine;
+    const network =
+        document.getElementById("homeNetworkStatus") ||
+        document.getElementById("network-status");
 
+    const welcome = document.getElementById("welcome-connection");
+    const consulta = document.getElementById("consulta-status");
 
-const network =
-    document.getElementById(
-        "network-status"
-    );
-
-
-const welcome =
-    document.getElementById(
-        "welcome-connection"
-    );
-
-
-const consulta =
-    document.getElementById(
-        "consulta-status"
-    );
-
-
-if (online) {
-
-    if (network) {
-
-        network.textContent =
-            "ONLINE";
+    if (online) {
+        if (network) network.textContent = "ONLINE";
+        if (welcome) {
+            welcome.textContent = "● Conectado";
+            welcome.className = "connection-indicator online";
+        }
+        if (consulta) consulta.textContent = "ONLINE";
+    } else {
+        if (network) network.textContent = "OFFLINE";
+        if (welcome) {
+            welcome.textContent = "● Modo offline";
+            welcome.className = "connection-indicator offline";
+        }
+        if (consulta) consulta.textContent = "OFFLINE READY";
     }
-
-
-    if (welcome) {
-
-        welcome.textContent =
-            "● Conectado";
-
-        welcome.className =
-            "connection-indicator online";
-    }
-
-
-    if (consulta) {
-
-        consulta.textContent =
-            "ONLINE";
-    }
-
-} else {
-
-    if (network) {
-
-        network.textContent =
-            "OFFLINE";
-    }
-
-
-    if (welcome) {
-
-        welcome.textContent =
-            "● Modo offline";
-
-        welcome.className =
-            "connection-indicator offline";
-    }
-
-
-    if (consulta) {
-
-        consulta.textContent =
-            "OFFLINE READY";
-    }
-}
 }
 
 /* ============================================================
