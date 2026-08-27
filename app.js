@@ -833,286 +833,189 @@ const texto =
         estado.filtros.texto
     );
 
+
 const gravedad =
     estado.filtros.gravedad;
+
 
 const articulo =
     estado.filtros.articulo;
 
-/*
-============================================================
-BUSCADOR JURÍDICO — MOTOR DE RELEVANCIA
-============================================================
-
-No se permite buscar con includes() sobre la concatenación de
-campos. Ese sistema producía falsos positivos como:
-
-    "gato" -> "obligatorias"
-
-porque "gato" aparece como fragmento dentro de otra palabra.
-
-La búsqueda se realiza por PALABRAS COMPLETAS y prioriza los
-campos jurídicos que realmente describen la infracción.
-*/
-
-function tokens(valor) {
-    return normalizarTexto(valor)
-        .match(/[a-z0-9]+/g) || [];
-}
-
-function palabraCompleta(valor, termino) {
-    const contenido = tokens(valor);
-    const consulta = tokens(termino);
-
-    if (!contenido.length || !consulta.length) {
-        return false;
-    }
-
-    if (consulta.length === 1) {
-        return contenido.includes(consulta[0]);
-    }
-
-    for (
-        let i = 0;
-        i <= contenido.length - consulta.length;
-        i++
-    ) {
-        let coincide = true;
-
-        for (
-            let j = 0;
-            j < consulta.length;
-            j++
-        ) {
-            if (
-                contenido[i + j] !==
-                consulta[j]
-            ) {
-                coincide = false;
-                break;
-            }
-        }
-
-        if (coincide) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-function puntuacionBusqueda(infraccion) {
-
-    if (!texto) {
-        return 1;
-    }
-
-    let puntuacion = 0;
-
-    const codigo =
-        normalizarTexto(
-            infraccion.codigo
-        );
-
-    const id =
-        normalizarTexto(
-            infraccion.id
-        );
-
-    const articuloTexto =
-        normalizarTexto(
-            infraccion.articulo
-        );
-
-    const apartado =
-        normalizarTexto(
-            infraccion.apartado
-        );
-
-    const titulo =
-        normalizarTexto(
-            infraccion.titulo
-        );
-
-    const conducta =
-        normalizarTexto(
-            infraccion.conducta
-        );
-
-    const ley =
-        normalizarTexto(
-            infraccion.ley
-        );
-
-    const palabrasClave =
-        Array.isArray(infraccion.palabrasClave)
-            ? infraccion.palabrasClave
-            : [];
-
-    /* --------------------------------------------------------
-       CÓDIGO / ARTÍCULO
-       -------------------------------------------------------- */
-
-    const consultaCompacta =
-        texto.replace(/\s+/g, "");
-
-    if (
-        codigo &&
-        codigo.replace(/\s+/g, "") ===
-            consultaCompacta
-    ) {
-        puntuacion += 1000;
-    }
-
-    if (
-        id &&
-        id.replace(/\s+/g, "") ===
-            consultaCompacta
-    ) {
-        puntuacion += 1000;
-    }
-
-    if (
-        articuloTexto === texto
-    ) {
-        puntuacion += 900;
-    }
-
-    if (
-        apartado === texto
-    ) {
-        puntuacion += 900;
-    }
-
-    /* --------------------------------------------------------
-       PALABRAS CLAVE
-       -------------------------------------------------------- */
-
-    for (const palabra of palabrasClave) {
-        if (
-            palabraCompleta(
-                palabra,
-                texto
-            )
-        ) {
-            puntuacion += 700;
-        }
-    }
-
-    /* --------------------------------------------------------
-       TÍTULO Y CONDUCTA
-       -------------------------------------------------------- */
-
-    if (
-        palabraCompleta(
-            titulo,
-            texto
-        )
-    ) {
-        puntuacion += 500;
-    }
-
-    if (
-        palabraCompleta(
-            conducta,
-            texto
-        )
-    ) {
-        puntuacion += 350;
-    }
-
-    /* --------------------------------------------------------
-       LEY
-       -------------------------------------------------------- */
-
-    if (
-        palabraCompleta(
-            ley,
-            texto
-        )
-    ) {
-        puntuacion += 200;
-    }
-
-    /*
-       IMPORTANTE:
-       NO se buscan medidas, responsables, observaciones,
-       fuente ni la serialización completa del objeto.
-
-       Esos campos son demasiado amplios para determinar que
-       una búsqueda del usuario sea jurídicamente relevante.
-    */
-
-    return puntuacion;
-}
 
 estado.resultados =
-    estado.infracciones
-        .map((infraccion) => ({
-            infraccion,
-            puntuacion:
-                puntuacionBusqueda(
-                    infraccion
-                )
-        }))
-        .filter((resultado) => {
+    estado.infracciones.filter(
+        infraccion => {
 
             if (
                 gravedad &&
                 gravedad !== "todas" &&
-                resultado.infraccion.gravedad !==
+                infraccion.gravedad !==
                     gravedad
             ) {
+
                 return false;
             }
+
 
             if (
                 articulo &&
                 articulo !== "todos" &&
                 String(
-                    resultado.infraccion.articulo
+                    infraccion.articulo
                 ) !==
                     String(articulo)
             ) {
+
                 return false;
             }
 
-            /* Sin texto: los filtros siguen funcionando. */
+
             if (!texto) {
+
                 return true;
             }
 
-            /*
-               Umbral mínimo.
-               Una coincidencia accidental o débil no se muestra.
-            */
-            return resultado.puntuacion >= 200;
-        })
-        .sort((a, b) => {
+
+            const contenido =
+                [
+
+                    infraccion.id,
+
+                    infraccion.codigo,
+
+                    infraccion.ley,
+
+                    infraccion.articulo,
+
+                    infraccion.apartado,
+
+                    infraccion.titulo,
+
+                    infraccion.conducta,
+
+                    infraccion.gravedad,
+
+                    ...infraccion
+                        .palabrasClave,
+
+                    ...infraccion
+                        .medidas,
+
+                    ...infraccion
+                        .responsables
+
+                ]
+                .join(" ");
+
+
+            return normalizarTexto(
+                contenido
+            ).includes(
+                texto
+            );
+        }
+    );
+
+
+if (texto) {
+
+    estado.resultados.sort(
+        (a, b) => {
+
+            const codigoA =
+                normalizarTexto(
+                    a.codigo
+                );
+
+
+            const codigoB =
+                normalizarTexto(
+                    b.codigo
+                );
+
+
             if (
-                b.puntuacion !==
-                a.puntuacion
+                codigoA === texto
             ) {
-                return b.puntuacion - a.puntuacion;
+
+                return -1;
             }
 
-            return String(
-                a.infraccion.codigo || ""
-            ).localeCompare(
-                String(
-                    b.infraccion.codigo || ""
-                ),
-                "es"
-            );
-        })
-        .map(
-            (resultado) =>
-                resultado.infraccion
-        );
+
+            if (
+                codigoB === texto
+            ) {
+
+                return 1;
+            }
+
+
+            const tituloA =
+                normalizarTexto(
+                    a.titulo
+                );
+
+
+            const tituloB =
+                normalizarTexto(
+                    b.titulo
+                );
+
+
+            if (
+                tituloA.startsWith(
+                    texto
+                )
+            ) {
+
+                return -1;
+            }
+
+
+            if (
+                tituloB.startsWith(
+                    texto
+                )
+            ) {
+
+                return 1;
+            }
+
+
+            return 0;
+        }
+    );
+}
+
 
 renderizarResultados();
 
+actualizarContador();
 }
+
+/* ============================================================
+NORMALIZACIÓN TEXTO
+============================================================ */
+
+function normalizarTexto(
+texto
+) {
+
+return String(
+    texto || ""
+)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(
+        /[\u0300-\u036f]/g,
+        ""
+    )
+    .trim();
+}
+
+/* ============================================================
+RENDER RESULTADOS
+============================================================ */
 
 function renderizarResultados() {
 
