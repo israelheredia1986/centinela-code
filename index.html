@@ -3,1429 +3,1396 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    >
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
 
-    <meta
-        name="theme-color"
-        content="#0f172a"
-    >
+<meta
+name="theme-color"
+content="#0f172a"
+>
 
-    <meta
-        name="description"
-        content="Centinela Code - Consulta normativa y asistencia para la redacción de actas de Policía Local."
-    >
+<meta
+name="description"
+content="Centinela Code - Consulta normativa y asistencia para la redacción de actas de Policía Local."
+>
 
-    <meta
-        name="mobile-web-app-capable"
-        content="yes"
-    >
+<meta
+name="mobile-web-app-capable"
+content="yes"
+>
 
-    <meta
-        name="apple-mobile-web-app-capable"
-        content="yes"
-    >
+<meta
+name="apple-mobile-web-app-capable"
+content="yes"
+>
 
-    <meta
-        name="apple-mobile-web-app-status-bar-style"
-        content="black-translucent"
-    >
+<meta
+name="apple-mobile-web-app-status-bar-style"
+content="black-translucent"
+>
 
-    <meta
-        name="apple-mobile-web-app-title"
-        content="Centinela Code"
-    >
+<meta
+name="apple-mobile-web-app-title"
+content="Centinela Code"
+>
 
-    <title>Centinela Code</title>
+<title>Centinela Code</title>
 
-    <link
-        rel="manifest"
-        href="manifest.json"
-    >
+<link
+rel="manifest"
+href="manifest.json"
+>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+<link
+rel="stylesheet"
+href="style.css?v=20260827"
+>
 
 </head>
 
 <body>
 
 <!-- =====================================================
-     CABECERA
+CABECERA
 ====================================================== -->
 
 <header class="app-header">
 
-    <div class="header-brand">
+<div class="header-brand">
 
-        <div
-            class="brand-icon"
-            aria-hidden="true"
-        >
-            🛡️
-        </div>
+<div
+class="brand-icon"
+aria-hidden="true"
+>
+🛡️
+</div>
 
-        <div class="brand-text">
+<div class="brand-text">
 
-            <h1>Centinela Code</h1>
+<h1>Centinela Code</h1>
 
-            <span>
-                Consulta normativa policial
-            </span>
+<span>
+Consulta normativa policial
+</span>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
-    <button
-        id="headerSearchButton"
-        class="header-action"
-        type="button"
-        aria-label="Buscar"
-        title="Buscar"
-    >
-        🔎
-    </button>
+<button
+id="headerSearchButton"
+class="header-action"
+type="button"
+aria-label="Buscar"
+title="Buscar"
+>
+🔎
+</button>
 
 </header>
 
 
 <!-- =====================================================
-     CONTENIDO PRINCIPAL
+CONTENIDO PRINCIPAL
 ====================================================== -->
 
 <main class="main-content">
 
-    <!-- =================================================
-         PANTALLA INICIO
-    ================================================== -->
+<!-- =================================================
+PANTALLA INICIO
+================================================== -->
 
-    <section
-        id="section-home"
-        class="app-section active"
-        data-section="home"
-    >
+<section
+id="section-home"
+class="app-section active"
+data-section="home"
+>
 
-        <div class="welcome-card">
+<div class="welcome-card">
 
-            <div class="welcome-icon">
-                🛡️
-            </div>
+<div class="welcome-icon">
+🛡️
+</div>
 
-            <div>
+<div>
 
-                <h2>
-                    Centinela Code
-                </h2>
+<h2>
+Centinela Code
+</h2>
 
-                <p>
-                    Consulta rápida de normativa,
-                    infracciones y herramientas para
-                    la elaboración de actas.
-                </p>
+<p>
+Consulta rápida de normativa,
+infracciones y herramientas para
+la elaboración de actas.
+</p>
 
-            </div>
+</div>
 
-        </div>
+</div>
 
 
-        <!-- =============================================
-             ACCESOS RÁPIDOS
-        ============================================== -->
+<div class="section-heading">
 
-        <div class="section-heading">
+<h2>
+Acceso rápido
+</h2>
 
-            <h2>
-                Acceso rápido
-            </h2>
+</div>
 
-        </div>
 
+<div class="quick-actions">
 
-        <div class="quick-actions">
+<button
+type="button"
+class="quick-action"
+data-target="consulta"
+>
 
-            <button
-                type="button"
-                class="quick-action"
-                data-target="consulta"
-            >
+<span class="quick-action-icon">
+🔎
+</span>
 
-                <span class="quick-action-icon">
-                    🔎
-                </span>
+<span class="quick-action-text">
 
-                <span class="quick-action-text">
+<strong>
+Consulta
+</strong>
 
-                    <strong>
-                        Consulta
-                    </strong>
+<small>
+Buscar infracciones y normativa
+</small>
 
-                    <small>
-                        Buscar infracciones y normativa
-                    </small>
+</span>
 
-                </span>
+</button>
 
-            </button>
 
+<button
+type="button"
+class="quick-action"
+data-target="actas"
+>
 
-            <button
-                type="button"
-                class="quick-action"
-                data-target="actas"
-            >
+<span class="quick-action-icon">
+📝
+</span>
 
-                <span class="quick-action-icon">
-                    📝
-                </span>
+<span class="quick-action-text">
 
-                <span class="quick-action-text">
+<strong>
+Crear acta
+</strong>
 
-                    <strong>
-                        Crear acta
-                    </strong>
+<small>
+Redactar y guardar un acta
+</small>
 
-                    <small>
-                        Redactar y guardar un acta
-                    </small>
+</span>
 
-                </span>
+</button>
 
-            </button>
 
+<button
+type="button"
+class="quick-action"
+data-target="normativa"
+>
 
-            <button
-                type="button"
-                class="quick-action"
-                data-target="normativa"
-            >
+<span class="quick-action-icon">
+⚖️
+</span>
 
-                <span class="quick-action-icon">
-                    ⚖️
-                </span>
+<span class="quick-action-text">
 
-                <span class="quick-action-text">
+<strong>
+Normativa
+</strong>
 
-                    <strong>
-                        Normativa
-                    </strong>
+<small>
+Consultar legislación
+</small>
 
-                    <small>
-                        Consultar legislación
-                    </small>
+</span>
 
-                </span>
+</button>
 
-            </button>
+</div>
 
-        </div>
 
+<div class="section-heading">
 
-        <!-- =============================================
-             ESTADO DEL SISTEMA
-        ============================================== -->
+<h2>
+Estado del sistema
+</h2>
 
-        <div class="section-heading">
+</div>
 
-            <h2>
-                Estado del sistema
-            </h2>
 
-        </div>
+<div class="status-card">
 
+<div class="status-row">
 
-        <div class="status-card">
+<span>
+📚 Base normativa
+</span>
 
-            <div class="status-row">
+<strong
+id="homeNormativaStatus"
+class="status-value"
+>
+Cargando...
+</strong>
 
-                <span>
-                    📚 Base normativa
-                </span>
+</div>
 
-                <strong
-                    id="homeNormativaStatus"
-                    class="status-value"
-                >
-                    Cargando...
-                </strong>
 
-            </div>
+<div class="status-row">
 
+<span>
+📋 Infracciones
+</span>
 
-            <div class="status-row">
+<strong
+id="homeInfraccionesStatus"
+class="status-value"
+>
+Cargando...
+</strong>
 
-                <span>
-                    📋 Infracciones
-                </span>
+</div>
 
-                <strong
-                    id="homeInfraccionesStatus"
-                    class="status-value"
-                >
-                    Cargando...
-                </strong>
 
-            </div>
+<div class="status-row">
 
+<span>
+🏛️ Ordenanzas
+</span>
 
-            <div class="status-row">
+<strong
+id="homeOrdenanzasStatus"
+class="status-value"
+>
+Cargando...
+</strong>
 
-                <span>
-                    🏛️ Ordenanzas
-                </span>
+</div>
 
-                <strong
-                    id="homeOrdenanzasStatus"
-                    class="status-value"
-                >
-                    Cargando...
-                </strong>
 
-            </div>
+<div class="status-row">
 
+<span>
+📡 Conexión
+</span>
 
-            <div class="status-row">
+<strong
+id="homeNetworkStatus"
+class="status-value"
+>
+Comprobando...
+</strong>
 
-                <span>
-                    📡 Conexión
-                </span>
+</div>
 
-                <strong
-                    id="homeNetworkStatus"
-                    class="status-value"
-                >
-                    Comprobando...
-                </strong>
+</div>
 
-            </div>
+</section>
 
-        </div>
 
-    </section>
+<!-- =================================================
+CONSULTA
+================================================== -->
 
+<section
+id="section-consulta"
+class="app-section"
+data-section="consulta"
+>
 
-    <!-- =================================================
-         CONSULTA
-    ================================================== -->
+<div class="page-title">
 
-    <section
-        id="section-consulta"
-        class="app-section"
-        data-section="consulta"
-    >
+<div>
 
-        <div class="page-title">
+<h2>
+Consulta
+</h2>
 
-            <div>
+<p>
+Busca rápidamente una infracción,
+artículo o conducta.
+</p>
 
-                <h2>
-                    Consulta
-                </h2>
+</div>
 
-                <p>
-                    Busca rápidamente una infracción,
-                    artículo o conducta.
-                </p>
+</div>
 
-            </div>
 
-        </div>
+<div class="search-box">
 
+<span
+class="search-icon"
+aria-hidden="true"
+>
+🔎
+</span>
 
-        <!-- BUSCADOR -->
+<input
+id="consultaSearch"
+type="search"
+placeholder="Buscar por código, artículo, palabra..."
+autocomplete="off"
+aria-label="Buscar infracciones"
+>
 
-        <div class="search-box">
+<button
+id="clearConsultaSearch"
+type="button"
+class="clear-search"
+aria-label="Borrar búsqueda"
+title="Borrar"
+>
+×
+</button>
 
-            <span
-                class="search-icon"
-                aria-hidden="true"
-            >
-                🔎
-            </span>
+</div>
 
-            <input
-                id="consultaSearch"
-                type="search"
-                placeholder="Buscar por código, artículo, palabra..."
-                autocomplete="off"
-                aria-label="Buscar infracciones"
-            >
 
-            <button
-                id="clearConsultaSearch"
-                type="button"
-                class="clear-search"
-                aria-label="Borrar búsqueda"
-                title="Borrar"
-            >
-                ×
-            </button>
+<div class="filters">
 
-        </div>
+<button
+type="button"
+class="filter-chip active"
+data-severity="all"
+>
+Todas
+</button>
 
+<button
+type="button"
+class="filter-chip"
+data-severity="Leve"
+>
+Leves
+</button>
 
-        <!-- FILTROS -->
+<button
+type="button"
+class="filter-chip"
+data-severity="Grave"
+>
+Graves
+</button>
 
-        <div class="filters">
+<button
+type="button"
+class="filter-chip"
+data-severity="Muy Grave"
+>
+Muy graves
+</button>
 
-            <button
-                type="button"
-                class="filter-chip active"
-                data-severity="all"
-            >
-                Todas
-            </button>
+</div>
 
-            <button
-                type="button"
-                class="filter-chip"
-                data-severity="Leve"
-            >
-                Leves
-            </button>
 
-            <button
-                type="button"
-                class="filter-chip"
-                data-severity="Grave"
-            >
-                Graves
-            </button>
+<div class="results-header">
 
-            <button
-                type="button"
-                class="filter-chip"
-                data-severity="Muy Grave"
-            >
-                Muy graves
-            </button>
+<span>
+Resultados
+</span>
 
-        </div>
+<strong id="consultaResultCount">
+0
+</strong>
 
+</div>
 
-        <!-- RESULTADOS -->
 
-        <div class="results-header">
+<div
+id="consultaResults"
+class="results-list"
+>
 
-            <span>
-                Resultados
-            </span>
+<div class="empty-state">
 
-            <strong id="consultaResultCount">
-                0
-            </strong>
+<div class="empty-icon">
+🔎
+</div>
 
-        </div>
+<h3>
+Buscar infracción
+</h3>
 
+<p>
+Introduce un código, artículo o
+palabra clave para comenzar.
+</p>
 
-        <div
-            id="consultaResults"
-            class="results-list"
-        >
+</div>
 
-            <div class="empty-state">
+</div>
 
-                <div class="empty-icon">
-                    🔎
-                </div>
+</section>
 
-                <h3>
-                    Buscar infracción
-                </h3>
 
-                <p>
-                    Introduce un código, artículo o
-                    palabra clave para comenzar.
-                </p>
+<!-- =================================================
+ACTAS
+================================================== -->
 
-            </div>
+<section
+id="section-actas"
+class="app-section"
+data-section="actas"
+>
 
-        </div>
+<div class="page-title">
 
-    </section>
+<div>
 
+<h2>
+Actas
+</h2>
 
-    <!-- =================================================
-         ACTAS
-    ================================================== -->
+<p>
+Redacción y gestión de actas.
+</p>
 
-    <section
-        id="section-actas"
-        class="app-section"
-        data-section="actas"
-    >
+</div>
 
-        <div class="page-title">
+<button
+id="newActaButton"
+type="button"
+class="primary-button"
+>
++ Nueva
+</button>
 
-            <div>
+</div>
 
-                <h2>
-                    Actas
-                </h2>
 
-                <p>
-                    Redacción y gestión de actas.
-                </p>
+<div
+id="actaEditor"
+class="acta-editor hidden"
+>
 
-            </div>
+<div class="card-header">
 
-            <button
-                id="newActaButton"
-                type="button"
-                class="primary-button"
-            >
-                + Nueva
-            </button>
+<h3>
+Nueva acta
+</h3>
 
-        </div>
+<button
+id="closeActaEditor"
+type="button"
+class="icon-button"
+aria-label="Cerrar"
+>
+×
+</button>
 
+</div>
 
-        <!-- NUEVA ACTA -->
 
-        <div
-            id="actaEditor"
-            class="acta-editor hidden"
-        >
+<form id="actaForm">
 
-            <div class="card-header">
+<div class="form-section">
 
-                <h3>
-                    Nueva acta
-                </h3>
+<h4>
+Datos del acta
+</h4>
 
-                <button
-                    id="closeActaEditor"
-                    type="button"
-                    class="icon-button"
-                    aria-label="Cerrar"
-                >
-                    ×
-                </button>
+<div class="form-group">
 
-            </div>
+<label for="actaNumero">
+Número de acta
+</label>
 
+<input
+id="actaNumero"
+name="numero"
+type="text"
+placeholder="Número de acta"
+>
 
-            <form id="actaForm">
+</div>
 
-                <!-- DATOS DEL ACTA -->
 
-                <div class="form-section">
+<div class="form-group">
 
-                    <h4>
-                        Datos del acta
-                    </h4>
+<label for="actaFecha">
+Fecha
+</label>
 
+<input
+id="actaFecha"
+name="fecha"
+type="date"
+>
 
-                    <div class="form-group">
+</div>
 
-                        <label for="actaNumero">
-                            Número de acta
-                        </label>
 
-                        <input
-                            id="actaNumero"
-                            name="numero"
-                            type="text"
-                            placeholder="Número de acta"
-                        >
+<div class="form-group">
 
-                    </div>
+<label for="actaHora">
+Hora
+</label>
 
+<input
+id="actaHora"
+name="hora"
+type="time"
+>
 
-                    <div class="form-group">
+</div>
 
-                        <label for="actaFecha">
-                            Fecha
-                        </label>
+</div>
 
-                        <input
-                            id="actaFecha"
-                            name="fecha"
-                            type="date"
-                        >
 
-                    </div>
+<div class="form-section">
 
+<h4>
+Persona denunciada
+</h4>
 
-                    <div class="form-group">
 
-                        <label for="actaHora">
-                            Hora
-                        </label>
+<div class="form-group">
 
-                        <input
-                            id="actaHora"
-                            name="hora"
-                            type="time"
-                        >
+<label for="actaNombre">
+Nombre y apellidos
+</label>
 
-                    </div>
+<input
+id="actaNombre"
+name="nombre"
+type="text"
+autocomplete="off"
+>
 
-                </div>
+</div>
 
 
-                <!-- DATOS DEL INTERESADO -->
+<div class="form-group">
 
-                <div class="form-section">
+<label for="actaDni">
+DNI / NIE
+</label>
 
-                    <h4>
-                        Persona denunciada
-                    </h4>
+<input
+id="actaDni"
+name="dni"
+type="text"
+autocomplete="off"
+>
 
+</div>
 
-                    <div class="form-group">
 
-                        <label for="actaNombre">
-                            Nombre y apellidos
-                        </label>
+<div class="form-group">
 
-                        <input
-                            id="actaNombre"
-                            name="nombre"
-                            type="text"
-                            autocomplete="off"
-                        >
+<label for="actaDomicilio">
+Domicilio
+</label>
 
-                    </div>
+<input
+id="actaDomicilio"
+name="domicilio"
+type="text"
+>
 
+</div>
 
-                    <div class="form-group">
+</div>
 
-                        <label for="actaDni">
-                            DNI / NIE
-                        </label>
 
-                        <input
-                            id="actaDni"
-                            name="dni"
-                            type="text"
-                            autocomplete="off"
-                        >
+<div class="form-section">
 
-                    </div>
+<h4>
+Hechos
+</h4>
 
 
-                    <div class="form-group">
+<div class="form-group">
 
-                        <label for="actaDomicilio">
-                            Domicilio
-                        </label>
+<label for="actaLugar">
+Lugar
+</label>
 
-                        <input
-                            id="actaDomicilio"
-                            name="domicilio"
-                            type="text"
-                        >
+<input
+id="actaLugar"
+name="lugar"
+type="text"
+>
 
-                    </div>
+</div>
 
-                </div>
 
+<div class="form-group">
 
-                <!-- HECHOS -->
+<label for="actaHechos">
+Descripción de los hechos
+</label>
 
-                <div class="form-section">
+<textarea
+id="actaHechos"
+name="hechos"
+rows="7"
+placeholder="Describa los hechos observados..."
+></textarea>
 
-                    <h4>
-                        Hechos
-                    </h4>
+</div>
 
+</div>
 
-                    <div class="form-group">
 
-                        <label for="actaLugar">
-                            Lugar
-                        </label>
+<div class="form-section">
 
-                        <input
-                            id="actaLugar"
-                            name="lugar"
-                            type="text"
-                        >
+<h4>
+Infracción
+</h4>
 
-                    </div>
 
+<div class="form-group">
 
-                    <div class="form-group">
+<label for="actaInfraccion">
+Código / artículo
+</label>
 
-                        <label for="actaHechos">
-                            Descripción de los hechos
-                        </label>
+<input
+id="actaInfraccion"
+name="infraccion"
+type="text"
+placeholder="Ej.: 36.16"
+autocomplete="off"
+>
 
-                        <textarea
-                            id="actaHechos"
-                            name="hechos"
-                            rows="7"
-                            placeholder="Describa los hechos observados..."
-                        ></textarea>
+</div>
 
-                    </div>
 
-                </div>
+<div
+id="actaInfraccionPreview"
+class="infraccion-preview hidden"
+>
+</div>
 
+</div>
 
-                <!-- INFRACCIÓN -->
 
-                <div class="form-section">
+<div class="form-section">
 
-                    <h4>
-                        Infracción
-                    </h4>
+<h4>
+Observaciones
+</h4>
 
 
-                    <div class="form-group">
+<div class="form-group">
 
-                        <label for="actaInfraccion">
-                            Código / artículo
-                        </label>
+<textarea
+id="actaObservaciones"
+name="observaciones"
+rows="5"
+placeholder="Observaciones adicionales..."
+></textarea>
 
-                        <input
-                            id="actaInfraccion"
-                            name="infraccion"
-                            type="text"
-                            placeholder="Ej.: 36.16"
-                            autocomplete="off"
-                        >
+</div>
 
-                    </div>
+</div>
 
 
-                    <div
-                        id="actaInfraccionPreview"
-                        class="infraccion-preview hidden"
-                    >
-                    </div>
+<div class="form-actions">
 
-                </div>
+<button
+type="button"
+id="cancelActaButton"
+class="secondary-button"
+>
+Cancelar
+</button>
 
+<button
+type="submit"
+class="primary-button"
+>
+Guardar acta
+</button>
 
-                <!-- OBSERVACIONES -->
+</div>
 
-                <div class="form-section">
+</form>
 
-                    <h4>
-                        Observaciones
-                    </h4>
+</div>
 
 
-                    <div class="form-group">
+<div
+id="actasList"
+class="actas-list"
+>
 
-                        <textarea
-                            id="actaObservaciones"
-                            name="observaciones"
-                            rows="5"
-                            placeholder="Observaciones adicionales..."
-                        ></textarea>
+<div class="empty-state">
 
-                    </div>
+<div class="empty-icon">
+📝
+</div>
 
-                </div>
+<h3>
+No hay actas guardadas
+</h3>
 
+<p>
+Pulsa «Nueva» para comenzar un acta.
+</p>
 
-                <!-- BOTONES -->
+</div>
 
-                <div class="form-actions">
+</div>
 
-                    <button
-                        type="button"
-                        id="cancelActaButton"
-                        class="secondary-button"
-                    >
-                        Cancelar
-                    </button>
+</section>
 
-                    <button
-                        type="submit"
-                        class="primary-button"
-                    >
-                        Guardar acta
-                    </button>
 
-                </div>
+<!-- =================================================
+NORMATIVA
+================================================== -->
 
-            </form>
+<section
+id="section-normativa"
+class="app-section"
+data-section="normativa"
+>
 
-        </div>
+<div class="page-title">
 
+<div>
 
-        <!-- LISTA DE ACTAS -->
+<h2>
+Normativa
+</h2>
 
-        <div
-            id="actasList"
-            class="actas-list"
-        >
+<p>
+Consulta la legislación disponible
+en la aplicación.
+</p>
 
-            <div class="empty-state">
+</div>
 
-                <div class="empty-icon">
-                    📝
-                </div>
+</div>
 
-                <h3>
-                    No hay actas guardadas
-                </h3>
 
-                <p>
-                    Pulsa «Nueva» para comenzar un acta.
-                </p>
+<div class="search-box">
 
-            </div>
+<span
+class="search-icon"
+aria-hidden="true"
+>
+🔎
+</span>
 
-        </div>
+<input
+id="normativaSearch"
+type="search"
+placeholder="Buscar artículo o texto..."
+autocomplete="off"
+aria-label="Buscar normativa"
+>
 
-    </section>
+<button
+id="clearNormativaSearch"
+type="button"
+class="clear-search"
+aria-label="Borrar búsqueda"
+>
+×
+</button>
 
+</div>
 
-    <!-- =================================================
-         NORMATIVA
-    ================================================== -->
 
-    <section
-        id="section-normativa"
-        class="app-section"
-        data-section="normativa"
-    >
+<div
+id="normativaList"
+class="normativa-list"
+>
 
-        <div class="page-title">
+<div class="normativa-card">
 
-            <div>
+<div class="normativa-icon">
+⚖️
+</div>
 
-                <h2>
-                    Normativa
-                </h2>
+<div class="normativa-info">
 
-                <p>
-                    Consulta la legislación disponible
-                    en la aplicación.
-                </p>
+<h3>
+Ley Orgánica 4/2015
+</h3>
 
-            </div>
+<p>
+Protección de la seguridad ciudadana
+</p>
 
-        </div>
+<span>
+LOPSC
+</span>
 
+</div>
 
-        <!-- BUSCADOR NORMATIVA -->
+<button
+type="button"
+class="normativa-open"
+data-law="lopsc"
+>
+Ver
+</button>
 
-        <div class="search-box">
+</div>
 
-            <span
-                class="search-icon"
-                aria-hidden="true"
-            >
-                🔎
-            </span>
 
-            <input
-                id="normativaSearch"
-                type="search"
-                placeholder="Buscar artículo o texto..."
-                autocomplete="off"
-                aria-label="Buscar normativa"
-            >
+<div class="normativa-card">
 
-            <button
-                id="clearNormativaSearch"
-                type="button"
-                class="clear-search"
-                aria-label="Borrar búsqueda"
-            >
-                ×
-            </button>
+<div class="normativa-icon">
+🏛️
+</div>
 
-        </div>
+<div class="normativa-info">
 
+<h3>
+Ordenanzas municipales
+</h3>
 
-        <!-- LISTA NORMATIVA -->
+<p>
+Normativa municipal disponible
+</p>
 
-        <div
-            id="normativaList"
-            class="normativa-list"
-        >
+<span>
+Ordenanzas
+</span>
 
-            <div class="normativa-card">
+</div>
 
-                <div class="normativa-icon">
-                    ⚖️
-                </div>
+<button
+type="button"
+class="normativa-open"
+data-law="ordenanzas"
+>
+Ver
+</button>
 
-                <div class="normativa-info">
+</div>
 
-                    <h3>
-                        Ley Orgánica 4/2015
-                    </h3>
+</div>
 
-                    <p>
-                        Protección de la seguridad ciudadana
-                    </p>
 
-                    <span>
-                        LOPSC
-                    </span>
+<div
+id="normativaViewer"
+class="normativa-viewer hidden"
+>
 
-                </div>
+<div class="viewer-header">
 
-                <button
-                    type="button"
-                    class="normativa-open"
-                    data-law="lopsc"
-                >
-                    Ver
-                </button>
+<button
+id="closeNormativaViewer"
+type="button"
+class="icon-button"
+aria-label="Cerrar normativa"
+>
+←
+</button>
 
-            </div>
+<div>
 
+<h3 id="viewerTitle">
+Normativa
+</h3>
 
-            <div class="normativa-card">
+<span id="viewerSubtitle">
+</span>
 
-                <div class="normativa-icon">
-                    🏛️
-                </div>
+</div>
 
-                <div class="normativa-info">
+</div>
 
-                    <h3>
-                        Ordenanzas municipales
-                    </h3>
 
-                    <p>
-                        Normativa municipal disponible
-                    </p>
+<div
+id="viewerContent"
+class="viewer-content"
+>
+</div>
 
-                    <span>
-                        Ordenanzas
-                    </span>
+</div>
 
-                </div>
+</section>
 
-                <button
-                    type="button"
-                    class="normativa-open"
-                    data-law="ordenanzas"
-                >
-                    Ver
-                </button>
 
-            </div>
+<!-- =================================================
+AJUSTES
+================================================== -->
 
-        </div>
+<section
+id="section-ajustes"
+class="app-section"
+data-section="ajustes"
+>
 
+<div class="page-title">
 
-        <!-- VISOR DE NORMATIVA -->
+<div>
 
-        <div
-            id="normativaViewer"
-            class="normativa-viewer hidden"
-        >
+<h2>
+Ajustes
+</h2>
 
-            <div class="viewer-header">
+<p>
+Configuración de Centinela Code.
+</p>
 
-                <button
-                    id="closeNormativaViewer"
-                    type="button"
-                    class="icon-button"
-                    aria-label="Cerrar normativa"
-                >
-                    ←
-                </button>
+</div>
 
-                <div>
+</div>
 
-                    <h3 id="viewerTitle">
-                        Normativa
-                    </h3>
 
-                    <span id="viewerSubtitle">
-                    </span>
+<div class="settings-card">
 
-                </div>
+<div class="settings-card-header">
 
-            </div>
+<span class="settings-icon">
+🛡️
+</span>
 
+<div>
 
-            <div
-                id="viewerContent"
-                class="viewer-content"
-            >
-            </div>
+<h3>
+Centinela Code
+</h3>
 
-        </div>
+<p>
+Aplicación de consulta normativa
+</p>
 
-    </section>
+</div>
 
+</div>
 
-    <!-- =================================================
-         AJUSTES
-    ================================================== -->
 
-    <section
-        id="section-ajustes"
-        class="app-section"
-        data-section="ajustes"
-    >
+<div class="settings-row">
 
-        <div class="page-title">
+<span>
+Versión
+</span>
 
-            <div>
+<strong id="appVersion">
+1.0.0
+</strong>
 
-                <h2>
-                    Ajustes
-                </h2>
+</div>
 
-                <p>
-                    Configuración de Centinela Code.
-                </p>
 
-            </div>
+<div class="settings-row">
 
-        </div>
+<span>
+Estado
+</span>
 
+<strong
+id="appStatus"
+class="status-value"
+>
+Operativa
+</strong>
 
-        <!-- INFORMACIÓN DE LA APP -->
+</div>
 
-        <div class="settings-card">
 
-            <div class="settings-card-header">
+<div class="settings-row">
 
-                <span class="settings-icon">
-                    🛡️
-                </span>
+<span>
+Modo
+</span>
 
-                <div>
+<strong id="appMode">
+Offline / Online
+</strong>
 
-                    <h3>
-                        Centinela Code
-                    </h3>
+</div>
 
-                    <p>
-                        Aplicación de consulta normativa
-                    </p>
+</div>
 
-                </div>
 
-            </div>
+<div class="settings-card">
 
+<div class="settings-card-title">
+Datos
+</div>
 
-            <div class="settings-row">
 
-                <span>
-                    Versión
-                </span>
+<button
+id="reloadDataButton"
+type="button"
+class="settings-button"
+>
 
-                <strong id="appVersion">
-                    1.0.0
-                </strong>
+<span>
+🔄
+</span>
 
-            </div>
+<span>
+Recargar datos
+</span>
 
+</button>
 
-            <div class="settings-row">
 
-                <span>
-                    Estado
-                </span>
+<button
+id="clearDraftsButton"
+type="button"
+class="settings-button danger"
+>
 
-                <strong
-                    id="appStatus"
-                    class="status-value"
-                >
-                    Operativa
-                </strong>
+<span>
+🗑️
+</span>
 
-            </div>
+<span>
+Borrar actas guardadas
+</span>
 
+</button>
 
-            <div class="settings-row">
+</div>
 
-                <span>
-                    Modo
-                </span>
 
-                <strong id="appMode">
-                    Offline / Online
-                </strong>
+<div class="settings-card">
 
-            </div>
+<div class="settings-card-title">
+Estado de las bases de datos
+</div>
 
-        </div>
 
+<div class="settings-data-status">
 
-        <!-- DATOS -->
+<div class="data-status-row">
 
-        <div class="settings-card">
+<span>
+LOPSC
+</span>
 
-            <div class="settings-card-title">
-                Datos
-            </div>
+<strong id="settingsLopscStatus">
+Pendiente
+</strong>
 
+</div>
 
-            <button
-                id="reloadDataButton"
-                type="button"
-                class="settings-button"
-            >
 
-                <span>
-                    🔄
-                </span>
+<div class="data-status-row">
 
-                <span>
-                    Recargar datos
-                </span>
+<span>
+Infracciones
+</span>
 
-            </button>
+<strong id="settingsInfraccionesStatus">
+Pendiente
+</strong>
 
+</div>
 
-            <button
-                id="clearDraftsButton"
-                type="button"
-                class="settings-button danger"
-            >
 
-                <span>
-                    🗑️
-                </span>
+<div class="data-status-row">
 
-                <span>
-                    Borrar actas guardadas
-                </span>
+<span>
+Ordenanzas
+</span>
 
-            </button>
+<strong id="settingsOrdenanzasStatus">
+Pendiente
+</strong>
 
-        </div>
+</div>
 
+</div>
 
-        <!-- ESTADO DE LOS ARCHIVOS -->
+</div>
 
-        <div class="settings-card">
 
-            <div class="settings-card-title">
-                Estado de las bases de datos
-            </div>
+<div class="settings-card">
 
+<div class="settings-card-title">
+Información
+</div>
 
-            <div class="settings-data-status">
+<p class="settings-description">
 
-                <div class="data-status-row">
+Centinela Code está diseñada para facilitar
+la consulta de normativa y la preparación
+de actas durante el servicio.
 
-                    <span>
-                        LOPSC
-                    </span>
+</p>
 
-                    <strong id="settingsLopscStatus">
-                        Pendiente
-                    </strong>
+<p class="settings-description">
 
-                </div>
+La aplicación puede funcionar sin conexión
+cuando los datos necesarios se encuentran
+almacenados localmente.
 
+</p>
 
-                <div class="data-status-row">
+</div>
 
-                    <span>
-                        Infracciones
-                    </span>
-
-                    <strong id="settingsInfraccionesStatus">
-                        Pendiente
-                    </strong>
-
-                </div>
-
-
-                <div class="data-status-row">
-
-                    <span>
-                        Ordenanzas
-                    </span>
-
-                    <strong id="settingsOrdenanzasStatus">
-                        Pendiente
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- INFORMACIÓN -->
-
-        <div class="settings-card">
-
-            <div class="settings-card-title">
-                Información
-            </div>
-
-            <p class="settings-description">
-
-                Centinela Code está diseñada para facilitar
-                la consulta de normativa y la preparación
-                de actas durante el servicio.
-
-            </p>
-
-            <p class="settings-description">
-
-                La aplicación puede funcionar sin conexión
-                cuando los datos necesarios se encuentran
-                almacenados localmente.
-
-            </p>
-
-        </div>
-
-    </section>
+</section>
 
 </main>
 
 
 <!-- =====================================================
-     BARRA DE NAVEGACIÓN INFERIOR
+BARRA DE NAVEGACIÓN INFERIOR
 ====================================================== -->
 
 <nav
-    id="bottomNavigation"
-    class="bottom-navigation"
-    aria-label="Navegación principal"
+id="bottomNavigation"
+class="bottom-navigation"
+aria-label="Navegación principal"
 >
 
-    <button
-        type="button"
-        class="nav-item active"
-        data-section="home"
-        aria-label="Inicio"
-    >
+<button
+type="button"
+class="nav-item active"
+data-section="home"
+aria-label="Inicio"
+>
 
-        <span class="nav-icon">
-            🏠
-        </span>
+<span class="nav-icon">
+🏠
+</span>
 
-        <span class="nav-label">
-            Inicio
-        </span>
+<span class="nav-label">
+Inicio
+</span>
 
-    </button>
-
-
-    <button
-        type="button"
-        class="nav-item"
-        data-section="consulta"
-        aria-label="Consulta"
-    >
-
-        <span class="nav-icon">
-            🔎
-        </span>
-
-        <span class="nav-label">
-            Consulta
-        </span>
-
-    </button>
+</button>
 
 
-    <button
-        type="button"
-        class="nav-item"
-        data-section="actas"
-        aria-label="Actas"
-    >
+<button
+type="button"
+class="nav-item"
+data-section="consulta"
+aria-label="Consulta"
+>
 
-        <span class="nav-icon">
-            📝
-        </span>
+<span class="nav-icon">
+🔎
+</span>
 
-        <span class="nav-label">
-            Actas
-        </span>
+<span class="nav-label">
+Consulta
+</span>
 
-    </button>
-
-
-    <button
-        type="button"
-        class="nav-item"
-        data-section="normativa"
-        aria-label="Normativa"
-    >
-
-        <span class="nav-icon">
-            ⚖️
-        </span>
-
-        <span class="nav-label">
-            Normativa
-        </span>
-
-    </button>
+</button>
 
 
-    <button
-        type="button"
-        class="nav-item"
-        data-section="ajustes"
-        aria-label="Ajustes"
-    >
+<button
+type="button"
+class="nav-item"
+data-section="actas"
+aria-label="Actas"
+>
 
-        <span class="nav-icon">
-            ⚙️
-        </span>
+<span class="nav-icon">
+📝
+</span>
 
-        <span class="nav-label">
-            Ajustes
-        </span>
+<span class="nav-label">
+Actas
+</span>
 
-    </button>
+</button>
+
+
+<button
+type="button"
+class="nav-item"
+data-section="normativa"
+aria-label="Normativa"
+>
+
+<span class="nav-icon">
+⚖️
+</span>
+
+<span class="nav-label">
+Normativa
+</span>
+
+</button>
+
+
+<button
+type="button"
+class="nav-item"
+data-section="ajustes"
+aria-label="Ajustes"
+>
+
+<span class="nav-icon">
+⚙️
+</span>
+
+<span class="nav-label">
+Ajustes
+</span>
+
+</button>
 
 </nav>
 
 
 <!-- =====================================================
-     MODAL GENERAL
+MODAL GENERAL
 ====================================================== -->
 
 <div
-    id="appModal"
-    class="modal hidden"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="modalTitle"
+id="appModal"
+class="modal hidden"
+role="dialog"
+aria-modal="true"
+aria-labelledby="modalTitle"
 >
 
-    <div
-        class="modal-overlay"
-        id="modalOverlay"
-    ></div>
+<div
+class="modal-overlay"
+id="modalOverlay"
+></div>
 
 
-    <div class="modal-container">
+<div class="modal-container">
 
-        <div class="modal-header">
+<div class="modal-header">
 
-            <h3 id="modalTitle">
-                Centinela Code
-            </h3>
+<h3 id="modalTitle">
+Centinela Code
+</h3>
 
-            <button
-                id="closeModal"
-                type="button"
-                class="icon-button"
-                aria-label="Cerrar"
-            >
-                ×
-            </button>
+<button
+id="closeModal"
+type="button"
+class="icon-button"
+aria-label="Cerrar"
+>
+×
+</button>
 
-        </div>
-
-
-        <div
-            id="modalBody"
-            class="modal-body"
-        >
-        </div>
+</div>
 
 
-        <div
-            id="modalActions"
-            class="modal-actions"
-        >
-        </div>
+<div
+id="modalBody"
+class="modal-body"
+>
+</div>
 
-    </div>
+
+<div
+id="modalActions"
+class="modal-actions"
+>
+</div>
+
+</div>
 
 </div>
 
 
 <!-- =====================================================
-     TOAST / AVISOS
+TOAST / AVISOS
 ====================================================== -->
 
 <div
-    id="toast"
-    class="toast"
-    role="status"
-    aria-live="polite"
+id="toast"
+class="toast"
+role="status"
+aria-live="polite"
 >
-    <span id="toastMessage"></span>
+<span id="toastMessage"></span>
 </div>
 
 
 <!-- =====================================================
-     INDICADOR DE CARGA
+INDICADOR DE CARGA
 ====================================================== -->
 
 <div
-    id="loadingScreen"
-    class="loading-screen"
+id="loadingScreen"
+class="loading-screen"
 >
 
-    <div class="loading-logo">
-        🛡️
-    </div>
+<div class="loading-logo">
+🛡️
+</div>
 
-    <h2>
-        Centinela Code
-    </h2>
+<h2>
+Centinela Code
+</h2>
 
-    <p>
-        Cargando aplicación...
-    </p>
+<p>
+Cargando aplicación...
+</p>
 
-    <div class="loading-spinner"></div>
+<div class="loading-spinner"></div>
 
 </div>
 
 
 <!-- =====================================================
-     JAVASCRIPT
+APP.JS
+Versión renovada para evitar caché
 ====================================================== -->
 
-<script src="app.js" defer></script>
+<script
+src="app.js?v=20260827"
+defer
+></script>
+
+
+<!-- =====================================================
+SERVICE WORKER
+====================================================== -->
 
 <script>
 
 if ("serviceWorker" in navigator) {
 
-    window.addEventListener(
-        "load",
-        function () {
+window.addEventListener(
+"load",
+function () {
 
-            navigator.serviceWorker
-                .register("service-worker.js")
-                .then(
-                    function (registration) {
+navigator.serviceWorker
+.register(
+"service-worker.js?v=20260827"
+)
+.then(
+function (registration) {
 
-                        console.log(
-                            "Centinela Code: Service Worker registrado.",
-                            registration.scope
-                        );
+console.log(
+"Centinela Code: Service Worker registrado.",
+registration.scope
+);
 
-                    }
-                )
-                .catch(
-                    function (error) {
+}
+)
+.catch(
+function (error) {
 
-                        console.warn(
-                            "Centinela Code: no se pudo registrar el Service Worker.",
-                            error
-                        );
+console.warn(
+"Centinela Code: no se pudo registrar el Service Worker.",
+error
+);
 
-                    }
-                );
+}
+);
 
-        }
-    );
+}
+);
 
 }
 
 </script>
 
 </body>
+
 </html>
