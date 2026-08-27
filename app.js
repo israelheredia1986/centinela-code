@@ -1264,7 +1264,11 @@ ordenanza.descripcion ||
 etiqueta:
 ordenanza.codigo ||
 "Ordenanza",
-icono: "🏛️"
+icono: "🏛️",
+url:
+ordenanza.fuente && ordenanza.fuente.url
+? ordenanza.fuente.url
+: ""
 }))
 ];
 
@@ -1312,24 +1316,32 @@ tarjeta.etiqueta
 
 </div>
 
+${tarjeta.tipo === "ordenanza" && tarjeta.url ? `
+<a
+class="normativa-open"
+href="${escaparHTML(tarjeta.url)}"
+target="_blank"
+rel="noopener noreferrer"
+aria-label="Acceso directo a la ordenanza oficial"
+>
+🔗 Acceso directo
+</a>
+` : tarjeta.tipo === "ordenanza" ? `
+<span
+class="normativa-open"
+aria-label="Esta ordenanza no tiene enlace oficial configurado"
+>
+Sin enlace
+</span>
+` : `
 <button
 type="button"
 class="normativa-open"
-data-law="${
-escaparHTML(
-tarjeta.tipo
-)
-}"
-${
-tarjeta.id
-? `data-id="${escaparHTML(
-tarjeta.id
-)}"`
-: ""
-}
+data-law="${escaparHTML(tarjeta.tipo)}"
 >
 Ver
 </button>
+`}
 
 </div>
 `)
@@ -1698,7 +1710,7 @@ return;
 
 const normativa =
 evento.target.closest(
-".normativa-open"
+"button.normativa-open"
 );
 
 if (normativa) {
