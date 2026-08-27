@@ -818,112 +818,169 @@ BÚSQUEDA
 
 function buscarInfracciones() {
 
-    const texto = normalizarTexto(estado.filtros.texto);
-    const gravedad = estado.filtros.gravedad;
-    const articulo = estado.filtros.articulo;
+const texto =
+    normalizarTexto(
+        estado.filtros.texto
+    );
 
-    // Alias jurídicos de drogas para LOPSC art. 36.16.
-    const aliasDrogas = new Set([
-        "cocaina", "cocaína", "coca",
-        "cocaina en polvo",
-        "hachis", "hachís", "hash",
-        "resina de cannabis",
-        "marihuana", "marihuanas", "marijuana",
-        "cannabis", "porro", "porros", "grifa",
-        "droga", "drogas",
-        "estupefaciente", "estupefacientes",
-        "sustancia estupefaciente", "sustancias estupefacientes",
-        "psicotropica", "psicotrópica",
-        "psicotropicas", "psicotrópicas",
-        "sustancia psicotropica", "sustancia psicotrópica",
-        "sustancias psicotropicas", "sustancias psicotrópicas"
-    ].map(normalizarTexto));
 
-    const esAliasDrogas = aliasDrogas.has(texto);
+const gravedad =
+    estado.filtros.gravedad;
 
-    function palabraCompleta(campo, termino) {
-        const valor = normalizarTexto(campo);
-        if (!valor || !termino) return false;
-        const escapado = termino.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        return new RegExp("(?:^|[^a-z0-9áéíóúüñ])" + escapado + "(?:$|[^a-z0-9áéíóúüñ])", "i").test(valor);
-    }
 
-    estado.resultados = estado.infracciones.filter(infraccion => {
+const articulo =
+    estado.filtros.articulo;
 
-        if (
-            gravedad &&
-            gravedad !== "todas" &&
-            infraccion.gravedad !== gravedad
-        ) {
-            return false;
+
+estado.resultados =
+    estado.infracciones.filter(
+        infraccion => {
+
+            if (
+                gravedad &&
+                gravedad !== "todas" &&
+                infraccion.gravedad !==
+                    gravedad
+            ) {
+
+                return false;
+            }
+
+
+            if (
+                articulo &&
+                articulo !== "todos" &&
+                String(
+                    infraccion.articulo
+                ) !==
+                    String(articulo)
+            ) {
+
+                return false;
+            }
+
+
+            if (!texto) {
+
+                return true;
+            }
+
+
+            const contenido =
+                [
+
+                    infraccion.id,
+
+                    infraccion.codigo,
+
+                    infraccion.ley,
+
+                    infraccion.articulo,
+
+                    infraccion.apartado,
+
+                    infraccion.titulo,
+
+                    infraccion.conducta,
+
+                    infraccion.gravedad,
+
+                    ...infraccion
+                        .palabrasClave,
+
+                    ...infraccion
+                        .medidas,
+
+                    ...infraccion
+                        .responsables
+
+                ]
+                .join(" ");
+
+
+            return normalizarTexto(
+                contenido
+            ).includes(
+                texto
+            );
         }
+    );
 
-        if (
-            articulo &&
-            articulo !== "todos" &&
-            String(infraccion.articulo) !== String(articulo)
-        ) {
-            return false;
-        }
 
-        if (!texto) return true;
+if (texto) {
 
-        const codigo = normalizarTexto(infraccion.codigo);
-        const id = normalizarTexto(infraccion.id);
-        const art = normalizarTexto(infraccion.articulo);
-        const apartado = normalizarTexto(infraccion.apartado);
-        const titulo = normalizarTexto(infraccion.titulo);
-        const conducta = normalizarTexto(infraccion.conducta);
-        const ley = normalizarTexto(infraccion.ley);
-        const palabras = Array.isArray(infraccion.palabrasClave)
-            ? infraccion.palabrasClave.map(normalizarTexto)
-            : [];
+    estado.resultados.sort(
+        (a, b) => {
 
-        // Códigos y artículos: coincidencia exacta.
-        if (codigo === texto || id === texto) return true;
-        if (`${art}.${apartado}` === texto) return true;
-        if (art === texto) return true;
+            const codigoA =
+                normalizarTexto(
+                    a.codigo
+                );
 
-        // Drogas: alias explícitos apuntan al bloque 36.16.
-        if (esAliasDrogas) {
-            if (art === "36" && apartado === "16") return true;
-            if (codigo === "36.16") return true;
-        }
 
-        // Palabras clave: palabra/frase completa, nunca fragmentos.
-        if (palabras.some(p => p === texto || palabraCompleta(p, texto))) {
-            return true;
-        }
+            const codigoB =
+                normalizarTexto(
+                    b.codigo
+                );
 
-        // Título: palabra o frase completa, nunca una parte de otra palabra.
-        if (palabraCompleta(titulo, texto)) return true;
 
-        // Conducta: palabra completa. Esto evita gato -> obliGATOrias.
-        if (palabraCompleta(conducta, texto)) return true;
+            if (
+                codigoA === texto
+            ) {
 
-        // Ley: coincidencia exacta.
-        if (ley === texto) return true;
+                return -1;
+            }
 
-        return false;
-    });
 
-    if (texto) {
-        estado.resultados.sort((a, b) => {
-            const codigoA = normalizarTexto(a.codigo);
-            const codigoB = normalizarTexto(b.codigo);
-            const tituloA = normalizarTexto(a.titulo);
-            const tituloB = normalizarTexto(b.titulo);
+            if (
+                codigoB === texto
+            ) {
 
-            if (codigoA === texto && codigoB !== texto) return -1;
-            if (codigoB === texto && codigoA !== texto) return 1;
-            if (tituloA === texto && tituloB !== texto) return -1;
-            if (tituloB === texto && tituloA !== texto) return 1;
+                return 1;
+            }
+
+
+            const tituloA =
+                normalizarTexto(
+                    a.titulo
+                );
+
+
+            const tituloB =
+                normalizarTexto(
+                    b.titulo
+                );
+
+
+            if (
+                tituloA.startsWith(
+                    texto
+                )
+            ) {
+
+                return -1;
+            }
+
+
+            if (
+                tituloB.startsWith(
+                    texto
+                )
+            ) {
+
+                return 1;
+            }
+
+
             return 0;
-        });
-    }
+        }
+    );
+}
 
-    renderizarResultados();
-    actualizarContador();
+
+renderizarResultados();
+
+actualizarContador();
 }
 
 /* ============================================================
