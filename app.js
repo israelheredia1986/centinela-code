@@ -1,16 +1,16 @@
 /* 
 ============================================================ 
 CENTINELA CODE 
-app.js - Versi n corregida y compatible con index.html 
+app.js - Versión corregida y compatible con index.html 
 ============================================================ 
 
 Funciones: 
 - Carga de infracciones, LOPSC y ordenanzas. 
-- Consulta por c digo, art culo, palabra y gravedad. 
-- Navegaci n inferior y accesos r pidos. 
-- Creaci n, edici n b sica y borrado de actas mediante localStorage. 
+- Consulta por código, artículo, palabra y gravedad. 
+- Navegación inferior y accesos rápidos. 
+- Creación, edición básica y borrado de actas mediante localStorage. 
 - Visor de LOPSC y ordenanzas. 
-- Estado de conexi n y estado de las bases. 
+- Estado de conexión y estado de las bases. 
 - Limpieza/recarga de datos. 
 - Compatible con la estructura actual de index.html. 
 ============================================================ 
@@ -351,7 +351,7 @@ extraerOrdenanzas(estado.ordenanzas).length > 0;
 establecerEstado( 
 $("homeNormativaStatus"), 
 hayLopsc 
-? `${extraerArticulos(estado.lopsc).length} art culos` 
+? `${extraerArticulos(estado.lopsc).length} artículos` 
 : "No disponible", 
 hayLopsc 
 ); 
@@ -410,7 +410,7 @@ modo.textContent = conectado
 } 
 
 /* ========================================================= 
-NAVEGACI N 
+NAVEGACIÓN 
 ========================================================= */ 
 
 function configurarNavegacion() { 
@@ -630,9 +630,9 @@ if (
 contenedor.innerHTML = ` 
 <div class="empty-state"> 
 <div class="empty-icon">?</div> 
-<h3>Buscar infracci n</h3> 
+<h3>Buscar infracción</h3> 
 <p> 
-Introduce un c digo, art culo o 
+Introduce un código, artículo o 
 palabra clave para comenzar. 
 </p> 
 </div> 
@@ -704,7 +704,7 @@ infraccion.codigo || ""
 <h3> 
 ${escaparHTML( 
 infraccion.titulo || 
-"Sin t tulo" 
+"Sin título" 
 )} 
 </h3> 
 </div> 
@@ -786,7 +786,7 @@ infraccion.sancion || {};
 
 abrirModal( 
 infraccion.codigo || 
-"Infracci n", 
+"Infracción", 
 ` 
 <div class="detail-content"> 
 
@@ -798,7 +798,7 @@ infraccion.gravedad || "-"
 </p> 
 
 <p> 
-<strong>Art culo:</strong> 
+<strong>Artículo:</strong> 
 ${escaparHTML( 
 infraccion.articulo || "-" 
 )} 
@@ -823,18 +823,18 @@ ${
 sancion.min !== undefined || 
 sancion.max !== undefined 
 ? ` 
-<h4>Sanci n</h4> 
+<h4>Sanción</h4> 
 <p> 
 ${ 
 sancion.min !== undefined 
-? `M nimo: ${formatearEuros( 
+? `Mínimo: ${formatearEuros( 
 sancion.min 
 )}<br>` 
 : "" 
 } 
 ${ 
 sancion.max !== undefined 
-? `M ximo: ${formatearEuros( 
+? `Máximo: ${formatearEuros( 
 sancion.max 
 )}` 
 : "" 
@@ -1109,7 +1109,7 @@ lista.innerHTML = `
 <div class="empty-icon">?</div> 
 <h3>No hay actas guardadas</h3> 
 <p> 
-Pulsa  Nueva  para comenzar un acta. 
+Pulsa «Nueva» para comenzar un acta. 
 </p> 
 </div> 
 `; 
@@ -1127,7 +1127,7 @@ estado.actas
 Acta ${ 
 escaparHTML( 
 acta.numero || 
-"sin n mero" 
+"sin número" 
 ) 
 } 
 </span> 
@@ -1150,7 +1150,7 @@ acta.fecha || ""
 <p> 
 ${escaparHTML( 
 acta.infraccion || 
-"Sin infracci n indicada" 
+"Sin infracción indicada" 
 )} 
 </p> 
 
@@ -1197,7 +1197,7 @@ abrirEditorActa(acta);
 function borrarActa(id) { 
 const confirmado = 
 window.confirm( 
-" Quieres borrar esta acta?" 
+"¿Quieres borrar esta acta?" 
 ); 
 
 if (!confirmado) { 
@@ -1326,65 +1326,49 @@ normalizarTexto(
 estado.normativaBusqueda 
 ); 
 
+const categorias = 
+Array.isArray(estado.ordenanzas?.categorias) 
+? estado.ordenanzas.categorias 
+: []; 
+
 const ordenanzas = 
 extraerOrdenanzas( 
 estado.ordenanzas 
 ); 
 
-const tarjetas = [ 
+const tarjetasPrincipales = [ 
 { 
 tipo: "lopsc", 
-titulo: "Ley Org nica 4/2015", 
+titulo: "Ley Orgánica 4/2015", 
 descripcion: 
-"Protecci n de la seguridad ciudadana", 
+"Protección de la seguridad ciudadana", 
 etiqueta: "LOPSC", 
-icono: "??" 
+icono: "⚖️" 
 }, 
 { 
 tipo: "animales", 
 titulo: "Animales", 
 descripcion: 
-"Bienestar animal y perros potencialmente peligrosos (PPP)", 
-etiqueta: "Estatal / Andaluc a", 
-icono: "??" 
-}, 
-...ordenanzas.map((ordenanza) => ({ 
-tipo: "ordenanza", 
-id: ordenanza.id, 
-titulo: 
-ordenanza.nombre || 
-ordenanza.nombre_corto || 
-"Ordenanza municipal", 
-descripcion: 
-ordenanza.descripcion || 
-"", 
-etiqueta: 
-ordenanza.codigo || 
-"Ordenanza", 
-icono: "??", 
-url: 
-ordenanza.fuente && ordenanza.fuente.url 
-? ordenanza.fuente.url 
-: "" 
-})) 
+"Bienestar animal y tenencia de perros potencialmente peligrosos (PPP) — 4 normas", 
+etiqueta: "Estatal / Andalucía", 
+icono: "🐾" 
+} 
 ]; 
 
-const filtradas = 
-texto 
-? tarjetas.filter((tarjeta) => 
-normalizarTexto( 
-[ 
+const coincide = (campos) => 
+!texto || 
+normalizarTexto(campos.join(" ")).includes(texto); 
+
+const principalesFiltradas = 
+tarjetasPrincipales.filter((tarjeta) => 
+coincide([ 
 tarjeta.titulo, 
 tarjeta.descripcion, 
 tarjeta.etiqueta 
-].join(" ") 
-).includes(texto) 
-) 
-: tarjetas; 
+]) 
+); 
 
-lista.innerHTML = 
-filtradas 
-.map((tarjeta) => ` 
+const renderTarjetaPrincipal = (tarjeta) => ` 
 <div class="normativa-card"> 
 
 <div class="normativa-icon"> 
@@ -1394,43 +1378,19 @@ ${tarjeta.icono}
 <div class="normativa-info"> 
 
 <h3> 
-${escaparHTML( 
-tarjeta.titulo 
-)} 
+${escaparHTML(tarjeta.titulo)} 
 </h3> 
 
 <p> 
-${escaparHTML( 
-tarjeta.descripcion 
-)} 
+${escaparHTML(tarjeta.descripcion)} 
 </p> 
 
 <span> 
-${escaparHTML( 
-tarjeta.etiqueta 
-)} 
+${escaparHTML(tarjeta.etiqueta)} 
 </span> 
 
 </div> 
 
-${tarjeta.tipo === "ordenanza" && tarjeta.url ? ` 
-<a 
-class="normativa-open" 
-href="${escaparHTML(tarjeta.url)}" 
-target="_blank" 
-rel="noopener noreferrer" 
-aria-label="Acceso directo a la ordenanza oficial" 
-> 
-? Acceso directo 
-</a> 
-` : tarjeta.tipo === "ordenanza" ? ` 
-<span 
-class="normativa-open" 
-aria-label="Esta ordenanza no tiene enlace oficial configurado" 
-> 
-Sin enlace 
-</span> 
-` : ` 
 <button 
 type="button" 
 class="normativa-open" 
@@ -1438,24 +1398,138 @@ data-law="${escaparHTML(tarjeta.tipo)}"
 > 
 Ver 
 </button> 
-`} 
 
 </div> 
-`) 
+`; 
+
+const renderTarjetaOrdenanza = (ordenanza) => { 
+const titulo = 
+ordenanza.nombre || 
+ordenanza.nombre_corto || 
+"Ordenanza municipal"; 
+
+return ` 
+<div class="normativa-card"> 
+
+<div class="normativa-icon"> 
+📋 
+</div> 
+
+<div class="normativa-info"> 
+
+<h3> 
+${escaparHTML(titulo)} 
+</h3> 
+
+<p> 
+${escaparHTML(ordenanza.descripcion || "")} 
+</p> 
+
+<span> 
+${escaparHTML(ordenanza.codigo || "Ordenanza")} 
+</span> 
+
+</div> 
+
+<button 
+type="button" 
+class="normativa-open" 
+data-law="ordenanza" 
+data-id="${escaparHTML(ordenanza.id)}" 
+> 
+Ver ficha 
+</button> 
+
+</div> 
+`; 
+}; 
+
+const camposOrdenanza = (ordenanza, categoriaNombre) => [ 
+ordenanza.nombre, 
+ordenanza.nombre_corto, 
+ordenanza.descripcion, 
+ordenanza.codigo, 
+categoriaNombre, 
+...(Array.isArray(ordenanza.palabras_clave) ? ordenanza.palabras_clave : []) 
+]; 
+
+const grupos = 
+categorias 
+.map((categoria) => { 
+const items = 
+ordenanzas.filter((ordenanza) => 
+ordenanza.categoria === categoria.id && 
+coincide(camposOrdenanza(ordenanza, categoria.nombre)) 
+); 
+
+if (!items.length) { 
+return ""; 
+} 
+
+return ` 
+<details class="ordenanza-group"${texto ? " open" : ""}> 
+
+<summary> 
+<span class="ordenanza-group-nombre"> 
+${escaparHTML(categoria.nombre)} 
+</span> 
+<span class="ordenanza-group-count"> 
+${items.length} 
+</span> 
+</summary> 
+
+<div class="normativa-list normativa-list--nested"> 
+${items.map(renderTarjetaOrdenanza).join("")} 
+</div> 
+
+</details> 
+`; 
+}) 
 .join(""); 
 
-if (!filtradas.length) { 
+const huboOrdenanzas = 
+ordenanzas.some((ordenanza) => { 
+const categoria = 
+categorias.find((item) => item.id === ordenanza.categoria); 
+
+return coincide( 
+camposOrdenanza(ordenanza, categoria ? categoria.nombre : "") 
+); 
+}); 
+
+if (!principalesFiltradas.length && !huboOrdenanzas) { 
 lista.innerHTML = ` 
 <div class="empty-state"> 
-<div class="empty-icon">?</div> 
+<div class="empty-icon">🔍</div> 
 <h3>Sin resultados</h3> 
 <p> 
 No se ha encontrado normativa 
-con esa b squeda. 
+con esa búsqueda. 
 </p> 
 </div> 
 `; 
+return; 
 } 
+
+lista.innerHTML = ` 
+${principalesFiltradas.length ? ` 
+<div class="normativa-list normativa-list--principal"> 
+${principalesFiltradas.map(renderTarjetaPrincipal).join("")} 
+</div> 
+` : ""} 
+
+${grupos ? ` 
+<div class="ordenanza-groups"> 
+
+<h3 class="ordenanza-groups-title"> 
+Ordenanzas municipales 
+</h3> 
+
+${grupos} 
+
+</div> 
+` : ""} 
+`; 
 } 
 
 function abrirNormativa(tipo, id = "") { 
@@ -1469,10 +1543,27 @@ abrirAnimales();
 return; 
 } 
 
+if (tipo === "ley-animal") { 
+abrirLeyAnimal(id); 
+return; 
+} 
+
 if (tipo === "ordenanza") { 
 abrirOrdenanza(id); 
+return; 
+} 
+
+if (tipo === "normativa-home") { 
+cerrarVisorNormativa(); 
 } 
 } 
+
+const ANIMALES_ICONOS = { 
+"ley-7-2023": "🐾", 
+"ley-11-2003": "🐕", 
+"ley-50-1999": "🛡️", 
+"decreto-42-2008": "📜" 
+}; 
 
 function abrirAnimales() { 
 const leyes = 
@@ -1494,62 +1585,56 @@ $("viewerTitle").textContent =
 "Animales"; 
 
 $("viewerSubtitle").textContent = 
-"Bienestar animal y tenencia de PPP \u2014 estatal y andaluza"; 
+"Bienestar animal y tenencia de PPP — estatal y andaluza"; 
 
 if (!leyes.length) { 
 contenido.innerHTML = ` 
 <div class="empty-state"> 
 <h3>Normativa de animales no disponible</h3> 
 <p> 
-No se ha podido cargar la informaci\u00f3n. 
+No se ha podido cargar la información. 
 </p> 
 </div> 
 `; 
 } else { 
-contenido.innerHTML = 
-leyes 
-.map((leyItem) => ` 
-<article class="law-article"> 
+contenido.innerHTML = ` 
+<div class="normativa-list"> 
+${leyes.map((leyItem) => ` 
+<div class="normativa-card"> 
 
-<h4> 
-${escaparHTML(leyItem.ley || "")} 
-</h4> 
-
-<p> 
-<strong>${escaparHTML(leyItem.abreviatura || "")}</strong><br> 
-\u00c1mbito: ${escaparHTML(leyItem.ambito || "")} \u2014 
-Estado: ${escaparHTML(leyItem.estado || "")}<br> 
-Fuente: ${escaparHTML(leyItem.boe || "")} 
-</p> 
-
-${ 
-leyItem.nota 
-? ` 
-<p> 
-<strong>Nota:</strong> 
-${escaparHTML(leyItem.nota)} 
-</p> 
-` 
-: "" 
-} 
-
-${ 
-Array.isArray(leyItem.articulos) && leyItem.articulos.length 
-? leyItem.articulos.map((articulo) => ` 
-<div style="margin-top:10px;"> 
-<strong> 
-Art\u00edculo ${escaparHTML(articulo.numero)}. 
-${escaparHTML(articulo.titulo || "")} 
-</strong> 
-<p>${escaparHTML(articulo.texto || "")}</p> 
+<div class="normativa-icon"> 
+${ANIMALES_ICONOS[leyItem.id] || "📖"} 
 </div> 
-`).join("") 
-: "" 
-} 
 
-</article> 
-`) 
-.join(""); 
+<div class="normativa-info"> 
+
+<h3> 
+${escaparHTML(leyItem.ley || "")} 
+</h3> 
+
+<p> 
+${escaparHTML(leyItem.abreviatura || "")} 
+</p> 
+
+<span> 
+${escaparHTML(leyItem.ambito || "")} · ${Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0} artículos 
+</span> 
+
+</div> 
+
+<button 
+type="button" 
+class="normativa-open" 
+data-law="ley-animal" 
+data-id="${escaparHTML(leyItem.id)}" 
+> 
+Ver 
+</button> 
+
+</div> 
+`).join("")} 
+</div> 
+`; 
 } 
 
 visor.classList.remove("hidden"); 
@@ -1559,6 +1644,95 @@ behavior: "smooth",
 block: "start" 
 }); 
 } 
+
+function abrirLeyAnimal(id) { 
+const leyes = 
+extraerAnimales( 
+estado.animales 
+); 
+
+const leyItem = 
+leyes.find((item) => item.id === id); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!leyItem || !visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+leyItem.ley || "Normativa de animales"; 
+
+$("viewerSubtitle").textContent = 
+leyItem.abreviatura || ""; 
+
+const articulos = 
+Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
+contenido.innerHTML = ` 
+<button 
+type="button" 
+class="normativa-open law-back-button" 
+data-law="animales" 
+> 
+← Volver a Animales 
+</button> 
+
+<article class="law-article"> 
+
+<p> 
+<strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
+<strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
+<strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
+</p> 
+
+${leyItem.resumen ? ` 
+<p>${escaparHTML(leyItem.resumen)}</p> 
+` : ""} 
+
+${leyItem.enlaceOficial ? ` 
+<a 
+class="law-link-button" 
+href="${escaparHTML(leyItem.enlaceOficial)}" 
+target="_blank" 
+rel="noopener noreferrer" 
+> 
+🔗 Ver normativa online (BOE/BOJA) 
+</a> 
+` : ""} 
+
+${leyItem.nota ? ` 
+<p> 
+<strong>Nota:</strong> 
+${escaparHTML(leyItem.nota)} 
+</p> 
+` : ""} 
+
+</article> 
+
+${articulos.map((articulo) => ` 
+<article class="law-article"> 
+<h4> 
+Artículo ${escaparHTML(articulo.numero)}. 
+${escaparHTML(articulo.titulo || "")} 
+</h4> 
+<p>${escaparHTML(articulo.texto || "")}</p> 
+</article> 
+`).join("")} 
+`; 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
 
 function abrirLOPSC() { 
 const articulos = 
@@ -1577,17 +1751,17 @@ return;
 } 
 
 $("viewerTitle").textContent = 
-"Ley Org nica 4/2015"; 
+"Ley Orgánica 4/2015"; 
 
 $("viewerSubtitle").textContent = 
-"Protecci n de la seguridad ciudadana"; 
+"Protección de la seguridad ciudadana"; 
 
 if (!articulos.length) { 
 contenido.innerHTML = ` 
 <div class="empty-state"> 
 <h3>LOPSC no disponible</h3> 
 <p> 
-No se han podido cargar los art culos. 
+No se han podido cargar los artículos. 
 </p> 
 </div> 
 `; 
@@ -1598,7 +1772,7 @@ articulos
 <article class="law-article"> 
 
 <h4> 
-Art culo ${ 
+Artículo ${ 
 escaparHTML( 
 articulo.numero 
 ) 
@@ -1671,6 +1845,14 @@ const fuente =
 ordenanza.fuente || {}; 
 
 contenido.innerHTML = ` 
+<button 
+type="button" 
+class="normativa-open law-back-button" 
+data-law="normativa-home" 
+> 
+← Volver a Normativa 
+</button> 
+
 <article class="law-article"> 
 
 <h4> 
@@ -1686,6 +1868,31 @@ ${escaparHTML(
 ordenanza.descripcion || "" 
 )} 
 </p> 
+
+${ 
+ordenanza.estado 
+? ` 
+<p><strong>Estado:</strong> ${escaparHTML(ordenanza.estado)}</p> 
+` 
+: "" 
+} 
+
+${ 
+fuente.url 
+? ` 
+<a 
+class="law-link-button" 
+href="${escaparHTML(fuente.url)}" 
+target="_blank" 
+rel="noopener noreferrer" 
+> 
+🔗 Ver documento oficial 
+</a> 
+` 
+: ` 
+<p class="law-sin-enlace">Sin enlace oficial configurado.</p> 
+` 
+} 
 
 ${ 
 ordenanza.nota 
@@ -1712,24 +1919,6 @@ ${palabras
 escaparHTML 
 ) 
 .join(", ")} 
-</p> 
-` 
-: "" 
-} 
-
-${ 
-fuente.url 
-? ` 
-<p> 
-<a 
-href="${escaparHTML( 
-fuente.url 
-)}" 
-target="_blank" 
-rel="noopener noreferrer" 
-> 
-Consultar fuente oficial 
-</a> 
 </p> 
 ` 
 : "" 
@@ -1853,7 +2042,7 @@ $("clearDraftsButton")?.addEventListener(
 
 const confirmado = 
 window.confirm( 
-" Quieres borrar todas las actas guardadas?" 
+"¿Quieres borrar todas las actas guardadas?" 
 ); 
 
 if (!confirmado) { 
@@ -1876,7 +2065,7 @@ mostrarToast(
 } 
 
 /* ========================================================= 
-EVENTOS DIN MICOS 
+EVENTOS DINÁMICOS 
 ========================================================= */ 
 
 function configurarEventosGlobales() { 
@@ -1985,7 +2174,7 @@ window.addEventListener(
 () => { 
 actualizarRed(); 
 mostrarToast( 
-"Conexi n recuperada." 
+"Conexión recuperada." 
 ); 
 } 
 ); 
@@ -1995,7 +2184,7 @@ window.addEventListener(
 () => { 
 actualizarRed(); 
 mostrarToast( 
-"Sin conexi n. Se utilizar n los datos locales." 
+"Sin conexión. Se utilizarán los datos locales." 
 ); 
 } 
 ); 
@@ -2004,7 +2193,7 @@ actualizarRed();
 } 
 
 /* ========================================================= 
-INICIALIZACI N 
+INICIALIZACIÓN 
 ========================================================= */ 
 
 
@@ -2141,3 +2330,4 @@ iniciarAplicacion();
 } 
 
 registrarServiceWorker();
+
