@@ -244,6 +244,82 @@ return datos.ordenanzas;
 return []; 
 } 
 
+function renderTarjetaOrdenanza(ordenanza) { 
+const titulo = 
+ordenanza.nombre || 
+ordenanza.nombre_corto || 
+"Ordenanza municipal"; 
+
+return ` 
+<div class="normativa-card"> 
+
+<div class="normativa-icon"> 
+📋 
+</div> 
+
+<div class="normativa-info"> 
+
+<h3> 
+${escaparHTML(titulo)} 
+</h3> 
+
+<p> 
+${escaparHTML(ordenanza.descripcion || "")} 
+</p> 
+
+<span> 
+${escaparHTML(ordenanza.codigo || "Ordenanza")} 
+</span> 
+
+</div> 
+
+<button 
+type="button" 
+class="normativa-open" 
+data-law="ordenanza" 
+data-id="${escaparHTML(ordenanza.id)}" 
+> 
+Ver ficha 
+</button> 
+
+</div> 
+`; 
+} 
+
+function renderGruposOrdenanzas(categorias, ordenanzas) { 
+return categorias 
+.map((categoria) => { 
+const items = 
+ordenanzas.filter( 
+(ordenanza) => ordenanza.categoria === categoria.id 
+); 
+
+if (!items.length) { 
+return ""; 
+} 
+
+return ` 
+<details class="ordenanza-group"> 
+
+<summary> 
+<span class="ordenanza-group-nombre"> 
+${escaparHTML(categoria.nombre)} 
+</span> 
+<span class="ordenanza-group-count"> 
+${items.length} 
+</span> 
+</summary> 
+
+<div class="normativa-list normativa-list--nested"> 
+${items.map(renderTarjetaOrdenanza).join("")} 
+</div> 
+
+</details> 
+`; 
+}) 
+.join(""); 
+} 
+
 async function cargarDatos() { 
 const resultados = await Promise.allSettled([ 
 cargarJSON(CONFIG.RUTAS.infracciones), 
@@ -1352,6 +1428,14 @@ descripcion:
 "Bienestar animal y tenencia de perros potencialmente peligrosos (PPP) — 4 normas", 
 etiqueta: "Estatal / Andalucía", 
 icono: "🐾" 
+}, 
+{ 
+tipo: "ordenanzas", 
+titulo: "Ordenanzas municipales", 
+descripcion: 
+`Normativa local por categorías — ${ordenanzas.length} ordenanzas`, 
+etiqueta: `${categorias.length} categorías`, 
+icono: "🏛️" 
 } 
 ]; 
 
@@ -1402,102 +1486,7 @@ Ver
 </div> 
 `; 
 
-const renderTarjetaOrdenanza = (ordenanza) => { 
-const titulo = 
-ordenanza.nombre || 
-ordenanza.nombre_corto || 
-"Ordenanza municipal"; 
-
-return ` 
-<div class="normativa-card"> 
-
-<div class="normativa-icon"> 
-📋 
-</div> 
-
-<div class="normativa-info"> 
-
-<h3> 
-${escaparHTML(titulo)} 
-</h3> 
-
-<p> 
-${escaparHTML(ordenanza.descripcion || "")} 
-</p> 
-
-<span> 
-${escaparHTML(ordenanza.codigo || "Ordenanza")} 
-</span> 
-
-</div> 
-
-<button 
-type="button" 
-class="normativa-open" 
-data-law="ordenanza" 
-data-id="${escaparHTML(ordenanza.id)}" 
-> 
-Ver ficha 
-</button> 
-
-</div> 
-`; 
-}; 
-
-const camposOrdenanza = (ordenanza, categoriaNombre) => [ 
-ordenanza.nombre, 
-ordenanza.nombre_corto, 
-ordenanza.descripcion, 
-ordenanza.codigo, 
-categoriaNombre, 
-...(Array.isArray(ordenanza.palabras_clave) ? ordenanza.palabras_clave : []) 
-]; 
-
-const grupos = 
-categorias 
-.map((categoria) => { 
-const items = 
-ordenanzas.filter((ordenanza) => 
-ordenanza.categoria === categoria.id && 
-coincide(camposOrdenanza(ordenanza, categoria.nombre)) 
-); 
-
-if (!items.length) { 
-return ""; 
-} 
-
-return ` 
-<details class="ordenanza-group"${texto ? " open" : ""}> 
-
-<summary> 
-<span class="ordenanza-group-nombre"> 
-${escaparHTML(categoria.nombre)} 
-</span> 
-<span class="ordenanza-group-count"> 
-${items.length} 
-</span> 
-</summary> 
-
-<div class="normativa-list normativa-list--nested"> 
-${items.map(renderTarjetaOrdenanza).join("")} 
-</div> 
-
-</details> 
-`; 
-}) 
-.join(""); 
-
-const huboOrdenanzas = 
-ordenanzas.some((ordenanza) => { 
-const categoria = 
-categorias.find((item) => item.id === ordenanza.categoria); 
-
-return coincide( 
-camposOrdenanza(ordenanza, categoria ? categoria.nombre : "") 
-); 
-}); 
-
-if (!principalesFiltradas.length && !huboOrdenanzas) { 
+if (!principalesFiltradas.length) { 
 lista.innerHTML = ` 
 <div class="empty-state"> 
 <div class="empty-icon">🔍</div> 
@@ -1512,23 +1501,9 @@ return;
 } 
 
 lista.innerHTML = ` 
-${principalesFiltradas.length ? ` 
 <div class="normativa-list normativa-list--principal"> 
 ${principalesFiltradas.map(renderTarjetaPrincipal).join("")} 
 </div> 
-` : ""} 
-
-${grupos ? ` 
-<div class="ordenanza-groups"> 
-
-<h3 class="ordenanza-groups-title"> 
-Ordenanzas municipales 
-</h3> 
-
-${grupos} 
-
-</div> 
-` : ""} 
 `; 
 } 
 
@@ -1548,6 +1523,11 @@ abrirLeyAnimal(id);
 return; 
 } 
 
+if (tipo === "ordenanzas") { 
+abrirOrdenanzas(); 
+return; 
+} 
+
 if (tipo === "ordenanza") { 
 abrirOrdenanza(id); 
 return; 
@@ -1556,6 +1536,61 @@ return;
 if (tipo === "normativa-home") { 
 cerrarVisorNormativa(); 
 } 
+} 
+
+function abrirOrdenanzas() { 
+const categorias = 
+Array.isArray(estado.ordenanzas?.categorias) 
+? estado.ordenanzas.categorias 
+: []; 
+
+const ordenanzas = 
+extraerOrdenanzas( 
+estado.ordenanzas 
+); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+"Ordenanzas municipales"; 
+
+$("viewerSubtitle").textContent = 
+`Normativa local por categorías — ${ordenanzas.length} ordenanzas`; 
+
+const grupos = 
+renderGruposOrdenanzas(categorias, ordenanzas); 
+
+if (!ordenanzas.length || !grupos) { 
+contenido.innerHTML = ` 
+<div class="empty-state"> 
+<h3>Ordenanzas no disponibles</h3> 
+<p> 
+No se ha podido cargar la información. 
+</p> 
+</div> 
+`; 
+} else { 
+contenido.innerHTML = ` 
+<div class="ordenanza-groups"> 
+${grupos} 
+</div> 
+`; 
+} 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
 } 
 
 const ANIMALES_ICONOS = { 
@@ -1848,9 +1883,9 @@ contenido.innerHTML = `
 <button 
 type="button" 
 class="normativa-open law-back-button" 
-data-law="normativa-home" 
+data-law="ordenanzas" 
 > 
-← Volver a Normativa 
+← Volver a Ordenanzas 
 </button> 
 
 <article class="law-article"> 
@@ -2330,4 +2365,3 @@ iniciarAplicacion();
 } 
 
 registrarServiceWorker();
-
