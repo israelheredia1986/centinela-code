@@ -3,7 +3,7 @@ CENTINELA CODE — SERVICE WORKER
 ACTUALIZACIÓN FORZADA DE CACHÉ
 ============================================================ */
 
-const CACHE_VERSION = "centinela-code-v20260827-03";
+const CACHE_VERSION = "centinela-code-v20260828-01";
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 
 const APP_SHELL = [
@@ -11,7 +11,11 @@ const APP_SHELL = [
 "./index.html",
 "./style.css",
 "./app.js",
-"./manifest.json"
+"./manifest.json",
+"./icons/icon-192.png",
+"./icons/icon-512.png",
+"./icons/icon-180.png",
+"./icons/icon-maskable-512.png"
 ];
 
 self.addEventListener("install", event => {
@@ -301,11 +305,3 @@ caches.delete(key)
 /* ============================================================
 FIN SERVICE WORKER
 ============================================================ */
-PASOS
-1. GitHub → service-worker.js → Editar.
-2. Borra TODO el contenido antiguo.
-3. Copia TODO el código anterior desde el ODT.
-4. Pégalo completo.
-5. Commit changes.
-6. Espera unos minutos.
-7. Abre nuevamente Centinela Code.
