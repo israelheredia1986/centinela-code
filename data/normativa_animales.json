@@ -1,0 +1,191 @@
+{
+    "version": "1.1.0",
+    "categoria": "animales",
+    "nombreCategoria": "Animales",
+    "descripcion": "Normativa estatal y andaluza en materia de bienestar animal y tenencia de animales potencialmente peligrosos (PPP).",
+    "leyes": [
+        {
+            "id": "ley-7-2023",
+            "ambito": "Estatal",
+            "ley": "Ley 7/2023, de 28 de marzo",
+            "abreviatura": "Ley de protección de los derechos y el bienestar de los animales",
+            "boe": "BOE núm. 75, de 29 de marzo de 2023 (BOE-A-2023-7936)",
+            "entradaVigor": "29/09/2023",
+            "estado": "vigente",
+            "articulos": [
+                {
+                    "numero": "1",
+                    "titulo": "Objeto y ámbito de aplicación",
+                    "texto": "Establece el régimen jurídico básico en todo el territorio español para la protección, garantía de los derechos y bienestar de los animales de compañía y silvestres en cautividad. Quedan fuera de su ámbito, entre otros, los animales de producción, los de espectáculos taurinos, los de experimentación y los perros de las Fuerzas Armadas y Fuerzas y Cuerpos de Seguridad."
+                },
+                {
+                    "numero": "24",
+                    "titulo": "Obligaciones generales de los tutores",
+                    "texto": "Los responsables de animales deben mantenerlos en condiciones de vida dignas, educarlos sin métodos que causen sufrimiento, evitar su huida, no dejarlos en vehículos cerrados en condiciones de riesgo, prestarles atención veterinaria, mantenerlos identificados y comunicar su pérdida o sustracción en un plazo máximo de 48 horas."
+                },
+                {
+                    "numero": "25",
+                    "titulo": "Prohibiciones generales",
+                    "texto": "Quedan prohibidos el maltrato o agresión física, el uso de métodos invasivos que causen daño, el abandono intencionado, dejarlos sueltos en lugares donde puedan causar daños, su uso en peleas o adiestramiento para el ataque, y someterlos a trabajos excesivos."
+                },
+                {
+                    "numero": "27",
+                    "titulo": "Prohibiciones específicas — animales de compañía",
+                    "texto": "Prohíbe expresamente, entre otras conductas: el sacrificio salvo por motivos justificados de seguridad o salud pública; las mutilaciones no autorizadas; el uso en peleas; mantenerlos atados o deambulando sin supervisión; mantener de forma habitual a perros o gatos en terrazas, balcones, azoteas, trasteros, sótanos o vehículos; dejarlos sin supervisión más de 3 días (24 horas en el caso de perros); y el uso de collares eléctricos, de impulsos, de castigo o de ahogo."
+                },
+                {
+                    "numero": "30",
+                    "titulo": "Tenencia de perros",
+                    "texto": "Quien sea titular de un perro debe acreditar la realización de un curso de formación gratuito para la tenencia de perros (validez indefinida), y debe contratar y mantener en vigor un seguro de responsabilidad civil por daños a terceros durante toda la vida del animal."
+                },
+                {
+                    "numero": "72-75",
+                    "titulo": "Infracciones",
+                    "texto": "Clasifica las infracciones en leves, graves y muy graves. Leve: incumplimiento de obligaciones sin daño físico ni alteración de comportamiento. Grave: incumplimiento que causa daño o sufrimiento sin muerte ni secuelas graves (p. ej. abandono, falta de identificación, mutilaciones no autorizadas, uso de animales como reclamo o recompensa). Muy grave: incumplimiento que causa la muerte del animal, peleas de animales, uso de animales de compañía para consumo humano, o comercio/cría no autorizados."
+                },
+                {
+                    "numero": "76",
+                    "titulo": "Sanciones principales",
+                    "texto": "Infracción leve: multa de 500 a 10.000 € o apercibimiento (no procede el apercibimiento en caso de reincidencia o infracción continuada). Infracción grave: multa de 10.001 a 50.000 €. Infracción muy grave: multa de 50.001 a 200.000 €."
+                }
+            ]
+        },
+        {
+            "id": "ley-11-2003",
+            "ambito": "Andalucía",
+            "ley": "Ley 11/2003, de 24 de noviembre",
+            "abreviatura": "Ley de Protección de los Animales de Andalucía",
+            "boe": "BOJA núm. 237, de 10/12/2003 — BOE núm. 303, de 19/12/2003 (BOE-A-2003-23292)",
+            "estado": "vigente (se aplica en todo lo no previsto ni contradicho por la Ley 7/2023 estatal)",
+            "articulos": [
+                {
+                    "numero": "1",
+                    "titulo": "Objeto y ámbito de aplicación",
+                    "texto": "Regula las condiciones de protección y bienestar de los animales que viven bajo posesión humana, en particular los animales de compañía, en el territorio de la Comunidad Autónoma de Andalucía."
+                },
+                {
+                    "numero": "3-4",
+                    "titulo": "Obligaciones y prohibiciones",
+                    "texto": "El poseedor debe mantener al animal en buenas condiciones higiénico-sanitarias, alojamiento y alimentación adecuados, y evitar agresiones. Se prohíbe maltratarlo, abandonarlo, mantenerlo en instalaciones indebidas, mutilarlo sin fines veterinarios, mantenerlo permanentemente atado, someterlo a peleas, usarlo como blanco en atracciones o emplear animales para adiestrar a otros en la pelea o el ataque."
+                },
+                {
+                    "numero": "12",
+                    "titulo": "Circulación por espacios públicos",
+                    "texto": "Todos los perros irán sujetos con correa y provistos de identificación. Los de más de 20 kg deberán circular con bozal, correa resistente y no extensible, conducidos por persona mayor de edad. Los perros guía están exentos del bozal."
+                },
+                {
+                    "numero": "17-18",
+                    "titulo": "Identificación y Registro Municipal",
+                    "texto": "Perros y gatos deben identificarse electrónicamente (chip) antes de los tres meses de vida, e inscribirse en el Registro Municipal de Animales de Compañía en igual plazo o en el mes siguiente a su adquisición."
+                },
+                {
+                    "numero": "37-40",
+                    "titulo": "Clasificación de infracciones",
+                    "texto": "Las infracciones se clasifican en muy graves (maltrato con invalidez o muerte, abandono, mutilación estética, envenenamiento en vía pública, organización de peleas), graves (maltrato con dolor/lesión no invalidante, falta de vacunación obligatoria, no mantener condiciones higiénico-sanitarias, no identificar/registrar al animal) y leves (falta de fichas clínicas, molestias a vecinos, no recogida de excrementos, y cualquier otra infracción de las obligaciones no tipificada como grave o muy grave)."
+                },
+                {
+                    "numero": "41",
+                    "titulo": "Sanciones",
+                    "texto": "Multas de 75 a 500 € para las infracciones leves; de 501 a 2.000 € para las graves; de 2.001 a 30.000 € para las muy graves. Sanciones accesorias posibles: clausura temporal, prohibición de actividad comercial, decomiso del animal y prohibición de tenencia."
+                }
+            ],
+            "nota": "Coexiste con la Ley 7/2023 estatal. Cuando un mismo hecho encaje en ambas normas, se aplica el régimen sancionador de la Ley 7/2023 (más reciente y básica); la Ley 11/2003 sigue vigente para lo no previsto en aquella (p. ej. régimen municipal, exposiciones, registros locales)."
+        },
+        {
+            "id": "ley-50-1999",
+            "ambito": "Estatal",
+            "ley": "Ley 50/1999, de 23 de diciembre + RD 287/2002, de 22 de marzo",
+            "abreviatura": "Régimen jurídico de la tenencia de animales potencialmente peligrosos (PPP)",
+            "boe": "BOE-A-1999-24419 (ley) / BOE-A-2002-6016 (reglamento)",
+            "estado": "vigente",
+            "articulos": [
+                {
+                    "numero": "2",
+                    "titulo": "Definición de animal potencialmente peligroso",
+                    "texto": "Se consideran PPP los animales de fauna salvaje usados como domésticos o de compañía que, por especie o raza, tengan capacidad de causar la muerte o lesiones a personas o a otros animales y daños a las cosas; y los perros de tipología racial que, por carácter agresivo, tamaño o potencia de mandíbula, tengan esa misma capacidad (razas y características detalladas en el RD 287/2002)."
+                },
+                {
+                    "numero": "3",
+                    "titulo": "Licencia administrativa",
+                    "texto": "La tenencia de un PPP requiere licencia municipal previa: ser mayor de edad, no tener antecedentes por determinados delitos violentos ni por infracciones en materia de PPP, certificado de aptitud psicológica y seguro de responsabilidad civil por daños a terceros."
+                },
+                {
+                    "numero": "5-6",
+                    "titulo": "Identificación y Registro",
+                    "texto": "Obligación de identificar y registrar al animal; en la especie canina la identificación es obligatoria sin excepciones. Debe existir un Registro municipal de Animales Potencialmente Peligrosos."
+                },
+                {
+                    "numero": "disposición adicional primera",
+                    "titulo": "Obligaciones en la vía pública",
+                    "texto": "Para la presencia y circulación en espacios públicos de perros PPP es obligatorio el uso de correa o cadena de menos de dos metros, y bozal homologado y adecuado a la raza."
+                },
+                {
+                    "numero": "13.1",
+                    "titulo": "Infracciones muy graves",
+                    "texto": "Abandonar un PPP; tener un PPP sin licencia; vender o transmitir un PPP a quien carezca de licencia; adiestrar animales para activar su agresividad o para finalidades prohibidas; adiestrar PPP sin certificado de capacitación; organizar o participar en concursos o exhibiciones destinados a demostrar la agresividad de los animales."
+                },
+                {
+                    "numero": "13.2",
+                    "titulo": "Infracciones graves",
+                    "texto": "Dejar suelto un PPP o no evitar su escapada o extravío; incumplir la identificación; omitir la inscripción registral; que el perro PPP esté en lugar público sin bozal o sin sujeción con cadena; transportarlo incumpliendo la normativa; negarse a facilitar datos a la autoridad o aportar información falsa."
+                },
+                {
+                    "numero": "13.4",
+                    "titulo": "Infracciones leves",
+                    "texto": "Incumplimiento de cualquier otra obligación de la Ley no comprendida entre las infracciones graves o muy graves."
+                },
+                {
+                    "numero": "13.5",
+                    "titulo": "Sanciones",
+                    "texto": "Infracciones leves: multa de 150,25 a 300,51 €. Infracciones graves: multa de 300,52 a 2.404,05 €. Infracciones muy graves: multa de 2.404,06 a 15.025,30 €. Pueden llevar aparejadas sanciones accesorias: confiscación, decomiso, esterilización o sacrificio del animal, clausura del establecimiento y suspensión de la licencia o del certificado de capacitación."
+                }
+            ]
+        },
+        {
+            "id": "decreto-42-2008",
+            "ambito": "Andalucía",
+            "ley": "Decreto 42/2008, de 12 de febrero",
+            "abreviatura": "Tenencia de animales potencialmente peligrosos en la Comunidad Autónoma de Andalucía",
+            "boe": "BOJA núm. 47, de 7 de marzo de 2008",
+            "entradaVigor": "07/04/2008 (curso específico de adiestramiento exigible a partir de 07/03/2010)",
+            "estado": "vigente",
+            "articulos": [
+                {
+                    "numero": "1",
+                    "titulo": "Objeto y ámbito de aplicación",
+                    "texto": "Regula en Andalucía el régimen de tenencia de animales potencialmente peligrosos, en desarrollo de la Ley 50/1999 estatal y de la Ley 11/2003 andaluza. No es de aplicación a los perros de las Fuerzas Armadas, Fuerzas y Cuerpos de Seguridad, Policías Locales, Bomberos y empresas de seguridad con autorización oficial."
+                },
+                {
+                    "numero": "2",
+                    "titulo": "Definiciones — perros potencialmente peligrosos",
+                    "texto": "Son PPP los perros de una tipología racial que por carácter agresivo, tamaño o potencia de mandíbula puedan poner en peligro a personas, animales o bienes (en todo caso, las razas del Anexo: Pit Bull Terrier, Staffordshire Bull Terrier, American Staffordshire Terrier, Rottweiler, Dogo Argentino, Fila Brasileiro, Tosa Inu, Akita Inu y Dobermann, y sus cruces); los adiestrados para el ataque; y los que hayan protagonizado una agresión o hayan sido denunciados por carácter agresivo, previa apreciación municipal."
+                },
+                {
+                    "numero": "4",
+                    "titulo": "Licencia autonómica para la tenencia de PPP",
+                    "texto": "Requiere: mayoría de edad; carecer de antecedentes por determinados delitos violentos y de sanciones accesorias en los últimos 3 años; aptitud psicofísica; para perros, superar un curso específico de adiestramiento básico de PPP; y suscribir un seguro de responsabilidad civil con cobertura no inferior a 175.000 € por siniestro. La licencia tiene una vigencia de 5 años renovables."
+                },
+                {
+                    "numero": "5",
+                    "titulo": "Identificación y registro (DAIRA)",
+                    "texto": "El animal debe identificarse y registrarse conforme al Decreto 92/2005, acreditando además la licencia y el certificado de sanidad animal. Se expide el DAIRA (documento autonómico de identificación y registro animal), con banda roja identificativa."
+                },
+                {
+                    "numero": "7",
+                    "titulo": "Medidas de seguridad en vía pública",
+                    "texto": "El conductor del perro PPP debe ser mayor de 18 años y portar la licencia y el DAIRA. En vías y espacios públicos, el perro debe llevar bozal adecuado a su raza y ser conducido con cadena o correa no extensible ni rompible de máximo 1 metro de longitud. Ninguna persona puede conducir más de un perro PPP simultáneamente. Los PPP tienen prohibido el acceso a lugares de ocio y esparcimiento de menores."
+                },
+                {
+                    "numero": "11",
+                    "titulo": "Adiestramiento",
+                    "texto": "Solo puede adiestrar PPP quien tenga certificado de capacitación de adiestrador. Queda prohibido adiestrar PPP para el ataque o para potenciar su agresividad."
+                },
+                {
+                    "numero": "15",
+                    "titulo": "Procedimiento sancionador y órganos competentes",
+                    "texto": "El régimen de infracciones y sanciones es el de la Ley 50/1999 estatal, aplicándose subsidiariamente la Ley 11/2003 andaluza en lo no previsto por aquella (este Decreto no crea una escala de multas propia). Son competentes: el Ayuntamiento para infracciones leves; la Delegación del Gobierno de la Junta de Andalucía para las graves; y la Dirección General competente en animales de compañía para las muy graves."
+                }
+            ]
+        }
+    ]
+}
