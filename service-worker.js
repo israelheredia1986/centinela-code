@@ -3,7 +3,7 @@ CENTINELA CODE — SERVICE WORKER
 ACTUALIZACIÓN FORZADA DE CACHÉ
 ============================================================ */
 
-const CACHE_VERSION = "centinela-code-v20260828-01";
+const CACHE_VERSION = "centinela-code-v20260828-02";
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 
 const APP_SHELL = [
@@ -12,10 +12,14 @@ const APP_SHELL = [
 "./style.css",
 "./app.js",
 "./manifest.json",
-"./icons/icon-192.png",
-"./icons/icon-512.png",
-"./icons/icon-180.png",
-"./icons/icon-maskable-512.png"
+"./favicon.ico",
+"./icon-16.png",
+"./icon-32.png",
+"./icon-180.png",
+"./icon-192.png",
+"./icon-512.png",
+"./icon-maskable-192.png",
+"./icon-maskable-512.png"
 ];
 
 self.addEventListener("install", event => {
