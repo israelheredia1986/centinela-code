@@ -24,7 +24,8 @@ RUTAS: {
 infracciones: "./data/infracciones.json", 
 lopsc: "./data/lopsc.json", 
 ordenanzas: "./data/ordenanzas.json", 
-animales: "./data/normativa_animales.json" 
+animales: "./data/normativa_animales.json", 
+trafico: "./data/normativa_trafico.json" 
 }, 
 STORAGE_ACTAS: "centinela_code_actas_v1" 
 }; 
@@ -34,6 +35,7 @@ infracciones: [],
 lopsc: null, 
 ordenanzas: null, 
 animales: null, 
+trafico: null, 
 resultados: [], 
 gravedad: "all", 
 normativaBusqueda: "", 
@@ -232,6 +234,14 @@ return datos.leyes;
 return []; 
 } 
 
+function extraerTrafico(datos) { 
+if (datos && Array.isArray(datos.leyes)) { 
+return datos.leyes; 
+} 
+
+return []; 
+} 
+
 function extraerOrdenanzas(datos) { 
 if (Array.isArray(datos)) { 
 return datos; 
@@ -325,10 +335,11 @@ const resultados = await Promise.allSettled([
 cargarJSON(CONFIG.RUTAS.infracciones), 
 cargarJSON(CONFIG.RUTAS.lopsc), 
 cargarJSON(CONFIG.RUTAS.ordenanzas), 
-cargarJSON(CONFIG.RUTAS.animales) 
+cargarJSON(CONFIG.RUTAS.animales), 
+cargarJSON(CONFIG.RUTAS.trafico) 
 ]); 
 
-const [rInfracciones, rLopsc, rOrdenanzas, rAnimales] = resultados; 
+const [rInfracciones, rLopsc, rOrdenanzas, rAnimales, rTrafico] = resultados; 
 
 if (rInfracciones.status === "fulfilled") { 
 estado.infracciones = extraerInfracciones( 
@@ -370,6 +381,16 @@ estado.animales = null;
 console.error( 
 "Error cargando normativa de animales:", 
 rAnimales.reason 
+); 
+} 
+
+if (rTrafico.status === "fulfilled") { 
+estado.trafico = rTrafico.value; 
+} else { 
+estado.trafico = null; 
+console.error( 
+"Error cargando normativa de tráfico:", 
+rTrafico.reason 
 ); 
 } 
 
@@ -1430,6 +1451,14 @@ etiqueta: "Estatal / Andalucía",
 icono: "🐾" 
 }, 
 { 
+tipo: "trafico", 
+titulo: "Tráfico", 
+descripcion: 
+"Ley de Tráfico y sus 3 reglamentos: Circulación, Conductores y Vehículos", 
+etiqueta: "Estatal", 
+icono: "🚦" 
+}, 
+{ 
 tipo: "ordenanzas", 
 titulo: "Ordenanzas municipales", 
 descripcion: 
@@ -1520,6 +1549,16 @@ return;
 
 if (tipo === "ley-animal") { 
 abrirLeyAnimal(id); 
+return; 
+} 
+
+if (tipo === "trafico") { 
+abrirTrafico(); 
+return; 
+} 
+
+if (tipo === "ley-trafico") { 
+abrirLeyTrafico(id); 
 return; 
 } 
 
@@ -1737,6 +1776,181 @@ target="_blank"
 rel="noopener noreferrer" 
 > 
 🔗 Ver normativa online (BOE/BOJA) 
+</a> 
+` : ""} 
+
+${leyItem.nota ? ` 
+<p> 
+<strong>Nota:</strong> 
+${escaparHTML(leyItem.nota)} 
+</p> 
+` : ""} 
+
+</article> 
+
+${articulos.map((articulo) => ` 
+<article class="law-article"> 
+<h4> 
+Artículo ${escaparHTML(articulo.numero)}. 
+${escaparHTML(articulo.titulo || "")} 
+</h4> 
+<p>${escaparHTML(articulo.texto || "")}</p> 
+</article> 
+`).join("")} 
+`; 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
+const TRAFICO_ICONOS = { 
+"rdl-6-2015": "🚦", 
+"rd-1428-2003": "🚗", 
+"rd-818-2009": "🪪", 
+"rd-2822-1998": "🔧" 
+}; 
+
+function abrirTrafico() { 
+const leyes = 
+extraerTrafico( 
+estado.trafico 
+); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+"Tráfico"; 
+
+$("viewerSubtitle").textContent = 
+"Ley de Tráfico y sus reglamentos de desarrollo"; 
+
+if (!leyes.length) { 
+contenido.innerHTML = ` 
+<div class="empty-state"> 
+<h3>Normativa de tráfico no disponible</h3> 
+<p> 
+No se ha podido cargar la información. 
+</p> 
+</div> 
+`; 
+} else { 
+contenido.innerHTML = ` 
+<div class="normativa-list"> 
+${leyes.map((leyItem) => ` 
+<div class="normativa-card"> 
+
+<div class="normativa-icon"> 
+${TRAFICO_ICONOS[leyItem.id] || "📖"} 
+</div> 
+
+<div class="normativa-info"> 
+
+<h3> 
+${escaparHTML(leyItem.ley || "")} 
+</h3> 
+
+<p> 
+${escaparHTML(leyItem.abreviatura || "")} 
+</p> 
+
+<span> 
+${escaparHTML(leyItem.ambito || "")} · ${Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0} artículos 
+</span> 
+
+</div> 
+
+<button 
+type="button" 
+class="normativa-open" 
+data-law="ley-trafico" 
+data-id="${escaparHTML(leyItem.id)}" 
+> 
+Ver 
+</button> 
+
+</div> 
+`).join("")} 
+</div> 
+`; 
+} 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
+function abrirLeyTrafico(id) { 
+const leyes = 
+extraerTrafico( 
+estado.trafico 
+); 
+
+const leyItem = 
+leyes.find((item) => item.id === id); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!leyItem || !visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+leyItem.ley || "Normativa de tráfico"; 
+
+$("viewerSubtitle").textContent = 
+leyItem.abreviatura || ""; 
+
+const articulos = 
+Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
+contenido.innerHTML = ` 
+<button 
+type="button" 
+class="normativa-open law-back-button" 
+data-law="trafico" 
+> 
+← Volver a Tráfico 
+</button> 
+
+<article class="law-article"> 
+
+<p> 
+<strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
+<strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
+<strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
+</p> 
+
+${leyItem.resumen ? ` 
+<p>${escaparHTML(leyItem.resumen)}</p> 
+` : ""} 
+
+${leyItem.enlaceOficial ? ` 
+<a 
+class="law-link-button" 
+href="${escaparHTML(leyItem.enlaceOficial)}" 
+target="_blank" 
+rel="noopener noreferrer" 
+> 
+🔗 Ver normativa online (BOE) 
 </a> 
 ` : ""} 
 
