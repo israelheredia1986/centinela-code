@@ -1,0 +1,205 @@
+{
+  "version": "1.0.0",
+  "categoria": "trafico",
+  "nombreCategoria": "Tráfico",
+  "descripcion": "Normativa estatal en materia de tráfico, circulación de vehículos a motor y seguridad vial: la Ley de Tráfico y sus tres reglamentos de desarrollo (Circulación, Conductores y Vehículos).",
+  "leyes": [
+    {
+      "id": "rdl-6-2015",
+      "ambito": "Estatal",
+      "ley": "Real Decreto Legislativo 6/2015, de 30 de octubre",
+      "abreviatura": "Texto refundido de la Ley sobre Tráfico, Circulación de Vehículos a Motor y Seguridad Vial (LSV)",
+      "boe": "BOE núm. 261, de 31 de octubre de 2015 (BOE-A-2015-11722)",
+      "entradaVigor": "31/01/2016",
+      "estado": "vigente",
+      "enlaceOficial": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11722",
+      "resumen": "Norma básica estatal en materia de tráfico y seguridad vial. Regula el comportamiento de los usuarios de la vía, las autorizaciones administrativas, la señalización y, sobre todo, el régimen sancionador: infracciones (leves, graves y muy graves), sanciones, pérdida de puntos y procedimiento sancionador.",
+      "articulos": [
+        {
+          "numero": "13",
+          "titulo": "Normas generales de conducción",
+          "texto": "El conductor debe estar en todo momento en condiciones de controlar el vehículo. Queda prohibido el uso de auriculares o dispositivos que disminuyan la atención a la conducción, así como el uso de teléfonos móviles, navegadores o sistemas de comunicación sin manos libres. Es obligatorio el uso del cinturón de seguridad, casco y demás elementos de protección. Se prohíbe circular con menores de 12 años como pasajeros de ciclomotor o motocicleta (salvo excepciones a partir de los 7 años con padre/madre/tutor). Está prohibido instalar o llevar inhibidores de radar o cinemómetro, así como mecanismos de detección de los mismos (los avisadores de posición sí están permitidos)."
+        },
+        {
+          "numero": "14",
+          "titulo": "Bebidas alcohólicas y drogas",
+          "texto": "No puede circular el conductor con tasas de alcohol superiores a las reglamentariamente establecidas ni con presencia de drogas en el organismo (salvo medicación con prescripción facultativa y finalidad terapéutica, siempre que no afecte a la conducción). Los conductores menores de edad no pueden circular con ninguna tasa de alcohol. Todo conductor está obligado a someterse a las pruebas de detección de alcohol o drogas que practiquen los agentes de la autoridad; también los demás usuarios de la vía implicados en un accidente o que hayan cometido una infracción."
+        },
+        {
+          "numero": "21",
+          "titulo": "Límites de velocidad",
+          "texto": "El conductor está obligado a respetar los límites de velocidad establecidos, teniendo en cuenta además sus propias condiciones, el estado de la vía, del vehículo y de su carga, y las condiciones meteorológicas y de circulación, de forma que siempre pueda detener el vehículo dentro de los límites de su campo de visión."
+        },
+        {
+          "numero": "59",
+          "titulo": "Documentación obligatoria",
+          "texto": "El conductor de un vehículo a motor o ciclomotor está obligado a llevar consigo el permiso o licencia de conducir válido, el permiso de circulación del vehículo y la tarjeta de inspección técnica (ITV), y a exhibirlos a los agentes de la autoridad cuando se lo soliciten."
+        },
+        {
+          "numero": "63",
+          "titulo": "Asignación de puntos",
+          "texto": "Al titular de un permiso o licencia de conducción se le asigna un crédito inicial de 12 puntos (8 puntos si el permiso tiene una antigüedad no superior a 3 años, o si se ha recuperado el permiso tras perder el crédito total). Quien no sea sancionado en firme puede llegar a acumular hasta un máximo de 15 puntos por bonificación."
+        },
+        {
+          "numero": "64",
+          "titulo": "Pérdida de puntos",
+          "texto": "El crédito de puntos se reduce por cada sanción firme en vía administrativa por infracción grave o muy grave que lleve aparejada pérdida de puntos, según el baremo de los anexos II y IV. Los conductores no pierden más de 8 puntos por acumulación de infracciones en un solo día, salvo determinadas infracciones muy graves (velocidad extrema, alcohol/drogas, negativa a las pruebas, carecer de permiso, conducción temeraria, entre otras del art. 77), en cuyo caso se pierde el total de puntos que corresponda."
+        },
+        {
+          "numero": "74",
+          "titulo": "Disposiciones generales del régimen sancionador",
+          "texto": "Las infracciones a los preceptos de esta ley se clasifican en leves, graves y muy graves, atendiendo a los criterios de trascendencia para la seguridad vial y la entidad del riesgo creado."
+        },
+        {
+          "numero": "75",
+          "titulo": "Infracciones leves",
+          "texto": "Son infracciones leves las conductas tipificadas en esta ley que no tengan la calificación de graves o muy graves conforme a los artículos siguientes. Constituye la infracción residual o de cierre del sistema."
+        },
+        {
+          "numero": "76",
+          "titulo": "Infracciones graves (selección de interés policial)",
+          "texto": "Entre otras, se califican como graves: no respetar los límites de velocidad; conducción negligente; no llevar las placas de matrícula visibles o sin obstáculos; no facilitar al agente la identidad o los datos solicitados tras un accidente; circular con carga mal acondicionada o con peligro de caída; incumplir la obligación de impedir que conduzca quien nunca haya obtenido permiso; circular con el permiso de circulación suspendido; parar o estacionar en lugares peligrosos o que entorpezcan gravemente la circulación; no respetar la distancia de seguridad; adelantamientos antirreglamentarios; y el incumplimiento de las normas de utilización del cinturón, casco o sistemas de retención infantil (que no constituya infracción muy grave)."
+        },
+        {
+          "numero": "77",
+          "titulo": "Infracciones muy graves (selección de interés policial)",
+          "texto": "Entre otras, se califican como muy graves: no respetar los límites de velocidad de forma cualificada, según baremo del anexo IV; conducir con tasas de alcohol superiores a las reglamentarias o con presencia de drogas en el organismo; negarse a someterse a las pruebas de detección de alcohol o drogas; conducir careciendo de permiso o licencia; conducir con el permiso o licencia retirados o perdida su vigencia; incumplir el titular o arrendatario del vehículo la obligación de identificar verazmente al conductor infractor cuando sea requerido; instalar o utilizar inhibidores o detectores de radar; conducción temeraria; circular en sentido contrario; realizar competiciones no autorizadas; y utilizar manualmente el teléfono móvil u otro dispositivo incompatible con el manos libres mientras se conduce."
+        },
+        {
+          "numero": "80",
+          "titulo": "Sanciones. Cuantía de las multas",
+          "texto": "Las infracciones leves se sancionan con multa de hasta 100 euros; las graves, con multa de 200 euros; y las muy graves, con multa de 500 euros. Reglamentariamente se puede establecer una reducción del 50% de la cuantía si el infractor abona la multa dentro de los 20 días naturales siguientes a su notificación (pronto pago), sin perjuicio de otros efectos como la pérdida de puntos."
+        },
+        {
+          "numero": "81",
+          "titulo": "Graduación de las sanciones",
+          "texto": "La cuantía de las multas se puede graduar atendiendo a la gravedad y trascendencia del hecho, los antecedentes del infractor y el peligro potencial creado, dentro del intervalo mínimo y máximo previsto para cada tipo de infracción."
+        },
+        {
+          "numero": "82",
+          "titulo": "Responsables",
+          "texto": "Como regla general, la responsabilidad por las infracciones a esta ley recae en el conductor del vehículo. El titular (o arrendatario a largo plazo) responde subsidiariamente cuando incumple la obligación de identificar al conductor responsable de la infracción cuando le sea requerido."
+        }
+      ]
+    },
+    {
+      "id": "rd-1428-2003",
+      "ambito": "Estatal",
+      "ley": "Real Decreto 1428/2003, de 21 de noviembre",
+      "abreviatura": "Reglamento General de Circulación (RGC)",
+      "boe": "BOE núm. 306, de 23 de diciembre de 2003 (BOE-A-2003-23514)",
+      "entradaVigor": "24/06/2004",
+      "estado": "vigente",
+      "enlaceOficial": "https://www.boe.es/buscar/act.php?id=BOE-A-2003-23514",
+      "resumen": "Desarrolla reglamentariamente la LSV: fija los límites de velocidad concretos, las tasas de alcoholemia, las distancias de seguridad, las normas de adelantamiento, parada y estacionamiento, y el uso de cinturón, casco y sistemas de retención infantil.",
+      "articulos": [
+        {
+          "numero": "50",
+          "titulo": "Límites genéricos de velocidad (turismos)",
+          "texto": "Con carácter general, para automóviles: 120 km/h en autopistas y autovías; 100 km/h en vías convencionales con arcén pavimentado igual o superior a 1,5 m o con más de un carril por sentido; 90 km/h en el resto de vías convencionales fuera de poblado; y 50 km/h en vías urbanas (30 km/h en vías de un único carril por sentido, y 20 km/h en las que no dispongan de acera diferenciada), salvo señalización específica que indique otro límite."
+        },
+        {
+          "numero": "20",
+          "titulo": "Tasas de alcoholemia",
+          "texto": "Con carácter general no se puede circular con una tasa de alcohol superior a 0,25 mg/l en aire espirado (0,5 g/l en sangre). Para conductores noveles (menos de 2 años de experiencia) y conductores profesionales (transporte de viajeros, mercancías peligrosas, vehículos de más de 3.500 kg, entre otros), el límite se reduce a 0,15 mg/l en aire espirado (0,3 g/l en sangre). Los menores de edad no pueden circular con ninguna tasa de alcohol."
+        },
+        {
+          "numero": "54",
+          "titulo": "Distancia de seguridad",
+          "texto": "Todo conductor debe dejar entre su vehículo y el que le precede un espacio libre que le permita detenerse en caso de frenazo brusco sin colisionar con él, teniendo en cuenta la velocidad, las condiciones de adherencia y frenado."
+        },
+        {
+          "numero": "117",
+          "titulo": "Uso del cinturón de seguridad",
+          "texto": "Los conductores y ocupantes de vehículos están obligados a usar el cinturón de seguridad y los sistemas de retención infantil homologados, en las condiciones que reglamentariamente se determinen, con las excepciones tasadas (certificado médico, marcha atrás, reparto a domicilio en poblado a corta distancia, entre otras)."
+        },
+        {
+          "numero": "84",
+          "titulo": "Uso del alumbrado obligatorio",
+          "texto": "Los vehículos deben circular con el alumbrado obligatorio encendido entre la puesta y la salida del sol, en túneles, y cuando existan condiciones meteorológicas que reduzcan sensiblemente la visibilidad (niebla, lluvia intensa, nevada, humo o polvo). Las motocicletas deben llevarlo encendido en todo momento."
+        },
+        {
+          "numero": "94",
+          "titulo": "Parada y estacionamiento prohibidos",
+          "texto": "Desarrolla el catálogo de lugares en los que está prohibido parar o estacionar (pasos de peatones, curvas, intersecciones, dobles filas, carriles bus, vados, plazas de personas con discapacidad, etc.), coincidente con el artículo 40 de la Ley de Tráfico."
+        }
+      ]
+    },
+    {
+      "id": "rd-818-2009",
+      "ambito": "Estatal",
+      "ley": "Real Decreto 818/2009, de 8 de mayo",
+      "abreviatura": "Reglamento General de Conductores (RGCond)",
+      "boe": "BOE núm. 138, de 8 de junio de 2009 (BOE-A-2009-9481)",
+      "entradaVigor": "01/07/2009",
+      "estado": "vigente",
+      "enlaceOficial": "https://www.boe.es/buscar/act.php?id=BOE-A-2009-9481",
+      "resumen": "Regula los permisos y licencias de conducción: clases, edades mínimas, requisitos, vigencia, procedimiento del permiso por puntos y régimen de los conductores noveles.",
+      "articulos": [
+        {
+          "numero": "4",
+          "titulo": "Clases de permisos y licencias",
+          "texto": "Establece las distintas clases de permisos de conducción (AM, A1, A2, A, B, BE, C1, C1E, C, CE, D1, D1E, D, DE) y licencias (para ciclomotores y para vehículos de movilidad personal, según normativa autonómica o municipal), cada una habilitando para conducir determinadas categorías de vehículos."
+        },
+        {
+          "numero": "5",
+          "titulo": "Edad mínima para obtener los permisos",
+          "texto": "Fija las edades mínimas para cada clase: 15 años para el permiso AM (ciclomotores), 16 años para A1 y B (con las reformas vigentes) y motocicletas ligeras, 18 años para A2, B, BE y C1, y 21 años para las categorías de camión (C, CE) y autobús (D1, D), entre otros requisitos según la categoría."
+        },
+        {
+          "numero": "16",
+          "titulo": "Vigencia de los permisos de conducción",
+          "texto": "Con carácter general, el permiso de conducción de las clases AM, A1, A2, A, B y BE tiene una vigencia de 10 años hasta los 65 años, y de 5 años a partir de esa edad; para las clases C1, C1E, C, CE, D1, D1E, D y DE la vigencia es de 5 años hasta los 65 años y de 3 años a partir de esa edad, condicionada en todo caso a superar los reconocimientos médicos correspondientes."
+        },
+        {
+          "numero": "17",
+          "titulo": "Conductores noveles",
+          "texto": "Se consideran conductores noveles quienes hayan obtenido el permiso de la clase B en los dos años anteriores. Deben respetar límites de velocidad más restrictivos, no superar los 8 puntos de crédito inicial en algunos supuestos, y les es de aplicación la tasa de alcoholemia reducida (0,15 mg/l en aire espirado)."
+        },
+        {
+          "numero": "34",
+          "titulo": "Pérdida de vigencia del permiso por pérdida total de puntos",
+          "texto": "Cuando el titular de un permiso pierde la totalidad del crédito de puntos, el permiso o licencia pierde su vigencia. Para recuperarlo debe superar un curso de sensibilización y reeducación vial y las pruebas correspondientes en un centro autorizado, además de superar de nuevo las pruebas de aptitud si así se determina."
+        }
+      ]
+    },
+    {
+      "id": "rd-2822-1998",
+      "ambito": "Estatal",
+      "ley": "Real Decreto 2822/1998, de 23 de diciembre",
+      "abreviatura": "Reglamento General de Vehículos (RGV)",
+      "boe": "BOE núm. 22, de 26 de enero de 1999 (BOE-A-1999-1826)",
+      "entradaVigor": "01/03/1999",
+      "estado": "vigente",
+      "enlaceOficial": "https://www.boe.es/buscar/act.php?id=BOE-A-1999-1826",
+      "resumen": "Regula la matriculación, documentación, placas e inspección técnica (ITV) de los vehículos, así como los requisitos técnicos generales para su circulación.",
+      "articulos": [
+        {
+          "numero": "1",
+          "titulo": "Matriculación obligatoria",
+          "texto": "Todo vehículo a motor, así como los remolques y semirremolques cuya masa máxima autorizada exceda de 750 kg, para poder circular por las vías objeto de la legislación sobre tráfico, deben estar matriculados y llevar en lugar visible las placas de matrícula que le correspondan."
+        },
+        {
+          "numero": "11",
+          "titulo": "Placas de matrícula",
+          "texto": "Regula las características y el formato de las placas de matrícula, así como la obligación de mantenerlas visibles, legibles y sin obstáculos ni alteraciones que dificulten su lectura o identificación por los sistemas de vigilancia del tráfico."
+        },
+        {
+          "numero": "10",
+          "titulo": "Permiso de circulación",
+          "texto": "El permiso de circulación es el documento que autoriza a circular a un determinado vehículo, y en él consta el titular, las características técnicas esenciales y el número de bastidor. Debe llevarse en el vehículo o acreditarse su tenencia y exhibirse a los agentes de la autoridad cuando lo requieran."
+        },
+        {
+          "numero": "10 (ITV)",
+          "titulo": "Inspección técnica de vehículos",
+          "texto": "Los vehículos matriculados están sujetos a inspecciones periódicas para comprobar sus condiciones técnicas, de seguridad y de protección ambiental, con la periodicidad que reglamentariamente se determine según la antigüedad y el tipo de vehículo. El resultado desfavorable de la inspección impide la circulación del vehículo salvo para dirigirse al taller o a la propia estación de ITV."
+        },
+        {
+          "numero": "27",
+          "titulo": "Vehículos históricos",
+          "texto": "Establece el régimen especial de matriculación y circulación de los vehículos históricos, aquellos que por su antigüedad, características técnicas o valor cultural merecen ser preservados, con condiciones específicas de inspección y circulación."
+        }
+      ]
+    }
+  ]
+}
