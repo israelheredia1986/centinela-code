@@ -1439,6 +1439,32 @@ return;
 
 preview.classList.remove("hidden"); 
 
+const sancion = 
+encontrada.sancion || {}; 
+
+const min = 
+Number.isFinite(Number(sancion.min)) 
+? Number(sancion.min) 
+: null; 
+
+const max = 
+Number.isFinite(Number(sancion.max)) 
+? Number(sancion.max) 
+: null; 
+
+let rangoSancion = ""; 
+
+if (min !== null && max !== null) { 
+rangoSancion = 
+`${formatearEuros(min)} - ${formatearEuros(max)}`; 
+} else if (min !== null) { 
+rangoSancion = 
+`Desde ${formatearEuros(min)}`; 
+} else if (max !== null) { 
+rangoSancion = 
+`Hasta ${formatearEuros(max)}`; 
+} 
+
 preview.innerHTML = ` 
 <strong> 
 ${escaparHTML( 
@@ -1457,6 +1483,22 @@ ${escaparHTML(
 encontrada.gravedad || "" 
 )} 
 </span> 
+
+${ 
+rangoSancion 
+? ` 
+<div class="infraccion-preview-sancion"> 
+<span class="infraccion-preview-sancion-label">Sanción</span> 
+<strong class="infraccion-preview-sancion-valor">${rangoSancion}</strong> 
+</div> 
+` 
+: ` 
+<div class="infraccion-preview-sancion"> 
+<span class="infraccion-preview-sancion-label">Sanción</span> 
+<span class="infraccion-preview-sancion-valor infraccion-preview-sancion-vacia">No especificada</span> 
+</div> 
+` 
+} 
 `; 
 } 
 
