@@ -22,6 +22,7 @@ const CONFIG = {
 VERSION: "1.0.1", 
 RUTAS: { 
 infracciones: "./data/infracciones.json", 
+infraccionesTrafico: "./data/infracciones_trafico.json", 
 lopsc: "./data/lopsc.json", 
 ordenanzas: "./data/ordenanzas.json", 
 animales: "./data/normativa_animales.json", 
@@ -333,13 +334,14 @@ ${items.map(renderTarjetaOrdenanza).join("")}
 async function cargarDatos() { 
 const resultados = await Promise.allSettled([ 
 cargarJSON(CONFIG.RUTAS.infracciones), 
+cargarJSON(CONFIG.RUTAS.infraccionesTrafico), 
 cargarJSON(CONFIG.RUTAS.lopsc), 
 cargarJSON(CONFIG.RUTAS.ordenanzas), 
 cargarJSON(CONFIG.RUTAS.animales), 
 cargarJSON(CONFIG.RUTAS.trafico) 
 ]); 
 
-const [rInfracciones, rLopsc, rOrdenanzas, rAnimales, rTrafico] = resultados; 
+const [rInfracciones, rInfraccionesTrafico, rLopsc, rOrdenanzas, rAnimales, rTrafico] = resultados; 
 
 if (rInfracciones.status === "fulfilled") { 
 estado.infracciones = extraerInfracciones( 
@@ -351,6 +353,17 @@ estado.infracciones = [];
 console.error( 
 "Error cargando infracciones:", 
 rInfracciones.reason 
+); 
+} 
+
+if (rInfraccionesTrafico.status === "fulfilled") { 
+estado.infracciones = estado.infracciones.concat( 
+extraerInfracciones(rInfraccionesTrafico.value) 
+); 
+} else { 
+console.error( 
+"Error cargando infracciones de tráfico:", 
+rInfraccionesTrafico.reason 
 ); 
 } 
 
@@ -445,12 +458,26 @@ const hayOrdenanzas =
 Boolean(estado.ordenanzas) && 
 extraerOrdenanzas(estado.ordenanzas).length > 0; 
 
+const contarArticulosLeyes = (leyes) => 
+leyes.reduce( 
+(total, leyItem) => 
+total + (Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0), 
+0 
+); 
+
+const totalArticulosBase = 
+extraerArticulos(estado.lopsc).length + 
+contarArticulosLeyes(extraerAnimales(estado.animales)) + 
+contarArticulosLeyes(extraerTrafico(estado.trafico)); 
+
+const hayBaseNormativa = totalArticulosBase > 0; 
+
 establecerEstado( 
 $("homeNormativaStatus"), 
-hayLopsc 
-? `${extraerArticulos(estado.lopsc).length} artículos` 
+hayBaseNormativa 
+? `${totalArticulosBase} artículos` 
 : "No disponible", 
-hayLopsc 
+hayBaseNormativa 
 ); 
 
 establecerEstado( 
@@ -792,6 +819,12 @@ return `
 <div class="result-card-header"> 
 
 <div> 
+<span class="result-ley"> 
+${escaparHTML( 
+infraccion.ley || "" 
+)} 
+</span> 
+
 <span class="result-code"> 
 ${escaparHTML( 
 infraccion.codigo || "" 
@@ -886,6 +919,13 @@ infraccion.codigo ||
 "Infracción", 
 ` 
 <div class="detail-content"> 
+
+<p> 
+<strong>Ley:</strong> 
+${escaparHTML( 
+infraccion.ley || "-" 
+)} 
+</p> 
 
 <p> 
 <strong>Gravedad:</strong> 
