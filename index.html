@@ -1,1578 +1,1682 @@
-<!DOCTYPE html>
-<html lang="es">
+:root {
+--bg: #020817;
+--bg-2: #071326;
+--surface: rgba(15, 27, 48, .94);
+--surface-2: rgba(20, 35, 59, .96);
+--surface-3: rgba(28, 46, 75, .94);
+--line: rgba(93, 143, 204, .28);
+--line-strong: rgba(77, 154, 255, .55);
 
-<head>
+--text: #f7f9fc;
+--text-soft: #b7c5d8;
+--text-muted: #7e91aa;
 
-<meta charset="UTF-8">
+--blue: #2f8cff;
+--blue-2: #65b5ff;
+--blue-dark: #0a4b9e;
 
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0, viewport-fit=cover"
->
+--gold: #e7c36a;
+--gold-2: #ffe29a;
 
-<meta
-name="theme-color"
-content="#0f172a"
->
+--green: #25d66b;
+--orange: #ff9d43;
+--red: #ff5b68;
 
-<meta
-name="description"
-content="Centinela Code - Consulta normativa y asistencia para la redacción de actas de Policía Local."
->
+--shadow: 0 18px 45px rgba(0, 0, 0, .48);
+--glow: 0 0 32px rgba(47, 140, 255, .16);
+--radius: 22px;
+--radius-sm: 15px;
+--nav-height: 82px;
+}
 
-<meta
-name="mobile-web-app-capable"
-content="yes"
->
+* {
+box-sizing: border-box;
+-webkit-tap-highlight-color: transparent;
+}
 
-<meta
-name="apple-mobile-web-app-capable"
-content="yes"
->
+html {
+min-height: 100%;
+background: var(--bg);
+color-scheme: dark;
+}
 
-<meta
-name="apple-mobile-web-app-status-bar-style"
-content="black-translucent"
->
+body {
+margin: 0;
+min-height: 100vh;
+min-height: 100dvh;
+font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+color: var(--text);
+background:
+radial-gradient(circle at 50% -10%, rgba(38, 104, 180, .26), transparent 38%),
+radial-gradient(circle at 100% 30%, rgba(17, 66, 125, .16), transparent 34%),
+linear-gradient(180deg, #020817 0%, #030b19 48%, #010510 100%);
+overflow-x: hidden;
+}
 
-<meta
-name="apple-mobile-web-app-title"
-content="Centinela Code"
->
+body::before {
+content: "";
+position: fixed;
+inset: 0;
+pointer-events: none;
+z-index: -1;
+opacity: .42;
+background:
+linear-gradient(120deg, transparent 0 42%, rgba(77, 154, 255, .035) 43%, transparent 44%),
+linear-gradient(300deg, transparent 0 58%, rgba(231, 195, 106, .025) 59%, transparent 60%);
+}
 
-<title>Centinela Code</title>
+button,
+input,
+textarea,
+select {
+font: inherit;
+}
 
-<link
-rel="icon"
-href="favicon.ico"
-sizes="any"
->
+button {
+color: inherit;
+}
 
-<link
-rel="icon"
-href="icon-32.png"
-sizes="32x32"
-type="image/png"
->
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+outline: 2px solid var(--blue-2);
+outline-offset: 3px;
+}
 
-<link
-rel="icon"
-href="icon-192.png"
-sizes="192x192"
-type="image/png"
->
-
-<link
-rel="icon"
-href="icon-512.png"
-sizes="512x512"
-type="image/png"
->
-
-<link
-rel="apple-touch-icon"
-href="icon-180.png"
->
-
-<link
-rel="manifest"
-href="manifest.json"
->
-
-<link
-rel="stylesheet"
-href="style.css?v=20260829"
->
-
-</head>
-
-<body>
-
-<!-- =====================================================
+/* =========================================================
 CABECERA
-====================================================== -->
-
-<header class="app-header">
-
-<div class="header-brand">
-
-<div
-class="brand-icon"
-aria-hidden="true"
->
-🛡️
-</div>
-
-<div class="brand-text">
-
-<h1>Centinela Code</h1>
-
-<span>
-Consulta normativa policial
-</span>
-
-</div>
-
-</div>
-
-<button
-id="headerSearchButton"
-class="header-action"
-type="button"
-aria-label="Buscar"
-title="Buscar"
->
-🔎
-</button>
-
-</header>
-
-
-<!-- =====================================================
-CONTENIDO PRINCIPAL
-====================================================== -->
-
-<main class="main-content">
-
-<!-- =================================================
-PANTALLA INICIO
-================================================== -->
-
-<section
-id="section-home"
-class="app-section active"
-data-section="home"
->
-
-<div class="welcome-card">
-
-<div class="welcome-icon">
-🛡️
-</div>
-
-<div>
-
-<h2>
-Centinela Code
-</h2>
-
-<p>
-Consulta rápida de normativa,
-infracciones y herramientas para
-la elaboración de actas.
-</p>
-
-</div>
-
-</div>
-
-
-<div class="section-heading">
-
-<h2>
-Acceso rápido
-</h2>
-
-</div>
-
-
-<div class="quick-actions">
-
-<button
-type="button"
-class="quick-action"
-data-target="consulta"
->
-
-<span class="quick-action-icon">
-🔎
-</span>
-
-<span class="quick-action-text">
-
-<strong>
-Consulta
-</strong>
-
-<small>
-Buscar infracciones y normativa
-</small>
-
-</span>
-
-</button>
-
-
-<button
-type="button"
-class="quick-action"
-data-target="actas"
->
-
-<span class="quick-action-icon">
-📝
-</span>
-
-<span class="quick-action-text">
-
-<strong>
-Crear acta
-</strong>
-
-<small>
-Redactar y guardar un acta
-</small>
-
-</span>
-
-</button>
-
-
-<button
-type="button"
-class="quick-action"
-data-target="normativa"
->
-
-<span class="quick-action-icon">
-⚖️
-</span>
-
-<span class="quick-action-text">
-
-<strong>
-Normativa
-</strong>
-
-<small>
-Consultar legislación
-</small>
-
-</span>
-
-</button>
-
-</div>
-
-
-<div class="section-heading">
-
-<h2>
-Estado del sistema
-</h2>
-
-</div>
-
-
-<div class="status-card">
-
-<div class="status-row">
-
-<span>
-📚 Base normativa
-</span>
-
-<strong
-id="homeNormativaStatus"
-class="status-value"
->
-Cargando...
-</strong>
-
-</div>
-
-
-<div class="status-row">
-
-<span>
-📋 Infracciones
-</span>
-
-<strong
-id="homeInfraccionesStatus"
-class="status-value"
->
-Cargando...
-</strong>
-
-</div>
-
-
-<div class="status-row">
-
-<span>
-🏛️ Ordenanzas
-</span>
-
-<strong
-id="homeOrdenanzasStatus"
-class="status-value"
->
-Cargando...
-</strong>
-
-</div>
-
-
-<div class="status-row">
-
-<span>
-📡 Conexión
-</span>
-
-<strong
-id="homeNetworkStatus"
-class="status-value"
->
-Comprobando...
-</strong>
-
-</div>
-
-</div>
-
-</section>
-
-
-<!-- =================================================
-CONSULTA
-================================================== -->
-
-<section
-id="section-consulta"
-class="app-section"
-data-section="consulta"
->
-
-<div class="page-title">
-
-<div>
-
-<h2>
-Consulta
-</h2>
-
-<p>
-Busca rápidamente una infracción,
-artículo o conducta.
-</p>
-
-</div>
-
-</div>
-
-
-<div class="search-box">
-
-<span
-class="search-icon"
-aria-hidden="true"
->
-🔎
-</span>
-
-<input
-id="consultaSearch"
-type="search"
-placeholder="Buscar por código, artículo, palabra..."
-autocomplete="off"
-aria-label="Buscar infracciones"
->
-
-<button
-id="clearConsultaSearch"
-type="button"
-class="clear-search"
-aria-label="Borrar búsqueda"
-title="Borrar"
->
-×
-</button>
-
-</div>
-
-
-<div class="filters">
-
-<button
-type="button"
-class="filter-chip active"
-data-severity="all"
->
-Todas
-</button>
-
-<button
-type="button"
-class="filter-chip"
-data-severity="Leve"
->
-Leves
-</button>
-
-<button
-type="button"
-class="filter-chip"
-data-severity="Grave"
->
-Graves
-</button>
-
-<button
-type="button"
-class="filter-chip"
-data-severity="Muy Grave"
->
-Muy graves
-</button>
-
-</div>
-
-
-<div class="results-header">
-
-<span>
-Resultados
-</span>
-
-<strong id="consultaResultCount">
-0
-</strong>
-
-</div>
-
-
-<div
-id="consultaResults"
-class="results-list"
->
-
-<div class="empty-state">
-
-<div class="empty-icon">
-🔎
-</div>
-
-<h3>
-Buscar infracción
-</h3>
-
-<p>
-Introduce un código, artículo o
-palabra clave para comenzar.
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-
-<!-- =================================================
-ACTAS
-================================================== -->
-
-<section
-id="section-actas"
-class="app-section"
-data-section="actas"
->
-
-<div class="page-title">
-
-<div>
-
-<h2>
-Actas
-</h2>
-
-<p>
-Redacción y gestión de actas.
-</p>
-
-</div>
-
-<button
-id="newActaButton"
-type="button"
-class="primary-button"
->
-+ Nueva
-</button>
-
-</div>
-
-
-<div
-id="actaEditor"
-class="acta-editor hidden"
->
-
-<div class="card-header">
-
-<h3>
-Nueva acta
-</h3>
-
-<button
-id="closeActaEditor"
-type="button"
-class="icon-button"
-aria-label="Cerrar"
->
-×
-</button>
-
-</div>
-
-
-<form id="actaForm">
-
-<div class="form-section">
-
-<h4>
-Datos del acta
-</h4>
-
-<div class="form-group">
-
-<label for="actaNumero">
-Número de acta
-</label>
-
-<input
-id="actaNumero"
-name="numero"
-type="text"
-placeholder="Número de acta"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label for="actaFecha">
-Fecha
-</label>
-
-<input
-id="actaFecha"
-name="fecha"
-type="date"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label for="actaHora">
-Hora
-</label>
-
-<input
-id="actaHora"
-name="hora"
-type="time"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label for="actaAgente">
-Agente actuante (TIP / placa)
-</label>
-
-<input
-id="actaAgente"
-name="agente"
-type="text"
-placeholder="Ej.: TIP 1234"
-autocomplete="off"
->
-
-</div>
-
-</div>
-
-
-<div class="form-section">
-
-<h4>
-Persona denunciada
-</h4>
-
-
-<div class="form-group">
-
-<label for="actaNombre">
-Nombre y apellidos
-</label>
-
-<input
-id="actaNombre"
-name="nombre"
-type="text"
-autocomplete="off"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label for="actaDni">
-DNI / NIE
-</label>
-
-<input
-id="actaDni"
-name="dni"
-type="text"
-autocomplete="off"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label for="actaDomicilio">
-Domicilio
-</label>
-
-<input
-id="actaDomicilio"
-name="domicilio"
-type="text"
->
-
-</div>
-
-</div>
-
-
-<div class="form-section">
-
-<h4>
-Vehículo
-</h4>
-
-
-<div class="form-group">
-
-<label for="actaMatricula">
-Matrícula
-</label>
-
-<input
-id="actaMatricula"
-name="matricula"
-type="text"
-placeholder="Ej.: 1234 ABC"
-autocomplete="off"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label for="actaVehiculo">
-Marca / modelo
-</label>
-
-<input
-id="actaVehiculo"
-name="vehiculo"
-type="text"
-placeholder="Ej.: Seat León blanco"
-autocomplete="off"
->
-
-</div>
-
-</div>
-
-
-<div class="form-section">
-
-<h4>
-Hechos
-</h4>
-
-
-<div class="form-group">
-
-<label for="actaLugar">
-Lugar
-</label>
-
-<div class="field-with-button">
-
-<input
-id="actaLugar"
-name="lugar"
-type="text"
->
-
-<button
-id="actaLugarGpsButton"
-type="button"
-class="input-inline-button"
-aria-label="Usar mi ubicación actual"
-title="Usar mi ubicación actual"
->
-📍
-</button>
-
-</div>
-
-</div>
-
-
-<div class="form-group">
-
-<div class="textarea-label-row">
-
-<label for="actaHechos">
-Descripción de los hechos
-</label>
-
-<button
-id="actaHechosDictarButton"
-type="button"
-class="dictar-button"
-aria-label="Dictar por voz"
-title="Dictar por voz"
->
-🎤 Dictar
-</button>
-
-</div>
-
-<textarea
-id="actaHechos"
-name="hechos"
-rows="7"
-placeholder="Describa los hechos observados..."
-></textarea>
-
-</div>
-
-</div>
-
-
-<div class="form-section">
-
-<h4>
-Infracción
-</h4>
-
-
-<div class="form-group">
-
-<label for="actaInfraccion">
-Código / artículo
-</label>
-
-<div class="field-with-button">
-
-<input
-id="actaInfraccion"
-name="infraccion"
-type="text"
-placeholder="Ej.: 36.16"
-autocomplete="off"
->
-
-<button
-id="actaInfraccionAddButton"
-type="button"
-class="input-inline-button"
-aria-label="Añadir artículo a la lista"
-title="Añadir artículo a la lista"
->
-➕
-</button>
-
-<button
-id="actaInfraccionSearchButton"
-type="button"
-class="input-inline-button"
-aria-label="Buscar en la normativa"
-title="Buscar en la normativa"
->
-🔎
-</button>
-
-</div>
-
-<p class="field-hint">
-Puedes añadir varios artículos: escribe el código y pulsa ➕, o búscalo con 🔎.
-</p>
-
-</div>
-
-
-<div
-id="actaInfraccionesChips"
-class="infraccion-chips"
->
-</div>
-
-
-<div
-id="actaInfraccionPreview"
-class="infraccion-preview hidden"
->
-</div>
-
-</div>
-
-
-<div class="form-section">
-
-<h4>
-Fotos
-</h4>
-
-
-<div class="form-group">
-
-<label for="actaFotoInput">
-Adjuntar fotografías (máximo 3)
-</label>
-
-<input
-id="actaFotoInput"
-type="file"
-accept="image/*"
-capture="environment"
-class="foto-input"
->
-
-<div
-id="actaFotosPreview"
-class="fotos-preview"
->
-</div>
-
-</div>
-
-</div>
-
-
-<div class="form-section">
-
-<h4>
-Observaciones
-</h4>
-
-
-<div class="form-group">
-
-<textarea
-id="actaObservaciones"
-name="observaciones"
-rows="5"
-placeholder="Observaciones adicionales..."
-></textarea>
-
-</div>
-
-</div>
-
-
-<div class="form-actions">
-
-<button
-type="button"
-id="cancelActaButton"
-class="secondary-button"
->
-Cancelar
-</button>
-
-<button
-type="submit"
-class="primary-button"
->
-Guardar acta
-</button>
-
-</div>
-
-</form>
-
-</div>
-
-
-<div class="search-box">
-
-<span class="search-icon" aria-hidden="true">
-🔎
-</span>
-
-<input
-id="actasSearch"
-type="search"
-placeholder="Buscar por nombre, DNI, nº acta o matrícula..."
-autocomplete="off"
-aria-label="Buscar actas guardadas"
->
-
-<button
-id="clearActasSearch"
-type="button"
-class="clear-search"
-aria-label="Borrar búsqueda"
->
-×
-</button>
-
-</div>
-
-
-<div
-id="actasList"
-class="actas-list"
->
-
-<div class="empty-state">
-
-<div class="empty-icon">
-📝
-</div>
-
-<h3>
-No hay actas guardadas
-</h3>
-
-<p>
-Pulsa «Nueva» para comenzar un acta.
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-
-<!-- =================================================
+========================================================= */
+
+.app-header {
+position: sticky;
+top: 0;
+z-index: 50;
+min-height: 92px;
+padding: 13px 18px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 12px;
+background:
+linear-gradient(180deg, rgba(4, 14, 29, .98), rgba(4, 14, 29, .90));
+border-bottom: 1px solid rgba(82, 141, 210, .20);
+box-shadow: 0 12px 35px rgba(0, 0, 0, .30);
+backdrop-filter: blur(18px);
+}
+
+.header-brand {
+display: flex;
+align-items: center;
+min-width: 0;
+gap: 14px;
+}
+
+.brand-icon,
+.welcome-icon,
+.loading-logo {
+background-image: url("icon-512.png");
+background-position: center;
+background-repeat: no-repeat;
+background-size: contain;
+color: transparent;
+font-size: 0;
+}
+
+.brand-icon {
+width: 58px;
+height: 58px;
+flex: 0 0 58px;
+border-radius: 17px;
+background-color: #071a36;
+border: 1px solid rgba(63, 146, 255, .42);
+box-shadow:
+inset 0 0 18px rgba(52, 139, 255, .12),
+0 7px 25px rgba(0, 0, 0, .35);
+}
+
+.brand-text {
+min-width: 0;
+}
+
+.brand-text h1 {
+margin: 0;
+font-size: clamp(21px, 5.8vw, 29px);
+line-height: 1.05;
+font-weight: 850;
+letter-spacing: -.7px;
+}
+
+.brand-text span {
+display: block;
+margin-top: 6px;
+color: var(--text-soft);
+font-size: 13px;
+font-weight: 500;
+}
+
+.header-action {
+width: 58px;
+height: 58px;
+flex: 0 0 58px;
+border: 1px solid rgba(73, 151, 255, .38);
+border-radius: 18px;
+background: linear-gradient(145deg, #0b2245, #09182f);
+box-shadow: inset 0 0 20px rgba(47, 140, 255, .09), var(--glow);
+font-size: 26px;
+cursor: pointer;
+}
+
+.header-action:active {
+transform: scale(.96);
+}
+
+/* =========================================================
+CONTENIDO
+========================================================= */
+
+.main-content {
+width: min(100%, 900px);
+margin: 0 auto;
+padding: 28px 18px calc(var(--nav-height) + 35px);
+}
+
+.app-section {
+display: none;
+animation: sectionIn .25s ease both;
+}
+
+.app-section.active {
+display: block;
+}
+
+@keyframes sectionIn {
+from {
+opacity: 0;
+transform: translateY(8px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+
+.page-title {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 14px;
+margin: 5px 2px 22px;
+}
+
+.page-title h2,
+.section-heading h2 {
+margin: 0;
+font-size: 28px;
+font-weight: 850;
+letter-spacing: -.6px;
+}
+
+.page-title p {
+margin: 7px 0 0;
+color: var(--text-soft);
+line-height: 1.5;
+}
+
+/* =========================================================
+HERO / INICIO
+========================================================= */
+
+.welcome-card {
+position: relative;
+overflow: hidden;
+min-height: 260px;
+padding: 34px 28px;
+display: flex;
+align-items: center;
+gap: 28px;
+border: 1px solid rgba(75, 150, 239, .34);
+border-radius: 30px;
+background:
+radial-gradient(circle at 95% 0%, rgba(38, 111, 194, .22), transparent 35%),
+radial-gradient(circle at 10% 90%, rgba(27, 84, 157, .17), transparent 38%),
+linear-gradient(135deg, rgba(17, 42, 76, .96), rgba(5, 17, 35, .98) 68%);
+box-shadow:
+inset 0 1px 0 rgba(255, 255, 255, .035),
+inset 0 0 55px rgba(43, 122, 215, .08),
+var(--shadow);
+}
+
+.welcome-card::before {
+content: "";
+position: absolute;
+width: 300px;
+height: 300px;
+right: -130px;
+top: -140px;
+border: 1px solid rgba(91, 163, 237, .16);
+border-radius: 50%;
+box-shadow: 0 0 0 70px rgba(72, 139, 212, .025);
+}
+
+.welcome-card::after {
+content: "";
+position: absolute;
+inset: 0;
+pointer-events: none;
+background: linear-gradient(125deg, transparent 0 35%, rgba(255,255,255,.025) 48%, transparent 60%);
+}
+
+.welcome-icon {
+position: relative;
+z-index: 1;
+width: 126px;
+height: 126px;
+flex: 0 0 126px;
+border-radius: 29px;
+background-color: rgba(4, 20, 42, .76);
+border: 1px solid rgba(66, 145, 240, .52);
+box-shadow:
+inset 0 0 30px rgba(46, 133, 240, .12),
+0 0 0 1px rgba(231, 195, 106, .05),
+0 15px 38px rgba(0, 0, 0, .30);
+}
+
+.welcome-card h2 {
+position: relative;
+z-index: 1;
+margin: 0 0 12px;
+font-size: clamp(29px, 8vw, 42px);
+line-height: 1.05;
+font-weight: 900;
+letter-spacing: -1.2px;
+}
+
+.welcome-card p {
+position: relative;
+z-index: 1;
+max-width: 540px;
+margin: 0;
+color: #c2d0e1;
+font-size: 18px;
+line-height: 1.65;
+}
+
+/* =========================================================
+SECCIONES / TARJETAS
+========================================================= */
+
+.section-heading {
+margin: 40px 4px 18px;
+}
+
+.quick-actions {
+display: grid;
+gap: 15px;
+}
+
+.quick-action {
+position: relative;
+width: 100%;
+min-height: 112px;
+padding: 19px 22px;
+display: flex;
+align-items: center;
+gap: 20px;
+text-align: left;
+border: 1px solid rgba(76, 138, 205, .28);
+border-radius: 24px;
+background:
+linear-gradient(135deg, rgba(17, 35, 62, .98), rgba(8, 21, 39, .98));
+box-shadow: 0 10px 28px rgba(0, 0, 0, .25), inset 0 1px 0 rgba(255,255,255,.025);
+cursor: pointer;
+transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.quick-action::after {
+content: "›";
+position: absolute;
+right: 22px;
+color: rgba(166, 194, 225, .42);
+font-size: 34px;
+font-weight: 300;
+}
+
+.quick-action:hover {
+border-color: rgba(65, 150, 255, .55);
+box-shadow: 0 15px 35px rgba(0, 0, 0, .34), 0 0 28px rgba(47, 140, 255, .08);
+}
+
+.quick-action:active {
+transform: scale(.985);
+}
+
+.quick-action-icon {
+width: 76px;
+height: 76px;
+flex: 0 0 76px;
+display: grid;
+place-items: center;
+border-radius: 22px;
+background: linear-gradient(145deg, #102b56, #0a1d3a);
+border: 1px solid rgba(48, 137, 247, .35);
+box-shadow: inset 0 0 22px rgba(44, 139, 255, .10);
+font-size: 36px;
+}
+
+.quick-action-text {
+min-width: 0;
+padding-right: 25px;
+}
+
+.quick-action-text strong {
+display: block;
+margin-bottom: 6px;
+font-size: 21px;
+font-weight: 800;
+}
+
+.quick-action-text small {
+color: var(--text-soft);
+font-size: 15px;
+}
+
+/* =========================================================
+ESTADO
+========================================================= */
+
+.status-card,
+.settings-card {
+overflow: hidden;
+border: 1px solid rgba(79, 135, 194, .25);
+border-radius: 23px;
+background: linear-gradient(145deg, rgba(17, 30, 51, .98), rgba(8, 19, 35, .98));
+box-shadow: 0 12px 32px rgba(0,0,0,.28);
+}
+
+.status-row,
+.settings-row,
+.data-status-row {
+min-height: 76px;
+padding: 17px 22px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 18px;
+border-bottom: 1px solid rgba(86, 128, 174, .16);
+}
+
+.status-row:last-child,
+.settings-row:last-child,
+.data-status-row:last-child {
+border-bottom: 0;
+}
+
+.status-row span,
+.settings-row span,
+.data-status-row span {
+color: var(--text-soft);
+font-size: 16px;
+}
+
+.status-value {
+color: var(--green);
+font-weight: 800;
+}
+
+/* =========================================================
+BUSCADOR
+========================================================= */
+
+.search-box {
+position: relative;
+display: flex;
+align-items: center;
+margin-bottom: 17px;
+}
+
+.search-box .search-icon {
+position: absolute;
+left: 17px;
+z-index: 2;
+font-size: 22px;
+}
+
+.search-box input {
+width: 100%;
+height: 60px;
+padding: 0 52px 0 52px;
+color: var(--text);
+border: 1px solid rgba(79, 145, 216, .34);
+border-radius: 19px;
+background: rgba(12, 27, 47, .94);
+box-shadow: inset 0 1px 12px rgba(0,0,0,.18);
+}
+
+.search-box input::placeholder {
+color: #71849d;
+}
+
+.search-box input:focus {
+border-color: var(--blue);
+box-shadow: 0 0 0 3px rgba(47,140,255,.10), inset 0 1px 12px rgba(0,0,0,.18);
+}
+
+.clear-search {
+position: absolute;
+right: 9px;
+width: 42px;
+height: 42px;
+border: 0;
+border-radius: 13px;
+background: rgba(255,255,255,.045);
+color: var(--text-soft);
+font-size: 25px;
+cursor: pointer;
+}
+
+/* =========================================================
+FILTROS / RESULTADOS
+========================================================= */
+
+.filters {
+display: flex;
+gap: 9px;
+overflow-x: auto;
+padding: 2px 1px 10px;
+scrollbar-width: none;
+}
+
+.filters::-webkit-scrollbar {
+display: none;
+}
+
+.filter-chip {
+flex: 0 0 auto;
+padding: 10px 15px;
+border: 1px solid rgba(84, 133, 185, .28);
+border-radius: 999px;
+color: var(--text-soft);
+background: rgba(14, 29, 49, .85);
+cursor: pointer;
+}
+
+.filter-chip.active {
+color: #fff;
+border-color: rgba(55, 145, 255, .62);
+background: linear-gradient(135deg, #123d76, #0b2851);
+box-shadow: 0 0 22px rgba(47,140,255,.10);
+}
+
+.results-header {
+margin: 15px 2px;
+display: flex;
+justify-content: space-between;
+color: var(--text-soft);
+}
+
+.results-header strong {
+color: var(--blue-2);
+}
+
+.results-list {
+display: grid;
+gap: 13px;
+}
+
+.result-card,
+.infraccion-card {
+padding: 18px;
+border: 1px solid rgba(80, 137, 198, .24);
+border-radius: 19px;
+background: linear-gradient(145deg, rgba(18,32,53,.98), rgba(8,19,35,.98));
+box-shadow: 0 9px 24px rgba(0,0,0,.22);
+}
+
+.result-card h3,
+.infraccion-card h3 {
+margin: 0 0 7px;
+font-size: 18px;
+}
+
+.result-card p,
+.infraccion-card p {
+margin: 0;
+color: var(--text-soft);
+line-height: 1.55;
+}
+
+.result-ley {
+display: block;
+margin-bottom: 4px;
+color: var(--blue-2);
+font-size: 12px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: .04em;
+}
+
+/* =========================================================
+BOTONES
+========================================================= */
+
+.primary-button,
+.secondary-button,
+.settings-button,
+.normativa-open,
+.icon-button {
+border: 0;
+cursor: pointer;
+}
+
+.primary-button {
+min-height: 46px;
+padding: 0 17px;
+border-radius: 14px;
+color: #fff;
+background: linear-gradient(135deg, #1676e8, #0b4ca5);
+box-shadow: 0 8px 20px rgba(12, 92, 187, .28);
+font-weight: 800;
+}
+
+.secondary-button {
+min-height: 46px;
+padding: 0 17px;
+border-radius: 14px;
+color: var(--text-soft);
+background: #17263b;
+border: 1px solid rgba(91, 133, 177, .25);
+font-weight: 700;
+}
+
+.icon-button {
+width: 42px;
+height: 42px;
+border-radius: 13px;
+color: var(--text-soft);
+background: rgba(255,255,255,.05);
+font-size: 25px;
+}
+
+/* =========================================================
+ACTAS / FORMULARIOS
+========================================================= */
+
+.hidden {
+display: none !important;
+}
+
+.acta-editor {
+margin-bottom: 22px;
+padding: 20px;
+border: 1px solid rgba(78, 139, 205, .28);
+border-radius: 23px;
+background: linear-gradient(145deg, rgba(16,30,51,.98), rgba(7,18,34,.98));
+box-shadow: var(--shadow);
+}
+
+.card-header,
+.form-actions,
+.viewer-header,
+.settings-card-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 14px;
+}
+
+.card-header {
+margin-bottom: 20px;
+}
+
+.card-header h3 {
+margin: 0;
+font-size: 21px;
+}
+
+.form-section {
+margin-top: 21px;
+padding-top: 19px;
+border-top: 1px solid rgba(88, 130, 174, .16);
+}
+
+.form-section:first-child {
+margin-top: 0;
+padding-top: 0;
+border-top: 0;
+}
+
+.form-section h4 {
+margin: 0 0 14px;
+font-size: 16px;
+color: #dce8f6;
+}
+
+.form-group {
+margin-bottom: 14px;
+}
+
+.form-group label {
+display: block;
+margin-bottom: 7px;
+color: var(--text-soft);
+font-size: 14px;
+font-weight: 650;
+}
+
+.form-group input,
+.form-group textarea {
+width: 100%;
+padding: 13px 14px;
+color: var(--text);
+border: 1px solid rgba(82, 135, 190, .27);
+border-radius: 14px;
+outline: none;
+resize: vertical;
+background: #09192e;
+}
+
+.form-group input {
+min-height: 48px;
+}
+
+.form-group textarea {
+min-height: 120px;
+line-height: 1.55;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+border-color: var(--blue);
+box-shadow: 0 0 0 3px rgba(47,140,255,.09);
+}
+
+.form-actions {
+margin-top: 23px;
+}
+
+.infraccion-preview {
+margin-top: 10px;
+padding: 15px;
+border: 1px solid rgba(47, 140, 255, .26);
+border-radius: 15px;
+background: rgba(16, 47, 86, .30);
+}
+
+.infraccion-preview-sancion {
+margin-top: 12px;
+padding-top: 12px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+border-top: 1px solid rgba(47, 140, 255, .22);
+}
+
+.infraccion-preview-sancion-label {
+color: var(--text-soft);
+font-size: 13px;
+font-weight: 650;
+text-transform: uppercase;
+letter-spacing: .03em;
+}
+
+.infraccion-preview-sancion-valor {
+color: var(--gold-2);
+font-size: 16px;
+font-weight: 800;
+}
+
+.infraccion-preview-sancion-vacia {
+color: var(--text-muted);
+font-size: 13px;
+font-weight: 650;
+text-transform: none;
+letter-spacing: 0;
+}
+
+.infraccion-preview-item {
+padding: 10px 0;
+border-bottom: 1px solid rgba(47, 140, 255, .15);
+}
+
+.infraccion-preview-item:first-child {
+padding-top: 0;
+}
+
+.infraccion-preview-item:last-child {
+border-bottom: none;
+padding-bottom: 0;
+}
+
+.acta-card-meta {
+margin: 6px 0;
+color: var(--text-soft);
+font-size: 13px;
+}
+
+.field-with-button {
+display: flex;
+align-items: center;
+gap: 9px;
+}
+
+.field-with-button input {
+flex: 1;
+min-width: 0;
+}
+
+.input-inline-button {
+flex: 0 0 auto;
+width: 48px;
+min-height: 48px;
+border: 1px solid rgba(82, 135, 190, .27);
+border-radius: 14px;
+background: #102f58;
+color: var(--text);
+font-size: 20px;
+cursor: pointer;
+display: grid;
+place-items: center;
+}
+
+.input-inline-button:active {
+transform: scale(.96);
+}
+
+.input-inline-button.is-loading {
+opacity: .6;
+pointer-events: none;
+}
+
+.field-hint {
+margin: 7px 2px 0;
+color: var(--text-muted);
+font-size: 12px;
+}
+
+/* =========================================================
+CHIPS DE ARTÍCULOS AÑADIDOS AL ACTA
+========================================================= */
+
+.infraccion-chips {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+margin: 10px 0;
+}
+
+.infraccion-chip {
+display: flex;
+align-items: center;
+gap: 8px;
+padding: 8px 8px 8px 14px;
+border-radius: 999px;
+background: rgba(47, 140, 255, .14);
+border: 1px solid rgba(47, 140, 255, .34);
+color: var(--text);
+font-size: 13px;
+font-weight: 700;
+}
+
+.infraccion-chip-remove {
+width: 24px;
+height: 24px;
+border-radius: 50%;
+background: rgba(255,255,255,.10);
+color: var(--text);
+font-size: 15px;
+line-height: 1;
+cursor: pointer;
+display: grid;
+place-items: center;
+border: none;
+}
+
+.infraccion-chip-remove:active {
+background: rgba(255, 91, 104, .30);
+}
+
+/* =========================================================
+DICTADO POR VOZ
+========================================================= */
+
+.textarea-label-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+.dictar-button {
+flex: 0 0 auto;
+padding: 7px 13px;
+border-radius: 999px;
+border: 1px solid rgba(82, 135, 190, .30);
+background: #102f58;
+color: var(--text);
+font-size: 12px;
+font-weight: 750;
+cursor: pointer;
+}
+
+.dictar-button.is-listening {
+background: rgba(255, 91, 104, .22);
+border-color: rgba(255, 91, 104, .55);
+color: #ffc3c8;
+}
+
+/* =========================================================
+FOTOS DEL ACTA
+========================================================= */
+
+.foto-input {
+width: 100%;
+padding: 12px;
+border: 1px dashed rgba(82, 135, 190, .38);
+border-radius: 14px;
+background: rgba(12, 27, 47, .7);
+color: var(--text-soft);
+}
+
+.fotos-preview {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+margin-top: 12px;
+}
+
+.foto-thumb {
+position: relative;
+width: 84px;
+height: 84px;
+border-radius: 14px;
+overflow: hidden;
+border: 1px solid rgba(82, 135, 190, .30);
+}
+
+.foto-thumb img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+}
+
+.foto-thumb-remove {
+position: absolute;
+top: 4px;
+right: 4px;
+width: 24px;
+height: 24px;
+border-radius: 50%;
+background: rgba(10, 16, 28, .82);
+color: #ffc3c8;
+font-size: 14px;
+line-height: 1;
+cursor: pointer;
+display: grid;
+place-items: center;
+border: none;
+}
+
+/* =========================================================
+BÚSQUEDA EN MODAL (buscador de artículos)
+========================================================= */
+
+.modal-search {
+position: relative;
+margin-bottom: 14px;
+}
+
+.modal-search input {
+width: 100%;
+min-height: 50px;
+padding: 0 15px;
+color: var(--text);
+border: 1px solid rgba(79, 145, 216, .34);
+border-radius: 15px;
+background: rgba(12, 27, 47, .94);
+outline: none;
+}
+
+.modal-search input:focus {
+border-color: var(--blue);
+box-shadow: 0 0 0 3px rgba(47,140,255,.10);
+}
+
+.modal-search-results {
+display: grid;
+gap: 8px;
+max-height: 46vh;
+overflow-y: auto;
+}
+
+.modal-search-hint {
+margin: 6px 2px;
+color: var(--text-muted);
+}
+
+.modal-search-item {
+display: flex;
+flex-direction: column;
+gap: 3px;
+padding: 12px 14px;
+text-align: left;
+border: 1px solid rgba(80, 137, 198, .22);
+border-radius: 14px;
+background: rgba(18,32,53,.92);
+color: var(--text);
+cursor: pointer;
+}
+
+.modal-search-item:active {
+background: rgba(30,52,84,.92);
+}
+
+.modal-search-item-code {
+color: var(--blue-2);
+font-size: 12px;
+font-weight: 800;
+text-transform: uppercase;
+letter-spacing: .03em;
+}
+
+.modal-search-item-title {
+font-size: 14px;
+color: var(--text-soft);
+}
+
+/* =========================================================
 NORMATIVA
-================================================== -->
+========================================================= */
 
-<section
-id="section-normativa"
-class="app-section"
-data-section="normativa"
->
+.normativa-list {
+display: grid;
+gap: 14px;
+}
 
-<div class="page-title">
+.normativa-card {
+min-height: 104px;
+padding: 17px;
+display: flex;
+align-items: center;
+gap: 15px;
+border: 1px solid rgba(81, 137, 197, .25);
+border-radius: 20px;
+background: linear-gradient(145deg, rgba(17,32,54,.98), rgba(8,19,35,.98));
+box-shadow: 0 9px 25px rgba(0,0,0,.23);
+}
 
-<div>
+.normativa-icon {
+width: 62px;
+height: 62px;
+flex: 0 0 62px;
+display: grid;
+place-items: center;
+border-radius: 18px;
+background: #0c2548;
+border: 1px solid rgba(55, 141, 248, .30);
+font-size: 29px;
+}
 
-<h2>
-Normativa
-</h2>
+.normativa-info {
+flex: 1;
+min-width: 0;
+}
 
-<p>
-Consulta la legislación disponible
-en la aplicación.
-</p>
+.normativa-info h3 {
+margin: 0 0 5px;
+font-size: 17px;
+}
 
-</div>
+.normativa-info p {
+margin: 0 0 5px;
+color: var(--text-soft);
+font-size: 14px;
+}
 
-</div>
+.normativa-info span {
+color: var(--blue-2);
+font-size: 12px;
+font-weight: 750;
+}
 
+.normativa-open {
+min-width: 55px;
+min-height: 42px;
+padding: 0 12px;
+border-radius: 13px;
+background: #102f58;
+border: 1px solid rgba(69, 151, 255, .35);
+color: #dcecff;
+font-weight: 800;
+}
 
-<div class="search-box">
+.normativa-viewer {
+margin-top: 18px;
+overflow: hidden;
+border: 1px solid rgba(79, 140, 203, .25);
+border-radius: 22px;
+background: rgba(9,21,38,.98);
+}
 
-<span
-class="search-icon"
-aria-hidden="true"
->
-🔎
-</span>
+.viewer-header {
+padding: 15px;
+border-bottom: 1px solid rgba(84, 127, 173, .16);
+}
 
-<input
-id="normativaSearch"
-type="search"
-placeholder="Buscar artículo o texto..."
-autocomplete="off"
-aria-label="Buscar normativa"
->
+.viewer-header h3 {
+margin: 0;
+}
 
-<button
-id="clearNormativaSearch"
-type="button"
-class="clear-search"
-aria-label="Borrar búsqueda"
->
-×
-</button>
+.viewer-header span {
+color: var(--text-muted);
+font-size: 13px;
+}
 
-</div>
+.viewer-content {
+padding: 18px;
+color: #d2deed;
+line-height: 1.65;
+}
 
+.normativa-list--principal {
+margin-bottom: 22px;
+}
 
-<div
-id="normativaList"
-class="normativa-list"
->
+.normativa-list--nested {
+padding: 4px 4px 14px;
+}
 
-<div class="normativa-card">
+.ordenanza-groups-title {
+margin: 4px 0 12px;
+font-size: 15px;
+color: var(--text-soft);
+text-transform: uppercase;
+letter-spacing: .04em;
+}
 
-<div class="normativa-icon">
-⚖️
-</div>
+.ordenanza-groups {
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
 
-<div class="normativa-info">
+.ordenanza-group {
+border: 1px solid rgba(81, 137, 197, .25);
+border-radius: 18px;
+background: linear-gradient(145deg, rgba(17,32,54,.98), rgba(8,19,35,.98));
+overflow: hidden;
+}
 
-<h3>
-Cargando normativa…
-</h3>
+.ordenanza-group summary {
+list-style: none;
+cursor: pointer;
+padding: 15px 17px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+font-weight: 750;
+color: #e7f1ff;
+}
 
-<p>
-Un momento, por favor.
-</p>
+.ordenanza-group summary::-webkit-details-marker {
+display: none;
+}
 
-</div>
+.ordenanza-group summary::before {
+content: "▸";
+display: inline-block;
+margin-right: 10px;
+color: var(--blue-2);
+transition: transform .15s ease;
+}
 
-</div>
+.ordenanza-group[open] summary::before {
+transform: rotate(90deg);
+}
 
-</div>
+.ordenanza-group-nombre {
+flex: 1;
+}
 
+.ordenanza-group-count {
+min-width: 26px;
+padding: 2px 9px;
+border-radius: 999px;
+background: #0c2548;
+border: 1px solid rgba(55, 141, 248, .30);
+color: var(--blue-2);
+font-size: 12px;
+text-align: center;
+}
 
-<div
-id="normativaViewer"
-class="normativa-viewer hidden"
->
+.law-back-button {
+display: inline-block;
+margin-bottom: 16px;
+}
 
-<div class="viewer-header">
+.law-link-button {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+margin: 4px 0 14px;
+padding: 12px 16px;
+border-radius: 13px;
+background: linear-gradient(135deg, #1a4d8f, #123566);
+border: 1px solid rgba(69, 151, 255, .45);
+color: #eaf3ff;
+font-weight: 800;
+text-decoration: none;
+}
 
-<button
-id="closeNormativaViewer"
-type="button"
-class="icon-button"
-aria-label="Cerrar normativa"
->
-←
-</button>
+.law-sin-enlace {
+color: var(--text-muted);
+font-style: italic;
+}
 
-<div>
+.fav-button {
+font-size: 24px;
+color: var(--gold);
+background: rgba(255,255,255,.05);
+}
 
-<h3 id="viewerTitle">
-Normativa
-</h3>
+.fav-button.is-active {
+color: var(--gold-2);
+background: rgba(231, 195, 106, .16);
+border: 1px solid rgba(231, 195, 106, .45);
+}
 
-<span id="viewerSubtitle">
-</span>
+.favoritos-section {
+margin-bottom: 22px;
+}
 
-</div>
+.favoritos-title {
+margin: 4px 0 12px;
+display: flex;
+align-items: center;
+gap: 7px;
+font-size: 15px;
+color: var(--gold-2);
+text-transform: uppercase;
+letter-spacing: .04em;
+}
 
-<button
-id="viewerFavButton"
-type="button"
-class="icon-button fav-button hidden"
-aria-label="Guardar en favoritos"
-title="Guardar en favoritos"
-data-fav-tipo=""
-data-fav-id=""
->
-☆
-</button>
+.normativa-fav-remove {
+flex: 0 0 auto;
+width: 42px;
+height: 42px;
+border-radius: 13px;
+background: rgba(255,255,255,.05);
+color: var(--gold);
+font-size: 20px;
+cursor: pointer;
+}
 
-</div>
+/* =========================================================
+ETIQUETAS DE ESTADO (badges)
+========================================================= */
 
+.badge {
+display: inline-block;
+padding: 4px 12px;
+border-radius: 999px;
+font-size: 12px;
+font-weight: 750;
+letter-spacing: .02em;
+}
 
-<div
-id="viewerContent"
-class="viewer-content"
->
-</div>
+.badge--success {
+color: #b7f7cf;
+background: rgba(37, 214, 107, .16);
+border: 1px solid rgba(37, 214, 107, .38);
+}
 
-</div>
+.badge--warning {
+color: #ffe0b8;
+background: rgba(255, 157, 67, .16);
+border: 1px solid rgba(255, 157, 67, .38);
+}
 
-</section>
+.badge--danger {
+color: #ffc3c8;
+background: rgba(255, 91, 104, .16);
+border: 1px solid rgba(255, 91, 104, .38);
+}
 
+.badge--neutral {
+color: var(--text-soft);
+background: rgba(255,255,255,.06);
+border: 1px solid rgba(255,255,255,.14);
+}
 
-<!-- =================================================
+/* =========================================================
+ACTAS: ACCIONES ADICIONALES
+========================================================= */
+
+.acta-card-actions {
+margin-top: 14px;
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+.viewer-content .law-article {
+padding-bottom: 16px;
+margin-bottom: 16px;
+border-bottom: 1px solid rgba(84, 127, 173, .16);
+}
+
+.viewer-content .law-article:last-child {
+border-bottom: none;
+margin-bottom: 0;
+padding-bottom: 0;
+}
+
+.viewer-content .law-article h4 {
+margin: 0 0 8px;
+font-size: 15px;
+color: #cfe2ff;
+}
+
+.viewer-content .law-article p {
+margin: 0;
+color: #d2deed;
+}
+
+/* =========================================================
 AJUSTES
-================================================== -->
-
-<section
-id="section-ajustes"
-class="app-section"
-data-section="ajustes"
->
-
-<div class="page-title">
-
-<div>
-
-<h2>
-Ajustes
-</h2>
-
-<p>
-Configuración de Centinela Code.
-</p>
-
-</div>
-
-</div>
-
-
-<div class="settings-card">
-
-<div class="settings-card-header">
-
-<span class="settings-icon">
-🛡️
-</span>
-
-<div>
-
-<h3>
-Centinela Code
-</h3>
-
-<p>
-Aplicación de consulta normativa
-</p>
-
-</div>
-
-</div>
-
-
-<div class="settings-row">
-
-<span>
-Versión
-</span>
-
-<strong id="appVersion">
-1.0.0
-</strong>
-
-</div>
-
-
-<div class="settings-row">
-
-<span>
-Estado
-</span>
-
-<strong
-id="appStatus"
-class="status-value"
->
-Operativa
-</strong>
-
-</div>
-
-
-<div class="settings-row">
-
-<span>
-Modo
-</span>
-
-<strong id="appMode">
-Offline / Online
-</strong>
-
-</div>
-
-</div>
-
-
-<div class="settings-card">
-
-<div class="settings-card-title">
-Datos
-</div>
-
-
-<button
-id="reloadDataButton"
-type="button"
-class="settings-button"
->
-
-<span>
-🔄
-</span>
-
-<span>
-Recargar datos
-</span>
-
-</button>
-
-
-<button
-id="clearDraftsButton"
-type="button"
-class="settings-button danger"
->
-
-<span>
-🗑️
-</span>
-
-<span>
-Borrar actas guardadas
-</span>
-
-</button>
-
-</div>
-
-
-<div class="settings-card">
-
-<div class="settings-card-title">
-Estado de las bases de datos
-</div>
-
-
-<div class="settings-data-status">
-
-<div class="data-status-row">
-
-<span>
-LOPSC
-</span>
-
-<strong id="settingsLopscStatus">
-Pendiente
-</strong>
-
-</div>
-
-
-<div class="data-status-row">
-
-<span>
-Infracciones
-</span>
-
-<strong id="settingsInfraccionesStatus">
-Pendiente
-</strong>
-
-</div>
-
-
-<div class="data-status-row">
-
-<span>
-Ordenanzas
-</span>
-
-<strong id="settingsOrdenanzasStatus">
-Pendiente
-</strong>
-
-</div>
-
-</div>
-
-</div>
-
-
-<div class="settings-card">
-
-<div class="settings-card-title">
-Información
-</div>
-
-<p class="settings-description">
-
-Centinela Code está diseñada para facilitar
-la consulta de normativa y la preparación
-de actas durante el servicio.
-
-</p>
-
-<p class="settings-description">
-
-La aplicación puede funcionar sin conexión
-cuando los datos necesarios se encuentran
-almacenados localmente.
-
-</p>
-
-</div>
-
-</section>
-
-</main>
-
-
-<!-- =====================================================
-BARRA DE NAVEGACIÓN INFERIOR
-====================================================== -->
-
-<nav
-id="bottomNavigation"
-class="bottom-navigation"
-aria-label="Navegación principal"
->
-
-<button
-type="button"
-class="nav-item active"
-data-section="home"
-aria-label="Inicio"
->
-
-<span class="nav-icon">
-🏠
-</span>
-
-<span class="nav-label">
-Inicio
-</span>
-
-</button>
-
-
-<button
-type="button"
-class="nav-item"
-data-section="consulta"
-aria-label="Consulta"
->
-
-<span class="nav-icon">
-🔎
-</span>
-
-<span class="nav-label">
-Consulta
-</span>
-
-</button>
-
-
-<button
-type="button"
-class="nav-item"
-data-section="actas"
-aria-label="Actas"
->
-
-<span class="nav-icon">
-📝
-</span>
-
-<span class="nav-label">
-Actas
-</span>
-
-</button>
-
-
-<button
-type="button"
-class="nav-item"
-data-section="normativa"
-aria-label="Normativa"
->
-
-<span class="nav-icon">
-⚖️
-</span>
-
-<span class="nav-label">
-Normativa
-</span>
-
-</button>
-
-
-<button
-type="button"
-class="nav-item"
-data-section="ajustes"
-aria-label="Ajustes"
->
-
-<span class="nav-icon">
-⚙️
-</span>
-
-<span class="nav-label">
-Ajustes
-</span>
-
-</button>
-
-</nav>
-
-
-<!-- =====================================================
-MODAL GENERAL
-====================================================== -->
-
-<div
-id="appModal"
-class="modal hidden"
-role="dialog"
-aria-modal="true"
-aria-labelledby="modalTitle"
->
-
-<div
-class="modal-overlay"
-id="modalOverlay"
-></div>
-
-
-<div class="modal-container">
-
-<div class="modal-header">
-
-<h3 id="modalTitle">
-Centinela Code
-</h3>
-
-<button
-id="closeModal"
-type="button"
-class="icon-button"
-aria-label="Cerrar"
->
-×
-</button>
-
-</div>
-
-
-<div
-id="modalBody"
-class="modal-body"
->
-</div>
-
-
-<div
-id="modalActions"
-class="modal-actions"
->
-</div>
-
-</div>
-
-</div>
-
-
-<!-- =====================================================
-TOAST / AVISOS
-====================================================== -->
-
-<div
-id="toast"
-class="toast"
-role="status"
-aria-live="polite"
->
-<span id="toastMessage"></span>
-</div>
-
-
-<!-- =====================================================
-INDICADOR DE CARGA
-====================================================== -->
-
-<div
-id="loadingScreen"
-class="loading-screen"
->
-
-<div class="loading-logo">
-🛡️
-</div>
-
-<h2>
-Centinela Code
-</h2>
-
-<p>
-Cargando aplicación...
-</p>
-
-<div class="loading-spinner"></div>
-
-</div>
-
-
-<!-- =====================================================
-APP.JS
-Versión renovada para evitar caché
-====================================================== -->
-
-<script
-src="app.js?v=20260829"
-defer
-></script>
-
-
-<!-- =====================================================
-SERVICE WORKER
-====================================================== -->
-
-<script>
-
-if ("serviceWorker" in navigator) {
-
-window.addEventListener(
-"load",
-function () {
-
-navigator.serviceWorker
-.register(
-"service-worker.js?v=20260829"
-)
-.then(
-function (registration) {
-
-console.log(
-"Centinela Code: Service Worker registrado.",
-registration.scope
-);
-
-}
-)
-.catch(
-function (error) {
-
-console.warn(
-"Centinela Code: no se pudo registrar el Service Worker.",
-error
-);
-
-}
-);
-
-}
-);
-
+========================================================= */
+
+.settings-card {
+margin-bottom: 16px;
+padding: 0;
 }
 
-</script>
+.settings-card-header {
+padding: 20px;
+}
 
-</body>
+.settings-icon {
+width: 54px;
+height: 54px;
+display: grid;
+place-items: center;
+border-radius: 16px;
+background: #0b2548;
+border: 1px solid rgba(59,145,255,.30);
+font-size: 25px;
+}
 
-</html>
+.settings-card-header h3 {
+margin: 0 0 4px;
+}
+
+.settings-card-header p {
+margin: 0;
+color: var(--text-muted);
+font-size: 13px;
+}
+
+.settings-card-title {
+padding: 18px 20px;
+font-size: 16px;
+font-weight: 800;
+border-bottom: 1px solid rgba(86, 128, 174, .16);
+}
+
+.settings-button {
+width: 100%;
+min-height: 60px;
+padding: 0 20px;
+display: flex;
+align-items: center;
+gap: 12px;
+color: var(--text);
+text-align: left;
+background: transparent;
+border-bottom: 1px solid rgba(86, 128, 174, .16);
+}
+
+.settings-button:last-child {
+border-bottom: 0;
+}
+
+.settings-button.danger {
+color: #ff8c96;
+}
+
+.settings-data-status {
+padding: 0;
+}
+
+.settings-description {
+margin: 0;
+padding: 0 20px 18px;
+color: var(--text-soft);
+line-height: 1.6;
+}
+
+.settings-card > .settings-description:first-of-type {
+padding-top: 20px;
+}
+
+/* =========================================================
+NAVEGACIÓN INFERIOR
+========================================================= */
+
+.bottom-navigation {
+position: fixed;
+left: 0;
+right: 0;
+bottom: 0;
+z-index: 100;
+height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+padding: 7px 7px env(safe-area-inset-bottom);
+display: grid;
+grid-template-columns: repeat(5, 1fr);
+background:
+linear-gradient(180deg, rgba(8,20,38,.96), rgba(3,11,23,.99));
+border-top: 1px solid rgba(79, 139, 206, .25);
+box-shadow: 0 -14px 35px rgba(0,0,0,.40);
+backdrop-filter: blur(18px);
+}
+
+.nav-item {
+position: relative;
+min-width: 0;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 4px;
+border: 0;
+border-radius: 17px;
+color: #70839b;
+background: transparent;
+cursor: pointer;
+}
+
+.nav-icon {
+font-size: 25px;
+line-height: 1;
+}
+
+.nav-label {
+font-size: 12px;
+font-weight: 700;
+}
+
+.nav-item.active {
+color: #e8f3ff;
+background: linear-gradient(180deg, rgba(20,54,103,.75), rgba(12,37,72,.65));
+}
+
+.nav-item.active::after {
+content: "";
+position: absolute;
+left: 24%;
+right: 24%;
+bottom: 3px;
+height: 3px;
+border-radius: 10px;
+background: linear-gradient(90deg, var(--blue), var(--blue-2));
+box-shadow: 0 0 14px rgba(47,140,255,.65);
+}
+
+/* =========================================================
+MODAL / TOAST
+========================================================= */
+
+.modal {
+position: fixed;
+inset: 0;
+z-index: 200;
+}
+
+.modal-overlay {
+position: absolute;
+inset: 0;
+background: rgba(0, 4, 12, .74);
+backdrop-filter: blur(7px);
+}
+
+.modal-container {
+position: absolute;
+left: 50%;
+bottom: 0;
+width: min(100%, 650px);
+max-height: 88vh;
+transform: translateX(-50%);
+overflow: auto;
+border: 1px solid rgba(77, 143, 214, .35);
+border-bottom: 0;
+border-radius: 25px 25px 0 0;
+background: #09192e;
+box-shadow: 0 -20px 60px rgba(0,0,0,.55);
+}
+
+.modal-header {
+padding: 17px 18px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+border-bottom: 1px solid rgba(86,128,174,.18);
+}
+
+.modal-header h3 {
+margin: 0;
+}
+
+.modal-body {
+padding: 20px;
+color: var(--text-soft);
+line-height: 1.6;
+}
+
+.modal-actions {
+padding: 0 20px 20px;
+display: flex;
+gap: 10px;
+}
+
+.toast {
+position: fixed;
+left: 50%;
+bottom: calc(var(--nav-height) + 16px);
+z-index: 300;
+max-width: calc(100% - 30px);
+padding: 13px 17px;
+transform: translate(-50%, 20px);
+opacity: 0;
+pointer-events: none;
+border: 1px solid rgba(75, 143, 215, .35);
+border-radius: 15px;
+color: #fff;
+background: rgba(11, 29, 51, .96);
+box-shadow: var(--shadow);
+transition: .22s ease;
+}
+
+.toast.show {
+opacity: 1;
+transform: translate(-50%, 0);
+}
+
+/* =========================================================
+PANTALLA DE CARGA
+========================================================= */
+
+.loading-screen {
+position: fixed;
+inset: 0;
+z-index: 9999;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 30px;
+text-align: center;
+background:
+radial-gradient(circle at 50% 38%, rgba(36, 105, 181, .25), transparent 30%),
+linear-gradient(180deg, #020817, #050d1b);
+transition: opacity .35s ease, visibility .35s ease;
+}
+
+.loading-screen.hidden {
+opacity: 0;
+visibility: hidden;
+pointer-events: none;
+}
+
+.loading-logo {
+width: 145px;
+height: 145px;
+margin-bottom: 22px;
+border-radius: 36px;
+background-color: rgba(7, 24, 49, .88);
+border: 1px solid rgba(69, 150, 250, .45);
+box-shadow:
+inset 0 0 38px rgba(47,140,255,.13),
+0 20px 60px rgba(0,0,0,.42);
+}
+
+.loading-screen h2 {
+margin: 0;
+font-size: 31px;
+font-weight: 900;
+letter-spacing: -.7px;
+}
+
+.loading-screen p {
+margin: 10px 0 24px;
+color: var(--text-soft);
+}
+
+.loading-spinner {
+width: 52px;
+height: 52px;
+border: 4px solid rgba(255,255,255,.10);
+border-top-color: var(--blue-2);
+border-right-color: var(--blue);
+border-radius: 50%;
+animation: spin .85s linear infinite;
+}
+
+@keyframes spin {
+to {
+transform: rotate(360deg);
+}
+}
+
+/* =========================================================
+RESPONSIVE
+========================================================= */
+
+@media (min-width: 700px) {
+.main-content {
+padding-left: 28px;
+padding-right: 28px;
+}
+
+.quick-actions {
+grid-template-columns: repeat(3, 1fr);
+}
+
+.quick-action {
+min-height: 205px;
+padding: 24px;
+flex-direction: column;
+align-items: flex-start;
+justify-content: center;
+}
+
+.quick-action::after {
+right: 20px;
+bottom: 13px;
+}
+}
+
+@media (max-width: 560px) {
+.welcome-card {
+min-height: 230px;
+padding: 25px 21px;
+gap: 18px;
+}
+
+.welcome-icon {
+width: 86px;
+height: 86px;
+flex-basis: 86px;
+border-radius: 22px;
+}
+
+.welcome-card h2 {
+font-size: 30px;
+}
+
+.welcome-card p {
+font-size: 15px;
+line-height: 1.5;
+}
+
+.quick-action {
+min-height: 105px;
+padding: 16px;
+gap: 15px;
+}
+
+.quick-action-icon {
+width: 65px;
+height: 65px;
+flex-basis: 65px;
+border-radius: 19px;
+font-size: 31px;
+}
+
+.quick-action-text strong {
+font-size: 19px;
+}
+
+.quick-action-text small {
+font-size: 13px;
+}
+
+.status-row,
+.settings-row,
+.data-status-row {
+padding-left: 17px;
+padding-right: 17px;
+}
+}
+
+@media (prefers-reduced-motion: reduce) {
+*,
+*::before,
+*::after {
+animation-duration: .01ms !important;
+transition-duration: .01ms !important;
+}
+}
+ARCHIVO: manifest.json — CÓDIGO COMPLETO
+Sustituye COMPLETAMENTE el manifest.json actual por este código. Así la instalación de la PWA utilizará logo-centinela.png como icono.
+{
+"name": "Centinela Code",
+"short_name": "Centinela",
+"description": "Consulta normativa policial y herramientas para la elaboración de actas.",
+"start_url": "./",
+"scope": "./",
+"display": "standalone",
+"orientation": "portrait",
+"background_color": "#020817",
+"theme_color": "#020817",
+"icons": [
+{
+"src": "logo-centinela.png",
+"sizes": "512x512",
+"type": "image/png",
+"purpose": "any maskable"
+}
+]
+}
