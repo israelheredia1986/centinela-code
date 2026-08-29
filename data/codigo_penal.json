@@ -1,0 +1,161 @@
+{
+  "ley": "Ley Orgánica 10/1995, de 23 de noviembre, del Código Penal",
+  "abreviatura": "CP",
+  "fecha": "23 de noviembre de 1995",
+  "boe": "BOE-A-1995-25444",
+  "ultima_modificacion": "Consultar redacción vigente en el enlace oficial",
+  "enlaceOficial": "https://www.boe.es/buscar/act.php?id=BOE-A-1995-25444",
+  "nota": "El Código Penal tiene más de 600 artículos. Esta es una selección curada de los preceptos de mayor interés e implicación práctica para el trabajo policial diario (identificación de delitos, atestados, seguridad vial, orden público, patrimonio, violencia de género, drogas). No sustituye la consulta del texto legal completo para el resto de materias.",
+  "articulos": [
+    {
+      "numero": "13",
+      "titulo": "Clasificación de las infracciones penales",
+      "texto": "1. Son delitos graves las infracciones que la Ley castiga con pena grave. 2. Son delitos menos graves las infracciones que la Ley castiga con pena menos grave. 3. Son delitos leves las infracciones que la Ley castiga con pena leve. 4. Cuando la pena, por su extensión, pueda incluirse a la vez entre las mencionadas en los dos primeros números de este artículo, el delito se considerará, en todo caso, como grave. Cuando la pena, por razón de su extensión, pudiera considerarse como leve y como menos grave, el delito se considerará, en todo caso, como leve."
+    },
+    {
+      "numero": "19",
+      "titulo": "Responsabilidad penal de los menores de edad",
+      "texto": "Los menores de dieciocho años no serán responsables criminalmente con arreglo a este Código. Cuando un menor de dicha edad cometa un hecho delictivo podrá ser responsable con arreglo a lo dispuesto en la ley que regule la responsabilidad penal del menor."
+    },
+    {
+      "numero": "20",
+      "titulo": "Causas que eximen de responsabilidad criminal (selección)",
+      "texto": "Están exentos de responsabilidad criminal, entre otros: el que al tiempo de cometer la infracción penal, a causa de cualquier anomalía o alteración psíquica, no pueda comprender la ilicitud del hecho o actuar conforme a esa comprensión; el que se halle en estado de intoxicación plena por el consumo de bebidas alcohólicas, drogas tóxicas u otras sustancias que produzcan efectos análogos, siempre que no haya sido buscado con el propósito de cometer la infracción; el menor de dieciocho años (remisión al art. 19); el que obre en defensa de la persona o derechos propios o ajenos (legítima defensa), siempre que concurra agresión ilegítima y necesidad racional del medio empleado; y el que en estado de necesidad, para evitar un mal propio o ajeno, lesione un bien jurídico de otra persona, siempre que el mal causado no sea mayor que el que se trate de evitar."
+    },
+    {
+      "numero": "138",
+      "titulo": "Homicidio",
+      "texto": "1. El que matare a otro será castigado, como reo de homicidio, con la pena de prisión de diez a quince años. 2. Los hechos serán castigados con la pena superior en grado en los siguientes casos: a) cuando concurra en su comisión alguna de las circunstancias del apartado 1 del artículo 140, o b) cuando los hechos sean además constitutivos de un delito de atentado del artículo 550."
+    },
+    {
+      "numero": "139",
+      "titulo": "Asesinato",
+      "texto": "1. Será castigado con la pena de prisión de quince a veinticinco años, como reo de asesinato, el que matare a otro concurriendo alguna de las circunstancias siguientes: 1.ª Con alevosía. 2.ª Por precio, recompensa o promesa. 3.ª Con ensañamiento, aumentando deliberada e inhumanamente el dolor del ofendido. 4.ª Para facilitar la comisión de otro delito o para evitar que se descubra. 2. Cuando en un asesinato concurran más de una de las circunstancias previstas en el apartado anterior, se impondrá la pena en su mitad superior."
+    },
+    {
+      "numero": "147",
+      "titulo": "Lesiones",
+      "texto": "1. El que, por cualquier medio o procedimiento, causare a otro una lesión que menoscabe su integridad corporal o su salud física o mental, será castigado, como reo del delito de lesiones, con la pena de prisión de tres meses a tres años o multa de seis a doce meses, siempre que la lesión requiera objetivamente para su sanidad, además de una primera asistencia facultativa, tratamiento médico o quirúrgico. La simple vigilancia o seguimiento facultativo del curso de la lesión no se considerará tratamiento médico. 2. El que, por cualquier medio o procedimiento, causare a otro una lesión no incluida en el apartado anterior, será castigado con la pena de multa de uno a tres meses. 3. El que golpeare o maltratare de obra a otro sin causarle lesión será castigado con la pena de multa de uno a dos meses. 4. Los delitos previstos en los dos apartados anteriores solo serán perseguibles mediante denuncia de la persona agraviada o de su representante legal."
+    },
+    {
+      "numero": "153",
+      "titulo": "Violencia de género y doméstica (lesión o maltrato de obra en el ámbito familiar)",
+      "texto": "1. El que por cualquier medio o procedimiento causare a otro menoscabo psíquico o una lesión de menor gravedad de las previstas en el apartado 2 del artículo 147, o golpeare o maltratare de obra a otro sin causarle lesión, cuando la ofendida sea o haya sido esposa, o mujer que esté o haya estado ligada a él por una análoga relación de afectividad aun sin convivencia, o persona especialmente vulnerable que conviva con el autor, será castigado con la pena de prisión de seis meses a un año o de trabajos en beneficio de la comunidad de treinta y uno a ochenta días y, en todo caso, privación del derecho a la tenencia y porte de armas de un año y un día a tres años, así como, cuando el juez o tribunal lo estime adecuado al interés del menor o persona con discapacidad, inhabilitación para el ejercicio de la patria potestad, tutela, curatela, guarda o acogimiento hasta cinco años. 2. Si la víctima es alguna de las personas del artículo 173.2 (distintas de las del apartado anterior), la pena será de prisión de tres meses a un año o trabajos en beneficio de la comunidad de treinta y uno a ochenta días. 3. Se impondrán las penas en su mitad superior cuando el delito se perpetre en presencia de menores, utilizando armas, en el domicilio común o de la víctima, o quebrantando una pena o medida cautelar de la misma naturaleza."
+    },
+    {
+      "numero": "163",
+      "titulo": "Detención ilegal",
+      "texto": "1. El particular que encerrare o detuviere a otro, privándole de su libertad, será castigado con la pena de prisión de cuatro a seis años. 2. Si el culpable diera libertad al encerrado o detenido dentro de los tres primeros días de su detención, sin haber logrado el objeto que se había propuesto, se impondrá la pena inferior en grado."
+    },
+    {
+      "numero": "169",
+      "titulo": "Amenazas",
+      "texto": "El que amenazare a otro con causarle a él, a su familia o a otras personas con las que esté íntimamente vinculado un mal que constituya delito de homicidio, lesiones, aborto, contra la libertad, torturas y contra la integridad moral, la libertad sexual, la intimidad, el honor, el patrimonio y el orden socioeconómico, será castigado según las reglas y penas previstas en el propio artículo, en función de si se ha condicionado la amenaza a una exigencia y si esta se ha conseguido."
+    },
+    {
+      "numero": "172",
+      "titulo": "Coacciones",
+      "texto": "1. El que, sin estar legítimamente autorizado, impidiere a otro con violencia hacer lo que la ley no prohíbe, o le compeliere a efectuar lo que no quiere, sea justo o injusto, será castigado con la pena de prisión de seis meses a tres años o con multa de doce a veinticuatro meses, según la gravedad de la coacción o de los medios empleados."
+    },
+    {
+      "numero": "195",
+      "titulo": "Omisión del deber de socorro",
+      "texto": "1. El que no socorriere a una persona que se halle desamparada y en peligro manifiesto y grave, cuando pudiere hacerlo sin riesgo propio ni de terceros, será castigado con la pena de multa de tres a doce meses. 2. En las mismas penas incurrirá el que, impedido de prestar socorro, no demande con urgencia auxilio ajeno. 3. Si la víctima lo fuere por accidente ocasionado fortuitamente por el que omitió el auxilio, la pena será de prisión de seis meses a dieciocho meses, y si el accidente se debiere a imprudencia, la de prisión de seis meses a cuatro años."
+    },
+    {
+      "numero": "202",
+      "titulo": "Allanamiento de morada",
+      "texto": "1. El particular que, sin habitar en ella, entrare en morada ajena o se mantuviere en la misma contra la voluntad de su morador, será castigado con la pena de prisión de seis meses a dos años. 2. Si el hecho se ejecutare con violencia o intimidación la pena será de prisión de uno a cuatro años y multa de seis a doce meses."
+    },
+    {
+      "numero": "234",
+      "titulo": "Hurto",
+      "texto": "1. El que, con ánimo de lucro, tomare las cosas muebles ajenas sin la voluntad de su dueño, será castigado, como reo de hurto, con la pena de prisión de seis a dieciocho meses si la cuantía de lo sustraído excediese de 400 euros. 2. Se impondrá la pena de multa de uno a tres meses si la cuantía de lo sustraído no excediese de 400 euros, salvo si concurriere alguna de las circunstancias del artículo 235, en cuyo caso se aplicará el apartado 1. No obstante, si el culpable hubiera sido condenado ejecutoriamente al menos por tres delitos de la misma naturaleza (comprendidos en este Título, al menos uno de ellos leve), se impondrá la pena del apartado 1, sin computar antecedentes cancelados."
+    },
+    {
+      "numero": "237",
+      "titulo": "Robo (definición)",
+      "texto": "Son reos del delito de robo los que, con ánimo de lucro, se apoderaren de las cosas muebles ajenas empleando fuerza en las cosas para acceder o abandonar el lugar donde éstas se encuentran o violencia o intimidación en las personas, sea al cometer el delito, para proteger la huida, o sobre los que acudiesen en auxilio de la víctima o que le persiguieren."
+    },
+    {
+      "numero": "238",
+      "titulo": "Robo con fuerza en las cosas (circunstancias)",
+      "texto": "Son reos del delito de robo con fuerza en las cosas los que ejecuten el hecho cuando concurra alguna de las circunstancias siguientes: 1.ª Escalamiento. 2.ª Rompimiento de pared, techo o suelo, o fractura de puerta o ventana. 3.ª Fractura de armarios, arcas u otra clase de muebles u objetos cerrados o sellados, o forzamiento de sus cerraduras o descubrimiento de sus claves para sustraer su contenido, sea en el lugar del robo o fuera del mismo. 4.ª Uso de llaves falsas. 5.ª Inutilización de sistemas específicos de alarma o guarda."
+    },
+    {
+      "numero": "242",
+      "titulo": "Robo con violencia o intimidación en las personas",
+      "texto": "1. El culpable de robo con violencia o intimidación en las personas será castigado con la pena de prisión de dos a cinco años, sin perjuicio de la que pudiera corresponder a los actos de violencia física que realizase. La pena se impondrá en su mitad superior cuando el delincuente hiciere uso de las armas u otros medios peligrosos que llevare, sea al cometer el delito o para proteger la huida."
+    },
+    {
+      "numero": "248",
+      "titulo": "Estafa",
+      "texto": "1. Cometen estafa los que, con ánimo de lucro, utilizaren engaño bastante para producir error en otro, induciéndolo a realizar un acto de disposición en perjuicio propio o ajeno."
+    },
+    {
+      "numero": "263",
+      "titulo": "Daños",
+      "texto": "1. El que causare daños en propiedad ajena no comprendidos en otros títulos de este Código será castigado con multa de seis a veinticuatro meses, atendidas la condición económica de la víctima y la cuantía del daño causado, si éste excediera de 400 euros."
+    },
+    {
+      "numero": "298",
+      "titulo": "Receptación",
+      "texto": "1. El que, con ánimo de lucro y con conocimiento de la comisión de un delito contra el patrimonio o el orden socioeconómico, en el que no haya intervenido ni como autor ni como cómplice, ayude a los responsables a aprovecharse de los efectos del mismo, o reciba, adquiera u oculte tales efectos, será castigado con la pena de prisión de seis meses a dos años."
+    },
+    {
+      "numero": "337",
+      "titulo": "Maltrato animal",
+      "texto": "1. Será castigado con la pena de prisión de tres meses y un día a un año e inhabilitación especial de un año y un día a tres años para el ejercicio de profesión, oficio o comercio que tenga relación con los animales y para la tenencia de animales, el que por cualquier medio o procedimiento maltrate injustificadamente, causándole lesiones que menoscaben gravemente su salud o sometiéndole a explotación sexual, a un animal doméstico o amansado, un ave, mamífero, reptil o anfibio, tenidos por el hombre, o cualquier otro que no viva en estado salvaje."
+    },
+    {
+      "numero": "368",
+      "titulo": "Tráfico de drogas (contra la salud pública)",
+      "texto": "Los que ejecuten actos de cultivo, elaboración o tráfico, o de otro modo promuevan, favorezcan o faciliten el consumo ilegal de drogas tóxicas, estupefacientes o sustancias psicotrópicas, o las posean con aquellos fines, serán castigados con las penas de prisión de tres a seis años y multa del tanto al triplo del valor de la droga objeto del delito si se tratare de sustancias o productos que causen grave daño a la salud, y de prisión de uno a tres años y multa del tanto al duplo en los demás casos. No obstante, los tribunales podrán imponer la pena inferior en grado en atención a la escasa entidad del hecho y a las circunstancias personales del culpable, salvo que concurran las circunstancias de los artículos 369 bis o 370."
+    },
+    {
+      "numero": "379",
+      "titulo": "Delito de exceso de velocidad y de conducción bajo alcohol o drogas",
+      "texto": "1. El que condujere un vehículo de motor o un ciclomotor a velocidad superior en 60 km/h en vía urbana o en 80 km/h en vía interurbana a la permitida reglamentariamente, será castigado con la pena de prisión de tres a seis meses o multa de seis a doce meses o trabajos en beneficio de la comunidad de treinta y uno a noventa días, y en cualquier caso privación del derecho a conducir vehículos a motor y ciclomotores de uno a cuatro años. 2. Con las mismas penas será castigado el que condujere un vehículo de motor o ciclomotor bajo la influencia de drogas tóxicas, estupefacientes, sustancias psicotrópicas o de bebidas alcohólicas. En todo caso será condenado con dichas penas el que condujere con una tasa de alcohol en aire espirado superior a 0,60 miligramos por litro o con una tasa de alcohol en sangre superior a 1,2 gramos por litro."
+    },
+    {
+      "numero": "380",
+      "titulo": "Conducción temeraria",
+      "texto": "1. El que condujere un vehículo de motor o un ciclomotor con temeridad manifiesta y pusiere en concreto peligro la vida o la integridad de las personas será castigado con las penas de prisión de seis meses a dos años y privación del derecho a conducir vehículos a motor y ciclomotores por tiempo superior a uno y hasta seis años. 2. A los efectos de este precepto se reputará manifiestamente temeraria la conducción en la que concurrieren las circunstancias previstas en el apartado 1 y en el inciso segundo del apartado 2 del artículo anterior (exceso de velocidad cualificado combinado con tasa de alcohol delictiva)."
+    },
+    {
+      "numero": "383",
+      "titulo": "Negativa a someterse a las pruebas de alcoholemia o drogas",
+      "texto": "El conductor que, requerido por un agente de la autoridad, se negare a someterse a las pruebas legalmente establecidas para la comprobación de las tasas de alcoholemia y la presencia de las drogas tóxicas, estupefacientes y sustancias psicotrópicas a que se refieren los artículos anteriores, será castigado con la pena de prisión de seis meses a un año y privación del derecho a conducir vehículos a motor y ciclomotores por tiempo superior a uno y hasta cuatro años."
+    },
+    {
+      "numero": "384",
+      "titulo": "Conducción sin permiso",
+      "texto": "El que condujere un vehículo de motor o ciclomotor en los casos de pérdida de vigencia del permiso o licencia por pérdida total de los puntos legalmente asignados, o el que realizare la conducción tras haber sido privado cautelar o definitivamente del permiso o licencia por decisión judicial, o el que condujere un vehículo de motor o ciclomotor sin haber obtenido nunca permiso o licencia de conducción, será castigado con la pena de prisión de tres a seis meses o con la de multa de doce a veinticuatro meses o con la de trabajos en beneficio de la comunidad de treinta y uno a noventa días."
+    },
+    {
+      "numero": "468",
+      "titulo": "Quebrantamiento de condena",
+      "texto": "1. Los que quebrantaren su condena, medida de seguridad, prisión, medida cautelar, conducción o custodia serán castigados con la pena de prisión de seis meses a un año si estuvieran privados de libertad, y con la pena de multa de doce a veinticuatro meses en los demás casos. 2. Se impondrá en todo caso la pena de prisión de seis meses a un año a quienes quebrantaren una pena de las contempladas en el artículo 48 (alejamiento, prohibición de comunicación) o una medida cautelar o de seguridad de la misma naturaleza impuesta en procesos criminales en los que el ofendido sea alguna de las personas a las que se refiere el artículo 173.2."
+    },
+    {
+      "numero": "550",
+      "titulo": "Atentado",
+      "texto": "1. Son reos de atentado los que agredieren o, con intimidación grave o violencia, opusieren resistencia grave a la autoridad, a sus agentes o funcionarios públicos, o los acometieren, cuando se hallen en el ejercicio de las funciones de sus cargos o con ocasión de ellas. También se consideran actos de atentado los cometidos contra funcionarios docentes o sanitarios en el ejercicio de sus funciones. 2. Los atentados se castigan con prisión de uno a cuatro años y multa de tres a seis meses si el atentado fuera contra autoridad, y de prisión de seis meses a tres años en los demás casos (agentes y funcionarios). 3. Si la autoridad agredida fuera miembro del Gobierno, de las Cortes, del Poder Judicial u otras altas instituciones, la pena será de prisión de uno a seis años y multa de seis a doce meses."
+    },
+    {
+      "numero": "551",
+      "titulo": "Atentado agravado",
+      "texto": "Se impondrán las penas superiores en grado a las del artículo 550 cuando el atentado se cometa: 1.º Haciendo uso de armas u otros objetos peligrosos. 2.º Cuando el acto de violencia ejecutado resulte potencialmente peligroso para la vida de las personas o pueda causar lesión grave. 3.º Cuando el autor atentare contra agente de la autoridad acompañando su acción de lanzamiento de objetos contundentes o líquidos inflamables. 4.º Cuando se cometa el atentado con ocultación del rostro. 5.º Cuando se lleve a cabo con acometimiento de dos o más personas."
+    },
+    {
+      "numero": "556",
+      "titulo": "Resistencia y desobediencia grave a la autoridad",
+      "texto": "1. Serán castigados con la pena de prisión de tres meses a un año o multa de seis a dieciocho meses los que, sin estar comprendidos en el artículo 550, resistieren o desobedecieren gravemente a la autoridad o sus agentes en el ejercicio de sus funciones, o al personal de seguridad privada debidamente identificado que desarrolle actividades de seguridad privada en cooperación con las Fuerzas y Cuerpos de Seguridad. 2. Los que faltaren al respeto y consideración debida a la autoridad, en el ejercicio de sus funciones, serán castigados con la pena de multa de uno a tres meses."
+    },
+    {
+      "numero": "563",
+      "titulo": "Tenencia ilícita de armas",
+      "texto": "La tenencia de armas prohibidas y la de aquellas que sean resultado de la modificación sustancial de las características de fabricación de armas reglamentadas, será castigada con la pena de prisión de uno a tres años."
+    }
+  ]
+}
