@@ -545,6 +545,16 @@ color: var(--text-soft);
 line-height: 1.55;
 }
 
+.result-ley {
+display: block;
+margin-bottom: 4px;
+color: var(--blue-2);
+font-size: 12px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: .04em;
+}
+
 /* =========================================================
 BOTONES
 ========================================================= */
