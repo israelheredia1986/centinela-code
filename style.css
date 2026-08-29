@@ -702,6 +702,38 @@ border-radius: 15px;
 background: rgba(16, 47, 86, .30);
 }
 
+.infraccion-preview-sancion {
+margin-top: 12px;
+padding-top: 12px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+border-top: 1px solid rgba(47, 140, 255, .22);
+}
+
+.infraccion-preview-sancion-label {
+color: var(--text-soft);
+font-size: 13px;
+font-weight: 650;
+text-transform: uppercase;
+letter-spacing: .03em;
+}
+
+.infraccion-preview-sancion-valor {
+color: var(--gold-2);
+font-size: 16px;
+font-weight: 800;
+}
+
+.infraccion-preview-sancion-vacia {
+color: var(--text-muted);
+font-size: 13px;
+font-weight: 650;
+text-transform: none;
+letter-spacing: 0;
+}
+
 .field-with-button {
 display: flex;
 align-items: center;
