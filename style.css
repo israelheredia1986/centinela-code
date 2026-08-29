@@ -702,6 +702,107 @@ border-radius: 15px;
 background: rgba(16, 47, 86, .30);
 }
 
+.field-with-button {
+display: flex;
+align-items: center;
+gap: 9px;
+}
+
+.field-with-button input {
+flex: 1;
+min-width: 0;
+}
+
+.input-inline-button {
+flex: 0 0 auto;
+width: 48px;
+min-height: 48px;
+border: 1px solid rgba(82, 135, 190, .27);
+border-radius: 14px;
+background: #102f58;
+color: var(--text);
+font-size: 20px;
+cursor: pointer;
+display: grid;
+place-items: center;
+}
+
+.input-inline-button:active {
+transform: scale(.96);
+}
+
+.input-inline-button.is-loading {
+opacity: .6;
+pointer-events: none;
+}
+
+/* =========================================================
+BÚSQUEDA EN MODAL (buscador de artículos)
+========================================================= */
+
+.modal-search {
+position: relative;
+margin-bottom: 14px;
+}
+
+.modal-search input {
+width: 100%;
+min-height: 50px;
+padding: 0 15px;
+color: var(--text);
+border: 1px solid rgba(79, 145, 216, .34);
+border-radius: 15px;
+background: rgba(12, 27, 47, .94);
+outline: none;
+}
+
+.modal-search input:focus {
+border-color: var(--blue);
+box-shadow: 0 0 0 3px rgba(47,140,255,.10);
+}
+
+.modal-search-results {
+display: grid;
+gap: 8px;
+max-height: 46vh;
+overflow-y: auto;
+}
+
+.modal-search-hint {
+margin: 6px 2px;
+color: var(--text-muted);
+}
+
+.modal-search-item {
+display: flex;
+flex-direction: column;
+gap: 3px;
+padding: 12px 14px;
+text-align: left;
+border: 1px solid rgba(80, 137, 198, .22);
+border-radius: 14px;
+background: rgba(18,32,53,.92);
+color: var(--text);
+cursor: pointer;
+}
+
+.modal-search-item:active {
+background: rgba(30,52,84,.92);
+}
+
+.modal-search-item-code {
+color: var(--blue-2);
+font-size: 12px;
+font-weight: 800;
+text-transform: uppercase;
+letter-spacing: .03em;
+}
+
+.modal-search-item-title {
+font-size: 14px;
+color: var(--text-soft);
+}
+
 /* =========================================================
 NORMATIVA
 ========================================================= */
@@ -890,6 +991,92 @@ text-decoration: none;
 .law-sin-enlace {
 color: var(--text-muted);
 font-style: italic;
+}
+
+.fav-button {
+font-size: 24px;
+color: var(--gold);
+background: rgba(255,255,255,.05);
+}
+
+.fav-button.is-active {
+color: var(--gold-2);
+background: rgba(231, 195, 106, .16);
+border: 1px solid rgba(231, 195, 106, .45);
+}
+
+.favoritos-section {
+margin-bottom: 22px;
+}
+
+.favoritos-title {
+margin: 4px 0 12px;
+display: flex;
+align-items: center;
+gap: 7px;
+font-size: 15px;
+color: var(--gold-2);
+text-transform: uppercase;
+letter-spacing: .04em;
+}
+
+.normativa-fav-remove {
+flex: 0 0 auto;
+width: 42px;
+height: 42px;
+border-radius: 13px;
+background: rgba(255,255,255,.05);
+color: var(--gold);
+font-size: 20px;
+cursor: pointer;
+}
+
+/* =========================================================
+ETIQUETAS DE ESTADO (badges)
+========================================================= */
+
+.badge {
+display: inline-block;
+padding: 4px 12px;
+border-radius: 999px;
+font-size: 12px;
+font-weight: 750;
+letter-spacing: .02em;
+}
+
+.badge--success {
+color: #b7f7cf;
+background: rgba(37, 214, 107, .16);
+border: 1px solid rgba(37, 214, 107, .38);
+}
+
+.badge--warning {
+color: #ffe0b8;
+background: rgba(255, 157, 67, .16);
+border: 1px solid rgba(255, 157, 67, .38);
+}
+
+.badge--danger {
+color: #ffc3c8;
+background: rgba(255, 91, 104, .16);
+border: 1px solid rgba(255, 91, 104, .38);
+}
+
+.badge--neutral {
+color: var(--text-soft);
+background: rgba(255,255,255,.06);
+border: 1px solid rgba(255,255,255,.14);
+}
+
+/* =========================================================
+ACTAS: ACCIONES ADICIONALES
+========================================================= */
+
+.acta-card-actions {
+margin-top: 14px;
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
 }
 
 .viewer-content .law-article {
