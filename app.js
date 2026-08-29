@@ -2055,8 +2055,22 @@ No se han podido cargar los artículos.
 </div> 
 `; 
 } else { 
-contenido.innerHTML = 
-articulos 
+const enlaceOficial = 
+estado.lopsc && estado.lopsc.enlaceOficial; 
+
+contenido.innerHTML = ` 
+${enlaceOficial ? ` 
+<a 
+class="law-link-button" 
+href="${escaparHTML(enlaceOficial)}" 
+target="_blank" 
+rel="noopener noreferrer" 
+> 
+🔗 Ver normativa online (BOE) 
+</a> 
+` : ""} 
+
+${articulos 
 .map((articulo) => ` 
 <article class="law-article"> 
 
@@ -2079,7 +2093,8 @@ articulo.texto || ""
 
 </article> 
 `) 
-.join(""); 
+.join("")} 
+`; 
 } 
 
 visor.classList.remove("hidden"); 
