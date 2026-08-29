@@ -28,7 +28,8 @@ ordenanzas: "./data/ordenanzas.json",
 animales: "./data/normativa_animales.json", 
 trafico: "./data/normativa_trafico.json" 
 }, 
-STORAGE_ACTAS: "centinela_code_actas_v1" 
+STORAGE_ACTAS: "centinela_code_actas_v1", 
+STORAGE_FAVORITOS: "centinela_code_favoritos_v1" 
 }; 
 
 const estado = { 
@@ -40,7 +41,8 @@ trafico: null,
 resultados: [], 
 gravedad: "all", 
 normativaBusqueda: "", 
-actas: [] 
+actas: [], 
+favoritos: [] 
 }; 
 
 /* ========================================================= 
@@ -66,6 +68,36 @@ return String(valor ?? "")
 .replace(/>/g, "&gt;") 
 .replace(/"/g, "&quot;") 
 .replace(/'/g, "&#039;"); 
+} 
+
+const ESTADOS_NORMATIVA = { 
+publicada_oficialmente: { texto: "Publicada oficialmente", tono: "success" }, 
+catalogada_oficialmente: { texto: "Catalogada oficialmente", tono: "success" }, 
+vigente: { texto: "Vigente", tono: "success" }, 
+catalogada_con_modificaciones: { texto: "Catalogada con modificaciones", tono: "warning" }, 
+catalogada_con_modificacion: { texto: "Catalogada con modificación", tono: "warning" }, 
+en_revision_2025: { texto: "En revisión (2025)", tono: "warning" }, 
+derogada: { texto: "Derogada", tono: "danger" } 
+}; 
+
+function formatearEstadoNormativa(valor) { 
+const clave = String(valor || "").trim(); 
+
+if (!clave) { 
+return ""; 
+} 
+
+const info = ESTADOS_NORMATIVA[clave]; 
+
+if (info) { 
+return `<span class="badge badge--${info.tono}">${escaparHTML(info.texto)}</span>`; 
+} 
+
+const texto = clave 
+.replace(/_/g, " ") 
+.replace(/^./, (letra) => letra.toUpperCase()); 
+
+return `<span class="badge badge--neutral">${escaparHTML(texto)}</span>`; 
 } 
 
 function mostrarToast(mensaje) { 
@@ -1067,6 +1099,13 @@ $("actaInfraccion")?.addEventListener(
 actualizarPreviewInfraccion 
 ); 
 
+$("actaInfraccionSearchButton")?.addEventListener( 
+"click", 
+abrirBuscadorArticuloActa 
+); 
+
+configurarGeolocalizacionActa(); 
+
 renderizarActas(); 
 } 
 
@@ -1291,7 +1330,7 @@ acta.infraccion ||
 )} 
 </p> 
 
-<div class="form-actions"> 
+<div class="form-actions acta-card-actions"> 
 
 <button 
 type="button" 
@@ -1301,6 +1340,16 @@ escaparHTML(acta.id)
 }" 
 > 
 Editar 
+</button> 
+
+<button 
+type="button" 
+class="secondary-button" 
+data-copy-acta="${ 
+escaparHTML(acta.id) 
+}" 
+> 
+📋 Copiar 
 </button> 
 
 <button 
@@ -1408,6 +1457,498 @@ ${escaparHTML(
 encontrada.gravedad || "" 
 )} 
 </span> 
+`; 
+} 
+
+/* ========================================================= 
+BUSCADOR DE ARTÍCULOS EN EL ACTA 
+========================================================= */ 
+
+function abrirBuscadorArticuloActa() { 
+abrirModal( 
+"Buscar artículo o infracción", 
+renderBuscadorArticuloModal(""), 
+[ 
+{ 
+label: "Cancelar", 
+className: "secondary-button", 
+onClick: cerrarModal 
+} 
+] 
+); 
+
+const input = $("modalArticuloSearch"); 
+
+if (input) { 
+input.addEventListener("input", () => { 
+const contenedor = 
+$("modalArticuloResultados"); 
+
+if (contenedor) { 
+contenedor.innerHTML = 
+renderResultadosBuscadorArticulo( 
+input.value 
+); 
+} 
+}); 
+
+input.focus(); 
+} 
+} 
+
+function renderBuscadorArticuloModal(textoInicial) { 
+return ` 
+<div class="modal-search"> 
+<input 
+id="modalArticuloSearch" 
+type="search" 
+placeholder="Buscar por código, artículo o palabra clave..." 
+autocomplete="off" 
+value="${escaparHTML(textoInicial)}" 
+> 
+</div> 
+
+<div 
+id="modalArticuloResultados" 
+class="modal-search-results" 
+> 
+${renderResultadosBuscadorArticulo(textoInicial)} 
+</div> 
+`; 
+} 
+
+function renderResultadosBuscadorArticulo(textoCrudo) { 
+const texto = 
+normalizarTexto(textoCrudo); 
+
+if (!texto) { 
+return `<p class="modal-search-hint">Escribe un código, artículo o palabra clave para buscar.</p>`; 
+} 
+
+const resultados = 
+estado.infracciones.filter((infraccion) => { 
+
+const palabras = Array.isArray( 
+infraccion.palabrasClave 
+) 
+? infraccion.palabrasClave 
+: []; 
+
+const contenido = [ 
+infraccion.id, 
+infraccion.codigo, 
+infraccion.ley, 
+infraccion.articulo, 
+infraccion.apartado, 
+infraccion.titulo, 
+infraccion.conducta, 
+...palabras 
+].join(" "); 
+
+return normalizarTexto(contenido).includes(texto); 
+}).slice(0, 30); 
+
+if (!resultados.length) { 
+return `<p class="modal-search-hint">Sin resultados para esa búsqueda.</p>`; 
+} 
+
+return resultados.map((infraccion) => ` 
+<button 
+type="button" 
+class="modal-search-item" 
+data-select-articulo="${escaparHTML(infraccion.codigo || "")}" 
+> 
+<span class="modal-search-item-code"> 
+${escaparHTML(infraccion.codigo || "")} 
+</span> 
+<span class="modal-search-item-title"> 
+${escaparHTML(infraccion.titulo || "Sin título")} 
+</span> 
+</button> 
+`).join(""); 
+} 
+
+function seleccionarArticuloParaActa(codigo) { 
+const input = $("actaInfraccion"); 
+
+if (input) { 
+input.value = codigo || ""; 
+actualizarPreviewInfraccion(); 
+} 
+
+cerrarModal(); 
+mostrarToast("Artículo seleccionado."); 
+} 
+
+/* ========================================================= 
+CONEXIÓN INVERSA: AÑADIR NORMATIVA AL ACTA 
+========================================================= */ 
+
+function enviarInfraccionAActa(codigo) { 
+if (!codigo) { 
+return; 
+} 
+
+activarSeccion("actas"); 
+abrirEditorActa(); 
+
+setTimeout(() => { 
+const input = $("actaInfraccion"); 
+
+if (input) { 
+input.value = codigo; 
+actualizarPreviewInfraccion(); 
+} 
+}, 120); 
+
+mostrarToast(`«${codigo}» añadido al acta.`); 
+} 
+
+/* ========================================================= 
+GEOLOCALIZACIÓN DEL LUGAR DE LOS HECHOS 
+========================================================= */ 
+
+async function obtenerDireccionDesdeCoordenadas(lat, lon) { 
+if (!navigator.onLine) { 
+return null; 
+} 
+
+const controlador = new AbortController(); 
+const temporizador = setTimeout(() => controlador.abort(), 6000); 
+
+try { 
+const respuesta = await fetch( 
+`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`, 
+{ 
+signal: controlador.signal, 
+headers: { "Accept": "application/json" } 
+} 
+); 
+
+if (!respuesta.ok) { 
+return null; 
+} 
+
+const datos = await respuesta.json(); 
+
+return datos?.display_name || null; 
+
+} catch (error) { 
+return null; 
+
+} finally { 
+clearTimeout(temporizador); 
+} 
+} 
+
+function configurarGeolocalizacionActa() { 
+const boton = $("actaLugarGpsButton"); 
+const input = $("actaLugar"); 
+
+if (!boton || !input) { 
+return; 
+} 
+
+boton.addEventListener("click", async () => { 
+
+if (!("geolocation" in navigator)) { 
+mostrarToast("Este dispositivo no permite obtener la ubicación."); 
+return; 
+} 
+
+boton.classList.add("is-loading"); 
+boton.textContent = "⏳"; 
+
+navigator.geolocation.getCurrentPosition( 
+async (posicion) => { 
+
+const lat = posicion.coords.latitude; 
+const lon = posicion.coords.longitude; 
+
+const coordenadas = 
+`${lat.toFixed(5)}, ${lon.toFixed(5)}`; 
+
+const direccion = 
+await obtenerDireccionDesdeCoordenadas(lat, lon); 
+
+input.value = direccion || coordenadas; 
+
+boton.classList.remove("is-loading"); 
+boton.textContent = "📍"; 
+
+mostrarToast("Ubicación actual añadida."); 
+}, 
+(error) => { 
+
+boton.classList.remove("is-loading"); 
+boton.textContent = "📍"; 
+
+console.error("Error de geolocalización:", error); 
+mostrarToast("No se pudo obtener la ubicación."); 
+}, 
+{ 
+enableHighAccuracy: true, 
+timeout: 10000, 
+maximumAge: 0 
+} 
+); 
+}); 
+} 
+
+/* ========================================================= 
+COPIAR / EXPORTAR ACTA 
+========================================================= */ 
+
+function formatearActaComoTexto(acta) { 
+const lineas = [ 
+`ACTA Nº ${acta.numero || "sin número"}`, 
+`Fecha: ${acta.fecha || "-"}    Hora: ${acta.hora || "-"}`, 
+"", 
+"PERSONA DENUNCIADA", 
+`Nombre y apellidos: ${acta.nombre || "-"}`, 
+`DNI / NIE: ${acta.dni || "-"}`, 
+`Domicilio: ${acta.domicilio || "-"}`, 
+"", 
+"HECHOS", 
+`Lugar: ${acta.lugar || "-"}`, 
+`Descripción: ${acta.hechos || "-"}`, 
+"", 
+"INFRACCIÓN", 
+`Código / artículo: ${acta.infraccion || "-"}`, 
+"", 
+"OBSERVACIONES", 
+acta.observaciones || "-" 
+]; 
+
+return lineas.join("\n"); 
+} 
+
+async function copiarActa(id) { 
+const acta = 
+estado.actas.find((item) => item.id === id); 
+
+if (!acta) { 
+return; 
+} 
+
+const texto = formatearActaComoTexto(acta); 
+
+try { 
+await navigator.clipboard.writeText(texto); 
+mostrarToast("Acta copiada al portapapeles."); 
+
+} catch (error) { 
+console.error("No se pudo copiar el acta:", error); 
+mostrarToast("No se pudo copiar el acta."); 
+} 
+} 
+
+/* ========================================================= 
+FAVORITOS 
+========================================================= */ 
+
+function cargarFavoritos() { 
+try { 
+const guardados = 
+localStorage.getItem( 
+CONFIG.STORAGE_FAVORITOS 
+); 
+
+estado.favoritos = 
+guardados 
+? JSON.parse(guardados) 
+: []; 
+
+if (!Array.isArray(estado.favoritos)) { 
+estado.favoritos = []; 
+} 
+
+} catch (error) { 
+console.error( 
+"No se pudieron cargar los favoritos:", 
+error 
+); 
+
+estado.favoritos = []; 
+} 
+} 
+
+function guardarFavoritos() { 
+localStorage.setItem( 
+CONFIG.STORAGE_FAVORITOS, 
+JSON.stringify(estado.favoritos) 
+); 
+} 
+
+function claveFavorito(tipo, id) { 
+return `${tipo || ""}::${id || ""}`; 
+} 
+
+function esFavorito(tipo, id) { 
+const clave = claveFavorito(tipo, id); 
+
+return estado.favoritos.some( 
+(item) => claveFavorito(item.tipo, item.id) === clave 
+); 
+} 
+
+function alternarFavorito(tipo, id, etiqueta, subtitulo, icono) { 
+if (!tipo) { 
+return; 
+} 
+
+const clave = claveFavorito(tipo, id); 
+
+const indice = 
+estado.favoritos.findIndex( 
+(item) => claveFavorito(item.tipo, item.id) === clave 
+); 
+
+if (indice >= 0) { 
+estado.favoritos.splice(indice, 1); 
+mostrarToast("Eliminado de favoritos."); 
+} else { 
+estado.favoritos.unshift({ 
+tipo, 
+id: id || "", 
+etiqueta: etiqueta || "Normativa", 
+subtitulo: subtitulo || "", 
+icono: icono || "⭐" 
+}); 
+mostrarToast("Añadido a favoritos."); 
+} 
+
+guardarFavoritos(); 
+actualizarBotonFavorito(tipo, id, etiqueta, subtitulo, icono); 
+renderizarNormativa(); 
+} 
+
+function actualizarBotonFavorito(tipo, id, etiqueta, subtitulo, icono) { 
+const boton = $("viewerFavButton"); 
+
+if (!boton) { 
+return; 
+} 
+
+if (!tipo) { 
+boton.classList.add("hidden"); 
+return; 
+} 
+
+boton.classList.remove("hidden"); 
+boton.dataset.favTipo = tipo; 
+boton.dataset.favId = id || ""; 
+boton.dataset.favEtiqueta = etiqueta || ""; 
+boton.dataset.favSubtitulo = subtitulo || ""; 
+boton.dataset.favIcono = icono || "⭐"; 
+
+const activo = esFavorito(tipo, id); 
+
+boton.classList.toggle("is-active", activo); 
+boton.textContent = activo ? "⭐" : "☆"; 
+boton.title = activo 
+? "Quitar de favoritos" 
+: "Guardar en favoritos"; 
+} 
+
+function quitarFavoritoPorClave(clave) { 
+const indice = 
+estado.favoritos.findIndex( 
+(item) => claveFavorito(item.tipo, item.id) === clave 
+); 
+
+if (indice < 0) { 
+return; 
+} 
+
+estado.favoritos.splice(indice, 1); 
+guardarFavoritos(); 
+
+actualizarBotonFavorito( 
+$("viewerFavButton")?.dataset.favTipo, 
+$("viewerFavButton")?.dataset.favId, 
+$("viewerFavButton")?.dataset.favEtiqueta, 
+$("viewerFavButton")?.dataset.favSubtitulo, 
+$("viewerFavButton")?.dataset.favIcono 
+); 
+
+renderizarNormativa(); 
+mostrarToast("Eliminado de favoritos."); 
+} 
+
+function configurarFavoritos() { 
+$("viewerFavButton")?.addEventListener( 
+"click", 
+(evento) => { 
+const boton = evento.currentTarget; 
+
+alternarFavorito( 
+boton.dataset.favTipo, 
+boton.dataset.favId, 
+boton.dataset.favEtiqueta, 
+boton.dataset.favSubtitulo, 
+boton.dataset.favIcono 
+); 
+} 
+); 
+} 
+
+function renderizarFavoritos() { 
+if (!estado.favoritos.length) { 
+return ""; 
+} 
+
+return ` 
+<div class="favoritos-section"> 
+
+<div class="favoritos-title"> 
+⭐ Favoritos 
+</div> 
+
+<div class="normativa-list"> 
+${estado.favoritos.map((favorito) => ` 
+<div class="normativa-card"> 
+
+<div class="normativa-icon"> 
+${favorito.icono || "⭐"} 
+</div> 
+
+<div class="normativa-info"> 
+
+<h3> 
+${escaparHTML(favorito.etiqueta || "Normativa")} 
+</h3> 
+
+<p> 
+${escaparHTML(favorito.subtitulo || "")} 
+</p> 
+
+</div> 
+
+<button 
+type="button" 
+class="normativa-fav-remove" 
+data-fav-remove="${escaparHTML(claveFavorito(favorito.tipo, favorito.id))}" 
+aria-label="Quitar de favoritos" 
+title="Quitar de favoritos" 
+> 
+⭐ 
+</button> 
+
+<button 
+type="button" 
+class="normativa-open" 
+data-law="${escaparHTML(favorito.tipo)}" 
+data-id="${escaparHTML(favorito.id)}" 
+> 
+Ver 
+</button> 
+
+</div> 
+`).join("")} 
+</div> 
+
+</div> 
 `; 
 } 
 
@@ -1555,8 +2096,13 @@ Ver
 </div> 
 `; 
 
+const favoritosHTML = 
+texto ? "" : renderizarFavoritos(); 
+
 if (!principalesFiltradas.length) { 
-lista.innerHTML = ` 
+lista.innerHTML = 
+favoritosHTML || 
+` 
 <div class="empty-state"> 
 <div class="empty-icon">🔍</div> 
 <h3>Sin resultados</h3> 
@@ -1570,6 +2116,7 @@ return;
 } 
 
 lista.innerHTML = ` 
+${favoritosHTML} 
 <div class="normativa-list normativa-list--principal"> 
 ${principalesFiltradas.map(renderTarjetaPrincipal).join("")} 
 </div> 
@@ -1644,6 +2191,8 @@ $("viewerTitle").textContent =
 $("viewerSubtitle").textContent = 
 `Normativa local por categorías — ${ordenanzas.length} ordenanzas`; 
 
+actualizarBotonFavorito(); 
+
 const grupos = 
 renderGruposOrdenanzas(categorias, ordenanzas); 
 
@@ -1700,6 +2249,8 @@ $("viewerTitle").textContent =
 
 $("viewerSubtitle").textContent = 
 "Bienestar animal y tenencia de PPP — estatal y andaluza"; 
+
+actualizarBotonFavorito(); 
 
 if (!leyes.length) { 
 contenido.innerHTML = ` 
@@ -1784,6 +2335,14 @@ leyItem.ley || "Normativa de animales";
 $("viewerSubtitle").textContent = 
 leyItem.abreviatura || ""; 
 
+actualizarBotonFavorito( 
+"ley-animal", 
+id, 
+leyItem.ley || "Normativa de animales", 
+leyItem.abreviatura || "", 
+"🐾" 
+); 
+
 const articulos = 
 Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
 
@@ -1800,7 +2359,7 @@ data-law="animales"
 
 <p> 
 <strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
-<strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
+<strong>Estado:</strong> ${formatearEstadoNormativa(leyItem.estado)}<br> 
 <strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
 </p> 
 
@@ -1835,6 +2394,13 @@ Artículo ${escaparHTML(articulo.numero)}.
 ${escaparHTML(articulo.titulo || "")} 
 </h4> 
 <p>${escaparHTML(articulo.texto || "")}</p> 
+<button 
+type="button" 
+class="secondary-button" 
+data-add-acta="${escaparHTML(articulo.numero || "")}" 
+> 
+📝 Añadir al acta 
+</button> 
 </article> 
 `).join("")} 
 `; 
@@ -1875,6 +2441,8 @@ $("viewerTitle").textContent =
 
 $("viewerSubtitle").textContent = 
 "Ley de Tráfico y sus reglamentos de desarrollo"; 
+
+actualizarBotonFavorito(); 
 
 if (!leyes.length) { 
 contenido.innerHTML = ` 
@@ -1959,6 +2527,14 @@ leyItem.ley || "Normativa de tráfico";
 $("viewerSubtitle").textContent = 
 leyItem.abreviatura || ""; 
 
+actualizarBotonFavorito( 
+"ley-trafico", 
+id, 
+leyItem.ley || "Normativa de tráfico", 
+leyItem.abreviatura || "", 
+"🚦" 
+); 
+
 const articulos = 
 Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
 
@@ -1975,7 +2551,7 @@ data-law="trafico"
 
 <p> 
 <strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
-<strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
+<strong>Estado:</strong> ${formatearEstadoNormativa(leyItem.estado)}<br> 
 <strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
 </p> 
 
@@ -2010,6 +2586,13 @@ Artículo ${escaparHTML(articulo.numero)}.
 ${escaparHTML(articulo.titulo || "")} 
 </h4> 
 <p>${escaparHTML(articulo.texto || "")}</p> 
+<button 
+type="button" 
+class="secondary-button" 
+data-add-acta="${escaparHTML(articulo.numero || "")}" 
+> 
+📝 Añadir al acta 
+</button> 
 </article> 
 `).join("")} 
 `; 
@@ -2044,6 +2627,14 @@ $("viewerTitle").textContent =
 
 $("viewerSubtitle").textContent = 
 "Protección de la seguridad ciudadana"; 
+
+actualizarBotonFavorito( 
+"lopsc", 
+"", 
+"Ley Orgánica 4/2015", 
+"Protección de la seguridad ciudadana", 
+"⚖️" 
+); 
 
 if (!articulos.length) { 
 contenido.innerHTML = ` 
@@ -2090,6 +2681,14 @@ ${escaparHTML(
 articulo.texto || "" 
 )} 
 </p> 
+
+<button 
+type="button" 
+class="secondary-button" 
+data-add-acta="${escaparHTML(articulo.numero || "")}" 
+> 
+📝 Añadir al acta 
+</button> 
 
 </article> 
 `) 
@@ -2138,6 +2737,14 @@ ordenanza.nombre_corto ||
 $("viewerSubtitle").textContent = 
 ordenanza.codigo || ""; 
 
+actualizarBotonFavorito( 
+"ordenanza", 
+id, 
+ordenanza.nombre || ordenanza.nombre_corto || "Ordenanza municipal", 
+ordenanza.codigo || "", 
+"📋" 
+); 
+
 const palabras = 
 Array.isArray( 
 ordenanza.palabras_clave 
@@ -2176,7 +2783,7 @@ ordenanza.descripcion || ""
 ${ 
 ordenanza.estado 
 ? ` 
-<p><strong>Estado:</strong> ${escaparHTML(ordenanza.estado)}</p> 
+<p><strong>Estado:</strong> ${formatearEstadoNormativa(ordenanza.estado)}</p> 
 ` 
 : "" 
 } 
@@ -2228,6 +2835,14 @@ escaparHTML
 : "" 
 } 
 
+<button 
+type="button" 
+class="secondary-button" 
+data-add-acta="${escaparHTML(ordenanza.codigo || ordenanza.nombre || "")}" 
+> 
+📝 Añadir al acta 
+</button> 
+
 </article> 
 `; 
 
@@ -2243,6 +2858,8 @@ function cerrarVisorNormativa() {
 $("normativaViewer")?.classList.add( 
 "hidden" 
 ); 
+
+actualizarBotonFavorito(); 
 } 
 
 /* ========================================================= 
@@ -2377,6 +2994,21 @@ document.addEventListener(
 "click", 
 (evento) => { 
 
+const enlaceExterno = 
+evento.target.closest( 
+"a.law-link-button" 
+); 
+
+if (enlaceExterno) { 
+if (!navigator.onLine) { 
+evento.preventDefault(); 
+mostrarToast( 
+"Sin cobertura: no se puede abrir el documento oficial ahora mismo." 
+); 
+} 
+return; 
+} 
+
 const detalle = 
 evento.target.closest( 
 "[data-infraccion-id]" 
@@ -2422,6 +3054,54 @@ evento.target.closest(
 if (borrar) { 
 borrarActa( 
 borrar.dataset.deleteActa 
+); 
+return; 
+} 
+
+const copiar = 
+evento.target.closest( 
+"[data-copy-acta]" 
+); 
+
+if (copiar) { 
+copiarActa( 
+copiar.dataset.copyActa 
+); 
+return; 
+} 
+
+const seleccionArticulo = 
+evento.target.closest( 
+"[data-select-articulo]" 
+); 
+
+if (seleccionArticulo) { 
+seleccionarArticuloParaActa( 
+seleccionArticulo.dataset.selectArticulo 
+); 
+return; 
+} 
+
+const anadirActa = 
+evento.target.closest( 
+"[data-add-acta]" 
+); 
+
+if (anadirActa) { 
+enviarInfraccionAActa( 
+anadirActa.dataset.addActa 
+); 
+return; 
+} 
+
+const quitarFavorito = 
+evento.target.closest( 
+"[data-fav-remove]" 
+); 
+
+if (quitarFavorito) { 
+quitarFavoritoPorClave( 
+quitarFavorito.dataset.favRemove 
 ); 
 } 
 } 
@@ -2602,9 +3282,11 @@ configurarActas();
 configurarNormativa();
 configurarModal();
 configurarAjustes();
+configurarFavoritos();
 configurarEventosGlobales();
 configurarRed();
 cargarActas();
+cargarFavoritos();
 await cargarDatos();
 const version=$("appVersion"); if(version) version.textContent=CONFIG.VERSION;
 }catch(error){console.error("Error iniciando Centinela Code tras login:",error);mostrarToast("La aplicación se inició con un error.");}
