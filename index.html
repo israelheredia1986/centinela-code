@@ -81,7 +81,7 @@ href="manifest.json"
 
 <link
 rel="stylesheet"
-href="style.css?v=20260827"
+href="style.css?v=20260829"
 >
 
 </head>
@@ -652,11 +652,25 @@ Hechos
 Lugar
 </label>
 
+<div class="field-with-button">
+
 <input
 id="actaLugar"
 name="lugar"
 type="text"
 >
+
+<button
+id="actaLugarGpsButton"
+type="button"
+class="input-inline-button"
+aria-label="Usar mi ubicación actual"
+title="Usar mi ubicación actual"
+>
+📍
+</button>
+
+</div>
 
 </div>
 
@@ -692,6 +706,8 @@ Infracción
 Código / artículo
 </label>
 
+<div class="field-with-button">
+
 <input
 id="actaInfraccion"
 name="infraccion"
@@ -699,6 +715,18 @@ type="text"
 placeholder="Ej.: 36.16"
 autocomplete="off"
 >
+
+<button
+id="actaInfraccionSearchButton"
+type="button"
+class="input-inline-button"
+aria-label="Buscar en la normativa"
+title="Buscar en la normativa"
+>
+🔎
+</button>
+
+</div>
 
 </div>
 
@@ -894,6 +922,18 @@ Normativa
 </span>
 
 </div>
+
+<button
+id="viewerFavButton"
+type="button"
+class="icon-button fav-button hidden"
+aria-label="Guardar en favoritos"
+title="Guardar en favoritos"
+data-fav-tipo=""
+data-fav-id=""
+>
+☆
+</button>
 
 </div>
 
@@ -1331,7 +1371,7 @@ Versión renovada para evitar caché
 ====================================================== -->
 
 <script
-src="app.js?v=20260827"
+src="app.js?v=20260829"
 defer
 ></script>
 
@@ -1350,7 +1390,7 @@ function () {
 
 navigator.serviceWorker
 .register(
-"service-worker.js?v=20260827"
+"service-worker.js?v=20260829"
 )
 .then(
 function (registration) {
