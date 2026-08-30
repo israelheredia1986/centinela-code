@@ -26,6 +26,7 @@ infraccionesTrafico: "./data/infracciones_trafico.json",
 lopsc: "./data/lopsc.json", 
 codigoPenal: "./data/codigo_penal.json", 
 menores: "./data/normativa_menores.json", 
+violenciaGenero: "./data/normativa_violencia_genero.json", 
 ordenanzas: "./data/ordenanzas.json", 
 animales: "./data/normativa_animales.json", 
 trafico: "./data/normativa_trafico.json" 
@@ -38,6 +39,7 @@ infracciones: [],
 lopsc: null, 
 codigoPenal: null, 
 menores: null, 
+violenciaGenero: null, 
 ordenanzas: null, 
 animales: null, 
 trafico: null, 
@@ -403,6 +405,16 @@ rMenores.reason
 ); 
 } 
 
+if (rViolenciaGenero.status === "fulfilled") { 
+estado.violenciaGenero = rViolenciaGenero.value; 
+} else { 
+estado.violenciaGenero = null; 
+console.error( 
+"Error cargando normativa de violencia de género:", 
+rViolenciaGenero.reason 
+); 
+} 
+
 if (rOrdenanzas.status === "fulfilled") { 
 estado.ordenanzas = rOrdenanzas.value; 
 } else { 
@@ -642,6 +654,74 @@ actualizarBusqueda();
 }); 
 } 
 
+function obtenerArticulosNormativa() { 
+const registros = []; 
+
+const agregarLeySimple = (datos, navTipo) => { 
+if (!datos || !Array.isArray(datos.articulos)) { 
+return; 
+} 
+
+datos.articulos.forEach((articulo) => { 
+registros.push({ 
+ley: datos.abreviatura || datos.ley || "", 
+leyCompleta: datos.ley || "", 
+numero: articulo.numero, 
+titulo: articulo.titulo || "", 
+texto: articulo.texto || "", 
+navTipo, 
+navId: "" 
+}); 
+}); 
+}; 
+
+const agregarGrupoLeyes = (datos, navTipoLista, navTipoLey) => { 
+const leyes = 
+datos && Array.isArray(datos.leyes) ? datos.leyes : []; 
+
+leyes.forEach((leyItem) => { 
+const articulos = 
+Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
+articulos.forEach((articulo) => { 
+registros.push({ 
+ley: leyItem.abreviatura || leyItem.ley || "", 
+leyCompleta: leyItem.ley || "", 
+numero: articulo.numero, 
+titulo: articulo.titulo || "", 
+texto: articulo.texto || "", 
+navTipo: navTipoLey, 
+navId: leyItem.id || "" 
+}); 
+}); 
+}); 
+}; 
+
+agregarLeySimple(estado.lopsc, "lopsc"); 
+agregarLeySimple(estado.codigoPenal, "codigo-penal"); 
+agregarGrupoLeyes(estado.menores, "menores", "ley-menor"); 
+agregarGrupoLeyes(estado.animales, "animales", "ley-animal"); 
+agregarGrupoLeyes(estado.trafico, "trafico", "ley-trafico"); 
+agregarGrupoLeyes(estado.violenciaGenero, "violencia-genero", "ley-violencia-genero"); 
+
+const ordenanzas = 
+extraerOrdenanzas(estado.ordenanzas); 
+
+ordenanzas.forEach((ordenanza) => { 
+registros.push({ 
+ley: ordenanza.codigo || "Ordenanza municipal", 
+leyCompleta: ordenanza.nombre || ordenanza.nombre_corto || "", 
+numero: "", 
+titulo: ordenanza.nombre || ordenanza.nombre_corto || "", 
+texto: ordenanza.descripcion || "", 
+navTipo: "ordenanza", 
+navId: ordenanza.id || "" 
+}); 
+}); 
+
+return registros; 
+} 
+
 function actualizarBusqueda() { 
 const input = $("consultaSearch"); 
 
@@ -653,7 +733,7 @@ input ? input.value : ""
 const gravedad = 
 estado.gravedad; 
 
-estado.resultados = 
+const resultadosInfracciones = 
 estado.infracciones.filter((infraccion) => { 
 
 if ( 
@@ -697,7 +777,37 @@ infraccion.gravedad,
 return normalizarTexto( 
 contenido 
 ).includes(texto); 
-}); 
+}).map((infraccion) => ({ 
+...infraccion, 
+tipoResultado: "infraccion" 
+})); 
+
+let resultadosArticulos = []; 
+
+if (texto && gravedad === "all") { 
+resultadosArticulos = 
+obtenerArticulosNormativa() 
+.filter((articulo) => { 
+const contenido = [ 
+articulo.ley, 
+articulo.leyCompleta, 
+articulo.numero, 
+articulo.titulo, 
+articulo.texto 
+].join(" "); 
+
+return normalizarTexto( 
+contenido 
+).includes(texto); 
+}) 
+.map((articulo) => ({ 
+...articulo, 
+tipoResultado: "articulo" 
+})); 
+} 
+
+estado.resultados = 
+resultadosInfracciones.concat(resultadosArticulos); 
 
 ordenarResultados(texto); 
 renderizarResultados(); 
@@ -708,13 +818,18 @@ if (!texto) {
 return; 
 } 
 
+const obtenerCodigo = (item) => 
+item.tipoResultado === "articulo" 
+? String(item.numero || "") 
+: String(item.codigo || ""); 
+
 estado.resultados.sort((a, b) => { 
 
 const codigoA = 
-normalizarTexto(a.codigo); 
+normalizarTexto(obtenerCodigo(a)); 
 
 const codigoB = 
-normalizarTexto(b.codigo); 
+normalizarTexto(obtenerCodigo(b)); 
 
 if (codigoA === texto && 
 codigoB !== texto) { 
@@ -724,6 +839,12 @@ return -1;
 if (codigoB === texto && 
 codigoA !== texto) { 
 return 1; 
+} 
+
+if ( 
+a.tipoResultado !== b.tipoResultado 
+) { 
+return a.tipoResultado === "infraccion" ? -1 : 1; 
 } 
 
 const tituloA = 
@@ -746,9 +867,9 @@ tituloB.startsWith(texto) &&
 return 1; 
 } 
 
-return String(a.codigo || "") 
+return obtenerCodigo(a) 
 .localeCompare( 
-String(b.codigo || ""), 
+obtenerCodigo(b), 
 "es", 
 { numeric: true } 
 ); 
@@ -796,7 +917,7 @@ contenedor.innerHTML = `
 <div class="empty-icon">??</div> 
 <h3>Sin resultados</h3> 
 <p> 
-No se han encontrado infracciones 
+No se han encontrado coincidencias 
 con esos criterios. 
 </p> 
 </div> 
@@ -806,8 +927,58 @@ return;
 
 contenedor.innerHTML = 
 estado.resultados 
-.map(renderizarTarjetaInfraccion) 
+.map((item) => 
+item.tipoResultado === "articulo" 
+? renderizarTarjetaArticulo(item) 
+: renderizarTarjetaInfraccion(item) 
+) 
 .join(""); 
+} 
+
+function renderizarTarjetaArticulo(articulo) { 
+const snippet = 
+(articulo.texto || "").length > 220 
+? articulo.texto.slice(0, 220).trim() + "…" 
+: articulo.texto || ""; 
+
+return ` 
+<article class="result-card result-card--articulo"> 
+
+<div class="result-card-header"> 
+
+<div> 
+<span class="result-ley"> 
+${escaparHTML(articulo.ley || "")} 
+</span> 
+
+${articulo.numero ? ` 
+<span class="result-code"> 
+Art. ${escaparHTML(articulo.numero)} 
+</span> 
+` : ""} 
+
+<h3> 
+${escaparHTML(articulo.titulo || "Sin título")} 
+</h3> 
+</div> 
+
+</div> 
+
+<p class="result-conducta"> 
+${escaparHTML(snippet)} 
+</p> 
+
+<button 
+type="button" 
+class="result-detail-button" 
+data-nav-tipo="${escaparHTML(articulo.navTipo || "")}" 
+data-nav-id="${escaparHTML(articulo.navId || "")}" 
+> 
+Ver en Normativa 
+</button> 
+
+</article> 
+`; 
 } 
 
 function renderizarTarjetaInfraccion( 
@@ -2898,6 +3069,20 @@ evento.target.closest(
 if (detalle) { 
 abrirDetalleInfraccion( 
 detalle.dataset.infraccionId 
+); 
+return; 
+} 
+
+const resultadoArticulo = 
+evento.target.closest( 
+"[data-nav-tipo]" 
+); 
+
+if (resultadoArticulo) { 
+activarSeccion("normativa"); 
+abrirNormativa( 
+resultadoArticulo.dataset.navTipo, 
+resultadoArticulo.dataset.navId || "" 
 ); 
 return; 
 } 
