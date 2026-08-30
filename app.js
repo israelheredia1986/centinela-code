@@ -25,7 +25,7 @@ infracciones: "./data/infracciones.json",
 infraccionesTrafico: "./data/infracciones_trafico.json", 
 lopsc: "./data/lopsc.json", 
 codigoPenal: "./data/codigo_penal.json", 
-menores: "./data/lo_menores.json", 
+menores: "./data/normativa_menores.json", 
 ordenanzas: "./data/ordenanzas.json", 
 animales: "./data/normativa_animales.json", 
 trafico: "./data/normativa_trafico.json" 
@@ -1709,10 +1709,10 @@ icono: "🔨"
 }, 
 { 
 tipo: "menores", 
-titulo: "Responsabilidad Penal del Menor", 
+titulo: "Menores", 
 descripcion: 
-"Actuación policial con menores infractores: detención, garantías y medidas", 
-etiqueta: "LO 5/2000", 
+"Responsabilidad penal, protección jurídica ante riesgo/desamparo y protección frente a la violencia — 3 normas", 
+etiqueta: "LO 5/2000, LO 1/1996, LO 8/2021", 
 icono: "🧑‍⚖️" 
 }, 
 { 
@@ -1821,7 +1821,12 @@ return;
 } 
 
 if (tipo === "menores") { 
-abrirMenores(); 
+abrirMenoresGrupo(); 
+return; 
+} 
+
+if (tipo === "ley-menor") { 
+abrirLeyMenor(id); 
 return; 
 } 
 
@@ -2090,6 +2095,180 @@ block: "start"
 }); 
 } 
 
+const MENORES_ICONOS = { 
+"lo-5-2000": "🧑‍⚖️", 
+"lo-1-1996": "🛡️", 
+"lo-8-2021": "🧒" 
+}; 
+
+function abrirMenoresGrupo() { 
+const leyes = 
+extraerAnimales( 
+estado.menores 
+); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+"Menores"; 
+
+$("viewerSubtitle").textContent = 
+"Actuación policial con menores de edad"; 
+
+if (!leyes.length) { 
+contenido.innerHTML = ` 
+<div class="empty-state"> 
+<h3>Normativa de menores no disponible</h3> 
+<p> 
+No se ha podido cargar la información. 
+</p> 
+</div> 
+`; 
+} else { 
+contenido.innerHTML = ` 
+<div class="normativa-list"> 
+${leyes.map((leyItem) => ` 
+<div class="normativa-card"> 
+
+<div class="normativa-icon"> 
+${MENORES_ICONOS[leyItem.id] || "📖"} 
+</div> 
+
+<div class="normativa-info"> 
+
+<h3> 
+${escaparHTML(leyItem.ley || "")} 
+</h3> 
+
+<p> 
+${escaparHTML(leyItem.abreviatura || "")} 
+</p> 
+
+<span> 
+${escaparHTML(leyItem.ambito || "")} · ${Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0} artículos 
+</span> 
+
+</div> 
+
+<button 
+type="button" 
+class="normativa-open" 
+data-law="ley-menor" 
+data-id="${escaparHTML(leyItem.id)}" 
+> 
+Ver 
+</button> 
+
+</div> 
+`).join("")} 
+</div> 
+`; 
+} 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
+function abrirLeyMenor(id) { 
+const leyes = 
+extraerAnimales( 
+estado.menores 
+); 
+
+const leyItem = 
+leyes.find((item) => item.id === id); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!leyItem || !visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+leyItem.ley || "Normativa de menores"; 
+
+$("viewerSubtitle").textContent = 
+leyItem.abreviatura || ""; 
+
+const articulos = 
+Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
+contenido.innerHTML = ` 
+<button 
+type="button" 
+class="normativa-open law-back-button" 
+data-law="menores" 
+> 
+← Volver a Menores 
+</button> 
+
+<article class="law-article"> 
+
+<p> 
+<strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
+<strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
+<strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
+</p> 
+
+${leyItem.resumen ? ` 
+<p>${escaparHTML(leyItem.resumen)}</p> 
+` : ""} 
+
+${leyItem.enlaceOficial ? ` 
+<a 
+class="law-link-button" 
+href="${escaparHTML(leyItem.enlaceOficial)}" 
+target="_blank" 
+rel="noopener noreferrer" 
+> 
+🔗 Ver normativa online (BOE) 
+</a> 
+` : ""} 
+
+${leyItem.nota ? ` 
+<p> 
+<strong>Nota:</strong> 
+${escaparHTML(leyItem.nota)} 
+</p> 
+` : ""} 
+
+</article> 
+
+${articulos.map((articulo) => ` 
+<article class="law-article"> 
+<h4> 
+Artículo ${escaparHTML(articulo.numero)}. 
+${escaparHTML(articulo.titulo || "")} 
+</h4> 
+<p>${escaparHTML(articulo.texto || "")}</p> 
+</article> 
+`).join("")} 
+`; 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
 const TRAFICO_ICONOS = { 
 "rdl-6-2015": "🚦", 
 "rd-1428-2003": "🚗", 
@@ -2311,97 +2490,6 @@ rel="noopener noreferrer"
 > 
 🔗 Ver normativa online (BOE) 
 </a> 
-` : ""} 
-
-${articulos 
-.map((articulo) => ` 
-<article class="law-article"> 
-
-<h4> 
-Artículo ${ 
-escaparHTML( 
-articulo.numero 
-) 
-}. 
-${escaparHTML( 
-articulo.titulo || "" 
-)} 
-</h4> 
-
-<p> 
-${escaparHTML( 
-articulo.texto || "" 
-)} 
-</p> 
-
-</article> 
-`) 
-.join("")} 
-`; 
-} 
-
-visor.classList.remove("hidden"); 
-
-visor.scrollIntoView({ 
-behavior: "smooth", 
-block: "start" 
-}); 
-} 
-
-function abrirMenores() { 
-const articulos = 
-extraerArticulos( 
-estado.menores 
-); 
-
-const visor = 
-$("normativaViewer"); 
-
-const contenido = 
-$("viewerContent"); 
-
-if (!visor || !contenido) { 
-return; 
-} 
-
-$("viewerTitle").textContent = 
-"Responsabilidad Penal del Menor"; 
-
-$("viewerSubtitle").textContent = 
-"Actuación con menores infractores (LO 5/2000)"; 
-
-if (!articulos.length) { 
-contenido.innerHTML = ` 
-<div class="empty-state"> 
-<h3>LO Menores no disponible</h3> 
-<p> 
-No se han podido cargar los artículos. 
-</p> 
-</div> 
-`; 
-} else { 
-const enlaceOficial = 
-estado.menores && estado.menores.enlaceOficial; 
-
-const nota = 
-estado.menores && estado.menores.nota; 
-
-contenido.innerHTML = ` 
-${enlaceOficial ? ` 
-<a 
-class="law-link-button" 
-href="${escaparHTML(enlaceOficial)}" 
-target="_blank" 
-rel="noopener noreferrer" 
-> 
-🔗 Ver normativa online (BOE) 
-</a> 
-` : ""} 
-
-${nota ? ` 
-<article class="law-article"> 
-<p><strong>Nota:</strong> ${escaparHTML(nota)}</p> 
-</article> 
 ` : ""} 
 
 ${articulos 
