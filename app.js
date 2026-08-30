@@ -46,11 +46,7 @@ trafico: null,
 resultados: [], 
 gravedad: "all", 
 normativaBusqueda: "", 
-actas: [], 
-/* NUEVOS FILTROS AVANZADOS */
-filtroLey: "todas",
-filtroRangoMin: "",
-filtroRangoMax: ""
+actas: [] 
 }; 
 
 /* ========================================================= 
@@ -756,55 +752,7 @@ boton.dataset.severity || "all";
 actualizarBusqueda(); 
 }); 
 }); 
-
-/* ===== NUEVO: FILTROS AVANZADOS ===== */
-const filtroLey = $("filtroLey");
-const filtroRangoMin = $("filtroRangoMin");
-const filtroRangoMax = $("filtroRangoMax");
-const resetFiltrosBtn = $("resetFiltros");
-
-if (filtroLey) {
-filtroLey.addEventListener("change", () => {
-estado.filtroLey = filtroLey.value;
-actualizarBusqueda();
-});
-}
-
-if (filtroRangoMin) {
-filtroRangoMin.addEventListener("input", () => {
-estado.filtroRangoMin = filtroRangoMin.value;
-actualizarBusqueda();
-});
-}
-
-if (filtroRangoMax) {
-filtroRangoMax.addEventListener("input", () => {
-estado.filtroRangoMax = filtroRangoMax.value;
-actualizarBusqueda();
-});
-}
-
-if (resetFiltrosBtn) {
-resetFiltrosBtn.addEventListener("click", resetearFiltros);
-}
 } 
-
-function resetearFiltros() {
-const filtroLey = $("filtroLey");
-const filtroRangoMin = $("filtroRangoMin");
-const filtroRangoMax = $("filtroRangoMax");
-
-if (filtroLey) filtroLey.value = "todas";
-if (filtroRangoMin) filtroRangoMin.value = "";
-if (filtroRangoMax) filtroRangoMax.value = "";
-
-estado.filtroLey = "todas";
-estado.filtroRangoMin = "";
-estado.filtroRangoMax = "";
-
-actualizarBusqueda();
-mostrarToast("Filtros restablecidos.");
-}
 
 function obtenerArticulosNormativa() { 
 const registros = []; 
@@ -873,73 +821,6 @@ navId: ordenanza.id || ""
 
 return registros; 
 } 
-
-/* ===== NUEVA FUNCIÓN: APLICAR FILTROS AVANZADOS ===== */
-function aplicarFiltros(resultados) {
-const { filtroLey, filtroRangoMin, filtroRangoMax } = estado;
-
-return resultados.filter(item => {
-// Filtro por ley
-if (filtroLey !== "todas") {
-if (item.tipoResultado === "infraccion") {
-// Para infracciones, comparar con el campo ley (abreviatura)
-const leyInfraccion = item.ley || "";
-// Normalizar para comparar (eliminar espacios, etc.)
-const leyNormalizada = normalizarTexto(leyInfraccion);
-const filtroNormalizado = normalizarTexto(filtroLey);
-if (!leyNormalizada.includes(filtroNormalizado)) {
-return false;
-}
-} else if (item.tipoResultado === "articulo") {
-// Para artículos, comparar con ley o leyCompleta
-const leyArticulo = item.ley || item.leyCompleta || "";
-const leyNormalizada = normalizarTexto(leyArticulo);
-const filtroNormalizado = normalizarTexto(filtroLey);
-if (!leyNormalizada.includes(filtroNormalizado)) {
-return false;
-}
-}
-}
-
-// Filtro por rango de sanción (solo para infracciones)
-if (item.tipoResultado === "infraccion") {
-const sancion = item.sancion || {};
-const min = Number(sancion.min);
-const max = Number(sancion.max);
-
-// Si no hay sanción definida, no se filtra por rango (a menos que se haya especificado rango)
-const hayRango = filtroRangoMin !== "" || filtroRangoMax !== "";
-if (hayRango) {
-// Si no tiene sanción, no pasa el filtro (porque no cumple el rango)
-if (isNaN(min) && isNaN(max)) {
-return false;
-}
-// Comprobar mínimo
-if (filtroRangoMin !== "") {
-const minFiltro = Number(filtroRangoMin);
-if (!isNaN(minFiltro)) {
-// Si la infracción tiene min definido y es menor que el filtro, descartar
-if (!isNaN(min) && min < minFiltro) return false;
-// Si no tiene min pero tiene max, comprobar que max >= minFiltro
-if (isNaN(min) && !isNaN(max) && max < minFiltro) return false;
-}
-}
-// Comprobar máximo
-if (filtroRangoMax !== "") {
-const maxFiltro = Number(filtroRangoMax);
-if (!isNaN(maxFiltro)) {
-// Si la infracción tiene max definido y es mayor que el filtro, descartar
-if (!isNaN(max) && max > maxFiltro) return false;
-// Si no tiene max pero tiene min, comprobar que min <= maxFiltro
-if (!isNaN(min) && isNaN(max) && min > maxFiltro) return false;
-}
-}
-}
-}
-
-return true;
-});
-}
 
 function actualizarBusqueda() { 
 const input = $("consultaSearch"); 
@@ -1031,13 +912,8 @@ tipoResultado: "articulo"
 })); 
 } 
 
-let resultados = 
+estado.resultados = 
 resultadosInfracciones.concat(resultadosArticulos); 
-
-/* ===== APLICAR FILTROS AVANZADOS ===== */
-resultados = aplicarFiltros(resultados);
-
-estado.resultados = resultados; 
 
 ordenarResultados(texto); 
 renderizarResultados(); 
@@ -1397,7 +1273,7 @@ sancion.min
 : "" 
 } 
 ${ 
-sancion.max !== undefined 
+sancion.max !== undefined
 ? `Máximo: ${formatearEuros( 
 sancion.max 
 )}` 
@@ -1990,7 +1866,6 @@ mostrarToast("Acta no encontrada.");
 return; 
 } 
 
-// Construir contenido HTML para el PDF 
 const contenidoHTML = ` 
 <!DOCTYPE html> 
 <html lang="es"> 
@@ -1999,7 +1874,6 @@ const contenidoHTML = `
 <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
 <title>Acta ${acta.numero || "sin número"}</title> 
 <style> 
-/* Estilos para la impresión */ 
 body { 
 font-family: 'Times New Roman', Times, serif; 
 margin: 2.5cm 2cm; 
@@ -2129,7 +2003,6 @@ Documento generado por Centinela Code - ${new Date().toLocaleDateString()}
 </html> 
 `; 
 
-// Abrir nueva ventana para impresión 
 const ventana = window.open("", "_blank", "width=800,height=600"); 
 if (!ventana) { 
 mostrarToast("Permite ventanas emergentes para exportar el PDF."); 
@@ -2138,8 +2011,6 @@ return;
 
 ventana.document.write(contenidoHTML); 
 ventana.document.close(); 
-
-// Esperar a que cargue el contenido y luego imprimir 
 ventana.focus(); 
 ventana.print(); 
 } 
@@ -3722,7 +3593,7 @@ borrar.dataset.deleteActa
 return; 
 } 
 
-/* Exportar PDF */ 
+/* === NUEVO: Exportar PDF === */ 
 const exportar = 
 evento.target.closest( 
 "[data-export-acta]" 
@@ -3733,6 +3604,16 @@ exportarActaPDF(
 exportar.dataset.exportActa 
 ); 
 return; 
+} 
+
+/* === NUEVO: Cerrar login manualmente (fallback) === */ 
+const cerrarLogin = 
+evento.target.closest( 
+"#centinelaLogin .icon-button, #centinelaLogin [aria-label='Cerrar']" 
+); 
+if (cerrarLogin) { 
+ocultarPantallaLogin(); 
+mostrarToast("Login cerrado manualmente."); 
 } 
 } 
 ); 
@@ -3828,7 +3709,8 @@ pantalla = document.createElement("div");
 pantalla.id = "centinelaLogin";
 pantalla.style.cssText = "position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;background:rgba(2,8,23,.97);font-family:inherit;";
 pantalla.innerHTML = `
-<div style="width:min(410px,100%);padding:28px 24px;border-radius:24px;background:linear-gradient(145deg,#102440,#06101e);border:1px solid rgba(100,160,220,.35);box-shadow:0 25px 70px rgba(0,0,0,.6)">
+<div style="width:min(410px,100%);padding:28px 24px;border-radius:24px;background:linear-gradient(145deg,#102440,#06101e);border:1px solid rgba(100,160,220,.35);box-shadow:0 25px 70px rgba(0,0,0,.6);position:relative;">
+<button type="button" id="centinelaLoginClose" aria-label="Cerrar" style="position:absolute;top:10px;right:15px;background:transparent;border:0;color:#9fb3ca;font-size:24px;cursor:pointer;">×</button>
 <div style="text-align:center;margin-bottom:20px">
 <div style="font-size:48px">🛡️</div>
 <h2 style="margin:8px 0 4px;color:#fff">Centinela Code</h2>
@@ -3843,6 +3725,14 @@ pantalla.innerHTML = `
 <div id="centinelaLoginMessage" style="min-height:20px;margin-top:12px;color:#ffb4b4;text-align:center;font-size:14px"></div>
 </form>
 </div>`;
+// Evento para cerrar manualmente
+const closeBtn = pantalla.querySelector("#centinelaLoginClose");
+if (closeBtn) {
+closeBtn.addEventListener("click", function() {
+ocultarPantallaLogin();
+mostrarToast("Sesión cancelada.");
+});
+}
 document.body.appendChild(pantalla);
 return pantalla;
 }
@@ -3899,10 +3789,34 @@ hideLoginAndStart();
 return false;
 }catch(error){console.error("Error de autenticación:",error);mostrarMensajeLogin("No se pudo conectar con el sistema de acceso. Comprueba la conexión a Internet.");return false;}
 }
+
 async function hideLoginAndStart(){
+// Primero ocultamos el login SIEMPRE, incluso si luego falla algo
 ocultarPantallaLogin();
+try {
 await iniciarAplicacionPostLogin();
+} catch (error) {
+console.error("Error al iniciar la aplicación:", error);
+mostrarToast("Error al cargar la aplicación. Algunas funciones pueden no estar disponibles.");
+// Intentamos mostrar la interfaz básica aunque haya error
+try {
+configurarNavegacion();
+configurarConsulta();
+configurarActas();
+configurarNormativa();
+configurarModal();
+configurarAjustes();
+configurarEventosGlobales();
+configurarRed();
+cargarActas();
+mostrarCarga(false);
+} catch (e) {
+console.error("Error crítico:", e);
+mostrarToast("No se pudo cargar la aplicación. Recarga la página.");
 }
+}
+}
+
 async function iniciarAplicacionPostLogin(){
 try{
 mostrarCarga(true);
