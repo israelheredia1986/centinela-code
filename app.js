@@ -1093,7 +1093,198 @@ $("actaInfraccion")?.addEventListener(
 actualizarPreviewInfraccion 
 ); 
 
+$("btnUbicacionActa")?.addEventListener( 
+"click", 
+obtenerUbicacionActa 
+); 
+
+$("btnDictadoHechos")?.addEventListener( 
+"click", 
+(evento) => alternarDictado(evento.currentTarget) 
+); 
+
+$("btnDictadoObservaciones")?.addEventListener( 
+"click", 
+(evento) => alternarDictado(evento.currentTarget) 
+); 
+
 renderizarActas(); 
+} 
+
+async function obtenerUbicacionActa() { 
+const boton = $("btnUbicacionActa"); 
+const campo = $("actaLugar"); 
+
+if (!campo) { 
+return; 
+} 
+
+if (!navigator.geolocation) { 
+alert( 
+"Este dispositivo o navegador no admite geolocalización." 
+); 
+return; 
+} 
+
+const textoOriginal = boton ? boton.textContent : ""; 
+
+if (boton) { 
+boton.disabled = true; 
+boton.textContent = "⏳"; 
+} 
+
+navigator.geolocation.getCurrentPosition( 
+async (posicion) => { 
+const { latitude, longitude } = posicion.coords; 
+
+try { 
+const respuesta = await fetch( 
+`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`, 
+{ 
+headers: { 
+"Accept-Language": "es" 
+} 
+} 
+); 
+
+if (!respuesta.ok) { 
+throw new Error("Respuesta no válida"); 
+} 
+
+const datos = await respuesta.json(); 
+
+campo.value = 
+datos && datos.display_name 
+? datos.display_name 
+: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`; 
+} catch (error) { 
+console.error( 
+"No se pudo obtener la dirección:", 
+error 
+); 
+
+campo.value = 
+`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`; 
+} finally { 
+if (boton) { 
+boton.disabled = false; 
+boton.textContent = textoOriginal || "📍"; 
+} 
+} 
+}, 
+(error) => { 
+if (boton) { 
+boton.disabled = false; 
+boton.textContent = textoOriginal || "📍"; 
+} 
+
+let mensaje = 
+"No se ha podido obtener la ubicación."; 
+
+if (error.code === error.PERMISSION_DENIED) { 
+mensaje = 
+"Has denegado el permiso de ubicación. Actívalo en los ajustes del navegador para usar esta función."; 
+} else if (error.code === error.TIMEOUT) { 
+mensaje = 
+"Se ha agotado el tiempo de espera para obtener la ubicación. Inténtalo de nuevo."; 
+} 
+
+alert(mensaje); 
+}, 
+{ 
+enableHighAccuracy: true, 
+timeout: 10000, 
+maximumAge: 0 
+} 
+); 
+} 
+
+let reconocimientoVozActivo = null; 
+let botonDictadoActivo = null; 
+
+function alternarDictado(boton) { 
+if (!boton) { 
+return; 
+} 
+
+const idCampo = boton.dataset.target; 
+const campo = $(idCampo); 
+
+if (!campo) { 
+return; 
+} 
+
+const SpeechRecognitionAPI = 
+window.SpeechRecognition || 
+window.webkitSpeechRecognition; 
+
+if (!SpeechRecognitionAPI) { 
+alert( 
+"El dictado por voz no está disponible en este navegador. Prueba con Chrome en Android." 
+); 
+return; 
+} 
+
+if (reconocimientoVozActivo) { 
+reconocimientoVozActivo.stop(); 
+return; 
+} 
+
+const reconocimiento = new SpeechRecognitionAPI(); 
+
+reconocimiento.lang = "es-ES"; 
+reconocimiento.continuous = true; 
+reconocimiento.interimResults = false; 
+
+const separador = 
+campo.value && !campo.value.endsWith(" ") && !campo.value.endsWith("\n") 
+? " " 
+: ""; 
+
+let textoAcumulado = campo.value + separador; 
+
+reconocimiento.onresult = (evento) => { 
+let textoNuevo = ""; 
+
+for (let i = evento.resultIndex; i < evento.results.length; i++) { 
+if (evento.results[i].isFinal) { 
+textoNuevo += evento.results[i][0].transcript + " "; 
+} 
+} 
+
+if (textoNuevo) { 
+textoAcumulado += textoNuevo; 
+campo.value = textoAcumulado; 
+} 
+}; 
+
+reconocimiento.onerror = (evento) => { 
+console.error("Error de dictado:", evento.error); 
+
+if (evento.error === "not-allowed" || evento.error === "service-not-allowed") { 
+alert( 
+"Has denegado el permiso de micrófono. Actívalo en los ajustes del navegador para dictar." 
+); 
+} 
+}; 
+
+reconocimiento.onend = () => { 
+if (botonDictadoActivo) { 
+botonDictadoActivo.classList.remove("input-action-button--activo"); 
+botonDictadoActivo.textContent = "🎤"; 
+} 
+
+reconocimientoVozActivo = null; 
+botonDictadoActivo = null; 
+}; 
+
+reconocimiento.start(); 
+
+reconocimientoVozActivo = reconocimiento; 
+botonDictadoActivo = boton; 
+
+boton.classList.add("input-action-button--activo"); 
+boton.textContent = "⏹️"; 
 } 
 
 function abrirEditorActa(acta = null) { 
