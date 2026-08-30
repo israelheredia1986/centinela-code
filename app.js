@@ -13,22 +13,10 @@ Funciones:
 - Estado de conexión y estado de las bases. 
 - Limpieza/recarga de datos. 
 - Compatible con la estructura actual de index.html. 
-- Exportación de actas a PDF. 
-- Sin login: la app arranca directamente, funciona offline. 
 ============================================================ 
 */ 
 
 "use strict"; 
-
-/* 
-Evita que Chrome/Android muestre su aviso automático de 
-"instalar esta app" (el cartel inferior con el nombre de la 
-app). El usuario puede seguir instalándola manualmente desde 
-el menú del navegador si quiere, pero no se le impone el aviso. 
-*/ 
-window.addEventListener("beforeinstallprompt", function (evento) { 
-evento.preventDefault(); 
-}); 
 
 const CONFIG = { 
 VERSION: "1.1.0", 
@@ -3699,8 +3687,100 @@ INICIALIZACIÓN
 ========================================================= */ 
 
 
-async function iniciarAplicacion() {
-try {
+/* =========================================================
+AUTENTICACION SUPABASE
+========================================================= */
+const SUPABASE_CONFIG = {
+URL: "https://okuygqbaliaeavhyezri.supabase.co",
+PUBLISHABLE_KEY: "sb_publishable_fbEAcJZxMv8PD3VB3Bcx6A_l_8BdP2m"
+};
+let clienteSupabase = null;
+let usuarioActual = null;
+
+function crearPantallaLogin() {
+let pantalla = $("centinelaLogin");
+if (pantalla) return pantalla;
+pantalla = document.createElement("div");
+pantalla.id = "centinelaLogin";
+pantalla.style.cssText = "position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;background:rgba(2,8,23,.97);font-family:inherit;";
+pantalla.innerHTML = `
+<div style="width:min(410px,100%);padding:28px 24px;border-radius:24px;background:linear-gradient(145deg,#102440,#06101e);border:1px solid rgba(100,160,220,.35);box-shadow:0 25px 70px rgba(0,0,0,.6)">
+<div style="text-align:center;margin-bottom:20px">
+<div style="font-size:48px">🛡️</div>
+<h2 style="margin:8px 0 4px;color:#fff">Centinela Code</h2>
+<p style="margin:0;color:#9fb3ca">Acceso profesional</p>
+</div>
+<form id="centinelaLoginForm">
+<label style="display:block;color:#dce8f5;margin-bottom:14px;font-weight:600">Usuario / correo electrónico
+<input id="centinelaLoginEmail" type="email" autocomplete="username" required placeholder="usuario@correo.es" style="display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border-radius:12px;border:1px solid #35506d;background:#071421;color:#fff"></label>
+<label style="display:block;color:#dce8f5;margin-bottom:14px;font-weight:600">Contraseña
+<input id="centinelaLoginPassword" type="password" autocomplete="current-password" required placeholder="Contraseña" style="display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border-radius:12px;border:1px solid #35506d;background:#071421;color:#fff"></label>
+<button id="centinelaLoginButton" type="submit" style="width:100%;padding:13px;border:0;border-radius:12px;background:#1f73d1;color:#fff;font-weight:800;cursor:pointer">Entrar</button>
+<div id="centinelaLoginMessage" style="min-height:20px;margin-top:12px;color:#ffb4b4;text-align:center;font-size:14px"></div>
+</form>
+</div>`;
+document.body.appendChild(pantalla);
+return pantalla;
+}
+function ocultarPantallaLogin(){ $("centinelaLogin")?.remove(); }
+function mostrarMensajeLogin(mensaje){ const el=$("centinelaLoginMessage"); if(el) el.textContent=mensaje||""; }
+function cargarLibreriaSupabase(){
+if(window.supabase?.createClient) return Promise.resolve();
+return new Promise((resolve,reject)=>{
+const existente=document.querySelector('script[data-centinela-supabase="true"]');
+if(existente){
+const t=setTimeout(()=>reject(new Error("Tiempo agotado cargando Supabase.")),8000);
+existente.addEventListener("load",()=>{clearTimeout(t);window.supabase?.createClient?resolve():reject(new Error("Supabase no está disponible."));},{once:true});
+existente.addEventListener("error",()=>{clearTimeout(t);reject(new Error("No se pudo cargar Supabase."));},{once:true});
+return;
+}
+const script=document.createElement("script");
+script.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+script.async=true; script.dataset.centinelaSupabase="true";
+const t=setTimeout(()=>reject(new Error("Tiempo agotado cargando Supabase.")),8000);
+script.onload=()=>{clearTimeout(t);window.supabase?.createClient?resolve():reject(new Error("Supabase no está disponible."));};
+script.onerror=()=>{clearTimeout(t);reject(new Error("No se pudo cargar Supabase."));};
+document.head.appendChild(script);
+});
+}
+async function iniciarAutenticacion(){
+const login=crearPantallaLogin();
+login.style.display="flex";
+mostrarMensajeLogin("Conectando con el sistema de acceso...");
+try{
+await cargarLibreriaSupabase();
+clienteSupabase=window.supabase.createClient(SUPABASE_CONFIG.URL,SUPABASE_CONFIG.PUBLISHABLE_KEY);
+const sesion=await Promise.race([
+clienteSupabase.auth.getSession(),
+new Promise((_,reject)=>setTimeout(()=>reject(new Error("Tiempo agotado comprobando la sesión.")),8000))
+]);
+if(sesion.error) throw sesion.error;
+if(sesion.data?.session){ usuarioActual=sesion.data.session.user; ocultarPantallaLogin(); return true; }
+mostrarMensajeLogin("Introduce tu usuario y contraseña.");
+const form=$("centinelaLoginForm");
+form?.addEventListener("submit",async(e)=>{
+e.preventDefault();
+const email=$("centinelaLoginEmail")?.value.trim();
+const password=$("centinelaLoginPassword")?.value||"";
+const boton=$("centinelaLoginButton");
+if(!email||!password){mostrarMensajeLogin("Introduce usuario y contraseña.");return;}
+if(boton){boton.disabled=true;boton.textContent="Comprobando...";}
+try{
+const resultado=await clienteSupabase.auth.signInWithPassword({email,password});
+if(resultado.error) throw resultado.error;
+usuarioActual=resultado.data.user;
+hideLoginAndStart();
+}catch(error){console.error("Error de login:",error);mostrarMensajeLogin("Usuario o contraseña incorrectos.");if(boton){boton.disabled=false;boton.textContent="Entrar";}}
+},{once:true});
+return false;
+}catch(error){console.error("Error de autenticación:",error);mostrarMensajeLogin("No se pudo conectar con el sistema de acceso. Comprueba la conexión a Internet.");return false;}
+}
+async function hideLoginAndStart(){
+ocultarPantallaLogin();
+await iniciarAplicacionPostLogin();
+}
+async function iniciarAplicacionPostLogin(){
+try{
 mostrarCarga(true);
 configurarNavegacion();
 configurarConsulta();
@@ -3712,15 +3792,15 @@ configurarEventosGlobales();
 configurarRed();
 cargarActas();
 await cargarDatos();
-const version = $("appVersion"); if (version) version.textContent = CONFIG.VERSION;
-} catch (error) {
-console.error("Error iniciando Centinela Code:", error);
-mostrarToast("La aplicación se inició con un error.");
-} finally {
-actualizarEstadoDatos();
-actualizarRed();
-mostrarCarga(false);
+const version=$("appVersion"); if(version) version.textContent=CONFIG.VERSION;
+}catch(error){console.error("Error iniciando Centinela Code tras login:",error);mostrarToast("La aplicación se inició con un error.");}
+finally{actualizarEstadoDatos();actualizarRed();mostrarCarga(false);}
 }
+
+async function iniciarAplicacion() {
+const autenticado = await iniciarAutenticacion();
+if (!autenticado) return;
+await iniciarAplicacionPostLogin();
 }
 
 /* ========================================================= 
