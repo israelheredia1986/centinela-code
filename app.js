@@ -19,7 +19,7 @@ Funciones:
 "use strict"; 
 
 const CONFIG = { 
-VERSION: "1.2.0", 
+VERSION: "1.1.0", 
 RUTAS: { 
 infracciones: "./data/infracciones.json", 
 infraccionesTrafico: "./data/infracciones_trafico.json", 
@@ -1309,80 +1309,39 @@ escaparHTML
 ACTAS 
 ========================================================= */ 
 
-async function cargarActas() {
+function cargarActas() { 
+try { 
+const guardadas = 
+localStorage.getItem( 
+CONFIG.STORAGE_ACTAS 
+); 
 
-if (!clienteSupabase || !usuarioActual) {
-cargarActasLocal();
-renderizarActas();
-return;
-}
+estado.actas = 
+guardadas 
+? JSON.parse(guardadas) 
+: []; 
 
-try {
+if (!Array.isArray(estado.actas)) { 
+estado.actas = []; 
+} 
 
-const { data, error } = await clienteSupabase
-.from("actas")
-.select("*")
-.eq("user_id", usuarioActual.id)
-.order("actualizado", { ascending: false });
+} catch (error) { 
+console.error( 
+"No se pudieron cargar las actas:", 
+error 
+); 
 
-if (error) {
-throw error;
-}
+estado.actas = []; 
+} 
 
-estado.actas = data || [];
-guardarActasLocal();
+renderizarActas(); 
+} 
 
-} catch (error) {
-
-console.error(
-"No se pudieron cargar las actas desde Supabase:",
-error
-);
-
-cargarActasLocal();
-
-mostrarToast(
-"Sin conexión: mostrando actas guardadas en este dispositivo."
-);
-
-}
-
-renderizarActas();
-
-}
-
-function cargarActasLocal() {
-
-try {
-
-const guardadas =
-localStorage.getItem(CONFIG.STORAGE_ACTAS);
-
-estado.actas =
-guardadas ? JSON.parse(guardadas) : [];
-
-if (!Array.isArray(estado.actas)) {
-estado.actas = [];
-}
-
-} catch (error) {
-
-console.error(
-"No se pudieron cargar las actas locales:",
-error
-);
-
-estado.actas = [];
-
-}
-
-}
-
-function guardarActasLocal() {
-localStorage.setItem(
-CONFIG.STORAGE_ACTAS,
-JSON.stringify(estado.actas)
-);
+function guardarActas() { 
+localStorage.setItem( 
+CONFIG.STORAGE_ACTAS, 
+JSON.stringify(estado.actas) 
+); 
 } 
 
 function configurarActas() { 
@@ -1704,132 +1663,67 @@ function obtenerValor(id) {
 return $(id)?.value?.trim() || ""; 
 } 
 
-async function guardarActaDesdeFormulario(evento) {
-evento.preventDefault();
+function guardarActaDesdeFormulario(evento) { 
+evento.preventDefault(); 
 
-const form =
-evento.currentTarget;
+const form = 
+evento.currentTarget; 
 
-const editandoId =
-form.dataset.editingId || "";
+const acta = { 
+id: 
+form.dataset.editingId || 
+`acta-${Date.now()}`, 
 
-const acta = {
-id:
-editandoId ||
-`acta-${Date.now()}`,
+numero: 
+obtenerValor("actaNumero"), 
 
-user_id:
-usuarioActual?.id || null,
+fecha: 
+obtenerValor("actaFecha"), 
 
-numero:
-obtenerValor("actaNumero"),
+hora: 
+obtenerValor("actaHora"), 
 
-fecha:
-obtenerValor("actaFecha"),
+nombre: 
+obtenerValor("actaNombre"), 
 
-hora:
-obtenerValor("actaHora"),
+dni: 
+obtenerValor("actaDni"), 
 
-nombre:
-obtenerValor("actaNombre"),
+domicilio: 
+obtenerValor("actaDomicilio"), 
 
-dni:
-obtenerValor("actaDni"),
+lugar: 
+obtenerValor("actaLugar"), 
 
-domicilio:
-obtenerValor("actaDomicilio"),
+hechos: 
+obtenerValor("actaHechos"), 
 
-lugar:
-obtenerValor("actaLugar"),
+infraccion: 
+obtenerValor("actaInfraccion"), 
 
-hechos:
-obtenerValor("actaHechos"),
+observaciones: 
+obtenerValor("actaObservaciones"), 
 
-infraccion:
-obtenerValor("actaInfraccion"),
+actualizado: 
+new Date().toISOString() 
+}; 
 
-observaciones:
-obtenerValor("actaObservaciones"),
+const indice = 
+estado.actas.findIndex( 
+(item) => item.id === acta.id 
+); 
 
-actualizado:
-new Date().toISOString()
-};
+if (indice >= 0) { 
+estado.actas[indice] = acta; 
+mostrarToast("Acta actualizada."); 
+} else { 
+estado.actas.unshift(acta); 
+mostrarToast("Acta guardada."); 
+} 
 
-const boton =
-form.querySelector('button[type="submit"]');
-
-if (boton) {
-boton.disabled = true;
-boton.textContent = "Guardando...";
-}
-
-try {
-
-if (!clienteSupabase || !usuarioActual) {
-throw new Error("Sin sesión activa.");
-}
-
-const { error } = await clienteSupabase
-.from("actas")
-.upsert(acta, { onConflict: "id" });
-
-if (error) {
-throw error;
-}
-
-const indice =
-estado.actas.findIndex(
-(item) => item.id === acta.id
-);
-
-if (indice >= 0) {
-estado.actas[indice] = acta;
-} else {
-estado.actas.unshift(acta);
-}
-
-guardarActasLocal();
-
-mostrarToast(
-editandoId ? "Acta actualizada." : "Acta guardada."
-);
-
-} catch (error) {
-
-console.error(
-"No se pudo guardar el acta en Supabase:",
-error
-);
-
-const indice =
-estado.actas.findIndex(
-(item) => item.id === acta.id
-);
-
-if (indice >= 0) {
-estado.actas[indice] = acta;
-} else {
-estado.actas.unshift(acta);
-}
-
-guardarActasLocal();
-
-mostrarToast(
-"Sin conexión: el acta se ha guardado solo en este dispositivo."
-);
-
-} finally {
-
-if (boton) {
-boton.disabled = false;
-boton.textContent = "Guardar acta";
-}
-
-renderizarActas();
-cerrarEditorActa();
-
-}
-
+guardarActas(); 
+renderizarActas(); 
+cerrarEditorActa(); 
 } 
 
 function renderizarActas() { 
@@ -1913,6 +1807,16 @@ escaparHTML(acta.id)
 Borrar 
 </button> 
 
+<button 
+type="button" 
+class="secondary-button export-pdf-button" 
+data-export-acta="${ 
+escaparHTML(acta.id) 
+}" 
+> 
+📄 PDF 
+</button> 
+
 </div> 
 
 </article> 
@@ -1931,67 +1835,189 @@ abrirEditorActa(acta);
 } 
 } 
 
-async function borrarActa(id) {
+function borrarActa(id) { 
+const confirmado = 
+window.confirm( 
+"¿Quieres borrar esta acta?" 
+); 
 
-const confirmado =
-window.confirm(
-"¿Quieres borrar esta acta?"
-);
+if (!confirmado) { 
+return; 
+} 
 
-if (!confirmado) {
-return;
-}
+estado.actas = 
+estado.actas.filter( 
+(item) => item.id !== id 
+); 
 
-const actaAnterior =
-estado.actas.find(
-(item) => item.id === id
-);
+guardarActas(); 
+renderizarActas(); 
+mostrarToast("Acta borrada."); 
+} 
 
-estado.actas =
-estado.actas.filter(
-(item) => item.id !== id
-);
+/* ========================================================= 
+EXPORTACIÓN DE ACTA A PDF 
+========================================================= */ 
 
-guardarActasLocal();
-renderizarActas();
+function exportarActaPDF(id) { 
+const acta = estado.actas.find(item => item.id === id); 
+if (!acta) { 
+mostrarToast("Acta no encontrada."); 
+return; 
+} 
 
-try {
+// Construir contenido HTML para el PDF 
+const contenidoHTML = ` 
+<!DOCTYPE html> 
+<html lang="es"> 
+<head> 
+<meta charset="UTF-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<title>Acta ${acta.numero || "sin número"}</title> 
+<style> 
+/* Estilos para la impresión */ 
+body { 
+font-family: 'Times New Roman', Times, serif; 
+margin: 2.5cm 2cm; 
+color: #000; 
+background: #fff; 
+line-height: 1.5; 
+} 
+h1 { 
+font-size: 22pt; 
+text-align: center; 
+margin-bottom: 0.2cm; 
+text-transform: uppercase; 
+letter-spacing: 1px; 
+} 
+.subtitulo { 
+text-align: center; 
+font-size: 14pt; 
+margin-top: 0; 
+margin-bottom: 1cm; 
+font-weight: normal; 
+} 
+.fecha-lugar { 
+text-align: right; 
+font-size: 12pt; 
+margin-bottom: 0.8cm; 
+} 
+.campo { 
+margin-bottom: 0.5cm; 
+} 
+.campo-label { 
+font-weight: bold; 
+display: inline-block; 
+min-width: 4cm; 
+} 
+.campo-valor { 
+display: inline-block; 
+} 
+.separador { 
+border-top: 1px solid #333; 
+margin: 0.8cm 0; 
+} 
+.firma { 
+margin-top: 1.5cm; 
+display: flex; 
+justify-content: space-between; 
+} 
+.firma div { 
+text-align: center; 
+} 
+.firma-linea { 
+border-top: 1px solid #000; 
+width: 6cm; 
+margin: 0.2cm auto 0; 
+} 
+.firma-etiqueta { 
+font-size: 10pt; 
+} 
+@media print { 
+body { margin: 2.5cm 2cm; } 
+.no-print { display: none; } 
+} 
+</style> 
+</head> 
+<body> 
+<h1>Acta de Denuncia</h1> 
+<p class="subtitulo">${acta.numero ? `Nº ${acta.numero}` : "Sin número"}</p> 
+<div class="fecha-lugar"> 
+${acta.fecha ? `Fecha: ${acta.fecha}` : ""} 
+${acta.hora ? ` Hora: ${acta.hora}` : ""} 
+${acta.lugar ? `<br>Lugar: ${acta.lugar}` : ""} 
+</div> 
 
-if (!clienteSupabase || !usuarioActual) {
-throw new Error("Sin sesión activa.");
-}
+<div class="campo"> 
+<span class="campo-label">Denunciado:</span> 
+<span class="campo-valor">${acta.nombre || "No indicado"}</span> 
+</div> 
+<div class="campo"> 
+<span class="campo-label">DNI/NIE:</span> 
+<span class="campo-valor">${acta.dni || "No indicado"}</span> 
+</div> 
+<div class="campo"> 
+<span class="campo-label">Domicilio:</span> 
+<span class="campo-valor">${acta.domicilio || "No indicado"}</span> 
+</div> 
 
-const { error } = await clienteSupabase
-.from("actas")
-.delete()
-.eq("id", id)
-.eq("user_id", usuarioActual.id);
+<div class="separador"></div> 
 
-if (error) {
-throw error;
-}
+<div class="campo"> 
+<span class="campo-label">Hechos:</span><br> 
+<span class="campo-valor">${acta.hechos || "No descritos"}</span> 
+</div> 
 
-mostrarToast("Acta borrada.");
+<div class="separador"></div> 
 
-} catch (error) {
+<div class="campo"> 
+<span class="campo-label">Infracción:</span><br> 
+<span class="campo-valor">${acta.infraccion || "No indicada"}</span> 
+</div> 
 
-console.error(
-"No se pudo borrar el acta en Supabase:",
-error
-);
+${acta.observaciones ? ` 
+<div class="separador"></div> 
+<div class="campo"> 
+<span class="campo-label">Observaciones:</span><br> 
+<span class="campo-valor">${acta.observaciones}</span> 
+</div> 
+` : ""} 
 
-if (actaAnterior) {
-estado.actas.unshift(actaAnterior);
-guardarActasLocal();
-renderizarActas();
-}
+<div class="separador"></div> 
 
-mostrarToast(
-"No se pudo borrar el acta: revisa la conexión."
-);
+<div class="firma"> 
+<div> 
+<div>Agente instructor</div> 
+<div class="firma-linea"></div> 
+<div class="firma-etiqueta">Firma</div> 
+</div> 
+<div> 
+<div>Denunciado</div> 
+<div class="firma-linea"></div> 
+<div class="firma-etiqueta">Firma (si procede)</div> 
+</div> 
+</div> 
 
-}
+<p style="font-size: 9pt; text-align: center; margin-top: 2cm; color: #555;"> 
+Documento generado por Centinela Code - ${new Date().toLocaleDateString()} 
+</p> 
+</body> 
+</html> 
+`; 
 
+// Abrir nueva ventana para impresión 
+const ventana = window.open("", "_blank", "width=800,height=600"); 
+if (!ventana) { 
+mostrarToast("Permite ventanas emergentes para exportar el PDF."); 
+return; 
+} 
+
+ventana.document.write(contenidoHTML); 
+ventana.document.close(); 
+
+// Esperar a que cargue el contenido y luego imprimir 
+ventana.focus(); 
+ventana.print(); 
 } 
 
 function actualizarPreviewInfraccion() { 
@@ -3569,6 +3595,20 @@ if (borrar) {
 borrarActa( 
 borrar.dataset.deleteActa 
 ); 
+return; 
+} 
+
+/* === NUEVO: Exportar PDF === */ 
+const exportar = 
+evento.target.closest( 
+"[data-export-acta]" 
+); 
+
+if (exportar) { 
+exportarActaPDF( 
+exportar.dataset.exportActa 
+); 
+return; 
 } 
 } 
 ); 
@@ -3750,7 +3790,7 @@ configurarModal();
 configurarAjustes();
 configurarEventosGlobales();
 configurarRed();
-await cargarActas();
+cargarActas();
 await cargarDatos();
 const version=$("appVersion"); if(version) version.textContent=CONFIG.VERSION;
 }catch(error){console.error("Error iniciando Centinela Code tras login:",error);mostrarToast("La aplicación se inició con un error.");}
