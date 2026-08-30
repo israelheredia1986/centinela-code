@@ -20,6 +20,16 @@ Funciones:
 
 "use strict"; 
 
+/* 
+Evita que Chrome/Android muestre su aviso automático de 
+"instalar esta app" (el cartel inferior con el nombre de la 
+app). El usuario puede seguir instalándola manualmente desde 
+el menú del navegador si quiere, pero no se le impone el aviso. 
+*/ 
+window.addEventListener("beforeinstallprompt", function (evento) { 
+evento.preventDefault(); 
+}); 
+
 const CONFIG = { 
 VERSION: "1.1.0", 
 RUTAS: { 
