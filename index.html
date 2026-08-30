@@ -81,7 +81,7 @@ href="manifest.json"
 
 <link
 rel="stylesheet"
-href="style.css?v=20260829"
+href="style.css?v=20260827"
 >
 
 </head>
@@ -580,23 +580,6 @@ type="time"
 
 </div>
 
-
-<div class="form-group">
-
-<label for="actaAgente">
-Agente actuante (TIP / placa)
-</label>
-
-<input
-id="actaAgente"
-name="agente"
-type="text"
-placeholder="Ej.: TIP 1234"
-autocomplete="off"
->
-
-</div>
-
 </div>
 
 
@@ -659,49 +642,6 @@ type="text"
 <div class="form-section">
 
 <h4>
-Vehículo
-</h4>
-
-
-<div class="form-group">
-
-<label for="actaMatricula">
-Matrícula
-</label>
-
-<input
-id="actaMatricula"
-name="matricula"
-type="text"
-placeholder="Ej.: 1234 ABC"
-autocomplete="off"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label for="actaVehiculo">
-Marca / modelo
-</label>
-
-<input
-id="actaVehiculo"
-name="vehiculo"
-type="text"
-placeholder="Ej.: Seat León blanco"
-autocomplete="off"
->
-
-</div>
-
-</div>
-
-
-<div class="form-section">
-
-<h4>
 Hechos
 </h4>
 
@@ -712,7 +652,7 @@ Hechos
 Lugar
 </label>
 
-<div class="field-with-button">
+<div class="input-with-button">
 
 <input
 id="actaLugar"
@@ -721,9 +661,9 @@ type="text"
 >
 
 <button
-id="actaLugarGpsButton"
 type="button"
-class="input-inline-button"
+id="btnUbicacionActa"
+class="input-action-button"
 aria-label="Usar mi ubicación actual"
 title="Usar mi ubicación actual"
 >
@@ -737,23 +677,11 @@ title="Usar mi ubicación actual"
 
 <div class="form-group">
 
-<div class="textarea-label-row">
-
 <label for="actaHechos">
 Descripción de los hechos
 </label>
 
-<button
-id="actaHechosDictarButton"
-type="button"
-class="dictar-button"
-aria-label="Dictar por voz"
-title="Dictar por voz"
->
-🎤 Dictar
-</button>
-
-</div>
+<div class="input-with-button input-with-button--textarea">
 
 <textarea
 id="actaHechos"
@@ -761,6 +689,19 @@ name="hechos"
 rows="7"
 placeholder="Describa los hechos observados..."
 ></textarea>
+
+<button
+type="button"
+id="btnDictadoHechos"
+class="input-action-button"
+data-target="actaHechos"
+aria-label="Dictar por voz"
+title="Dictar por voz"
+>
+🎤
+</button>
+
+</div>
 
 </div>
 
@@ -780,8 +721,6 @@ Infracción
 Código / artículo
 </label>
 
-<div class="field-with-button">
-
 <input
 id="actaInfraccion"
 name="infraccion"
@@ -790,39 +729,6 @@ placeholder="Ej.: 36.16"
 autocomplete="off"
 >
 
-<button
-id="actaInfraccionAddButton"
-type="button"
-class="input-inline-button"
-aria-label="Añadir artículo a la lista"
-title="Añadir artículo a la lista"
->
-➕
-</button>
-
-<button
-id="actaInfraccionSearchButton"
-type="button"
-class="input-inline-button"
-aria-label="Buscar en la normativa"
-title="Buscar en la normativa"
->
-🔎
-</button>
-
-</div>
-
-<p class="field-hint">
-Puedes añadir varios artículos: escribe el código y pulsa ➕, o búscalo con 🔎.
-</p>
-
-</div>
-
-
-<div
-id="actaInfraccionesChips"
-class="infraccion-chips"
->
 </div>
 
 
@@ -838,43 +744,13 @@ class="infraccion-preview hidden"
 <div class="form-section">
 
 <h4>
-Fotos
-</h4>
-
-
-<div class="form-group">
-
-<label for="actaFotoInput">
-Adjuntar fotografías (máximo 3)
-</label>
-
-<input
-id="actaFotoInput"
-type="file"
-accept="image/*"
-capture="environment"
-class="foto-input"
->
-
-<div
-id="actaFotosPreview"
-class="fotos-preview"
->
-</div>
-
-</div>
-
-</div>
-
-
-<div class="form-section">
-
-<h4>
 Observaciones
 </h4>
 
 
 <div class="form-group">
+
+<div class="input-with-button input-with-button--textarea">
 
 <textarea
 id="actaObservaciones"
@@ -882,6 +758,19 @@ name="observaciones"
 rows="5"
 placeholder="Observaciones adicionales..."
 ></textarea>
+
+<button
+type="button"
+id="btnDictadoObservaciones"
+class="input-action-button"
+data-target="actaObservaciones"
+aria-label="Dictar por voz"
+title="Dictar por voz"
+>
+🎤
+</button>
+
+</div>
 
 </div>
 
@@ -908,32 +797,6 @@ Guardar acta
 </div>
 
 </form>
-
-</div>
-
-
-<div class="search-box">
-
-<span class="search-icon" aria-hidden="true">
-🔎
-</span>
-
-<input
-id="actasSearch"
-type="search"
-placeholder="Buscar por nombre, DNI, nº acta o matrícula..."
-autocomplete="off"
-aria-label="Buscar actas guardadas"
->
-
-<button
-id="clearActasSearch"
-type="button"
-class="clear-search"
-aria-label="Borrar búsqueda"
->
-×
-</button>
 
 </div>
 
@@ -1075,18 +938,6 @@ Normativa
 </span>
 
 </div>
-
-<button
-id="viewerFavButton"
-type="button"
-class="icon-button fav-button hidden"
-aria-label="Guardar en favoritos"
-title="Guardar en favoritos"
-data-fav-tipo=""
-data-fav-id=""
->
-☆
-</button>
 
 </div>
 
@@ -1524,7 +1375,7 @@ Versión renovada para evitar caché
 ====================================================== -->
 
 <script
-src="app.js?v=20260829"
+src="app.js?v=20260827"
 defer
 ></script>
 
@@ -1543,7 +1394,7 @@ function () {
 
 navigator.serviceWorker
 .register(
-"service-worker.js?v=20260829"
+"service-worker.js?v=20260827"
 )
 .then(
 function (registration) {
