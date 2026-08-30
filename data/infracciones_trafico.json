@@ -14,9 +14,20 @@
       "gravedad": "Leve",
       "titulo": "Infracción leve (cláusula residual)",
       "conducta": "Cualquier incumplimiento de las normas de la Ley de Tráfico que no esté expresamente calificado como infracción grave o muy grave.",
-      "sancion": { "min": 1, "max": 100, "moneda": "EUR" },
-      "palabrasClave": ["leve", "residual", "trafico", "circulacion"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 1,
+        "max": 100,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "leve",
+        "residual",
+        "trafico",
+        "circulacion"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -28,9 +39,21 @@
       "gravedad": "Grave",
       "titulo": "Exceso de velocidad (grave)",
       "conducta": "No respetar los límites de velocidad reglamentariamente establecidos, cuando el exceso no alcance la entidad prevista para infracción muy grave (anexo IV).",
-      "sancion": { "min": 100, "max": 400, "moneda": "EUR" },
-      "palabrasClave": ["velocidad", "exceso de velocidad", "radar", "cinemometro", "limite"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 100,
+        "max": 400,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "velocidad",
+        "exceso de velocidad",
+        "radar",
+        "cinemometro",
+        "limite"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -42,9 +65,21 @@
       "gravedad": "Muy Grave",
       "titulo": "Exceso de velocidad (muy grave)",
       "conducta": "No respetar los límites de velocidad reglamentariamente establecidos con un exceso cualificado según el baremo del anexo IV (grandes excesos de velocidad).",
-      "sancion": { "min": 500, "max": 600, "moneda": "EUR" },
-      "palabrasClave": ["velocidad", "exceso de velocidad", "radar", "cinemometro", "muy grave"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 500,
+        "max": 600,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "velocidad",
+        "exceso de velocidad",
+        "radar",
+        "cinemometro",
+        "muy grave"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -56,9 +91,22 @@
       "gravedad": "Muy Grave",
       "titulo": "Conducir con tasa de alcohol superior a la permitida",
       "conducta": "Conducir con una tasa de alcohol en aire espirado o en sangre superior a la reglamentariamente establecida (0,25 mg/l general, 0,15 mg/l noveles y profesionales, 0 mg/l menores de edad), sin llegar a ser constitutivo de delito contra la seguridad vial.",
-      "sancion": { "min": 500, "max": 500, "moneda": "EUR" },
-      "palabrasClave": ["alcohol", "alcoholemia", "tasa de alcohol", "etilometro", "beber", "bebidas alcoholicas"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "alcohol",
+        "alcoholemia",
+        "tasa de alcohol",
+        "etilometro",
+        "beber",
+        "bebidas alcoholicas"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -70,9 +118,22 @@
       "gravedad": "Muy Grave",
       "titulo": "Conducir con presencia de drogas en el organismo",
       "conducta": "Conducir con presencia de drogas en el organismo, salvo las utilizadas bajo prescripción facultativa y finalidad terapéutica que no afecten a la conducción.",
-      "sancion": { "min": 500, "max": 500, "moneda": "EUR" },
-      "palabrasClave": ["drogas", "estupefacientes", "sustancias", "salivales", "cannabis", "cocaina"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "drogas",
+        "estupefacientes",
+        "sustancias",
+        "salivales",
+        "cannabis",
+        "cocaina"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -84,9 +145,22 @@
       "gravedad": "Muy Grave",
       "titulo": "Negativa a someterse a las pruebas de alcoholemia o drogas",
       "conducta": "Incumplir la obligación de todos los conductores, y de los demás usuarios de la vía implicados en un accidente o que hayan cometido una infracción, de someterse a las pruebas de detección de alcohol o de presencia de drogas en el organismo.",
-      "sancion": { "min": 500, "max": 500, "moneda": "EUR" },
-      "palabrasClave": ["negativa", "prueba de alcoholemia", "prueba de drogas", "negarse", "etilometro"],
-      "responsables": ["conductor", "usuario de la via"],
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "negativa",
+        "prueba de alcoholemia",
+        "prueba de drogas",
+        "negarse",
+        "etilometro"
+      ],
+      "responsables": [
+        "conductor",
+        "usuario de la via"
+      ],
       "fuente": "BOE"
     },
     {
@@ -98,9 +172,21 @@
       "gravedad": "Muy Grave",
       "titulo": "Conducir sin permiso o licencia de conducción",
       "conducta": "Conducir un vehículo careciendo del permiso o licencia de conducción correspondiente a la categoría del vehículo.",
-      "sancion": { "min": 500, "max": 500, "moneda": "EUR" },
-      "palabrasClave": ["sin carnet", "sin permiso", "sin licencia", "carecer de permiso", "conducir sin carnet"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "sin carnet",
+        "sin permiso",
+        "sin licencia",
+        "carecer de permiso",
+        "conducir sin carnet"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -112,9 +198,22 @@
       "gravedad": "Muy Grave",
       "titulo": "Uso de inhibidores o detectores de radar",
       "conducta": "Conducir vehículos que tengan instalados inhibidores de radar o cinemómetro, o cualquier otro mecanismo encaminado a interferir en el funcionamiento de los sistemas de vigilancia del tráfico, así como llevar mecanismos de detección de los mismos.",
-      "sancion": { "min": 500, "max": 500, "moneda": "EUR" },
-      "palabrasClave": ["inhibidor", "radar", "cinemometro", "detector de radar", "interferir"],
-      "responsables": ["conductor", "titular del vehiculo"],
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "inhibidor",
+        "radar",
+        "cinemometro",
+        "detector de radar",
+        "interferir"
+      ],
+      "responsables": [
+        "conductor",
+        "titular del vehiculo"
+      ],
       "fuente": "BOE"
     },
     {
@@ -126,9 +225,21 @@
       "gravedad": "Muy Grave",
       "titulo": "No identificar al conductor responsable de la infracción",
       "conducta": "Incumplir el titular o arrendatario del vehículo la obligación de identificar verazmente al conductor responsable de una infracción cuando sea debidamente requerido para ello en el plazo establecido.",
-      "sancion": { "min": 500, "max": 500, "moneda": "EUR" },
-      "palabrasClave": ["identificar conductor", "titular del vehiculo", "requerimiento", "no identifica"],
-      "responsables": ["titular del vehiculo", "arrendatario"],
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "identificar conductor",
+        "titular del vehiculo",
+        "requerimiento",
+        "no identifica"
+      ],
+      "responsables": [
+        "titular del vehiculo",
+        "arrendatario"
+      ],
       "fuente": "BOE"
     },
     {
@@ -140,9 +251,21 @@
       "gravedad": "Muy Grave",
       "titulo": "Uso manual del teléfono móvil al conducir",
       "conducta": "Utilizar durante la conducción dispositivos de telefonía móvil, navegadores u otros sistemas de comunicación de forma manual, sin manos libres, disminuyendo la atención permanente a la conducción.",
-      "sancion": { "min": 200, "max": 500, "moneda": "EUR" },
-      "palabrasClave": ["movil", "telefono movil", "manos libres", "whatsapp", "conducir con el movil"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 200,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "movil",
+        "telefono movil",
+        "manos libres",
+        "whatsapp",
+        "conducir con el movil"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -154,9 +277,22 @@
       "gravedad": "Grave",
       "titulo": "No usar el cinturón de seguridad o sistema de retención infantil",
       "conducta": "Circular sin utilizar el cinturón de seguridad, el casco de protección homologado (cuando sea obligatorio) o los sistemas de retención infantil homologados, en las condiciones reglamentariamente establecidas.",
-      "sancion": { "min": 200, "max": 200, "moneda": "EUR" },
-      "palabrasClave": ["cinturon", "cinturon de seguridad", "casco", "sistema de retencion infantil", "silla infantil"],
-      "responsables": ["conductor", "ocupante"],
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "cinturon",
+        "cinturon de seguridad",
+        "casco",
+        "sistema de retencion infantil",
+        "silla infantil"
+      ],
+      "responsables": [
+        "conductor",
+        "ocupante"
+      ],
       "fuente": "BOE"
     },
     {
@@ -168,9 +304,20 @@
       "gravedad": "Grave",
       "titulo": "No respetar la distancia de seguridad",
       "conducta": "No dejar entre el vehículo propio y el que le precede el espacio libre suficiente para poder detenerse en caso de frenado brusco sin colisionar con él.",
-      "sancion": { "min": 200, "max": 200, "moneda": "EUR" },
-      "palabrasClave": ["distancia de seguridad", "pegado", "frenazo", "colision por alcance"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "distancia de seguridad",
+        "pegado",
+        "frenazo",
+        "colision por alcance"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -182,9 +329,21 @@
       "gravedad": "Grave",
       "titulo": "Adelantamiento antirreglamentario",
       "conducta": "Adelantar en lugares o circunstancias en que esté prohibido: curvas y cambios de rasante de visibilidad reducida, pasos de peatones, pasos a nivel, intersecciones, entre otros supuestos del artículo 37.",
-      "sancion": { "min": 200, "max": 200, "moneda": "EUR" },
-      "palabrasClave": ["adelantamiento", "adelantar", "rebasar", "curva", "prohibido adelantar"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "adelantamiento",
+        "adelantar",
+        "rebasar",
+        "curva",
+        "prohibido adelantar"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -196,9 +355,21 @@
       "gravedad": "Grave",
       "titulo": "No respetar semáforo en rojo o señal de stop/ceda el paso",
       "conducta": "Incumplir la obligación de obedecer las señales de circulación que establezcan una obligación o prohibición, como el semáforo en fase roja, la señal de stop o la de ceda el paso.",
-      "sancion": { "min": 200, "max": 200, "moneda": "EUR" },
-      "palabrasClave": ["semaforo", "stop", "ceda el paso", "señal de trafico", "saltarse el stop"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "semaforo",
+        "stop",
+        "ceda el paso",
+        "señal de trafico",
+        "saltarse el stop"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -210,9 +381,20 @@
       "gravedad": "Muy Grave",
       "titulo": "Circular en sentido contrario",
       "conducta": "Circular en sentido contrario al establecido para la vía, especialmente en autovías y autopistas.",
-      "sancion": { "min": 500, "max": 500, "moneda": "EUR" },
-      "palabrasClave": ["sentido contrario", "circular en direccion contraria", "autovia", "autopista"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "sentido contrario",
+        "circular en direccion contraria",
+        "autovia",
+        "autopista"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -224,9 +406,20 @@
       "gravedad": "Muy Grave",
       "titulo": "Conducción temeraria",
       "conducta": "Conducir de forma temeraria, creando un riesgo grave para la circulación, cuando el hecho no sea constitutivo de delito contra la seguridad vial (art. 380 CP).",
-      "sancion": { "min": 500, "max": 500, "moneda": "EUR" },
-      "palabrasClave": ["temeraria", "conduccion temeraria", "riesgo grave", "peligro"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "temeraria",
+        "conduccion temeraria",
+        "riesgo grave",
+        "peligro"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -238,9 +431,21 @@
       "gravedad": "Leve",
       "titulo": "No llevar o no exhibir la documentación obligatoria",
       "conducta": "No llevar consigo o no exhibir a los agentes de la autoridad, cuando lo requieran, el permiso o licencia de conducir, el permiso de circulación del vehículo o la tarjeta de inspección técnica.",
-      "sancion": { "min": 1, "max": 100, "moneda": "EUR" },
-      "palabrasClave": ["documentacion", "carnet de conducir", "permiso de circulacion", "ficha tecnica", "itv"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 1,
+        "max": 100,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "documentacion",
+        "carnet de conducir",
+        "permiso de circulacion",
+        "ficha tecnica",
+        "itv"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -252,9 +457,21 @@
       "gravedad": "Grave",
       "titulo": "Circular sin haber pasado la inspección técnica (ITV)",
       "conducta": "Circular con un vehículo que incumpla la obligación de someterse a la inspección técnica periódica (ITV) en el plazo establecido.",
-      "sancion": { "min": 200, "max": 200, "moneda": "EUR" },
-      "palabrasClave": ["itv", "inspeccion tecnica", "ficha itv caducada", "revision del vehiculo"],
-      "responsables": ["conductor", "titular del vehiculo"],
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "itv",
+        "inspeccion tecnica",
+        "ficha itv caducada",
+        "revision del vehiculo"
+      ],
+      "responsables": [
+        "conductor",
+        "titular del vehiculo"
+      ],
       "fuente": "BOE"
     },
     {
@@ -266,9 +483,23 @@
       "gravedad": "Leve",
       "titulo": "Estacionamiento prohibido",
       "conducta": "Estacionar el vehículo en lugares prohibidos: doble fila, vado señalizado, zona de carga y descarga, plaza reservada para personas con discapacidad, paso de peatones, o sin título habilitante en zona de estacionamiento limitado (salvo que constituya infracción grave por crear peligro).",
-      "sancion": { "min": 1, "max": 100, "moneda": "EUR" },
-      "palabrasClave": ["estacionamiento prohibido", "doble fila", "vado", "carga y descarga", "aparcar mal", "plaza discapacitados"],
-      "responsables": ["conductor", "titular del vehiculo"],
+      "sancion": {
+        "min": 1,
+        "max": 100,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "estacionamiento prohibido",
+        "doble fila",
+        "vado",
+        "carga y descarga",
+        "aparcar mal",
+        "plaza discapacitados"
+      ],
+      "responsables": [
+        "conductor",
+        "titular del vehiculo"
+      ],
       "fuente": "BOE"
     },
     {
@@ -280,9 +511,21 @@
       "gravedad": "Grave",
       "titulo": "Placa de matrícula ilegible u obstaculizada",
       "conducta": "Circular con las placas de matrícula que presenten obstáculos que impidan o dificulten su lectura e identificación por los sistemas de vigilancia del tráfico.",
-      "sancion": { "min": 200, "max": 200, "moneda": "EUR" },
-      "palabrasClave": ["matricula", "placa de matricula", "matricula ilegible", "matricula tapada"],
-      "responsables": ["conductor", "titular del vehiculo"],
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "matricula",
+        "placa de matricula",
+        "matricula ilegible",
+        "matricula tapada"
+      ],
+      "responsables": [
+        "conductor",
+        "titular del vehiculo"
+      ],
       "fuente": "BOE"
     },
     {
@@ -294,9 +537,20 @@
       "gravedad": "Grave",
       "titulo": "Menor de 12 años como pasajero de moto o ciclomotor",
       "conducta": "Circular con un menor de 12 años como pasajero de un ciclomotor o motocicleta, salvo la excepción a partir de los 7 años cuando el conductor sea el padre, la madre, el tutor o persona mayor de edad autorizada, con casco homologado.",
-      "sancion": { "min": 200, "max": 200, "moneda": "EUR" },
-      "palabrasClave": ["menor", "pasajero moto", "ciclomotor", "niño en moto"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "menor",
+        "pasajero moto",
+        "ciclomotor",
+        "niño en moto"
+      ],
+      "responsables": [
+        "conductor"
+      ],
       "fuente": "BOE"
     },
     {
@@ -308,9 +562,52 @@
       "gravedad": "Muy Grave",
       "titulo": "Conducir habiendo perdido la totalidad de los puntos",
       "conducta": "Conducir un vehículo con el permiso o licencia de conducción sin vigencia por haber perdido la totalidad del crédito de puntos asignado.",
-      "sancion": { "min": 500, "max": 500, "moneda": "EUR" },
-      "palabrasClave": ["puntos", "sin puntos", "permiso sin vigencia", "carnet por puntos"],
-      "responsables": ["conductor"],
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "puntos",
+        "sin puntos",
+        "permiso sin vigencia",
+        "carnet por puntos"
+      ],
+      "responsables": [
+        "conductor"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-76-SINSEGURO",
+      "codigo": "76",
+      "ley": "RDL 6/2015",
+      "articulo": "76",
+      "apartado": "",
+      "gravedad": "Muy Grave",
+      "titulo": "Circular sin el seguro obligatorio en vigor",
+      "conducta": "Circular o mantener en circulación un vehículo a motor sin tener concertado y en vigor el seguro obligatorio de responsabilidad civil (SOA), exigido por el artículo 2 del Real Decreto Legislativo 8/2004. La obligación de aseguramiento afecta a todo propietario de un vehículo con estacionamiento habitual en España, esté o no circulando, salvo baja temporal o definitiva en la DGT. Además de la sanción, procede la inmovilización del vehículo (art. 104 LSV).",
+      "sancion": {
+        "min": 601,
+        "max": 3005,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "seguro obligatorio",
+        "sin seguro",
+        "falta de seguro",
+        "seguro caducado",
+        "poliza",
+        "soa",
+        "aseguramiento obligatorio",
+        "responsabilidad civil",
+        "fiva",
+        "vehiculo sin asegurar"
+      ],
+      "responsables": [
+        "conductor",
+        "propietario"
+      ],
       "fuente": "BOE"
     }
   ]
