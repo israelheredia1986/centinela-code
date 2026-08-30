@@ -1903,6 +1903,14 @@ etiqueta: "Estatal",
 icono: "🚦" 
 }, 
 { 
+tipo: "violencia-genero", 
+titulo: "Violencia de Género", 
+descripcion: 
+"Protección integral, orden de protección y libertad sexual — 3 normas", 
+etiqueta: "LO 1/2004, Ley 27/2003, LO 10/2022", 
+icono: "🛡️" 
+}, 
+{ 
 tipo: "ordenanzas", 
 titulo: "Ordenanzas municipales", 
 descripcion: 
@@ -1998,6 +2006,16 @@ return;
 
 if (tipo === "ley-menor") { 
 abrirLeyMenor(id); 
+return; 
+} 
+
+if (tipo === "violencia-genero") { 
+abrirViolenciaGeneroGrupo(); 
+return; 
+} 
+
+if (tipo === "ley-violencia-genero") { 
+abrirLeyViolenciaGenero(id); 
 return; 
 } 
 
@@ -2417,6 +2435,173 @@ ${leyItem.nota ? `
 <strong>Nota:</strong> 
 ${escaparHTML(leyItem.nota)} 
 </p> 
+` : ""} 
+
+</article> 
+
+${articulos.map((articulo) => ` 
+<article class="law-article"> 
+<h4> 
+Artículo ${escaparHTML(articulo.numero)}. 
+${escaparHTML(articulo.titulo || "")} 
+</h4> 
+<p>${escaparHTML(articulo.texto || "")}</p> 
+</article> 
+`).join("")} 
+`; 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
+const VIOLENCIA_GENERO_ICONOS = { 
+"lo-1-2004": "🛡️", 
+"ley-27-2003": "📋", 
+"lo-10-2022": "⚖️" 
+}; 
+
+function abrirViolenciaGeneroGrupo() { 
+const leyes = 
+extraerAnimales( 
+estado.violenciaGenero 
+); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+"Violencia de Género"; 
+
+$("viewerSubtitle").textContent = 
+"Protección integral, orden de protección y libertad sexual"; 
+
+if (!leyes.length) { 
+contenido.innerHTML = ` 
+<div class="empty-state"> 
+<h3>Normativa no disponible</h3> 
+<p> 
+No se ha podido cargar la información. 
+</p> 
+</div> 
+`; 
+} else { 
+contenido.innerHTML = ` 
+<div class="normativa-list"> 
+${leyes.map((leyItem) => ` 
+<div class="normativa-card"> 
+
+<div class="normativa-icon"> 
+${VIOLENCIA_GENERO_ICONOS[leyItem.id] || "📖"} 
+</div> 
+
+<div class="normativa-info"> 
+
+<h3> 
+${escaparHTML(leyItem.ley || "")} 
+</h3> 
+
+<p> 
+${escaparHTML(leyItem.abreviatura || "")} 
+</p> 
+
+<span> 
+${escaparHTML(leyItem.ambito || "")} · ${Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0} artículos 
+</span> 
+
+</div> 
+
+<button 
+type="button" 
+class="normativa-open" 
+data-law="ley-violencia-genero" 
+data-id="${escaparHTML(leyItem.id)}" 
+> 
+Ver 
+</button> 
+
+</div> 
+`).join("")} 
+</div> 
+`; 
+} 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
+function abrirLeyViolenciaGenero(id) { 
+const leyes = 
+extraerAnimales( 
+estado.violenciaGenero 
+); 
+
+const leyItem = 
+leyes.find((item) => item.id === id); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!leyItem || !visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+leyItem.ley || "Violencia de Género"; 
+
+$("viewerSubtitle").textContent = 
+leyItem.abreviatura || ""; 
+
+const articulos = 
+Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
+contenido.innerHTML = ` 
+<button 
+type="button" 
+class="normativa-open law-back-button" 
+data-law="violencia-genero" 
+> 
+← Volver a Violencia de Género 
+</button> 
+
+<article class="law-article"> 
+
+<p> 
+<strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
+<strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
+<strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
+</p> 
+
+${leyItem.resumen ? ` 
+<p>${escaparHTML(leyItem.resumen)}</p> 
+` : ""} 
+
+${leyItem.enlaceOficial ? ` 
+<a 
+class="law-link-button" 
+href="${escaparHTML(leyItem.enlaceOficial)}" 
+target="_blank" 
+rel="noopener noreferrer" 
+> 
+🔗 Ver normativa online (BOE) 
+</a> 
 ` : ""} 
 
 </article> 
