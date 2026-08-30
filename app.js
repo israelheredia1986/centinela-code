@@ -1,7 +1,7 @@
 /* 
 ============================================================ 
 CENTINELA CODE 
-app.js - Versión COMPLETA y FUNCIONAL 
+app.js - Versión corregida y compatible con index.html 
 ============================================================ 
 
 Funciones: 
@@ -12,9 +12,9 @@ Funciones:
 - Visor de LOPSC y ordenanzas. 
 - Estado de conexión y estado de las bases. 
 - Limpieza/recarga de datos. 
+- Compatible con la estructura actual de index.html. 
 - Exportación de actas a PDF. 
-- Estilos mejorados para actas (glassmorphism). 
-- Autenticación con Supabase (el cartel de login se cierra correctamente). 
+- Autenticación con Supabase (login funcional y cierre correcto). 
 ============================================================ 
 */ 
 
@@ -69,6 +69,25 @@ return String(valor || "")
 
 /* ========================================================= 
 BUSQUEDA POR PALABRAS (tokenizada + sinonimos) 
+
+El buscador antiguo comparaba la consulta completa como una 
+unica cadena ("includes"), por lo que fallaba en cuanto el 
+orden de las palabras no coincidia exactamente con el texto 
+de la ley (p. ej. "distancia seguridad" no encontraba 
+"distancia DE seguridad") o cuando se usaba una palabra 
+coloquial distinta a la que aparece en el articulado 
+(p. ej. "agresion a agente" no encontraba "Atentado", cuyo 
+texto habla de "agredieren... a la autoridad, a sus agentes"). 
+
+Este bloque resuelve ambos problemas: 
+1) Se divide la consulta en palabras sueltas y se exige que 
+   TODAS aparezcan en el contenido, en cualquier orden. 
+2) Las palabras vacias (de, la, el...) no son obligatorias si 
+   hay otras palabras con significado en la consulta. 
+3) Un diccionario de sinonimos permite que un termino 
+   coloquial o policial habitual encuentre el articulo aunque 
+   la ley use otra palabra. Es facil de ampliar: basta con 
+   añadir una entrada nueva al objeto SINONIMOS_BUSQUEDA. 
 ========================================================= */ 
 
 const STOPWORDS_BUSQUEDA = new Set([ 
@@ -117,9 +136,11 @@ return normalizarTexto(valor)
 
 function tokenizarConsulta(valor) { 
 const tokens = tokenizarTexto(valor); 
+
 const significativos = tokens.filter( 
 (token) => !STOPWORDS_BUSQUEDA.has(token) 
 ); 
+
 return significativos.length ? significativos : tokens; 
 } 
 
@@ -127,14 +148,18 @@ function coincideConsulta(contenidoNormalizado, tokens) {
 if (!tokens.length) { 
 return false; 
 } 
+
 return tokens.every((token) => { 
 if (contenidoNormalizado.includes(token)) { 
 return true; 
 } 
+
 const sinonimos = SINONIMOS_BUSQUEDA[token]; 
+
 if (!sinonimos) { 
 return false; 
 } 
+
 return sinonimos.some( 
 (alternativa) => contenidoNormalizado.includes(alternativa) 
 ); 
@@ -153,11 +178,14 @@ return String(valor ?? "")
 function mostrarToast(mensaje) { 
 const toast = $("toast"); 
 const texto = $("toastMessage"); 
+
 if (!toast || !texto) { 
 return; 
 } 
+
 texto.textContent = mensaje; 
 toast.classList.add("show"); 
+
 clearTimeout(mostrarToast.timer); 
 mostrarToast.timer = setTimeout(() => { 
 toast.classList.remove("show"); 
@@ -166,9 +194,11 @@ toast.classList.remove("show");
 
 function mostrarCarga(visible) { 
 const pantalla = $("loadingScreen"); 
+
 if (!pantalla) { 
 return; 
 } 
+
 if (visible) { 
 pantalla.classList.remove("hidden"); 
 pantalla.style.display = ""; 
@@ -185,12 +215,14 @@ section.classList.toggle(
 section.dataset.section === nombre 
 ); 
 }); 
+
 document.querySelectorAll(".nav-item").forEach((item) => { 
 item.classList.toggle( 
 "active", 
 item.dataset.section === nombre 
 ); 
 }); 
+
 window.scrollTo({ 
 top: 0, 
 behavior: "smooth" 
@@ -225,9 +257,11 @@ function extraerInfracciones(datos) {
 if (Array.isArray(datos)) { 
 return datos; 
 } 
+
 if (datos && Array.isArray(datos.infracciones)) { 
 return datos.infracciones; 
 } 
+
 return []; 
 } 
 
@@ -235,6 +269,7 @@ function extraerArticulos(datos) {
 if (datos && Array.isArray(datos.articulos)) { 
 return datos.articulos; 
 } 
+
 return []; 
 } 
 
@@ -270,24 +305,31 @@ const PALABRAS_CLAVE_EXTRA_36_16 = [
 ]; 
 
 function aplicarPalabrasClaveExtra(infracciones) { 
+
 if (!Array.isArray(infracciones)) { 
 return; 
 } 
+
 infracciones.forEach((infraccion) => { 
+
 const esArt36_16 = 
 String(infraccion.articulo) === "36" && 
 String(infraccion.apartado) === "16"; 
+
 if (!esArt36_16) { 
 return; 
 } 
+
 const existentes = Array.isArray(infraccion.palabrasClave) 
 ? infraccion.palabrasClave 
 : []; 
+
 const combinadas = existentes.concat( 
 PALABRAS_CLAVE_EXTRA_36_16.filter( 
 (palabra) => !existentes.includes(palabra) 
 ) 
 ); 
+
 infraccion.palabrasClave = combinadas; 
 }); 
 } 
@@ -296,6 +338,7 @@ function extraerAnimales(datos) {
 if (datos && Array.isArray(datos.leyes)) { 
 return datos.leyes; 
 } 
+
 return []; 
 } 
 
@@ -303,6 +346,7 @@ function extraerTrafico(datos) {
 if (datos && Array.isArray(datos.leyes)) { 
 return datos.leyes; 
 } 
+
 return []; 
 } 
 
@@ -310,9 +354,11 @@ function extraerOrdenanzas(datos) {
 if (Array.isArray(datos)) { 
 return datos; 
 } 
+
 if (datos && Array.isArray(datos.ordenanzas)) { 
 return datos.ordenanzas; 
 } 
+
 return []; 
 } 
 
@@ -321,22 +367,30 @@ const titulo =
 ordenanza.nombre || 
 ordenanza.nombre_corto || 
 "Ordenanza municipal"; 
+
 return ` 
 <div class="normativa-card"> 
+
 <div class="normativa-icon"> 
 📋 
 </div> 
+
 <div class="normativa-info"> 
+
 <h3> 
 ${escaparHTML(titulo)} 
 </h3> 
+
 <p> 
 ${escaparHTML(ordenanza.descripcion || "")} 
 </p> 
+
 <span> 
 ${escaparHTML(ordenanza.codigo || "Ordenanza")} 
 </span> 
+
 </div> 
+
 <button 
 type="button" 
 class="normativa-open" 
@@ -345,6 +399,7 @@ data-id="${escaparHTML(ordenanza.id)}"
 > 
 Ver ficha 
 </button> 
+
 </div> 
 `; 
 } 
@@ -356,11 +411,14 @@ const items =
 ordenanzas.filter( 
 (ordenanza) => ordenanza.categoria === categoria.id 
 ); 
+
 if (!items.length) { 
 return ""; 
 } 
+
 return ` 
 <details class="ordenanza-group"> 
+
 <summary> 
 <span class="ordenanza-group-nombre"> 
 ${escaparHTML(categoria.nombre)} 
@@ -369,9 +427,11 @@ ${escaparHTML(categoria.nombre)}
 ${items.length} 
 </span> 
 </summary> 
+
 <div class="normativa-list normativa-list--nested"> 
 ${items.map(renderTarjetaOrdenanza).join("")} 
 </div> 
+
 </details> 
 `; 
 }) 
@@ -390,7 +450,9 @@ cargarJSON(CONFIG.RUTAS.ordenanzas),
 cargarJSON(CONFIG.RUTAS.animales), 
 cargarJSON(CONFIG.RUTAS.trafico) 
 ]); 
+
 const [rInfracciones, rInfraccionesTrafico, rLopsc, rCodigoPenal, rMenores, rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico] = resultados; 
+
 if (rInfracciones.status === "fulfilled") { 
 estado.infracciones = extraerInfracciones( 
 rInfracciones.value 
@@ -403,6 +465,7 @@ console.error(
 rInfracciones.reason 
 ); 
 } 
+
 if (rInfraccionesTrafico.status === "fulfilled") { 
 estado.infracciones = estado.infracciones.concat( 
 extraerInfracciones(rInfraccionesTrafico.value) 
@@ -413,6 +476,7 @@ console.error(
 rInfraccionesTrafico.reason 
 ); 
 } 
+
 if (rLopsc.status === "fulfilled") { 
 estado.lopsc = rLopsc.value; 
 } else { 
@@ -422,6 +486,7 @@ console.error(
 rLopsc.reason 
 ); 
 } 
+
 if (rCodigoPenal.status === "fulfilled") { 
 estado.codigoPenal = rCodigoPenal.value; 
 } else { 
@@ -431,6 +496,7 @@ console.error(
 rCodigoPenal.reason 
 ); 
 } 
+
 if (rMenores.status === "fulfilled") { 
 estado.menores = rMenores.value; 
 } else { 
@@ -440,6 +506,7 @@ console.error(
 rMenores.reason 
 ); 
 } 
+
 if (rViolenciaGenero.status === "fulfilled") { 
 estado.violenciaGenero = rViolenciaGenero.value; 
 } else { 
@@ -449,6 +516,7 @@ console.error(
 rViolenciaGenero.reason 
 ); 
 } 
+
 if (rOrdenanzas.status === "fulfilled") { 
 estado.ordenanzas = rOrdenanzas.value; 
 } else { 
@@ -458,6 +526,7 @@ console.error(
 rOrdenanzas.reason 
 ); 
 } 
+
 if (rAnimales.status === "fulfilled") { 
 estado.animales = rAnimales.value; 
 } else { 
@@ -467,6 +536,7 @@ console.error(
 rAnimales.reason 
 ); 
 } 
+
 if (rTrafico.status === "fulfilled") { 
 estado.trafico = rTrafico.value; 
 } else { 
@@ -476,12 +546,15 @@ console.error(
 rTrafico.reason 
 ); 
 } 
+
 actualizarEstadoDatos(); 
 actualizarBusqueda(); 
 renderizarNormativa(); 
+
 const correctos = resultados.filter( 
 (resultado) => resultado.status === "fulfilled" 
 ).length; 
+
 if (correctos === resultados.length) { 
 mostrarToast("Datos cargados correctamente."); 
 } else { 
@@ -499,11 +572,14 @@ function establecerEstado(elemento, texto, correcto) {
 if (!elemento) { 
 return; 
 } 
+
 elemento.textContent = texto; 
+
 elemento.classList.toggle( 
 "success", 
 Boolean(correcto) 
 ); 
+
 elemento.classList.toggle( 
 "error", 
 correcto === false 
@@ -514,22 +590,28 @@ function actualizarEstadoDatos() {
 const hayLopsc = 
 Boolean(estado.lopsc) && 
 extraerArticulos(estado.lopsc).length > 0; 
+
 const hayInfracciones = 
 estado.infracciones.length > 0; 
+
 const hayOrdenanzas = 
 Boolean(estado.ordenanzas) && 
 extraerOrdenanzas(estado.ordenanzas).length > 0; 
+
 const contarArticulosLeyes = (leyes) => 
 leyes.reduce( 
 (total, leyItem) => 
 total + (Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0), 
 0 
 ); 
+
 const totalArticulosBase = 
 extraerArticulos(estado.lopsc).length + 
 contarArticulosLeyes(extraerAnimales(estado.animales)) + 
 contarArticulosLeyes(extraerTrafico(estado.trafico)); 
+
 const hayBaseNormativa = totalArticulosBase > 0; 
+
 establecerEstado( 
 $("homeNormativaStatus"), 
 hayBaseNormativa 
@@ -537,6 +619,7 @@ hayBaseNormativa
 : "No disponible", 
 hayBaseNormativa 
 ); 
+
 establecerEstado( 
 $("homeInfraccionesStatus"), 
 hayInfracciones 
@@ -544,6 +627,7 @@ hayInfracciones
 : "No disponible", 
 hayInfracciones 
 ); 
+
 establecerEstado( 
 $("homeOrdenanzasStatus"), 
 hayOrdenanzas 
@@ -551,16 +635,19 @@ hayOrdenanzas
 : "No disponible", 
 hayOrdenanzas 
 ); 
+
 establecerEstado( 
 $("settingsLopscStatus"), 
 hayLopsc ? "Disponible" : "No disponible", 
 hayLopsc 
 ); 
+
 establecerEstado( 
 $("settingsInfraccionesStatus"), 
 hayInfracciones ? "Disponible" : "No disponible", 
 hayInfracciones 
 ); 
+
 establecerEstado( 
 $("settingsOrdenanzasStatus"), 
 hayOrdenanzas ? "Disponible" : "No disponible", 
@@ -570,12 +657,15 @@ hayOrdenanzas
 
 function actualizarRed() { 
 const conectado = navigator.onLine; 
+
 establecerEstado( 
 $("homeNetworkStatus"), 
 conectado ? "Online" : "Offline", 
 conectado 
 ); 
+
 const modo = $("appMode"); 
+
 if (modo) { 
 modo.textContent = conectado 
 ? "Online" 
@@ -595,6 +685,7 @@ boton.addEventListener("click", () => {
 activarSeccion(boton.dataset.section); 
 }); 
 }); 
+
 document.querySelectorAll( 
 ".quick-action[data-target]" 
 ).forEach((boton) => { 
@@ -602,11 +693,14 @@ boton.addEventListener("click", () => {
 activarSeccion(boton.dataset.target); 
 }); 
 }); 
+
 const buscarCabecera = 
 $("headerSearchButton"); 
+
 if (buscarCabecera) { 
 buscarCabecera.addEventListener("click", () => { 
 activarSeccion("consulta"); 
+
 setTimeout(() => { 
 $("consultaSearch")?.focus(); 
 }, 100); 
@@ -620,34 +714,43 @@ CONSULTA DE INFRACCIONES
 
 function configurarConsulta() { 
 const input = $("consultaSearch"); 
+
 if (input) { 
 input.addEventListener("input", () => { 
 actualizarBusqueda(); 
 }); 
 } 
+
 const limpiar = 
 $("clearConsultaSearch"); 
+
 if (limpiar) { 
 limpiar.addEventListener("click", () => { 
 if (input) { 
 input.value = ""; 
 input.focus(); 
 } 
+
 actualizarBusqueda(); 
 }); 
 } 
+
 document.querySelectorAll( 
 ".filter-chip[data-severity]" 
 ).forEach((boton) => { 
 boton.addEventListener("click", () => { 
+
 document.querySelectorAll( 
 ".filter-chip[data-severity]" 
 ).forEach((item) => { 
 item.classList.remove("active"); 
 }); 
+
 boton.classList.add("active"); 
+
 estado.gravedad = 
 boton.dataset.severity || "all"; 
+
 actualizarBusqueda(); 
 }); 
 }); 
@@ -655,10 +758,12 @@ actualizarBusqueda();
 
 function obtenerArticulosNormativa() { 
 const registros = []; 
+
 const agregarLeySimple = (datos, navTipo) => { 
 if (!datos || !Array.isArray(datos.articulos)) { 
 return; 
 } 
+
 datos.articulos.forEach((articulo) => { 
 registros.push({ 
 ley: datos.abreviatura || datos.ley || "", 
@@ -671,12 +776,15 @@ navId: ""
 }); 
 }); 
 }; 
+
 const agregarGrupoLeyes = (datos, navTipoLista, navTipoLey) => { 
 const leyes = 
 datos && Array.isArray(datos.leyes) ? datos.leyes : []; 
+
 leyes.forEach((leyItem) => { 
 const articulos = 
 Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
 articulos.forEach((articulo) => { 
 registros.push({ 
 ley: leyItem.abreviatura || leyItem.ley || "", 
@@ -690,14 +798,17 @@ navId: leyItem.id || ""
 }); 
 }); 
 }; 
+
 agregarLeySimple(estado.lopsc, "lopsc"); 
 agregarLeySimple(estado.codigoPenal, "codigo-penal"); 
 agregarGrupoLeyes(estado.menores, "menores", "ley-menor"); 
 agregarGrupoLeyes(estado.animales, "animales", "ley-animal"); 
 agregarGrupoLeyes(estado.trafico, "trafico", "ley-trafico"); 
 agregarGrupoLeyes(estado.violenciaGenero, "violencia-genero", "ley-violencia-genero"); 
+
 const ordenanzas = 
 extraerOrdenanzas(estado.ordenanzas); 
+
 ordenanzas.forEach((ordenanza) => { 
 registros.push({ 
 ley: ordenanza.codigo || "Ordenanza municipal", 
@@ -709,21 +820,28 @@ navTipo: "ordenanza",
 navId: ordenanza.id || "" 
 }); 
 }); 
+
 return registros; 
 } 
 
 function actualizarBusqueda() { 
 const input = $("consultaSearch"); 
+
 const valorBusqueda = 
 input ? input.value : ""; 
+
 const texto = 
 normalizarTexto(valorBusqueda); 
+
 const tokens = 
 tokenizarConsulta(valorBusqueda); 
+
 const gravedad = 
 estado.gravedad; 
+
 const resultadosInfracciones = 
 estado.infracciones.filter((infraccion) => { 
+
 if ( 
 gravedad !== "all" && 
 String( 
@@ -732,19 +850,23 @@ infraccion.gravedad || ""
 ) { 
 return false; 
 } 
+
 if (!tokens.length) { 
 return false; 
 } 
+
 const palabras = Array.isArray( 
 infraccion.palabrasClave 
 ) 
 ? infraccion.palabrasClave 
 : []; 
+
 const responsables = Array.isArray( 
 infraccion.responsables 
 ) 
 ? infraccion.responsables 
 : []; 
+
 const contenido = [ 
 infraccion.id, 
 infraccion.codigo, 
@@ -757,6 +879,7 @@ infraccion.gravedad,
 ...palabras, 
 ...responsables 
 ].join(" "); 
+
 return coincideConsulta( 
 normalizarTexto(contenido), 
 tokens 
@@ -765,7 +888,9 @@ tokens
 ...infraccion, 
 tipoResultado: "infraccion" 
 })); 
+
 let resultadosArticulos = []; 
+
 if (tokens.length && gravedad === "all") { 
 resultadosArticulos = 
 obtenerArticulosNormativa() 
@@ -777,6 +902,7 @@ articulo.numero,
 articulo.titulo, 
 articulo.texto 
 ].join(" "); 
+
 return coincideConsulta( 
 normalizarTexto(contenido), 
 tokens 
@@ -787,8 +913,10 @@ tokens
 tipoResultado: "articulo" 
 })); 
 } 
+
 estado.resultados = 
 resultadosInfracciones.concat(resultadosArticulos); 
+
 ordenarResultados(texto); 
 renderizarResultados(); 
 } 
@@ -797,44 +925,56 @@ function ordenarResultados(texto) {
 if (!texto) { 
 return; 
 } 
+
 const obtenerCodigo = (item) => 
 item.tipoResultado === "articulo" 
 ? String(item.numero || "") 
 : String(item.codigo || ""); 
+
 estado.resultados.sort((a, b) => { 
+
 const codigoA = 
 normalizarTexto(obtenerCodigo(a)); 
+
 const codigoB = 
 normalizarTexto(obtenerCodigo(b)); 
+
 if (codigoA === texto && 
 codigoB !== texto) { 
 return -1; 
 } 
+
 if (codigoB === texto && 
 codigoA !== texto) { 
 return 1; 
 } 
+
 if ( 
 a.tipoResultado !== b.tipoResultado 
 ) { 
 return a.tipoResultado === "infraccion" ? -1 : 1; 
 } 
+
 const tituloA = 
 normalizarTexto(a.titulo); 
+
 const tituloB = 
 normalizarTexto(b.titulo); 
+
 if ( 
 tituloA.startsWith(texto) && 
 !tituloB.startsWith(texto) 
 ) { 
 return -1; 
 } 
+
 if ( 
 tituloB.startsWith(texto) && 
 !tituloA.startsWith(texto) 
 ) { 
 return 1; 
 } 
+
 return obtenerCodigo(a) 
 .localeCompare( 
 obtenerCodigo(b), 
@@ -847,16 +987,21 @@ obtenerCodigo(b),
 function renderizarResultados() { 
 const contenedor = 
 $("consultaResults"); 
+
 const contador = 
 $("consultaResultCount"); 
+
 if (!contenedor) { 
 return; 
 } 
+
 if (contador) { 
 contador.textContent = 
 estado.resultados.length; 
 } 
+
 const input = $("consultaSearch"); 
+
 if ( 
 !input || 
 !input.value.trim() 
@@ -873,6 +1018,7 @@ palabra clave para comenzar.
 `; 
 return; 
 } 
+
 if (!estado.resultados.length) { 
 contenedor.innerHTML = ` 
 <div class="empty-state"> 
@@ -886,6 +1032,7 @@ con esos criterios.
 `; 
 return; 
 } 
+
 contenedor.innerHTML = 
 estado.resultados 
 .map((item) => 
@@ -901,26 +1048,34 @@ const snippet =
 (articulo.texto || "").length > 220 
 ? articulo.texto.slice(0, 220).trim() + "…" 
 : articulo.texto || ""; 
+
 return ` 
 <article class="result-card result-card--articulo"> 
+
 <div class="result-card-header"> 
+
 <div> 
 <span class="result-ley"> 
 ${escaparHTML(articulo.ley || "")} 
 </span> 
+
 ${articulo.numero ? ` 
 <span class="result-code"> 
 Art. ${escaparHTML(articulo.numero)} 
 </span> 
 ` : ""} 
+
 <h3> 
 ${escaparHTML(articulo.titulo || "Sin título")} 
 </h3> 
 </div> 
+
 </div> 
+
 <p class="result-conducta"> 
 ${escaparHTML(snippet)} 
 </p> 
+
 <button 
 type="button" 
 class="result-detail-button" 
@@ -929,6 +1084,7 @@ data-nav-id="${escaparHTML(articulo.navId || "")}"
 > 
 Ver en Normativa 
 </button> 
+
 </article> 
 `; 
 } 
@@ -938,15 +1094,19 @@ infraccion
 ) { 
 const sancion = 
 infraccion.sancion || {}; 
+
 const min = 
 Number.isFinite(Number(sancion.min)) 
 ? Number(sancion.min) 
 : null; 
+
 const max = 
 Number.isFinite(Number(sancion.max)) 
 ? Number(sancion.max) 
 : null; 
+
 let rango = ""; 
+
 if (min !== null && max !== null) { 
 rango = 
 `${formatearEuros(min)} - ${formatearEuros(max)}`; 
@@ -957,20 +1117,25 @@ rango =
 rango = 
 `Hasta ${formatearEuros(max)}`; 
 } 
+
 return ` 
 <article class="result-card"> 
+
 <div class="result-card-header"> 
+
 <div> 
 <span class="result-ley"> 
 ${escaparHTML( 
 infraccion.ley || "" 
 )} 
 </span> 
+
 <span class="result-code"> 
 ${escaparHTML( 
 infraccion.codigo || "" 
 )} 
 </span> 
+
 <h3> 
 ${escaparHTML( 
 infraccion.titulo || 
@@ -978,29 +1143,37 @@ infraccion.titulo ||
 )} 
 </h3> 
 </div> 
+
 <span class="severity-badge"> 
 ${escaparHTML( 
 infraccion.gravedad || "" 
 )} 
 </span> 
+
 </div> 
+
 <p class="result-conducta"> 
 ${escaparHTML( 
 infraccion.conducta || "" 
 )} 
 </p> 
+
 <div class="result-meta"> 
+
 <span> 
 Art. ${escaparHTML( 
 infraccion.articulo || "" 
 )} 
 </span> 
+
 ${ 
 rango 
 ? `<span>${rango}</span>` 
 : "" 
 } 
+
 </div> 
+
 <button 
 type="button" 
 class="result-detail-button" 
@@ -1010,6 +1183,7 @@ infraccion.id || ""
 > 
 Ver detalle 
 </button> 
+
 </article> 
 `; 
 } 
@@ -1030,34 +1204,41 @@ const infraccion =
 estado.infracciones.find( 
 (item) => item.id === id 
 ); 
+
 if (!infraccion) { 
 return; 
 } 
+
 const palabras = 
 Array.isArray( 
 infraccion.palabrasClave 
 ) 
 ? infraccion.palabrasClave 
 : []; 
+
 const sancion = 
 infraccion.sancion || {}; 
+
 abrirModal( 
 infraccion.codigo || 
 "Infracción", 
 ` 
 <div class="detail-content"> 
+
 <p> 
 <strong>Ley:</strong> 
 ${escaparHTML( 
 infraccion.ley || "-" 
 )} 
 </p> 
+
 <p> 
 <strong>Gravedad:</strong> 
 ${escaparHTML( 
 infraccion.gravedad || "-" 
 )} 
 </p> 
+
 <p> 
 <strong>Artículo:</strong> 
 ${escaparHTML( 
@@ -1071,12 +1252,15 @@ infraccion.apartado
 : "" 
 } 
 </p> 
+
 <h4>Conducta</h4> 
+
 <p> 
 ${escaparHTML( 
 infraccion.conducta || "" 
 )} 
 </p> 
+
 ${ 
 sancion.min !== undefined || 
 sancion.max !== undefined 
@@ -1101,6 +1285,7 @@ sancion.max
 ` 
 : "" 
 } 
+
 ${ 
 palabras.length 
 ? ` 
@@ -1115,6 +1300,7 @@ escaparHTML
 ` 
 : "" 
 } 
+
 </div> 
 `, 
 [] 
@@ -1131,20 +1317,25 @@ const guardadas =
 localStorage.getItem( 
 CONFIG.STORAGE_ACTAS 
 ); 
+
 estado.actas = 
 guardadas 
 ? JSON.parse(guardadas) 
 : []; 
+
 if (!Array.isArray(estado.actas)) { 
 estado.actas = []; 
 } 
+
 } catch (error) { 
 console.error( 
 "No se pudieron cargar las actas:", 
 error 
 ); 
+
 estado.actas = []; 
 } 
+
 renderizarActas(); 
 } 
 
@@ -1160,57 +1351,71 @@ $("newActaButton")?.addEventListener(
 "click", 
 () => abrirEditorActa() 
 ); 
+
 $("closeActaEditor")?.addEventListener( 
 "click", 
 () => cerrarEditorActa() 
 ); 
+
 $("cancelActaButton")?.addEventListener( 
 "click", 
 () => cerrarEditorActa() 
 ); 
+
 $("actaForm")?.addEventListener( 
 "submit", 
 guardarActaDesdeFormulario 
 ); 
+
 $("actaInfraccion")?.addEventListener( 
 "input", 
 actualizarPreviewInfraccion 
 ); 
+
 $("btnUbicacionActa")?.addEventListener( 
 "click", 
 obtenerUbicacionActa 
 ); 
+
 $("btnDictadoHechos")?.addEventListener( 
 "click", 
 (evento) => alternarDictado(evento.currentTarget) 
 ); 
+
 $("btnDictadoObservaciones")?.addEventListener( 
 "click", 
 (evento) => alternarDictado(evento.currentTarget) 
 ); 
+
 renderizarActas(); 
 } 
 
 async function obtenerUbicacionActa() { 
 const boton = $("btnUbicacionActa"); 
 const campo = $("actaLugar"); 
+
 if (!campo) { 
 return; 
 } 
+
 if (!navigator.geolocation) { 
 alert( 
 "Este dispositivo o navegador no admite geolocalización." 
 ); 
 return; 
 } 
+
 const textoOriginal = boton ? boton.textContent : ""; 
+
 if (boton) { 
 boton.disabled = true; 
 boton.textContent = "⏳"; 
 } 
+
 navigator.geolocation.getCurrentPosition( 
 async (posicion) => { 
 const { latitude, longitude } = posicion.coords; 
+
 try { 
 const respuesta = await fetch( 
 `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`, 
@@ -1220,10 +1425,13 @@ headers: {
 } 
 } 
 ); 
+
 if (!respuesta.ok) { 
 throw new Error("Respuesta no válida"); 
 } 
+
 const datos = await respuesta.json(); 
+
 campo.value = 
 datos && datos.display_name 
 ? datos.display_name 
@@ -1233,6 +1441,7 @@ console.error(
 "No se pudo obtener la dirección:", 
 error 
 ); 
+
 campo.value = 
 `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`; 
 } finally { 
@@ -1247,8 +1456,10 @@ if (boton) {
 boton.disabled = false; 
 boton.textContent = textoOriginal || "📍"; 
 } 
+
 let mensaje = 
 "No se ha podido obtener la ubicación."; 
+
 if (error.code === error.PERMISSION_DENIED) { 
 mensaje = 
 "Has denegado el permiso de ubicación. Actívalo en los ajustes del navegador para usar esta función."; 
@@ -1256,6 +1467,7 @@ mensaje =
 mensaje = 
 "Se ha agotado el tiempo de espera para obtener la ubicación. Inténtalo de nuevo."; 
 } 
+
 alert(mensaje); 
 }, 
 { 
@@ -1273,64 +1485,83 @@ function alternarDictado(boton) {
 if (!boton) { 
 return; 
 } 
+
 const idCampo = boton.dataset.target; 
 const campo = $(idCampo); 
+
 if (!campo) { 
 return; 
 } 
+
 const SpeechRecognitionAPI = 
 window.SpeechRecognition || 
 window.webkitSpeechRecognition; 
+
 if (!SpeechRecognitionAPI) { 
 alert( 
 "El dictado por voz no está disponible en este navegador. Prueba con Chrome en Android." 
 ); 
 return; 
 } 
+
 if (reconocimientoVozActivo) { 
 reconocimientoVozActivo.stop(); 
 return; 
 } 
+
 const reconocimiento = new SpeechRecognitionAPI(); 
+
 reconocimiento.lang = "es-ES"; 
 reconocimiento.continuous = true; 
 reconocimiento.interimResults = false; 
+
 const separador = 
 campo.value && !campo.value.endsWith(" ") && !campo.value.endsWith("\n") 
 ? " " 
 : ""; 
+
 let textoAcumulado = campo.value + separador; 
+
 reconocimiento.onresult = (evento) => { 
 let textoNuevo = ""; 
+
 for (let i = evento.resultIndex; i < evento.results.length; i++) { 
 if (evento.results[i].isFinal) { 
 textoNuevo += evento.results[i][0].transcript + " "; 
 } 
 } 
+
 if (textoNuevo) { 
 textoAcumulado += textoNuevo; 
 campo.value = textoAcumulado; 
 } 
 }; 
+
 reconocimiento.onerror = (evento) => { 
 console.error("Error de dictado:", evento.error); 
+
 if (evento.error === "not-allowed" || evento.error === "service-not-allowed") { 
 alert( 
 "Has denegado el permiso de micrófono. Actívalo en los ajustes del navegador para dictar." 
 ); 
 } 
 }; 
+
 reconocimiento.onend = () => { 
 if (botonDictadoActivo) { 
 botonDictadoActivo.classList.remove("input-action-button--activo"); 
 botonDictadoActivo.textContent = "🎤"; 
 } 
+
 reconocimientoVozActivo = null; 
 botonDictadoActivo = null; 
 }; 
+
 reconocimiento.start(); 
+
 reconocimientoVozActivo = reconocimiento; 
 botonDictadoActivo = boton; 
+
 boton.classList.add("input-action-button--activo"); 
 boton.textContent = "⏹️"; 
 } 
@@ -1338,14 +1569,19 @@ boton.textContent = "⏹️";
 function abrirEditorActa(acta = null) { 
 const editor = $("actaEditor"); 
 const form = $("actaForm"); 
+
 if (!editor || !form) { 
 return; 
 } 
+
 form.reset(); 
+
 const fecha = 
 $("actaFecha"); 
+
 const hora = 
 $("actaHora"); 
+
 if (fecha) { 
 fecha.value = 
 acta?.fecha || 
@@ -1353,6 +1589,7 @@ new Date()
 .toISOString() 
 .slice(0, 10); 
 } 
+
 if (hora) { 
 hora.value = 
 acta?.hora || 
@@ -1360,30 +1597,42 @@ new Date()
 .toTimeString() 
 .slice(0, 5); 
 } 
+
 if (acta) { 
 $("actaNumero").value = 
 acta.numero || ""; 
+
 $("actaNombre").value = 
 acta.nombre || ""; 
+
 $("actaDni").value = 
 acta.dni || ""; 
+
 $("actaDomicilio").value = 
 acta.domicilio || ""; 
+
 $("actaLugar").value = 
 acta.lugar || ""; 
+
 $("actaHechos").value = 
 acta.hechos || ""; 
+
 $("actaInfraccion").value = 
 acta.infraccion || ""; 
+
 $("actaObservaciones").value = 
 acta.observaciones || ""; 
+
 form.dataset.editingId = 
 acta.id || ""; 
 } else { 
 delete form.dataset.editingId; 
 } 
+
 actualizarPreviewInfraccion(); 
+
 editor.classList.remove("hidden"); 
+
 editor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -1393,15 +1642,19 @@ block: "start"
 function cerrarEditorActa() { 
 const editor = $("actaEditor"); 
 const form = $("actaForm"); 
+
 if (editor) { 
 editor.classList.add("hidden"); 
 } 
+
 if (form) { 
 form.reset(); 
 delete form.dataset.editingId; 
 } 
+
 const preview = 
 $("actaInfraccionPreview"); 
+
 if (preview) { 
 preview.classList.add("hidden"); 
 preview.innerHTML = ""; 
@@ -1414,39 +1667,54 @@ return $(id)?.value?.trim() || "";
 
 function guardarActaDesdeFormulario(evento) { 
 evento.preventDefault(); 
+
 const form = 
 evento.currentTarget; 
+
 const acta = { 
 id: 
 form.dataset.editingId || 
 `acta-${Date.now()}`, 
+
 numero: 
 obtenerValor("actaNumero"), 
+
 fecha: 
 obtenerValor("actaFecha"), 
+
 hora: 
 obtenerValor("actaHora"), 
+
 nombre: 
 obtenerValor("actaNombre"), 
+
 dni: 
 obtenerValor("actaDni"), 
+
 domicilio: 
 obtenerValor("actaDomicilio"), 
+
 lugar: 
 obtenerValor("actaLugar"), 
+
 hechos: 
 obtenerValor("actaHechos"), 
+
 infraccion: 
 obtenerValor("actaInfraccion"), 
+
 observaciones: 
 obtenerValor("actaObservaciones"), 
+
 actualizado: 
 new Date().toISOString() 
 }; 
+
 const indice = 
 estado.actas.findIndex( 
 (item) => item.id === acta.id 
 ); 
+
 if (indice >= 0) { 
 estado.actas[indice] = acta; 
 mostrarToast("Acta actualizada."); 
@@ -1454,6 +1722,7 @@ mostrarToast("Acta actualizada.");
 estado.actas.unshift(acta); 
 mostrarToast("Acta guardada."); 
 } 
+
 guardarActas(); 
 renderizarActas(); 
 cerrarEditorActa(); 
@@ -1462,9 +1731,11 @@ cerrarEditorActa();
 function renderizarActas() { 
 const lista = 
 $("actasList"); 
+
 if (!lista) { 
 return; 
 } 
+
 if (!estado.actas.length) { 
 lista.innerHTML = ` 
 <div class="empty-state"> 
@@ -1477,10 +1748,12 @@ Pulsa «Nueva» para comenzar un acta.
 `; 
 return; 
 } 
+
 lista.innerHTML = 
 estado.actas 
 .map((acta) => ` 
 <article class="acta-card"> 
+
 <div class="acta-card-header"> 
 <div> 
 <span> 
@@ -1491,6 +1764,7 @@ acta.numero ||
 ) 
 } 
 </span> 
+
 <h3> 
 ${escaparHTML( 
 acta.nombre || 
@@ -1498,19 +1772,23 @@ acta.nombre ||
 )} 
 </h3> 
 </div> 
+
 <span> 
 ${escaparHTML( 
 acta.fecha || "" 
 )} 
 </span> 
 </div> 
+
 <p> 
 ${escaparHTML( 
 acta.infraccion || 
 "Sin infracción indicada" 
 )} 
 </p> 
+
 <div class="form-actions"> 
+
 <button 
 type="button" 
 class="secondary-button" 
@@ -1520,6 +1798,7 @@ escaparHTML(acta.id)
 > 
 Editar 
 </button> 
+
 <button 
 type="button" 
 class="secondary-button danger" 
@@ -1529,6 +1808,7 @@ escaparHTML(acta.id)
 > 
 Borrar 
 </button> 
+
 <button 
 type="button" 
 class="secondary-button export-pdf-button" 
@@ -1538,7 +1818,9 @@ escaparHTML(acta.id)
 > 
 📄 PDF 
 </button> 
+
 </div> 
+
 </article> 
 `) 
 .join(""); 
@@ -1549,6 +1831,7 @@ const acta =
 estado.actas.find( 
 (item) => item.id === id 
 ); 
+
 if (acta) { 
 abrirEditorActa(acta); 
 } 
@@ -1559,13 +1842,16 @@ const confirmado =
 window.confirm( 
 "¿Quieres borrar esta acta?" 
 ); 
+
 if (!confirmado) { 
 return; 
 } 
+
 estado.actas = 
 estado.actas.filter( 
 (item) => item.id !== id 
 ); 
+
 guardarActas(); 
 renderizarActas(); 
 mostrarToast("Acta borrada."); 
@@ -1581,6 +1867,8 @@ if (!acta) {
 mostrarToast("Acta no encontrada."); 
 return; 
 } 
+
+// Construir contenido HTML para el PDF 
 const contenidoHTML = ` 
 <!DOCTYPE html> 
 <html lang="es"> 
@@ -1589,6 +1877,7 @@ const contenidoHTML = `
 <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
 <title>Acta ${acta.numero || "sin número"}</title> 
 <style> 
+/* Estilos para la impresión */ 
 body { 
 font-family: 'Times New Roman', Times, serif; 
 margin: 2.5cm 2cm; 
@@ -1660,6 +1949,7 @@ ${acta.fecha ? `Fecha: ${acta.fecha}` : ""}
 ${acta.hora ? ` Hora: ${acta.hora}` : ""} 
 ${acta.lugar ? `<br>Lugar: ${acta.lugar}` : ""} 
 </div> 
+
 <div class="campo"> 
 <span class="campo-label">Denunciado:</span> 
 <span class="campo-valor">${acta.nombre || "No indicado"}</span> 
@@ -1672,16 +1962,21 @@ ${acta.lugar ? `<br>Lugar: ${acta.lugar}` : ""}
 <span class="campo-label">Domicilio:</span> 
 <span class="campo-valor">${acta.domicilio || "No indicado"}</span> 
 </div> 
+
 <div class="separador"></div> 
+
 <div class="campo"> 
 <span class="campo-label">Hechos:</span><br> 
 <span class="campo-valor">${acta.hechos || "No descritos"}</span> 
 </div> 
+
 <div class="separador"></div> 
+
 <div class="campo"> 
 <span class="campo-label">Infracción:</span><br> 
 <span class="campo-valor">${acta.infraccion || "No indicada"}</span> 
 </div> 
+
 ${acta.observaciones ? ` 
 <div class="separador"></div> 
 <div class="campo"> 
@@ -1689,7 +1984,9 @@ ${acta.observaciones ? `
 <span class="campo-valor">${acta.observaciones}</span> 
 </div> 
 ` : ""} 
+
 <div class="separador"></div> 
+
 <div class="firma"> 
 <div> 
 <div>Agente instructor</div> 
@@ -1702,19 +1999,25 @@ ${acta.observaciones ? `
 <div class="firma-etiqueta">Firma (si procede)</div> 
 </div> 
 </div> 
+
 <p style="font-size: 9pt; text-align: center; margin-top: 2cm; color: #555;"> 
 Documento generado por Centinela Code - ${new Date().toLocaleDateString()} 
 </p> 
 </body> 
 </html> 
 `; 
+
+// Abrir nueva ventana para impresión 
 const ventana = window.open("", "_blank", "width=800,height=600"); 
 if (!ventana) { 
 mostrarToast("Permite ventanas emergentes para exportar el PDF."); 
 return; 
 } 
+
 ventana.document.write(contenidoHTML); 
 ventana.document.close(); 
+
+// Esperar a que cargue el contenido y luego imprimir 
 ventana.focus(); 
 ventana.print(); 
 } 
@@ -1722,18 +2025,23 @@ ventana.print();
 function actualizarPreviewInfraccion() { 
 const preview = 
 $("actaInfraccionPreview"); 
+
 const input = 
 $("actaInfraccion"); 
+
 if (!preview || !input) { 
 return; 
 } 
+
 const valor = 
 normalizarTexto(input.value); 
+
 if (!valor) { 
 preview.classList.add("hidden"); 
 preview.innerHTML = ""; 
 return; 
 } 
+
 const encontrada = 
 estado.infracciones.find( 
 (item) => 
@@ -1744,23 +2052,28 @@ normalizarTexto(
 item.id 
 ) === valor 
 ); 
+
 if (!encontrada) { 
 preview.classList.add("hidden"); 
 preview.innerHTML = ""; 
 return; 
 } 
+
 preview.classList.remove("hidden"); 
+
 preview.innerHTML = ` 
 <strong> 
 ${escaparHTML( 
 encontrada.codigo || "" 
 )} 
 </strong> 
+
 <p> 
 ${escaparHTML( 
 encontrada.titulo || "" 
 )} 
 </p> 
+
 <span> 
 ${escaparHTML( 
 encontrada.gravedad || "" 
@@ -1779,51 +2092,63 @@ $("normativaSearch")?.addEventListener(
 () => { 
 estado.normativaBusqueda = 
 $("normativaSearch").value || ""; 
+
 renderizarNormativa(); 
 } 
 ); 
+
 $("clearNormativaSearch")?.addEventListener( 
 "click", 
 () => { 
 const input = 
 $("normativaSearch"); 
+
 if (input) { 
 input.value = ""; 
 estado.normativaBusqueda = ""; 
 input.focus(); 
 } 
+
 renderizarNormativa(); 
 } 
 ); 
+
 $("closeNormativaViewer")?.addEventListener( 
 "click", 
 cerrarVisorNormativa 
 ); 
+
 renderizarNormativa(); 
 } 
 
 function renderizarNormativa() { 
 const lista = 
 $("normativaList"); 
+
 if (!lista) { 
 return; 
 } 
+
 const texto = 
 normalizarTexto( 
 estado.normativaBusqueda 
 ); 
+
 const tokensNormativa = 
 tokenizarConsulta( 
 estado.normativaBusqueda 
 ); 
+
 const categorias = 
 Array.isArray(estado.ordenanzas?.categorias) 
 ? estado.ordenanzas.categorias 
 : []; 
+
 const ordenanzas = 
 extraerOrdenanzas( 
 estado.ordenanzas 
 ); 
+
 const tarjetasPrincipales = [ 
 { 
 tipo: "lopsc", 
@@ -1882,12 +2207,14 @@ etiqueta: `${categorias.length} categorías`,
 icono: "🏛️" 
 } 
 ]; 
+
 const coincide = (campos) => 
 !tokensNormativa.length || 
 coincideConsulta( 
 normalizarTexto(campos.join(" ")), 
 tokensNormativa 
 ); 
+
 const principalesFiltradas = 
 tarjetasPrincipales.filter((tarjeta) => 
 coincide([ 
@@ -1896,22 +2223,30 @@ tarjeta.descripcion,
 tarjeta.etiqueta 
 ]) 
 ); 
+
 const renderTarjetaPrincipal = (tarjeta) => ` 
 <div class="normativa-card"> 
+
 <div class="normativa-icon"> 
 ${tarjeta.icono} 
 </div> 
+
 <div class="normativa-info"> 
+
 <h3> 
 ${escaparHTML(tarjeta.titulo)} 
 </h3> 
+
 <p> 
 ${escaparHTML(tarjeta.descripcion)} 
 </p> 
+
 <span> 
 ${escaparHTML(tarjeta.etiqueta)} 
 </span> 
+
 </div> 
+
 <button 
 type="button" 
 class="normativa-open" 
@@ -1919,8 +2254,10 @@ data-law="${escaparHTML(tarjeta.tipo)}"
 > 
 Ver 
 </button> 
+
 </div> 
 `; 
+
 if (!principalesFiltradas.length) { 
 lista.innerHTML = ` 
 <div class="empty-state"> 
@@ -1934,6 +2271,7 @@ con esa búsqueda.
 `; 
 return; 
 } 
+
 lista.innerHTML = ` 
 <div class="normativa-list normativa-list--principal"> 
 ${principalesFiltradas.map(renderTarjetaPrincipal).join("")} 
@@ -1946,50 +2284,62 @@ if (tipo === "lopsc") {
 abrirLOPSC(); 
 return; 
 } 
+
 if (tipo === "codigo-penal") { 
 abrirCodigoPenal(); 
 return; 
 } 
+
 if (tipo === "menores") { 
 abrirMenoresGrupo(); 
 return; 
 } 
+
 if (tipo === "ley-menor") { 
 abrirLeyMenor(id); 
 return; 
 } 
+
 if (tipo === "violencia-genero") { 
 abrirViolenciaGeneroGrupo(); 
 return; 
 } 
+
 if (tipo === "ley-violencia-genero") { 
 abrirLeyViolenciaGenero(id); 
 return; 
 } 
+
 if (tipo === "animales") { 
 abrirAnimales(); 
 return; 
 } 
+
 if (tipo === "ley-animal") { 
 abrirLeyAnimal(id); 
 return; 
 } 
+
 if (tipo === "trafico") { 
 abrirTrafico(); 
 return; 
 } 
+
 if (tipo === "ley-trafico") { 
 abrirLeyTrafico(id); 
 return; 
 } 
+
 if (tipo === "ordenanzas") { 
 abrirOrdenanzas(); 
 return; 
 } 
+
 if (tipo === "ordenanza") { 
 abrirOrdenanza(id); 
 return; 
 } 
+
 if (tipo === "normativa-home") { 
 cerrarVisorNormativa(); 
 } 
@@ -2000,23 +2350,31 @@ const categorias =
 Array.isArray(estado.ordenanzas?.categorias) 
 ? estado.ordenanzas.categorias 
 : []; 
+
 const ordenanzas = 
 extraerOrdenanzas( 
 estado.ordenanzas 
 ); 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 "Ordenanzas municipales"; 
+
 $("viewerSubtitle").textContent = 
 `Normativa local por categorías — ${ordenanzas.length} ordenanzas`; 
+
 const grupos = 
 renderGruposOrdenanzas(categorias, ordenanzas); 
+
 if (!ordenanzas.length || !grupos) { 
 contenido.innerHTML = ` 
 <div class="empty-state"> 
@@ -2033,7 +2391,9 @@ ${grupos}
 </div> 
 `; 
 } 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -2052,17 +2412,23 @@ const leyes =
 extraerAnimales( 
 estado.animales 
 ); 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 "Animales"; 
+
 $("viewerSubtitle").textContent = 
 "Bienestar animal y tenencia de PPP — estatal y andaluza"; 
+
 if (!leyes.length) { 
 contenido.innerHTML = ` 
 <div class="empty-state"> 
@@ -2077,20 +2443,27 @@ contenido.innerHTML = `
 <div class="normativa-list"> 
 ${leyes.map((leyItem) => ` 
 <div class="normativa-card"> 
+
 <div class="normativa-icon"> 
 ${ANIMALES_ICONOS[leyItem.id] || "📖"} 
 </div> 
+
 <div class="normativa-info"> 
+
 <h3> 
 ${escaparHTML(leyItem.ley || "")} 
 </h3> 
+
 <p> 
 ${escaparHTML(leyItem.abreviatura || "")} 
 </p> 
+
 <span> 
 ${escaparHTML(leyItem.ambito || "")} · ${Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0} artículos 
 </span> 
+
 </div> 
+
 <button 
 type="button" 
 class="normativa-open" 
@@ -2099,12 +2472,15 @@ data-id="${escaparHTML(leyItem.id)}"
 > 
 Ver 
 </button> 
+
 </div> 
 `).join("")} 
 </div> 
 `; 
 } 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -2116,21 +2492,29 @@ const leyes =
 extraerAnimales( 
 estado.animales 
 ); 
+
 const leyItem = 
 leyes.find((item) => item.id === id); 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!leyItem || !visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 leyItem.ley || "Normativa de animales"; 
+
 $("viewerSubtitle").textContent = 
 leyItem.abreviatura || ""; 
+
 const articulos = 
 Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
 contenido.innerHTML = ` 
 <button 
 type="button" 
@@ -2139,15 +2523,19 @@ data-law="animales"
 > 
 ← Volver a Animales 
 </button> 
+
 <article class="law-article"> 
+
 <p> 
 <strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
 <strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
 <strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
 </p> 
+
 ${leyItem.resumen ? ` 
 <p>${escaparHTML(leyItem.resumen)}</p> 
 ` : ""} 
+
 ${leyItem.enlaceOficial ? ` 
 <a 
 class="law-link-button" 
@@ -2158,13 +2546,16 @@ rel="noopener noreferrer"
 🔗 Ver normativa online (BOE/BOJA) 
 </a> 
 ` : ""} 
+
 ${leyItem.nota ? ` 
 <p> 
 <strong>Nota:</strong> 
 ${escaparHTML(leyItem.nota)} 
 </p> 
 ` : ""} 
+
 </article> 
+
 ${articulos.map((articulo) => ` 
 <article class="law-article"> 
 <h4> 
@@ -2175,7 +2566,9 @@ ${escaparHTML(articulo.titulo || "")}
 </article> 
 `).join("")} 
 `; 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -2193,17 +2586,23 @@ const leyes =
 extraerAnimales( 
 estado.menores 
 ); 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 "Menores"; 
+
 $("viewerSubtitle").textContent = 
 "Actuación policial con menores de edad"; 
+
 if (!leyes.length) { 
 contenido.innerHTML = ` 
 <div class="empty-state"> 
@@ -2218,20 +2617,27 @@ contenido.innerHTML = `
 <div class="normativa-list"> 
 ${leyes.map((leyItem) => ` 
 <div class="normativa-card"> 
+
 <div class="normativa-icon"> 
 ${MENORES_ICONOS[leyItem.id] || "📖"} 
 </div> 
+
 <div class="normativa-info"> 
+
 <h3> 
 ${escaparHTML(leyItem.ley || "")} 
 </h3> 
+
 <p> 
 ${escaparHTML(leyItem.abreviatura || "")} 
 </p> 
+
 <span> 
 ${escaparHTML(leyItem.ambito || "")} · ${Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0} artículos 
 </span> 
+
 </div> 
+
 <button 
 type="button" 
 class="normativa-open" 
@@ -2240,12 +2646,15 @@ data-id="${escaparHTML(leyItem.id)}"
 > 
 Ver 
 </button> 
+
 </div> 
 `).join("")} 
 </div> 
 `; 
 } 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -2257,21 +2666,29 @@ const leyes =
 extraerAnimales( 
 estado.menores 
 ); 
+
 const leyItem = 
 leyes.find((item) => item.id === id); 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!leyItem || !visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 leyItem.ley || "Normativa de menores"; 
+
 $("viewerSubtitle").textContent = 
 leyItem.abreviatura || ""; 
+
 const articulos = 
 Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
 contenido.innerHTML = ` 
 <button 
 type="button" 
@@ -2280,15 +2697,19 @@ data-law="menores"
 > 
 ← Volver a Menores 
 </button> 
+
 <article class="law-article"> 
+
 <p> 
 <strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
 <strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
 <strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
 </p> 
+
 ${leyItem.resumen ? ` 
 <p>${escaparHTML(leyItem.resumen)}</p> 
 ` : ""} 
+
 ${leyItem.enlaceOficial ? ` 
 <a 
 class="law-link-button" 
@@ -2299,13 +2720,16 @@ rel="noopener noreferrer"
 🔗 Ver normativa online (BOE) 
 </a> 
 ` : ""} 
+
 ${leyItem.nota ? ` 
 <p> 
 <strong>Nota:</strong> 
 ${escaparHTML(leyItem.nota)} 
 </p> 
 ` : ""} 
+
 </article> 
+
 ${articulos.map((articulo) => ` 
 <article class="law-article"> 
 <h4> 
@@ -2316,7 +2740,9 @@ ${escaparHTML(articulo.titulo || "")}
 </article> 
 `).join("")} 
 `; 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -2334,17 +2760,23 @@ const leyes =
 extraerAnimales( 
 estado.violenciaGenero 
 ); 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 "Violencia de Género"; 
+
 $("viewerSubtitle").textContent = 
 "Protección integral, orden de protección y libertad sexual"; 
+
 if (!leyes.length) { 
 contenido.innerHTML = ` 
 <div class="empty-state"> 
@@ -2359,20 +2791,27 @@ contenido.innerHTML = `
 <div class="normativa-list"> 
 ${leyes.map((leyItem) => ` 
 <div class="normativa-card"> 
+
 <div class="normativa-icon"> 
 ${VIOLENCIA_GENERO_ICONOS[leyItem.id] || "📖"} 
 </div> 
+
 <div class="normativa-info"> 
+
 <h3> 
 ${escaparHTML(leyItem.ley || "")} 
 </h3> 
+
 <p> 
 ${escaparHTML(leyItem.abreviatura || "")} 
 </p> 
+
 <span> 
 ${escaparHTML(leyItem.ambito || "")} · ${Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0} artículos 
 </span> 
+
 </div> 
+
 <button 
 type="button" 
 class="normativa-open" 
@@ -2381,12 +2820,15 @@ data-id="${escaparHTML(leyItem.id)}"
 > 
 Ver 
 </button> 
+
 </div> 
 `).join("")} 
 </div> 
 `; 
 } 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -2398,21 +2840,29 @@ const leyes =
 extraerAnimales( 
 estado.violenciaGenero 
 ); 
+
 const leyItem = 
 leyes.find((item) => item.id === id); 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!leyItem || !visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 leyItem.ley || "Violencia de Género"; 
+
 $("viewerSubtitle").textContent = 
 leyItem.abreviatura || ""; 
+
 const articulos = 
 Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
 contenido.innerHTML = ` 
 <button 
 type="button" 
@@ -2421,15 +2871,19 @@ data-law="violencia-genero"
 > 
 ← Volver a Violencia de Género 
 </button> 
+
 <article class="law-article"> 
+
 <p> 
 <strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
 <strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
 <strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
 </p> 
+
 ${leyItem.resumen ? ` 
 <p>${escaparHTML(leyItem.resumen)}</p> 
 ` : ""} 
+
 ${leyItem.enlaceOficial ? ` 
 <a 
 class="law-link-button" 
@@ -2440,7 +2894,9 @@ rel="noopener noreferrer"
 🔗 Ver normativa online (BOE) 
 </a> 
 ` : ""} 
+
 </article> 
+
 ${articulos.map((articulo) => ` 
 <article class="law-article"> 
 <h4> 
@@ -2451,7 +2907,9 @@ ${escaparHTML(articulo.titulo || "")}
 </article> 
 `).join("")} 
 `; 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -2470,17 +2928,23 @@ const leyes =
 extraerTrafico( 
 estado.trafico 
 ); 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 "Tráfico"; 
+
 $("viewerSubtitle").textContent = 
 "Ley de Tráfico y sus reglamentos de desarrollo"; 
+
 if (!leyes.length) { 
 contenido.innerHTML = ` 
 <div class="empty-state"> 
@@ -2495,20 +2959,27 @@ contenido.innerHTML = `
 <div class="normativa-list"> 
 ${leyes.map((leyItem) => ` 
 <div class="normativa-card"> 
+
 <div class="normativa-icon"> 
 ${TRAFICO_ICONOS[leyItem.id] || "📖"} 
 </div> 
+
 <div class="normativa-info"> 
+
 <h3> 
 ${escaparHTML(leyItem.ley || "")} 
 </h3> 
+
 <p> 
 ${escaparHTML(leyItem.abreviatura || "")} 
 </p> 
+
 <span> 
 ${escaparHTML(leyItem.ambito || "")} · ${Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0} artículos 
 </span> 
+
 </div> 
+
 <button 
 type="button" 
 class="normativa-open" 
@@ -2517,12 +2988,15 @@ data-id="${escaparHTML(leyItem.id)}"
 > 
 Ver 
 </button> 
+
 </div> 
 `).join("")} 
 </div> 
 `; 
 } 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -2534,21 +3008,29 @@ const leyes =
 extraerTrafico( 
 estado.trafico 
 ); 
+
 const leyItem = 
 leyes.find((item) => item.id === id); 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!leyItem || !visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 leyItem.ley || "Normativa de tráfico"; 
+
 $("viewerSubtitle").textContent = 
 leyItem.abreviatura || ""; 
+
 const articulos = 
 Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
 contenido.innerHTML = ` 
 <button 
 type="button" 
@@ -2557,15 +3039,19 @@ data-law="trafico"
 > 
 ← Volver a Tráfico 
 </button> 
+
 <article class="law-article"> 
+
 <p> 
 <strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
 <strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
 <strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
 </p> 
+
 ${leyItem.resumen ? ` 
 <p>${escaparHTML(leyItem.resumen)}</p> 
 ` : ""} 
+
 ${leyItem.enlaceOficial ? ` 
 <a 
 class="law-link-button" 
@@ -2576,13 +3062,16 @@ rel="noopener noreferrer"
 🔗 Ver normativa online (BOE) 
 </a> 
 ` : ""} 
+
 ${leyItem.nota ? ` 
 <p> 
 <strong>Nota:</strong> 
 ${escaparHTML(leyItem.nota)} 
 </p> 
 ` : ""} 
+
 </article> 
+
 ${articulos.map((articulo) => ` 
 <article class="law-article"> 
 <h4> 
@@ -2593,29 +3082,38 @@ ${escaparHTML(articulo.titulo || "")}
 </article> 
 `).join("")} 
 `; 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
 }); 
 } 
 
+
 function abrirLOPSC() { 
 const articulos = 
 extraerArticulos( 
 estado.lopsc 
 ); 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 "Ley Orgánica 4/2015"; 
+
 $("viewerSubtitle").textContent = 
 "Protección de la seguridad ciudadana"; 
+
 if (!articulos.length) { 
 contenido.innerHTML = ` 
 <div class="empty-state"> 
@@ -2628,6 +3126,7 @@ No se han podido cargar los artículos.
 } else { 
 const enlaceOficial = 
 estado.lopsc && estado.lopsc.enlaceOficial; 
+
 contenido.innerHTML = ` 
 ${enlaceOficial ? ` 
 <a 
@@ -2639,9 +3138,11 @@ rel="noopener noreferrer"
 🔗 Ver normativa online (BOE) 
 </a> 
 ` : ""} 
+
 ${articulos 
 .map((articulo) => ` 
 <article class="law-article"> 
+
 <h4> 
 Artículo ${ 
 escaparHTML( 
@@ -2652,17 +3153,21 @@ ${escaparHTML(
 articulo.titulo || "" 
 )} 
 </h4> 
+
 <p> 
 ${escaparHTML( 
 articulo.texto || "" 
 )} 
 </p> 
+
 </article> 
 `) 
 .join("")} 
 `; 
 } 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -2674,17 +3179,23 @@ const articulos =
 extraerArticulos( 
 estado.codigoPenal 
 ); 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 "Código Penal"; 
+
 $("viewerSubtitle").textContent = 
 "Selección de delitos de interés policial (LO 10/1995)"; 
+
 if (!articulos.length) { 
 contenido.innerHTML = ` 
 <div class="empty-state"> 
@@ -2697,8 +3208,10 @@ No se han podido cargar los artículos.
 } else { 
 const enlaceOficial = 
 estado.codigoPenal && estado.codigoPenal.enlaceOficial; 
+
 const nota = 
 estado.codigoPenal && estado.codigoPenal.nota; 
+
 contenido.innerHTML = ` 
 ${enlaceOficial ? ` 
 <a 
@@ -2710,14 +3223,17 @@ rel="noopener noreferrer"
 🔗 Ver normativa online (BOE) 
 </a> 
 ` : ""} 
+
 ${nota ? ` 
 <article class="law-article"> 
 <p><strong>Nota:</strong> ${escaparHTML(nota)}</p> 
 </article> 
 ` : ""} 
+
 ${articulos 
 .map((articulo) => ` 
 <article class="law-article"> 
+
 <h4> 
 Artículo ${ 
 escaparHTML( 
@@ -2728,17 +3244,21 @@ ${escaparHTML(
 articulo.titulo || "" 
 )} 
 </h4> 
+
 <p> 
 ${escaparHTML( 
 articulo.texto || "" 
 )} 
 </p> 
+
 </article> 
 `) 
 .join("")} 
 `; 
 } 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -2750,34 +3270,44 @@ const ordenanzas =
 extraerOrdenanzas( 
 estado.ordenanzas 
 ); 
+
 const ordenanza = 
 ordenanzas.find( 
 (item) => item.id === id 
 ); 
+
 if (!ordenanza) { 
 return; 
 } 
+
 const visor = 
 $("normativaViewer"); 
+
 const contenido = 
 $("viewerContent"); 
+
 if (!visor || !contenido) { 
 return; 
 } 
+
 $("viewerTitle").textContent = 
 ordenanza.nombre || 
 ordenanza.nombre_corto || 
 "Ordenanza municipal"; 
+
 $("viewerSubtitle").textContent = 
 ordenanza.codigo || ""; 
+
 const palabras = 
 Array.isArray( 
 ordenanza.palabras_clave 
 ) 
 ? ordenanza.palabras_clave 
 : []; 
+
 const fuente = 
 ordenanza.fuente || {}; 
+
 contenido.innerHTML = ` 
 <button 
 type="button" 
@@ -2786,7 +3316,9 @@ data-law="ordenanzas"
 > 
 ← Volver a Ordenanzas 
 </button> 
+
 <article class="law-article"> 
+
 <h4> 
 ${escaparHTML( 
 ordenanza.nombre || 
@@ -2794,11 +3326,13 @@ ordenanza.nombre_corto ||
 "" 
 )} 
 </h4> 
+
 <p> 
 ${escaparHTML( 
 ordenanza.descripcion || "" 
 )} 
 </p> 
+
 ${ 
 ordenanza.estado 
 ? ` 
@@ -2806,6 +3340,7 @@ ordenanza.estado
 ` 
 : "" 
 } 
+
 ${ 
 fuente.url 
 ? ` 
@@ -2822,6 +3357,7 @@ rel="noopener noreferrer"
 <p class="law-sin-enlace">Sin enlace oficial configurado.</p> 
 ` 
 } 
+
 ${ 
 ordenanza.nota 
 ? ` 
@@ -2834,6 +3370,7 @@ ordenanza.nota
 ` 
 : "" 
 } 
+
 ${ 
 palabras.length 
 ? ` 
@@ -2850,9 +3387,12 @@ escaparHTML
 ` 
 : "" 
 } 
+
 </article> 
 `; 
+
 visor.classList.remove("hidden"); 
+
 visor.scrollIntoView({ 
 behavior: "smooth", 
 block: "start" 
@@ -2876,33 +3416,45 @@ acciones = []
 ) { 
 const modal = 
 $("appModal"); 
+
 if (!modal) { 
 return; 
 } 
+
 $("modalTitle").textContent = 
 titulo || "Centinela Code"; 
+
 $("modalBody").innerHTML = 
 contenido || ""; 
+
 const contenedor = 
 $("modalActions"); 
+
 contenedor.innerHTML = ""; 
+
 acciones.forEach((accion) => { 
+
 const boton = 
 document.createElement("button"); 
+
 boton.type = "button"; 
 boton.className = 
 accion.className || 
 "primary-button"; 
+
 boton.textContent = 
 accion.label || "Aceptar"; 
+
 boton.addEventListener( 
 "click", 
 () => { 
 accion.onClick?.(); 
 } 
 ); 
+
 contenedor.appendChild(boton); 
 }); 
+
 modal.classList.remove("hidden"); 
 } 
 
@@ -2917,6 +3469,7 @@ $("closeModal")?.addEventListener(
 "click", 
 cerrarModal 
 ); 
+
 $("modalOverlay")?.addEventListener( 
 "click", 
 cerrarModal 
@@ -2930,34 +3483,44 @@ AJUSTES
 function configurarAjustes() { 
 const version = 
 $("appVersion"); 
+
 if (version) { 
 version.textContent = 
 CONFIG.VERSION; 
 } 
+
 $("reloadDataButton")?.addEventListener( 
 "click", 
 async () => { 
 mostrarToast( 
 "Recargando datos..." 
 ); 
+
 await cargarDatos(); 
 } 
 ); 
+
 $("clearDraftsButton")?.addEventListener( 
 "click", 
 () => { 
+
 const confirmado = 
 window.confirm( 
 "¿Quieres borrar todas las actas guardadas?" 
 ); 
+
 if (!confirmado) { 
 return; 
 } 
+
 estado.actas = []; 
+
 localStorage.removeItem( 
 CONFIG.STORAGE_ACTAS 
 ); 
+
 renderizarActas(); 
+
 mostrarToast( 
 "Actas borradas." 
 ); 
@@ -2973,20 +3536,24 @@ function configurarEventosGlobales() {
 document.addEventListener( 
 "click", 
 (evento) => { 
+
 const detalle = 
 evento.target.closest( 
 "[data-infraccion-id]" 
 ); 
+
 if (detalle) { 
 abrirDetalleInfraccion( 
 detalle.dataset.infraccionId 
 ); 
 return; 
 } 
+
 const resultadoArticulo = 
 evento.target.closest( 
 "[data-nav-tipo]" 
 ); 
+
 if (resultadoArticulo) { 
 activarSeccion("normativa"); 
 abrirNormativa( 
@@ -2995,10 +3562,12 @@ resultadoArticulo.dataset.navId || ""
 ); 
 return; 
 } 
+
 const normativa = 
 evento.target.closest( 
 "button.normativa-open" 
 ); 
+
 if (normativa) { 
 abrirNormativa( 
 normativa.dataset.law, 
@@ -3006,30 +3575,37 @@ normativa.dataset.id || ""
 ); 
 return; 
 } 
+
 const editar = 
 evento.target.closest( 
 "[data-edit-acta]" 
 ); 
+
 if (editar) { 
 editarActa( 
 editar.dataset.editActa 
 ); 
 return; 
 } 
+
 const borrar = 
 evento.target.closest( 
 "[data-delete-acta]" 
 ); 
+
 if (borrar) { 
 borrarActa( 
 borrar.dataset.deleteActa 
 ); 
 return; 
 } 
+
+/* === NUEVO: Exportar PDF === */ 
 const exportar = 
 evento.target.closest( 
 "[data-export-acta]" 
 ); 
+
 if (exportar) { 
 exportarActaPDF( 
 exportar.dataset.exportActa 
@@ -3048,6 +3624,7 @@ function registrarServiceWorker() {
 if (!("serviceWorker" in navigator)) { 
 return; 
 } 
+
 window.addEventListener( 
 "load", 
 async () => { 
@@ -3059,13 +3636,16 @@ await navigator.serviceWorker.register(
 updateViaCache: "none" 
 } 
 ); 
+
 console.log( 
 "Centinela Code: Service Worker registrado.", 
 registro.scope 
 ); 
+
 registro.update().catch( 
 () => {} 
 ); 
+
 } catch (error) { 
 console.warn( 
 "Centinela Code: no se pudo registrar el Service Worker.", 
@@ -3090,6 +3670,7 @@ mostrarToast(
 ); 
 } 
 ); 
+
 window.addEventListener( 
 "offline", 
 () => { 
@@ -3099,12 +3680,14 @@ mostrarToast(
 ); 
 } 
 ); 
+
 actualizarRed(); 
 } 
 
 /* ========================================================= 
 INICIALIZACIÓN 
 ========================================================= */ 
+
 
 /* =========================================================
 AUTENTICACION SUPABASE
@@ -3139,26 +3722,26 @@ pantalla.innerHTML = `
 <div id="centinelaLoginMessage" style="min-height:20px;margin-top:12px;color:#ffb4b4;text-align:center;font-size:14px"></div>
 </form>
 </div>`;
+// Evento para cerrar manualmente con la X
 const closeBtn = pantalla.querySelector("#centinelaLoginClose");
 if (closeBtn) {
-closeBtn.addEventListener("click", function() {
-ocultarPantallaLogin();
-mostrarToast("Sesión cancelada.");
-});
+    closeBtn.addEventListener("click", function() {
+        ocultarPantallaLogin();
+        mostrarToast("Sesión cancelada.");
+        // Intentar mostrar la aplicación aunque no haya login
+        iniciarAplicacionPostLogin().catch(() => {});
+    });
 }
 document.body.appendChild(pantalla);
 return pantalla;
 }
 
 function ocultarPantallaLogin(){ 
-const el = $("centinelaLogin"); 
-if (el) el.remove(); 
+    const el = $("centinelaLogin"); 
+    if (el) el.remove(); 
 }
 
-function mostrarMensajeLogin(mensaje){ 
-const el=$("centinelaLoginMessage"); 
-if(el) el.textContent=mensaje||""; 
-}
+function mostrarMensajeLogin(mensaje){ const el=$("centinelaLoginMessage"); if(el) el.textContent=mensaje||""; }
 
 function cargarLibreriaSupabase(){
 if(window.supabase?.createClient) return Promise.resolve();
@@ -3192,11 +3775,7 @@ clienteSupabase.auth.getSession(),
 new Promise((_,reject)=>setTimeout(()=>reject(new Error("Tiempo agotado comprobando la sesión.")),8000))
 ]);
 if(sesion.error) throw sesion.error;
-if(sesion.data?.session){ 
-usuarioActual=sesion.data.session.user; 
-ocultarPantallaLogin(); 
-return true; 
-}
+if(sesion.data?.session){ usuarioActual=sesion.data.session.user; ocultarPantallaLogin(); return true; }
 mostrarMensajeLogin("Introduce tu usuario y contraseña.");
 const form=$("centinelaLoginForm");
 form?.addEventListener("submit",async(e)=>{
@@ -3218,28 +3797,12 @@ return false;
 }
 
 async function hideLoginAndStart(){
+// Asegurar que el login se elimina completamente del DOM
 ocultarPantallaLogin();
-try {
+// Esperar un microsegundo para que el DOM se actualice
+await new Promise(resolve => setTimeout(resolve, 50));
+// Iniciar la aplicación
 await iniciarAplicacionPostLogin();
-} catch (error) {
-console.error("Error al iniciar la aplicación:", error);
-mostrarToast("Error al cargar la aplicación. Algunas funciones pueden no estar disponibles.");
-try {
-configurarNavegacion();
-configurarConsulta();
-configurarActas();
-configurarNormativa();
-configurarModal();
-configurarAjustes();
-configurarEventosGlobales();
-configurarRed();
-cargarActas();
-mostrarCarga(false);
-} catch (e) {
-console.error("Error crítico:", e);
-mostrarToast("No se pudo cargar la aplicación. Recarga la página.");
-}
-}
 }
 
 async function iniciarAplicacionPostLogin(){
