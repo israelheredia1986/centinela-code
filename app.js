@@ -19,12 +19,17 @@ Funciones:
 "use strict"; 
 
 const CONFIG = { 
-VERSION: "1.0.1", 
+VERSION: "1.1.0", 
 RUTAS: { 
 infracciones: "./data/infracciones.json", 
+infraccionesTrafico: "./data/infracciones_trafico.json", 
 lopsc: "./data/lopsc.json", 
+codigoPenal: "./data/codigo_penal.json", 
+menores: "./data/normativa_menores.json", 
+violenciaGenero: "./data/normativa_violencia_genero.json", 
 ordenanzas: "./data/ordenanzas.json", 
-animales: "./data/normativa_animales.json" 
+animales: "./data/normativa_animales.json", 
+trafico: "./data/normativa_trafico.json" 
 }, 
 STORAGE_ACTAS: "centinela_code_actas_v1" 
 }; 
@@ -32,8 +37,12 @@ STORAGE_ACTAS: "centinela_code_actas_v1"
 const estado = { 
 infracciones: [], 
 lopsc: null, 
+codigoPenal: null, 
+menores: null, 
+violenciaGenero: null, 
 ordenanzas: null, 
 animales: null, 
+trafico: null, 
 resultados: [], 
 gravedad: "all", 
 normativaBusqueda: "", 
@@ -54,6 +63,105 @@ return String(valor || "")
 .normalize("NFD") 
 .replace(/[\u0300-\u036f]/g, "") 
 .trim(); 
+} 
+
+/* ========================================================= 
+BUSQUEDA POR PALABRAS (tokenizada + sinonimos) 
+
+El buscador antiguo comparaba la consulta completa como una 
+unica cadena ("includes"), por lo que fallaba en cuanto el 
+orden de las palabras no coincidia exactamente con el texto 
+de la ley (p. ej. "distancia seguridad" no encontraba 
+"distancia DE seguridad") o cuando se usaba una palabra 
+coloquial distinta a la que aparece en el articulado 
+(p. ej. "agresion a agente" no encontraba "Atentado", cuyo 
+texto habla de "agredieren... a la autoridad, a sus agentes"). 
+
+Este bloque resuelve ambos problemas: 
+1) Se divide la consulta en palabras sueltas y se exige que 
+   TODAS aparezcan en el contenido, en cualquier orden. 
+2) Las palabras vacias (de, la, el...) no son obligatorias si 
+   hay otras palabras con significado en la consulta. 
+3) Un diccionario de sinonimos permite que un termino 
+   coloquial o policial habitual encuentre el articulo aunque 
+   la ley use otra palabra. Es facil de ampliar: basta con 
+   añadir una entrada nueva al objeto SINONIMOS_BUSQUEDA. 
+========================================================= */ 
+
+const STOPWORDS_BUSQUEDA = new Set([ 
+"a", "al", "ante", "con", "de", "del", "el", "en", "la", 
+"las", "lo", "los", "o", "por", "que", "segun", "sin", 
+"sobre", "un", "una", "unos", "unas", "y" 
+]); 
+
+const SINONIMOS_BUSQUEDA = { 
+"agresion": ["agredir", "agredi", "agresivo", "atentado", "atentar", "acometer", "acometimiento"], 
+"agresiones": ["agredir", "agredi", "atentado", "atentar", "acometer"], 
+"agredir": ["agresion", "atentado", "acometer"], 
+"agredido": ["agresion", "atentado", "acometer"], 
+"atentado": ["agresion", "agredir", "acometer"], 
+"pegar": ["agresion", "agredir", "atentado", "acometer", "lesiones"], 
+"golpear": ["agresion", "agredir", "atentado", "lesiones"], 
+"seguro": ["aseguramiento", "asegurar", "poliza", "soa"], 
+"aseguramiento": ["seguro", "asegurar", "poliza"], 
+"poliza": ["seguro", "aseguramiento"], 
+"asegurado": ["seguro", "aseguramiento"], 
+"carnet": ["permiso", "licencia"], 
+"licencia": ["permiso", "carnet"], 
+"borracho": ["alcoholemia", "embriaguez", "alcohol"], 
+"embriaguez": ["alcoholemia", "alcohol", "borracho"], 
+"colocado": ["drogas", "estupefaciente", "narcotico", "psicotropico"], 
+"drogado": ["drogas", "estupefaciente", "narcotico"], 
+"menor": ["menores", "nino", "nina", "adolescente"], 
+"nino": ["menor", "menores"], 
+"nina": ["menor", "menores"], 
+"pelea": ["rina", "altercado", "reyerta"], 
+"rina": ["pelea", "altercado", "reyerta"], 
+"mendigar": ["mendicidad"], 
+"pintada": ["grafiti", "pintadas"], 
+"grafiti": ["pintada", "pintadas"], 
+"maltrato": ["crueldad", "malos tratos"], 
+"crueldad": ["maltrato"], 
+"desnudo": ["exhibicionismo", "desnudez"], 
+"exhibicionismo": ["desnudo", "desnudez"] 
+}; 
+
+function tokenizarTexto(valor) { 
+return normalizarTexto(valor) 
+.split(/[^a-z0-9]+/i) 
+.filter(Boolean); 
+} 
+
+function tokenizarConsulta(valor) { 
+const tokens = tokenizarTexto(valor); 
+
+const significativos = tokens.filter( 
+(token) => !STOPWORDS_BUSQUEDA.has(token) 
+); 
+
+return significativos.length ? significativos : tokens; 
+} 
+
+function coincideConsulta(contenidoNormalizado, tokens) { 
+if (!tokens.length) { 
+return false; 
+} 
+
+return tokens.every((token) => { 
+if (contenidoNormalizado.includes(token)) { 
+return true; 
+} 
+
+const sinonimos = SINONIMOS_BUSQUEDA[token]; 
+
+if (!sinonimos) { 
+return false; 
+} 
+
+return sinonimos.some( 
+(alternativa) => contenidoNormalizado.includes(alternativa) 
+); 
+}); 
 } 
 
 function escaparHTML(valor) { 
@@ -232,6 +340,14 @@ return datos.leyes;
 return []; 
 } 
 
+function extraerTrafico(datos) { 
+if (datos && Array.isArray(datos.leyes)) { 
+return datos.leyes; 
+} 
+
+return []; 
+} 
+
 function extraerOrdenanzas(datos) { 
 if (Array.isArray(datos)) { 
 return datos; 
@@ -244,15 +360,96 @@ return datos.ordenanzas;
 return []; 
 } 
 
+function renderTarjetaOrdenanza(ordenanza) { 
+const titulo = 
+ordenanza.nombre || 
+ordenanza.nombre_corto || 
+"Ordenanza municipal"; 
+
+return ` 
+<div class="normativa-card"> 
+
+<div class="normativa-icon"> 
+📋 
+</div> 
+
+<div class="normativa-info"> 
+
+<h3> 
+${escaparHTML(titulo)} 
+</h3> 
+
+<p> 
+${escaparHTML(ordenanza.descripcion || "")} 
+</p> 
+
+<span> 
+${escaparHTML(ordenanza.codigo || "Ordenanza")} 
+</span> 
+
+</div> 
+
+<button 
+type="button" 
+class="normativa-open" 
+data-law="ordenanza" 
+data-id="${escaparHTML(ordenanza.id)}" 
+> 
+Ver ficha 
+</button> 
+
+</div> 
+`; 
+} 
+
+function renderGruposOrdenanzas(categorias, ordenanzas) { 
+return categorias 
+.map((categoria) => { 
+const items = 
+ordenanzas.filter( 
+(ordenanza) => ordenanza.categoria === categoria.id 
+); 
+
+if (!items.length) { 
+return ""; 
+} 
+
+return ` 
+<details class="ordenanza-group"> 
+
+<summary> 
+<span class="ordenanza-group-nombre"> 
+${escaparHTML(categoria.nombre)} 
+</span> 
+<span class="ordenanza-group-count"> 
+${items.length} 
+</span> 
+</summary> 
+
+<div class="normativa-list normativa-list--nested"> 
+${items.map(renderTarjetaOrdenanza).join("")} 
+</div> 
+
+</details> 
+`; 
+}) 
+.join(""); 
+} 
+
 async function cargarDatos() { 
 const resultados = await Promise.allSettled([ 
 cargarJSON(CONFIG.RUTAS.infracciones), 
+cargarJSON(CONFIG.RUTAS.infraccionesTrafico), 
 cargarJSON(CONFIG.RUTAS.lopsc), 
+cargarJSON(CONFIG.RUTAS.codigoPenal), 
+cargarJSON(CONFIG.RUTAS.menores), 
+cargarJSON(CONFIG.RUTAS.violenciaGenero), 
 cargarJSON(CONFIG.RUTAS.ordenanzas), 
-cargarJSON(CONFIG.RUTAS.animales) 
+cargarJSON(CONFIG.RUTAS.animales), 
+cargarJSON(CONFIG.RUTAS.trafico) 
 ]); 
 
-const [rInfracciones, rLopsc, rOrdenanzas, rAnimales] = resultados; 
+const [rInfracciones, rInfraccionesTrafico, rLopsc, rCodigoPenal, rMenores, rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico] = resultados; 
 
 if (rInfracciones.status === "fulfilled") { 
 estado.infracciones = extraerInfracciones( 
@@ -267,6 +464,17 @@ rInfracciones.reason
 ); 
 } 
 
+if (rInfraccionesTrafico.status === "fulfilled") { 
+estado.infracciones = estado.infracciones.concat( 
+extraerInfracciones(rInfraccionesTrafico.value) 
+); 
+} else { 
+console.error( 
+"Error cargando infracciones de tráfico:", 
+rInfraccionesTrafico.reason 
+); 
+} 
+
 if (rLopsc.status === "fulfilled") { 
 estado.lopsc = rLopsc.value; 
 } else { 
@@ -274,6 +482,36 @@ estado.lopsc = null;
 console.error( 
 "Error cargando LOPSC:", 
 rLopsc.reason 
+); 
+} 
+
+if (rCodigoPenal.status === "fulfilled") { 
+estado.codigoPenal = rCodigoPenal.value; 
+} else { 
+estado.codigoPenal = null; 
+console.error( 
+"Error cargando Código Penal:", 
+rCodigoPenal.reason 
+); 
+} 
+
+if (rMenores.status === "fulfilled") { 
+estado.menores = rMenores.value; 
+} else { 
+estado.menores = null; 
+console.error( 
+"Error cargando LO Menores:", 
+rMenores.reason 
+); 
+} 
+
+if (rViolenciaGenero.status === "fulfilled") { 
+estado.violenciaGenero = rViolenciaGenero.value; 
+} else { 
+estado.violenciaGenero = null; 
+console.error( 
+"Error cargando normativa de violencia de género:", 
+rViolenciaGenero.reason 
 ); 
 } 
 
@@ -294,6 +532,16 @@ estado.animales = null;
 console.error( 
 "Error cargando normativa de animales:", 
 rAnimales.reason 
+); 
+} 
+
+if (rTrafico.status === "fulfilled") { 
+estado.trafico = rTrafico.value; 
+} else { 
+estado.trafico = null; 
+console.error( 
+"Error cargando normativa de tráfico:", 
+rTrafico.reason 
 ); 
 } 
 
@@ -348,12 +596,26 @@ const hayOrdenanzas =
 Boolean(estado.ordenanzas) && 
 extraerOrdenanzas(estado.ordenanzas).length > 0; 
 
+const contarArticulosLeyes = (leyes) => 
+leyes.reduce( 
+(total, leyItem) => 
+total + (Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0), 
+0 
+); 
+
+const totalArticulosBase = 
+extraerArticulos(estado.lopsc).length + 
+contarArticulosLeyes(extraerAnimales(estado.animales)) + 
+contarArticulosLeyes(extraerTrafico(estado.trafico)); 
+
+const hayBaseNormativa = totalArticulosBase > 0; 
+
 establecerEstado( 
 $("homeNormativaStatus"), 
-hayLopsc 
-? `${extraerArticulos(estado.lopsc).length} artículos` 
+hayBaseNormativa 
+? `${totalArticulosBase} artículos` 
 : "No disponible", 
-hayLopsc 
+hayBaseNormativa 
 ); 
 
 establecerEstado( 
@@ -492,18 +754,90 @@ actualizarBusqueda();
 }); 
 } 
 
+function obtenerArticulosNormativa() { 
+const registros = []; 
+
+const agregarLeySimple = (datos, navTipo) => { 
+if (!datos || !Array.isArray(datos.articulos)) { 
+return; 
+} 
+
+datos.articulos.forEach((articulo) => { 
+registros.push({ 
+ley: datos.abreviatura || datos.ley || "", 
+leyCompleta: datos.ley || "", 
+numero: articulo.numero, 
+titulo: articulo.titulo || "", 
+texto: articulo.texto || "", 
+navTipo, 
+navId: "" 
+}); 
+}); 
+}; 
+
+const agregarGrupoLeyes = (datos, navTipoLista, navTipoLey) => { 
+const leyes = 
+datos && Array.isArray(datos.leyes) ? datos.leyes : []; 
+
+leyes.forEach((leyItem) => { 
+const articulos = 
+Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
+articulos.forEach((articulo) => { 
+registros.push({ 
+ley: leyItem.abreviatura || leyItem.ley || "", 
+leyCompleta: leyItem.ley || "", 
+numero: articulo.numero, 
+titulo: articulo.titulo || "", 
+texto: articulo.texto || "", 
+navTipo: navTipoLey, 
+navId: leyItem.id || "" 
+}); 
+}); 
+}); 
+}; 
+
+agregarLeySimple(estado.lopsc, "lopsc"); 
+agregarLeySimple(estado.codigoPenal, "codigo-penal"); 
+agregarGrupoLeyes(estado.menores, "menores", "ley-menor"); 
+agregarGrupoLeyes(estado.animales, "animales", "ley-animal"); 
+agregarGrupoLeyes(estado.trafico, "trafico", "ley-trafico"); 
+agregarGrupoLeyes(estado.violenciaGenero, "violencia-genero", "ley-violencia-genero"); 
+
+const ordenanzas = 
+extraerOrdenanzas(estado.ordenanzas); 
+
+ordenanzas.forEach((ordenanza) => { 
+registros.push({ 
+ley: ordenanza.codigo || "Ordenanza municipal", 
+leyCompleta: ordenanza.nombre || ordenanza.nombre_corto || "", 
+numero: "", 
+titulo: ordenanza.nombre || ordenanza.nombre_corto || "", 
+texto: ordenanza.descripcion || "", 
+navTipo: "ordenanza", 
+navId: ordenanza.id || "" 
+}); 
+}); 
+
+return registros; 
+} 
+
 function actualizarBusqueda() { 
 const input = $("consultaSearch"); 
 
+const valorBusqueda = 
+input ? input.value : ""; 
+
 const texto = 
-normalizarTexto( 
-input ? input.value : "" 
-); 
+normalizarTexto(valorBusqueda); 
+
+const tokens = 
+tokenizarConsulta(valorBusqueda); 
 
 const gravedad = 
 estado.gravedad; 
 
-estado.resultados = 
+const resultadosInfracciones = 
 estado.infracciones.filter((infraccion) => { 
 
 if ( 
@@ -515,7 +849,7 @@ infraccion.gravedad || ""
 return false; 
 } 
 
-if (!texto) { 
+if (!tokens.length) { 
 return false; 
 } 
 
@@ -544,10 +878,42 @@ infraccion.gravedad,
 ...responsables 
 ].join(" "); 
 
-return normalizarTexto( 
-contenido 
-).includes(texto); 
-}); 
+return coincideConsulta( 
+normalizarTexto(contenido), 
+tokens 
+); 
+}).map((infraccion) => ({ 
+...infraccion, 
+tipoResultado: "infraccion" 
+})); 
+
+let resultadosArticulos = []; 
+
+if (tokens.length && gravedad === "all") { 
+resultadosArticulos = 
+obtenerArticulosNormativa() 
+.filter((articulo) => { 
+const contenido = [ 
+articulo.ley, 
+articulo.leyCompleta, 
+articulo.numero, 
+articulo.titulo, 
+articulo.texto 
+].join(" "); 
+
+return coincideConsulta( 
+normalizarTexto(contenido), 
+tokens 
+); 
+}) 
+.map((articulo) => ({ 
+...articulo, 
+tipoResultado: "articulo" 
+})); 
+} 
+
+estado.resultados = 
+resultadosInfracciones.concat(resultadosArticulos); 
 
 ordenarResultados(texto); 
 renderizarResultados(); 
@@ -558,13 +924,18 @@ if (!texto) {
 return; 
 } 
 
+const obtenerCodigo = (item) => 
+item.tipoResultado === "articulo" 
+? String(item.numero || "") 
+: String(item.codigo || ""); 
+
 estado.resultados.sort((a, b) => { 
 
 const codigoA = 
-normalizarTexto(a.codigo); 
+normalizarTexto(obtenerCodigo(a)); 
 
 const codigoB = 
-normalizarTexto(b.codigo); 
+normalizarTexto(obtenerCodigo(b)); 
 
 if (codigoA === texto && 
 codigoB !== texto) { 
@@ -574,6 +945,12 @@ return -1;
 if (codigoB === texto && 
 codigoA !== texto) { 
 return 1; 
+} 
+
+if ( 
+a.tipoResultado !== b.tipoResultado 
+) { 
+return a.tipoResultado === "infraccion" ? -1 : 1; 
 } 
 
 const tituloA = 
@@ -596,9 +973,9 @@ tituloB.startsWith(texto) &&
 return 1; 
 } 
 
-return String(a.codigo || "") 
+return obtenerCodigo(a) 
 .localeCompare( 
-String(b.codigo || ""), 
+obtenerCodigo(b), 
 "es", 
 { numeric: true } 
 ); 
@@ -646,7 +1023,7 @@ contenedor.innerHTML = `
 <div class="empty-icon">??</div> 
 <h3>Sin resultados</h3> 
 <p> 
-No se han encontrado infracciones 
+No se han encontrado coincidencias 
 con esos criterios. 
 </p> 
 </div> 
@@ -656,8 +1033,58 @@ return;
 
 contenedor.innerHTML = 
 estado.resultados 
-.map(renderizarTarjetaInfraccion) 
+.map((item) => 
+item.tipoResultado === "articulo" 
+? renderizarTarjetaArticulo(item) 
+: renderizarTarjetaInfraccion(item) 
+) 
 .join(""); 
+} 
+
+function renderizarTarjetaArticulo(articulo) { 
+const snippet = 
+(articulo.texto || "").length > 220 
+? articulo.texto.slice(0, 220).trim() + "…" 
+: articulo.texto || ""; 
+
+return ` 
+<article class="result-card result-card--articulo"> 
+
+<div class="result-card-header"> 
+
+<div> 
+<span class="result-ley"> 
+${escaparHTML(articulo.ley || "")} 
+</span> 
+
+${articulo.numero ? ` 
+<span class="result-code"> 
+Art. ${escaparHTML(articulo.numero)} 
+</span> 
+` : ""} 
+
+<h3> 
+${escaparHTML(articulo.titulo || "Sin título")} 
+</h3> 
+</div> 
+
+</div> 
+
+<p class="result-conducta"> 
+${escaparHTML(snippet)} 
+</p> 
+
+<button 
+type="button" 
+class="result-detail-button" 
+data-nav-tipo="${escaparHTML(articulo.navTipo || "")}" 
+data-nav-id="${escaparHTML(articulo.navId || "")}" 
+> 
+Ver en Normativa 
+</button> 
+
+</article> 
+`; 
 } 
 
 function renderizarTarjetaInfraccion( 
@@ -695,6 +1122,12 @@ return `
 <div class="result-card-header"> 
 
 <div> 
+<span class="result-ley"> 
+${escaparHTML( 
+infraccion.ley || "" 
+)} 
+</span> 
+
 <span class="result-code"> 
 ${escaparHTML( 
 infraccion.codigo || "" 
@@ -789,6 +1222,13 @@ infraccion.codigo ||
 "Infracción", 
 ` 
 <div class="detail-content"> 
+
+<p> 
+<strong>Ley:</strong> 
+${escaparHTML( 
+infraccion.ley || "-" 
+)} 
+</p> 
 
 <p> 
 <strong>Gravedad:</strong> 
@@ -930,7 +1370,198 @@ $("actaInfraccion")?.addEventListener(
 actualizarPreviewInfraccion 
 ); 
 
+$("btnUbicacionActa")?.addEventListener( 
+"click", 
+obtenerUbicacionActa 
+); 
+
+$("btnDictadoHechos")?.addEventListener( 
+"click", 
+(evento) => alternarDictado(evento.currentTarget) 
+); 
+
+$("btnDictadoObservaciones")?.addEventListener( 
+"click", 
+(evento) => alternarDictado(evento.currentTarget) 
+); 
+
 renderizarActas(); 
+} 
+
+async function obtenerUbicacionActa() { 
+const boton = $("btnUbicacionActa"); 
+const campo = $("actaLugar"); 
+
+if (!campo) { 
+return; 
+} 
+
+if (!navigator.geolocation) { 
+alert( 
+"Este dispositivo o navegador no admite geolocalización." 
+); 
+return; 
+} 
+
+const textoOriginal = boton ? boton.textContent : ""; 
+
+if (boton) { 
+boton.disabled = true; 
+boton.textContent = "⏳"; 
+} 
+
+navigator.geolocation.getCurrentPosition( 
+async (posicion) => { 
+const { latitude, longitude } = posicion.coords; 
+
+try { 
+const respuesta = await fetch( 
+`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`, 
+{ 
+headers: { 
+"Accept-Language": "es" 
+} 
+} 
+); 
+
+if (!respuesta.ok) { 
+throw new Error("Respuesta no válida"); 
+} 
+
+const datos = await respuesta.json(); 
+
+campo.value = 
+datos && datos.display_name 
+? datos.display_name 
+: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`; 
+} catch (error) { 
+console.error( 
+"No se pudo obtener la dirección:", 
+error 
+); 
+
+campo.value = 
+`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`; 
+} finally { 
+if (boton) { 
+boton.disabled = false; 
+boton.textContent = textoOriginal || "📍"; 
+} 
+} 
+}, 
+(error) => { 
+if (boton) { 
+boton.disabled = false; 
+boton.textContent = textoOriginal || "📍"; 
+} 
+
+let mensaje = 
+"No se ha podido obtener la ubicación."; 
+
+if (error.code === error.PERMISSION_DENIED) { 
+mensaje = 
+"Has denegado el permiso de ubicación. Actívalo en los ajustes del navegador para usar esta función."; 
+} else if (error.code === error.TIMEOUT) { 
+mensaje = 
+"Se ha agotado el tiempo de espera para obtener la ubicación. Inténtalo de nuevo."; 
+} 
+
+alert(mensaje); 
+}, 
+{ 
+enableHighAccuracy: true, 
+timeout: 10000, 
+maximumAge: 0 
+} 
+); 
+} 
+
+let reconocimientoVozActivo = null; 
+let botonDictadoActivo = null; 
+
+function alternarDictado(boton) { 
+if (!boton) { 
+return; 
+} 
+
+const idCampo = boton.dataset.target; 
+const campo = $(idCampo); 
+
+if (!campo) { 
+return; 
+} 
+
+const SpeechRecognitionAPI = 
+window.SpeechRecognition || 
+window.webkitSpeechRecognition; 
+
+if (!SpeechRecognitionAPI) { 
+alert( 
+"El dictado por voz no está disponible en este navegador. Prueba con Chrome en Android." 
+); 
+return; 
+} 
+
+if (reconocimientoVozActivo) { 
+reconocimientoVozActivo.stop(); 
+return; 
+} 
+
+const reconocimiento = new SpeechRecognitionAPI(); 
+
+reconocimiento.lang = "es-ES"; 
+reconocimiento.continuous = true; 
+reconocimiento.interimResults = false; 
+
+const separador = 
+campo.value && !campo.value.endsWith(" ") && !campo.value.endsWith("\n") 
+? " " 
+: ""; 
+
+let textoAcumulado = campo.value + separador; 
+
+reconocimiento.onresult = (evento) => { 
+let textoNuevo = ""; 
+
+for (let i = evento.resultIndex; i < evento.results.length; i++) { 
+if (evento.results[i].isFinal) { 
+textoNuevo += evento.results[i][0].transcript + " "; 
+} 
+} 
+
+if (textoNuevo) { 
+textoAcumulado += textoNuevo; 
+campo.value = textoAcumulado; 
+} 
+}; 
+
+reconocimiento.onerror = (evento) => { 
+console.error("Error de dictado:", evento.error); 
+
+if (evento.error === "not-allowed" || evento.error === "service-not-allowed") { 
+alert( 
+"Has denegado el permiso de micrófono. Actívalo en los ajustes del navegador para dictar." 
+); 
+} 
+}; 
+
+reconocimiento.onend = () => { 
+if (botonDictadoActivo) { 
+botonDictadoActivo.classList.remove("input-action-button--activo"); 
+botonDictadoActivo.textContent = "🎤"; 
+} 
+
+reconocimientoVozActivo = null; 
+botonDictadoActivo = null; 
+}; 
+
+reconocimiento.start(); 
+
+reconocimientoVozActivo = reconocimiento; 
+botonDictadoActivo = boton; 
+
+boton.classList.add("input-action-button--activo"); 
+boton.textContent = "⏹️"; 
 } 
 
 function abrirEditorActa(acta = null) { 
@@ -1326,6 +1957,11 @@ normalizarTexto(
 estado.normativaBusqueda 
 ); 
 
+const tokensNormativa = 
+tokenizarConsulta( 
+estado.normativaBusqueda 
+); 
+
 const categorias = 
 Array.isArray(estado.ordenanzas?.categorias) 
 ? estado.ordenanzas.categorias 
@@ -1346,18 +1982,61 @@ etiqueta: "LOPSC",
 icono: "⚖️" 
 }, 
 { 
+tipo: "codigo-penal", 
+titulo: "Código Penal", 
+descripcion: 
+"Selección de delitos de interés policial: seguridad vial, patrimonio, violencia de género, orden público, drogas", 
+etiqueta: "LO 10/1995", 
+icono: "🔨" 
+}, 
+{ 
+tipo: "menores", 
+titulo: "Menores", 
+descripcion: 
+"Responsabilidad penal, protección jurídica ante riesgo/desamparo y protección frente a la violencia — 3 normas", 
+etiqueta: "LO 5/2000, LO 1/1996, LO 8/2021", 
+icono: "🧑‍⚖️" 
+}, 
+{ 
 tipo: "animales", 
 titulo: "Animales", 
 descripcion: 
 "Bienestar animal y tenencia de perros potencialmente peligrosos (PPP) — 4 normas", 
 etiqueta: "Estatal / Andalucía", 
 icono: "🐾" 
+}, 
+{ 
+tipo: "trafico", 
+titulo: "Tráfico", 
+descripcion: 
+"Ley de Tráfico y sus 3 reglamentos: Circulación, Conductores y Vehículos", 
+etiqueta: "Estatal", 
+icono: "🚦" 
+}, 
+{ 
+tipo: "violencia-genero", 
+titulo: "Violencia de Género", 
+descripcion: 
+"Protección integral, orden de protección y libertad sexual — 3 normas", 
+etiqueta: "LO 1/2004, Ley 27/2003, LO 10/2022", 
+icono: "🛡️" 
+}, 
+{ 
+tipo: "ordenanzas", 
+titulo: "Ordenanzas municipales", 
+descripcion: 
+`Normativa local por categorías — ${ordenanzas.length} ordenanzas`, 
+etiqueta: `${categorias.length} categorías`, 
+icono: "🏛️" 
 } 
 ]; 
 
 const coincide = (campos) => 
-!texto || 
-normalizarTexto(campos.join(" ")).includes(texto); 
+!tokensNormativa.length || 
+coincideConsulta( 
+normalizarTexto(campos.join(" ")), 
+tokensNormativa 
+); 
 
 const principalesFiltradas = 
 tarjetasPrincipales.filter((tarjeta) => 
@@ -1402,102 +2081,7 @@ Ver
 </div> 
 `; 
 
-const renderTarjetaOrdenanza = (ordenanza) => { 
-const titulo = 
-ordenanza.nombre || 
-ordenanza.nombre_corto || 
-"Ordenanza municipal"; 
-
-return ` 
-<div class="normativa-card"> 
-
-<div class="normativa-icon"> 
-📋 
-</div> 
-
-<div class="normativa-info"> 
-
-<h3> 
-${escaparHTML(titulo)} 
-</h3> 
-
-<p> 
-${escaparHTML(ordenanza.descripcion || "")} 
-</p> 
-
-<span> 
-${escaparHTML(ordenanza.codigo || "Ordenanza")} 
-</span> 
-
-</div> 
-
-<button 
-type="button" 
-class="normativa-open" 
-data-law="ordenanza" 
-data-id="${escaparHTML(ordenanza.id)}" 
-> 
-Ver ficha 
-</button> 
-
-</div> 
-`; 
-}; 
-
-const camposOrdenanza = (ordenanza, categoriaNombre) => [ 
-ordenanza.nombre, 
-ordenanza.nombre_corto, 
-ordenanza.descripcion, 
-ordenanza.codigo, 
-categoriaNombre, 
-...(Array.isArray(ordenanza.palabras_clave) ? ordenanza.palabras_clave : []) 
-]; 
-
-const grupos = 
-categorias 
-.map((categoria) => { 
-const items = 
-ordenanzas.filter((ordenanza) => 
-ordenanza.categoria === categoria.id && 
-coincide(camposOrdenanza(ordenanza, categoria.nombre)) 
-); 
-
-if (!items.length) { 
-return ""; 
-} 
-
-return ` 
-<details class="ordenanza-group"${texto ? " open" : ""}> 
-
-<summary> 
-<span class="ordenanza-group-nombre"> 
-${escaparHTML(categoria.nombre)} 
-</span> 
-<span class="ordenanza-group-count"> 
-${items.length} 
-</span> 
-</summary> 
-
-<div class="normativa-list normativa-list--nested"> 
-${items.map(renderTarjetaOrdenanza).join("")} 
-</div> 
-
-</details> 
-`; 
-}) 
-.join(""); 
-
-const huboOrdenanzas = 
-ordenanzas.some((ordenanza) => { 
-const categoria = 
-categorias.find((item) => item.id === ordenanza.categoria); 
-
-return coincide( 
-camposOrdenanza(ordenanza, categoria ? categoria.nombre : "") 
-); 
-}); 
-
-if (!principalesFiltradas.length && !huboOrdenanzas) { 
+if (!principalesFiltradas.length) { 
 lista.innerHTML = ` 
 <div class="empty-state"> 
 <div class="empty-icon">🔍</div> 
@@ -1512,29 +2096,40 @@ return;
 } 
 
 lista.innerHTML = ` 
-${principalesFiltradas.length ? ` 
 <div class="normativa-list normativa-list--principal"> 
 ${principalesFiltradas.map(renderTarjetaPrincipal).join("")} 
 </div> 
-` : ""} 
-
-${grupos ? ` 
-<div class="ordenanza-groups"> 
-
-<h3 class="ordenanza-groups-title"> 
-Ordenanzas municipales 
-</h3> 
-
-${grupos} 
-
-</div> 
-` : ""} 
 `; 
 } 
 
 function abrirNormativa(tipo, id = "") { 
 if (tipo === "lopsc") { 
 abrirLOPSC(); 
+return; 
+} 
+
+if (tipo === "codigo-penal") { 
+abrirCodigoPenal(); 
+return; 
+} 
+
+if (tipo === "menores") { 
+abrirMenoresGrupo(); 
+return; 
+} 
+
+if (tipo === "ley-menor") { 
+abrirLeyMenor(id); 
+return; 
+} 
+
+if (tipo === "violencia-genero") { 
+abrirViolenciaGeneroGrupo(); 
+return; 
+} 
+
+if (tipo === "ley-violencia-genero") { 
+abrirLeyViolenciaGenero(id); 
 return; 
 } 
 
@@ -1548,6 +2143,21 @@ abrirLeyAnimal(id);
 return; 
 } 
 
+if (tipo === "trafico") { 
+abrirTrafico(); 
+return; 
+} 
+
+if (tipo === "ley-trafico") { 
+abrirLeyTrafico(id); 
+return; 
+} 
+
+if (tipo === "ordenanzas") { 
+abrirOrdenanzas(); 
+return; 
+} 
+
 if (tipo === "ordenanza") { 
 abrirOrdenanza(id); 
 return; 
@@ -1556,6 +2166,61 @@ return;
 if (tipo === "normativa-home") { 
 cerrarVisorNormativa(); 
 } 
+} 
+
+function abrirOrdenanzas() { 
+const categorias = 
+Array.isArray(estado.ordenanzas?.categorias) 
+? estado.ordenanzas.categorias 
+: []; 
+
+const ordenanzas = 
+extraerOrdenanzas( 
+estado.ordenanzas 
+); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+"Ordenanzas municipales"; 
+
+$("viewerSubtitle").textContent = 
+`Normativa local por categorías — ${ordenanzas.length} ordenanzas`; 
+
+const grupos = 
+renderGruposOrdenanzas(categorias, ordenanzas); 
+
+if (!ordenanzas.length || !grupos) { 
+contenido.innerHTML = ` 
+<div class="empty-state"> 
+<h3>Ordenanzas no disponibles</h3> 
+<p> 
+No se ha podido cargar la información. 
+</p> 
+</div> 
+`; 
+} else { 
+contenido.innerHTML = ` 
+<div class="ordenanza-groups"> 
+${grupos} 
+</div> 
+`; 
+} 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
 } 
 
 const ANIMALES_ICONOS = { 
@@ -1733,6 +2398,522 @@ block: "start"
 }); 
 } 
 
+const MENORES_ICONOS = { 
+"lo-5-2000": "🧑‍⚖️", 
+"lo-1-1996": "🛡️", 
+"lo-8-2021": "🧒" 
+}; 
+
+function abrirMenoresGrupo() { 
+const leyes = 
+extraerAnimales( 
+estado.menores 
+); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+"Menores"; 
+
+$("viewerSubtitle").textContent = 
+"Actuación policial con menores de edad"; 
+
+if (!leyes.length) { 
+contenido.innerHTML = ` 
+<div class="empty-state"> 
+<h3>Normativa de menores no disponible</h3> 
+<p> 
+No se ha podido cargar la información. 
+</p> 
+</div> 
+`; 
+} else { 
+contenido.innerHTML = ` 
+<div class="normativa-list"> 
+${leyes.map((leyItem) => ` 
+<div class="normativa-card"> 
+
+<div class="normativa-icon"> 
+${MENORES_ICONOS[leyItem.id] || "📖"} 
+</div> 
+
+<div class="normativa-info"> 
+
+<h3> 
+${escaparHTML(leyItem.ley || "")} 
+</h3> 
+
+<p> 
+${escaparHTML(leyItem.abreviatura || "")} 
+</p> 
+
+<span> 
+${escaparHTML(leyItem.ambito || "")} · ${Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0} artículos 
+</span> 
+
+</div> 
+
+<button 
+type="button" 
+class="normativa-open" 
+data-law="ley-menor" 
+data-id="${escaparHTML(leyItem.id)}" 
+> 
+Ver 
+</button> 
+
+</div> 
+`).join("")} 
+</div> 
+`; 
+} 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
+function abrirLeyMenor(id) { 
+const leyes = 
+extraerAnimales( 
+estado.menores 
+); 
+
+const leyItem = 
+leyes.find((item) => item.id === id); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!leyItem || !visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+leyItem.ley || "Normativa de menores"; 
+
+$("viewerSubtitle").textContent = 
+leyItem.abreviatura || ""; 
+
+const articulos = 
+Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
+contenido.innerHTML = ` 
+<button 
+type="button" 
+class="normativa-open law-back-button" 
+data-law="menores" 
+> 
+← Volver a Menores 
+</button> 
+
+<article class="law-article"> 
+
+<p> 
+<strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
+<strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
+<strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
+</p> 
+
+${leyItem.resumen ? ` 
+<p>${escaparHTML(leyItem.resumen)}</p> 
+` : ""} 
+
+${leyItem.enlaceOficial ? ` 
+<a 
+class="law-link-button" 
+href="${escaparHTML(leyItem.enlaceOficial)}" 
+target="_blank" 
+rel="noopener noreferrer" 
+> 
+🔗 Ver normativa online (BOE) 
+</a> 
+` : ""} 
+
+${leyItem.nota ? ` 
+<p> 
+<strong>Nota:</strong> 
+${escaparHTML(leyItem.nota)} 
+</p> 
+` : ""} 
+
+</article> 
+
+${articulos.map((articulo) => ` 
+<article class="law-article"> 
+<h4> 
+Artículo ${escaparHTML(articulo.numero)}. 
+${escaparHTML(articulo.titulo || "")} 
+</h4> 
+<p>${escaparHTML(articulo.texto || "")}</p> 
+</article> 
+`).join("")} 
+`; 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
+const VIOLENCIA_GENERO_ICONOS = { 
+"lo-1-2004": "🛡️", 
+"ley-27-2003": "📋", 
+"lo-10-2022": "⚖️" 
+}; 
+
+function abrirViolenciaGeneroGrupo() { 
+const leyes = 
+extraerAnimales( 
+estado.violenciaGenero 
+); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+"Violencia de Género"; 
+
+$("viewerSubtitle").textContent = 
+"Protección integral, orden de protección y libertad sexual"; 
+
+if (!leyes.length) { 
+contenido.innerHTML = ` 
+<div class="empty-state"> 
+<h3>Normativa no disponible</h3> 
+<p> 
+No se ha podido cargar la información. 
+</p> 
+</div> 
+`; 
+} else { 
+contenido.innerHTML = ` 
+<div class="normativa-list"> 
+${leyes.map((leyItem) => ` 
+<div class="normativa-card"> 
+
+<div class="normativa-icon"> 
+${VIOLENCIA_GENERO_ICONOS[leyItem.id] || "📖"} 
+</div> 
+
+<div class="normativa-info"> 
+
+<h3> 
+${escaparHTML(leyItem.ley || "")} 
+</h3> 
+
+<p> 
+${escaparHTML(leyItem.abreviatura || "")} 
+</p> 
+
+<span> 
+${escaparHTML(leyItem.ambito || "")} · ${Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0} artículos 
+</span> 
+
+</div> 
+
+<button 
+type="button" 
+class="normativa-open" 
+data-law="ley-violencia-genero" 
+data-id="${escaparHTML(leyItem.id)}" 
+> 
+Ver 
+</button> 
+
+</div> 
+`).join("")} 
+</div> 
+`; 
+} 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
+function abrirLeyViolenciaGenero(id) { 
+const leyes = 
+extraerAnimales( 
+estado.violenciaGenero 
+); 
+
+const leyItem = 
+leyes.find((item) => item.id === id); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!leyItem || !visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+leyItem.ley || "Violencia de Género"; 
+
+$("viewerSubtitle").textContent = 
+leyItem.abreviatura || ""; 
+
+const articulos = 
+Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
+contenido.innerHTML = ` 
+<button 
+type="button" 
+class="normativa-open law-back-button" 
+data-law="violencia-genero" 
+> 
+← Volver a Violencia de Género 
+</button> 
+
+<article class="law-article"> 
+
+<p> 
+<strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
+<strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
+<strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
+</p> 
+
+${leyItem.resumen ? ` 
+<p>${escaparHTML(leyItem.resumen)}</p> 
+` : ""} 
+
+${leyItem.enlaceOficial ? ` 
+<a 
+class="law-link-button" 
+href="${escaparHTML(leyItem.enlaceOficial)}" 
+target="_blank" 
+rel="noopener noreferrer" 
+> 
+🔗 Ver normativa online (BOE) 
+</a> 
+` : ""} 
+
+</article> 
+
+${articulos.map((articulo) => ` 
+<article class="law-article"> 
+<h4> 
+Artículo ${escaparHTML(articulo.numero)}. 
+${escaparHTML(articulo.titulo || "")} 
+</h4> 
+<p>${escaparHTML(articulo.texto || "")}</p> 
+</article> 
+`).join("")} 
+`; 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
+const TRAFICO_ICONOS = { 
+"rdl-6-2015": "🚦", 
+"rd-1428-2003": "🚗", 
+"rd-818-2009": "🪪", 
+"rd-2822-1998": "🔧" 
+}; 
+
+function abrirTrafico() { 
+const leyes = 
+extraerTrafico( 
+estado.trafico 
+); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+"Tráfico"; 
+
+$("viewerSubtitle").textContent = 
+"Ley de Tráfico y sus reglamentos de desarrollo"; 
+
+if (!leyes.length) { 
+contenido.innerHTML = ` 
+<div class="empty-state"> 
+<h3>Normativa de tráfico no disponible</h3> 
+<p> 
+No se ha podido cargar la información. 
+</p> 
+</div> 
+`; 
+} else { 
+contenido.innerHTML = ` 
+<div class="normativa-list"> 
+${leyes.map((leyItem) => ` 
+<div class="normativa-card"> 
+
+<div class="normativa-icon"> 
+${TRAFICO_ICONOS[leyItem.id] || "📖"} 
+</div> 
+
+<div class="normativa-info"> 
+
+<h3> 
+${escaparHTML(leyItem.ley || "")} 
+</h3> 
+
+<p> 
+${escaparHTML(leyItem.abreviatura || "")} 
+</p> 
+
+<span> 
+${escaparHTML(leyItem.ambito || "")} · ${Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0} artículos 
+</span> 
+
+</div> 
+
+<button 
+type="button" 
+class="normativa-open" 
+data-law="ley-trafico" 
+data-id="${escaparHTML(leyItem.id)}" 
+> 
+Ver 
+</button> 
+
+</div> 
+`).join("")} 
+</div> 
+`; 
+} 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
+function abrirLeyTrafico(id) { 
+const leyes = 
+extraerTrafico( 
+estado.trafico 
+); 
+
+const leyItem = 
+leyes.find((item) => item.id === id); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!leyItem || !visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+leyItem.ley || "Normativa de tráfico"; 
+
+$("viewerSubtitle").textContent = 
+leyItem.abreviatura || ""; 
+
+const articulos = 
+Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
+
+contenido.innerHTML = ` 
+<button 
+type="button" 
+class="normativa-open law-back-button" 
+data-law="trafico" 
+> 
+← Volver a Tráfico 
+</button> 
+
+<article class="law-article"> 
+
+<p> 
+<strong>Ámbito:</strong> ${escaparHTML(leyItem.ambito || "")}<br> 
+<strong>Estado:</strong> ${escaparHTML(leyItem.estado || "")}<br> 
+<strong>Fuente:</strong> ${escaparHTML(leyItem.boe || "")} 
+</p> 
+
+${leyItem.resumen ? ` 
+<p>${escaparHTML(leyItem.resumen)}</p> 
+` : ""} 
+
+${leyItem.enlaceOficial ? ` 
+<a 
+class="law-link-button" 
+href="${escaparHTML(leyItem.enlaceOficial)}" 
+target="_blank" 
+rel="noopener noreferrer" 
+> 
+🔗 Ver normativa online (BOE) 
+</a> 
+` : ""} 
+
+${leyItem.nota ? ` 
+<p> 
+<strong>Nota:</strong> 
+${escaparHTML(leyItem.nota)} 
+</p> 
+` : ""} 
+
+</article> 
+
+${articulos.map((articulo) => ` 
+<article class="law-article"> 
+<h4> 
+Artículo ${escaparHTML(articulo.numero)}. 
+${escaparHTML(articulo.titulo || "")} 
+</h4> 
+<p>${escaparHTML(articulo.texto || "")}</p> 
+</article> 
+`).join("")} 
+`; 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
 
 function abrirLOPSC() { 
 const articulos = 
@@ -1766,8 +2947,22 @@ No se han podido cargar los artículos.
 </div> 
 `; 
 } else { 
-contenido.innerHTML = 
-articulos 
+const enlaceOficial = 
+estado.lopsc && estado.lopsc.enlaceOficial; 
+
+contenido.innerHTML = ` 
+${enlaceOficial ? ` 
+<a 
+class="law-link-button" 
+href="${escaparHTML(enlaceOficial)}" 
+target="_blank" 
+rel="noopener noreferrer" 
+> 
+🔗 Ver normativa online (BOE) 
+</a> 
+` : ""} 
+
+${articulos 
 .map((articulo) => ` 
 <article class="law-article"> 
 
@@ -1790,7 +2985,99 @@ articulo.texto || ""
 
 </article> 
 `) 
-.join(""); 
+.join("")} 
+`; 
+} 
+
+visor.classList.remove("hidden"); 
+
+visor.scrollIntoView({ 
+behavior: "smooth", 
+block: "start" 
+}); 
+} 
+
+function abrirCodigoPenal() { 
+const articulos = 
+extraerArticulos( 
+estado.codigoPenal 
+); 
+
+const visor = 
+$("normativaViewer"); 
+
+const contenido = 
+$("viewerContent"); 
+
+if (!visor || !contenido) { 
+return; 
+} 
+
+$("viewerTitle").textContent = 
+"Código Penal"; 
+
+$("viewerSubtitle").textContent = 
+"Selección de delitos de interés policial (LO 10/1995)"; 
+
+if (!articulos.length) { 
+contenido.innerHTML = ` 
+<div class="empty-state"> 
+<h3>Código Penal no disponible</h3> 
+<p> 
+No se han podido cargar los artículos. 
+</p> 
+</div> 
+`; 
+} else { 
+const enlaceOficial = 
+estado.codigoPenal && estado.codigoPenal.enlaceOficial; 
+
+const nota = 
+estado.codigoPenal && estado.codigoPenal.nota; 
+
+contenido.innerHTML = ` 
+${enlaceOficial ? ` 
+<a 
+class="law-link-button" 
+href="${escaparHTML(enlaceOficial)}" 
+target="_blank" 
+rel="noopener noreferrer" 
+> 
+🔗 Ver normativa online (BOE) 
+</a> 
+` : ""} 
+
+${nota ? ` 
+<article class="law-article"> 
+<p><strong>Nota:</strong> ${escaparHTML(nota)}</p> 
+</article> 
+` : ""} 
+
+${articulos 
+.map((articulo) => ` 
+<article class="law-article"> 
+
+<h4> 
+Artículo ${ 
+escaparHTML( 
+articulo.numero 
+) 
+}. 
+${escaparHTML( 
+articulo.titulo || "" 
+)} 
+</h4> 
+
+<p> 
+${escaparHTML( 
+articulo.texto || "" 
+)} 
+</p> 
+
+</article> 
+`) 
+.join("")} 
+`; 
 } 
 
 visor.classList.remove("hidden"); 
@@ -1848,9 +3135,9 @@ contenido.innerHTML = `
 <button 
 type="button" 
 class="normativa-open law-back-button" 
-data-law="normativa-home" 
+data-law="ordenanzas" 
 > 
-← Volver a Normativa 
+← Volver a Ordenanzas 
 </button> 
 
 <article class="law-article"> 
@@ -2085,6 +3372,20 @@ detalle.dataset.infraccionId
 return; 
 } 
 
+const resultadoArticulo = 
+evento.target.closest( 
+"[data-nav-tipo]" 
+); 
+
+if (resultadoArticulo) { 
+activarSeccion("normativa"); 
+abrirNormativa( 
+resultadoArticulo.dataset.navTipo, 
+resultadoArticulo.dataset.navId || "" 
+); 
+return; 
+} 
+
 const normativa = 
 evento.target.closest( 
 "button.normativa-open" 
@@ -2240,4 +3541,93 @@ return new Promise((resolve,reject)=>{
 const existente=document.querySelector('script[data-centinela-supabase="true"]');
 if(existente){
 const t=setTimeout(()=>reject(new Error("Tiempo agotado cargando Supabase.")),8000);
-existente.addEventListener("load",()=>{clearTimeout(t);window.supabase?.createClient?resolve():reject(new Error("Supabase no está disponible."
+existente.addEventListener("load",()=>{clearTimeout(t);window.supabase?.createClient?resolve():reject(new Error("Supabase no está disponible."));},{once:true});
+existente.addEventListener("error",()=>{clearTimeout(t);reject(new Error("No se pudo cargar Supabase."));},{once:true});
+return;
+}
+const script=document.createElement("script");
+script.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+script.async=true; script.dataset.centinelaSupabase="true";
+const t=setTimeout(()=>reject(new Error("Tiempo agotado cargando Supabase.")),8000);
+script.onload=()=>{clearTimeout(t);window.supabase?.createClient?resolve():reject(new Error("Supabase no está disponible."));};
+script.onerror=()=>{clearTimeout(t);reject(new Error("No se pudo cargar Supabase."));};
+document.head.appendChild(script);
+});
+}
+async function iniciarAutenticacion(){
+const login=crearPantallaLogin();
+login.style.display="flex";
+mostrarMensajeLogin("Conectando con el sistema de acceso...");
+try{
+await cargarLibreriaSupabase();
+clienteSupabase=window.supabase.createClient(SUPABASE_CONFIG.URL,SUPABASE_CONFIG.PUBLISHABLE_KEY);
+const sesion=await Promise.race([
+clienteSupabase.auth.getSession(),
+new Promise((_,reject)=>setTimeout(()=>reject(new Error("Tiempo agotado comprobando la sesión.")),8000))
+]);
+if(sesion.error) throw sesion.error;
+if(sesion.data?.session){ usuarioActual=sesion.data.session.user; ocultarPantallaLogin(); return true; }
+mostrarMensajeLogin("Introduce tu usuario y contraseña.");
+const form=$("centinelaLoginForm");
+form?.addEventListener("submit",async(e)=>{
+e.preventDefault();
+const email=$("centinelaLoginEmail")?.value.trim();
+const password=$("centinelaLoginPassword")?.value||"";
+const boton=$("centinelaLoginButton");
+if(!email||!password){mostrarMensajeLogin("Introduce usuario y contraseña.");return;}
+if(boton){boton.disabled=true;boton.textContent="Comprobando...";}
+try{
+const resultado=await clienteSupabase.auth.signInWithPassword({email,password});
+if(resultado.error) throw resultado.error;
+usuarioActual=resultado.data.user;
+hideLoginAndStart();
+}catch(error){console.error("Error de login:",error);mostrarMensajeLogin("Usuario o contraseña incorrectos.");if(boton){boton.disabled=false;boton.textContent="Entrar";}}
+},{once:true});
+return false;
+}catch(error){console.error("Error de autenticación:",error);mostrarMensajeLogin("No se pudo conectar con el sistema de acceso. Comprueba la conexión a Internet.");return false;}
+}
+async function hideLoginAndStart(){
+ocultarPantallaLogin();
+await iniciarAplicacionPostLogin();
+}
+async function iniciarAplicacionPostLogin(){
+try{
+mostrarCarga(true);
+configurarNavegacion();
+configurarConsulta();
+configurarActas();
+configurarNormativa();
+configurarModal();
+configurarAjustes();
+configurarEventosGlobales();
+configurarRed();
+cargarActas();
+await cargarDatos();
+const version=$("appVersion"); if(version) version.textContent=CONFIG.VERSION;
+}catch(error){console.error("Error iniciando Centinela Code tras login:",error);mostrarToast("La aplicación se inició con un error.");}
+finally{actualizarEstadoDatos();actualizarRed();mostrarCarga(false);}
+}
+
+async function iniciarAplicacion() {
+const autenticado = await iniciarAutenticacion();
+if (!autenticado) return;
+await iniciarAplicacionPostLogin();
+}
+
+/* ========================================================= 
+ARRANQUE 
+========================================================= */ 
+
+if ( 
+document.readyState === "loading" 
+) { 
+document.addEventListener( 
+"DOMContentLoaded", 
+iniciarAplicacion, 
+{ once: true } 
+); 
+} else { 
+iniciarAplicacion(); 
+} 
+
+registrarServiceWorker();
