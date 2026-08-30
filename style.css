@@ -18,6 +18,9 @@
 --gold: #e7c36a;
 --gold-2: #ffe29a;
 
+--teal: #2dd4c8;
+--teal-2: #8ff0e6;
+
 --green: #25d66b;
 --orange: #ff9d43;
 --red: #ff5b68;
@@ -113,6 +116,7 @@ gap: 14px;
 
 .brand-icon,
 .welcome-icon,
+.brand-hero-icon,
 .loading-logo {
 background-image: url("logo-centinela.png");
 background-position: center;
@@ -302,6 +306,169 @@ line-height: 1.65;
 }
 
 /* =========================================================
+HERO — MARCA + AGENTE
+========================================================= */
+
+.hero-grid {
+display: grid;
+gap: 16px;
+}
+
+.brand-hero {
+position: relative;
+overflow: hidden;
+min-height: 210px;
+padding: 28px 26px;
+display: flex;
+align-items: center;
+gap: 22px;
+border: 1px solid rgba(75, 150, 239, .34);
+border-radius: 28px;
+background:
+radial-gradient(circle at 95% 0%, rgba(38, 111, 194, .22), transparent 35%),
+radial-gradient(circle at 10% 90%, rgba(27, 84, 157, .17), transparent 38%),
+linear-gradient(135deg, rgba(17, 42, 76, .96), rgba(5, 17, 35, .98) 68%);
+box-shadow:
+inset 0 1px 0 rgba(255, 255, 255, .035),
+inset 0 0 55px rgba(43, 122, 215, .08),
+var(--shadow);
+}
+
+.brand-hero-icon {
+position: relative;
+z-index: 1;
+width: 96px;
+height: 96px;
+flex: 0 0 96px;
+border-radius: 24px;
+background-color: rgba(4, 20, 42, .76);
+border: 1px solid rgba(66, 145, 240, .52);
+box-shadow:
+inset 0 0 26px rgba(46, 133, 240, .12),
+0 12px 30px rgba(0, 0, 0, .30);
+}
+
+.brand-hero-text {
+position: relative;
+z-index: 1;
+min-width: 0;
+}
+
+.brand-hero-title {
+margin: 0;
+font-size: clamp(26px, 6.4vw, 38px);
+line-height: 1.02;
+font-weight: 900;
+letter-spacing: -.8px;
+text-transform: uppercase;
+}
+
+.brand-hero-title span {
+display: block;
+color: var(--gold-2);
+}
+
+.brand-hero-tagline {
+margin: 8px 0 14px;
+color: var(--text-soft);
+font-size: 12px;
+font-weight: 800;
+letter-spacing: 1.6px;
+text-transform: uppercase;
+}
+
+.status-pill {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+padding: 7px 14px;
+border-radius: 999px;
+border: 1px solid rgba(37, 214, 107, .4);
+background: rgba(37, 214, 107, .08);
+color: var(--green);
+font-size: 11px;
+font-weight: 800;
+letter-spacing: .6px;
+text-transform: uppercase;
+}
+
+.status-dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+background: var(--green);
+box-shadow: 0 0 0 4px rgba(37, 214, 107, .18);
+}
+
+.agent-card {
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+justify-content: center;
+gap: 8px;
+width: 100%;
+padding: 24px 22px;
+text-align: left;
+border: 1px solid rgba(79, 135, 194, .3);
+border-radius: 26px;
+background: linear-gradient(150deg, rgba(15, 27, 48, .98), rgba(6, 14, 26, .98));
+box-shadow: var(--shadow);
+cursor: pointer;
+transition: border-color .18s ease, transform .18s ease;
+}
+
+.agent-card:hover {
+border-color: rgba(65, 150, 255, .5);
+}
+
+.agent-card:active {
+transform: scale(.985);
+}
+
+.agent-card-label {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 11px;
+font-weight: 800;
+letter-spacing: .6px;
+text-transform: uppercase;
+color: var(--text-muted);
+}
+
+.agent-card-name {
+font-size: 19px;
+font-weight: 800;
+}
+
+.agent-card-id {
+font-size: 13px;
+color: var(--text-soft);
+}
+
+.agent-card-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+margin-top: 6px;
+padding: 6px 12px;
+width: fit-content;
+border-radius: 999px;
+background: rgba(47, 140, 255, .12);
+border: 1px solid rgba(47, 140, 255, .35);
+color: var(--blue-2);
+font-size: 12px;
+font-weight: 800;
+}
+
+@media (min-width: 760px) {
+.hero-grid {
+grid-template-columns: 1.6fr 1fr;
+align-items: stretch;
+}
+}
+
+/* =========================================================
 SECCIONES / TARJETAS
 ========================================================= */
 
@@ -380,9 +547,109 @@ color: var(--text-soft);
 font-size: 15px;
 }
 
+.quick-action-footer {
+display: none;
+}
+
+.quick-action--blue .quick-action-icon {
+background: linear-gradient(145deg, #1c4d8f, #0d2a52);
+border-color: rgba(101, 181, 255, .55);
+}
+
+.quick-action--teal {
+border-color: rgba(45, 200, 190, .32);
+}
+
+.quick-action--teal .quick-action-icon {
+background: linear-gradient(145deg, #12706f, #0a3634);
+border-color: rgba(94, 220, 210, .55);
+}
+
+.quick-action--teal .quick-action-footer {
+color: var(--teal-2);
+}
+
+.quick-action--gold {
+border-color: rgba(231, 195, 106, .35);
+}
+
+.quick-action--gold .quick-action-icon {
+background: linear-gradient(145deg, #7a5f22, #3a2c0e);
+border-color: rgba(255, 226, 154, .6);
+}
+
+.quick-action--gold .quick-action-text strong {
+color: var(--gold-2);
+}
+
+.quick-action--gold .quick-action-footer {
+color: var(--gold-2);
+}
+
 /* =========================================================
 ESTADO
 ========================================================= */
+
+.stats-grid {
+display: grid;
+gap: 15px;
+}
+
+.resumen-card {
+border: 1px solid rgba(79, 135, 194, .25);
+border-radius: 23px;
+background: linear-gradient(145deg, rgba(17, 30, 51, .98), rgba(8, 19, 35, .98));
+box-shadow: 0 12px 32px rgba(0, 0, 0, .28);
+padding: 0 20px;
+}
+
+.resumen-card-title {
+padding: 18px 0 5px;
+font-size: 16px;
+font-weight: 800;
+border-bottom: 1px solid rgba(86, 128, 174, .16);
+}
+
+.resumen-row {
+min-height: 76px;
+padding: 14px 0;
+display: flex;
+align-items: center;
+gap: 14px;
+border-bottom: 1px solid rgba(86, 128, 174, .16);
+}
+
+.resumen-row:last-child {
+border-bottom: 0;
+}
+
+.resumen-icon {
+width: 44px;
+height: 44px;
+flex: 0 0 44px;
+display: grid;
+place-items: center;
+border-radius: 14px;
+background: linear-gradient(145deg, #102b56, #0a1d3a);
+border: 1px solid rgba(48, 137, 247, .35);
+font-size: 19px;
+}
+
+.resumen-label {
+flex: 1;
+color: var(--text-soft);
+font-size: 14px;
+line-height: 1.3;
+}
+
+.resumen-value {
+font-size: 22px;
+font-weight: 800;
+}
+
+.settings-form {
+padding: 6px 20px 6px;
+}
 
 .status-card,
 .settings-card {
@@ -1213,8 +1480,36 @@ justify-content: center;
 }
 
 .quick-action::after {
-right: 20px;
-bottom: 13px;
+display: none;
+}
+
+.quick-action-text strong {
+text-transform: uppercase;
+letter-spacing: .3px;
+}
+
+.quick-action-footer {
+margin-top: auto;
+padding-top: 16px;
+width: 100%;
+display: flex;
+align-items: center;
+justify-content: space-between;
+font-size: 11px;
+font-weight: 800;
+letter-spacing: .5px;
+text-transform: uppercase;
+color: var(--blue-2);
+border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+.quick-action-arrow {
+font-size: 15px;
+}
+
+.stats-grid {
+grid-template-columns: 1fr 1fr;
+align-items: start;
 }
 }
 
@@ -1239,6 +1534,27 @@ font-size: 30px;
 .welcome-card p {
 font-size: 15px;
 line-height: 1.5;
+}
+
+.brand-hero {
+min-height: 190px;
+padding: 22px 20px;
+gap: 16px;
+}
+
+.brand-hero-icon {
+width: 72px;
+height: 72px;
+flex-basis: 72px;
+border-radius: 20px;
+}
+
+.brand-hero-title {
+font-size: 26px;
+}
+
+.agent-card {
+padding: 20px 18px;
 }
 
 .quick-action {
