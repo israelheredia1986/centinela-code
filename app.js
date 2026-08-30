@@ -19,7 +19,7 @@ Funciones:
 "use strict"; 
 
 const CONFIG = { 
-VERSION: "1.1.0", 
+VERSION: "1.2.0", 
 RUTAS: { 
 infracciones: "./data/infracciones.json", 
 infraccionesTrafico: "./data/infracciones_trafico.json", 
@@ -1309,39 +1309,80 @@ escaparHTML
 ACTAS 
 ========================================================= */ 
 
-function cargarActas() { 
-try { 
-const guardadas = 
-localStorage.getItem( 
-CONFIG.STORAGE_ACTAS 
-); 
+async function cargarActas() {
 
-estado.actas = 
-guardadas 
-? JSON.parse(guardadas) 
-: []; 
+if (!clienteSupabase || !usuarioActual) {
+cargarActasLocal();
+renderizarActas();
+return;
+}
 
-if (!Array.isArray(estado.actas)) { 
-estado.actas = []; 
-} 
+try {
 
-} catch (error) { 
-console.error( 
-"No se pudieron cargar las actas:", 
-error 
-); 
+const { data, error } = await clienteSupabase
+.from("actas")
+.select("*")
+.eq("user_id", usuarioActual.id)
+.order("actualizado", { ascending: false });
 
-estado.actas = []; 
-} 
+if (error) {
+throw error;
+}
 
-renderizarActas(); 
-} 
+estado.actas = data || [];
+guardarActasLocal();
 
-function guardarActas() { 
-localStorage.setItem( 
-CONFIG.STORAGE_ACTAS, 
-JSON.stringify(estado.actas) 
-); 
+} catch (error) {
+
+console.error(
+"No se pudieron cargar las actas desde Supabase:",
+error
+);
+
+cargarActasLocal();
+
+mostrarToast(
+"Sin conexión: mostrando actas guardadas en este dispositivo."
+);
+
+}
+
+renderizarActas();
+
+}
+
+function cargarActasLocal() {
+
+try {
+
+const guardadas =
+localStorage.getItem(CONFIG.STORAGE_ACTAS);
+
+estado.actas =
+guardadas ? JSON.parse(guardadas) : [];
+
+if (!Array.isArray(estado.actas)) {
+estado.actas = [];
+}
+
+} catch (error) {
+
+console.error(
+"No se pudieron cargar las actas locales:",
+error
+);
+
+estado.actas = [];
+
+}
+
+}
+
+function guardarActasLocal() {
+localStorage.setItem(
+CONFIG.STORAGE_ACTAS,
+JSON.stringify(estado.actas)
+);
 } 
 
 function configurarActas() { 
@@ -1663,67 +1704,132 @@ function obtenerValor(id) {
 return $(id)?.value?.trim() || ""; 
 } 
 
-function guardarActaDesdeFormulario(evento) { 
-evento.preventDefault(); 
+async function guardarActaDesdeFormulario(evento) {
+evento.preventDefault();
 
-const form = 
-evento.currentTarget; 
+const form =
+evento.currentTarget;
 
-const acta = { 
-id: 
-form.dataset.editingId || 
-`acta-${Date.now()}`, 
+const editandoId =
+form.dataset.editingId || "";
 
-numero: 
-obtenerValor("actaNumero"), 
+const acta = {
+id:
+editandoId ||
+`acta-${Date.now()}`,
 
-fecha: 
-obtenerValor("actaFecha"), 
+user_id:
+usuarioActual?.id || null,
 
-hora: 
-obtenerValor("actaHora"), 
+numero:
+obtenerValor("actaNumero"),
 
-nombre: 
-obtenerValor("actaNombre"), 
+fecha:
+obtenerValor("actaFecha"),
 
-dni: 
-obtenerValor("actaDni"), 
+hora:
+obtenerValor("actaHora"),
 
-domicilio: 
-obtenerValor("actaDomicilio"), 
+nombre:
+obtenerValor("actaNombre"),
 
-lugar: 
-obtenerValor("actaLugar"), 
+dni:
+obtenerValor("actaDni"),
 
-hechos: 
-obtenerValor("actaHechos"), 
+domicilio:
+obtenerValor("actaDomicilio"),
 
-infraccion: 
-obtenerValor("actaInfraccion"), 
+lugar:
+obtenerValor("actaLugar"),
 
-observaciones: 
-obtenerValor("actaObservaciones"), 
+hechos:
+obtenerValor("actaHechos"),
 
-actualizado: 
-new Date().toISOString() 
-}; 
+infraccion:
+obtenerValor("actaInfraccion"),
 
-const indice = 
-estado.actas.findIndex( 
-(item) => item.id === acta.id 
-); 
+observaciones:
+obtenerValor("actaObservaciones"),
 
-if (indice >= 0) { 
-estado.actas[indice] = acta; 
-mostrarToast("Acta actualizada."); 
-} else { 
-estado.actas.unshift(acta); 
-mostrarToast("Acta guardada."); 
-} 
+actualizado:
+new Date().toISOString()
+};
 
-guardarActas(); 
-renderizarActas(); 
-cerrarEditorActa(); 
+const boton =
+form.querySelector('button[type="submit"]');
+
+if (boton) {
+boton.disabled = true;
+boton.textContent = "Guardando...";
+}
+
+try {
+
+if (!clienteSupabase || !usuarioActual) {
+throw new Error("Sin sesión activa.");
+}
+
+const { error } = await clienteSupabase
+.from("actas")
+.upsert(acta, { onConflict: "id" });
+
+if (error) {
+throw error;
+}
+
+const indice =
+estado.actas.findIndex(
+(item) => item.id === acta.id
+);
+
+if (indice >= 0) {
+estado.actas[indice] = acta;
+} else {
+estado.actas.unshift(acta);
+}
+
+guardarActasLocal();
+
+mostrarToast(
+editandoId ? "Acta actualizada." : "Acta guardada."
+);
+
+} catch (error) {
+
+console.error(
+"No se pudo guardar el acta en Supabase:",
+error
+);
+
+const indice =
+estado.actas.findIndex(
+(item) => item.id === acta.id
+);
+
+if (indice >= 0) {
+estado.actas[indice] = acta;
+} else {
+estado.actas.unshift(acta);
+}
+
+guardarActasLocal();
+
+mostrarToast(
+"Sin conexión: el acta se ha guardado solo en este dispositivo."
+);
+
+} finally {
+
+if (boton) {
+boton.disabled = false;
+boton.textContent = "Guardar acta";
+}
+
+renderizarActas();
+cerrarEditorActa();
+
+}
+
 } 
 
 function renderizarActas() { 
@@ -1825,24 +1931,67 @@ abrirEditorActa(acta);
 } 
 } 
 
-function borrarActa(id) { 
-const confirmado = 
-window.confirm( 
-"¿Quieres borrar esta acta?" 
-); 
+async function borrarActa(id) {
 
-if (!confirmado) { 
-return; 
-} 
+const confirmado =
+window.confirm(
+"¿Quieres borrar esta acta?"
+);
 
-estado.actas = 
-estado.actas.filter( 
-(item) => item.id !== id 
-); 
+if (!confirmado) {
+return;
+}
 
-guardarActas(); 
-renderizarActas(); 
-mostrarToast("Acta borrada."); 
+const actaAnterior =
+estado.actas.find(
+(item) => item.id === id
+);
+
+estado.actas =
+estado.actas.filter(
+(item) => item.id !== id
+);
+
+guardarActasLocal();
+renderizarActas();
+
+try {
+
+if (!clienteSupabase || !usuarioActual) {
+throw new Error("Sin sesión activa.");
+}
+
+const { error } = await clienteSupabase
+.from("actas")
+.delete()
+.eq("id", id)
+.eq("user_id", usuarioActual.id);
+
+if (error) {
+throw error;
+}
+
+mostrarToast("Acta borrada.");
+
+} catch (error) {
+
+console.error(
+"No se pudo borrar el acta en Supabase:",
+error
+);
+
+if (actaAnterior) {
+estado.actas.unshift(actaAnterior);
+guardarActasLocal();
+renderizarActas();
+}
+
+mostrarToast(
+"No se pudo borrar el acta: revisa la conexión."
+);
+
+}
+
 } 
 
 function actualizarPreviewInfraccion() { 
@@ -3601,7 +3750,7 @@ configurarModal();
 configurarAjustes();
 configurarEventosGlobales();
 configurarRed();
-cargarActas();
+await cargarActas();
 await cargarDatos();
 const version=$("appVersion"); if(version) version.textContent=CONFIG.VERSION;
 }catch(error){console.error("Error iniciando Centinela Code tras login:",error);mostrarToast("La aplicación se inició con un error.");}
