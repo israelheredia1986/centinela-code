@@ -118,7 +118,7 @@ gap: 14px;
 .welcome-icon,
 .brand-hero-icon,
 .loading-logo {
-background-image: url("logo-centinela.png");
+background-image: url("icon-512.png");
 background-position: center;
 background-repeat: no-repeat;
 background-size: contain;
@@ -182,57 +182,6 @@ CONTENIDO
 width: min(100%, 900px);
 margin: 0 auto;
 padding: 28px 18px calc(var(--nav-height) + 35px);
-}
-
-/* =========================================================
-BOTÓN VOLVER AL INICIO
-========================================================= */
-
-.back-home-button {
-display: none;
-align-items: center;
-justify-content: center;
-gap: 8px;
-width: fit-content;
-min-height: 42px;
-margin: 0 0 18px 2px;
-padding: 9px 15px;
-border: 1px solid rgba(101, 181, 255, .42);
-border-radius: 13px;
-background: linear-gradient(145deg, rgba(17, 47, 85, .96), rgba(8, 24, 45, .96));
-color: #eaf4ff;
-font-size: 14px;
-font-weight: 800;
-letter-spacing: .1px;
-box-shadow: 0 7px 22px rgba(0, 0, 0, .24), inset 0 0 16px rgba(47, 140, 255, .07);
-cursor: pointer;
-transition: transform .16s ease, border-color .16s ease, background .16s ease;
-}
-
-.back-home-button.visible {
-display: inline-flex;
-}
-
-.back-home-button:hover {
-border-color: rgba(101, 181, 255, .75);
-background: linear-gradient(145deg, rgba(22, 61, 109, .98), rgba(9, 29, 54, .98));
-}
-
-.back-home-button:active {
-transform: translateY(1px) scale(.98);
-}
-
-.back-home-button span:first-child {
-font-size: 20px;
-line-height: 1;
-}
-
-@media (max-width: 620px) {
-.back-home-button {
-min-height: 44px;
-padding: 9px 14px;
-margin-bottom: 15px;
-}
 }
 
 .app-section {
@@ -1645,4 +1594,368 @@ padding-right: 17px;
 animation-duration: .01ms !important;
 transition-duration: .01ms !important;
 }
+}
+
+
+/* =========================================================
+CENTINELA CODE — REDISEÑO VISUAL / REFERENCIA 30-08-2026
+Capa visual añadida sin cambiar la estructura funcional.
+========================================================= */
+
+:root {
+  --bg: #05070d;
+  --bg-2: #0a0f18;
+  --surface: rgba(20, 27, 39, .94);
+  --surface-2: rgba(25, 34, 48, .96);
+  --surface-3: rgba(36, 48, 66, .96);
+  --line: rgba(153, 177, 207, .22);
+  --line-strong: rgba(105, 168, 255, .56);
+
+  --text: #f7f9fc;
+  --text-soft: #bdc8d7;
+  --text-muted: #8090a5;
+
+  --blue: #3a90ff;
+  --blue-2: #8dc5ff;
+  --blue-dark: #164c91;
+
+  --gold: #e5c65f;
+  --gold-2: #ffe77e;
+
+  --teal: #35d0df;
+  --teal-2: #97f5f7;
+
+  --green: #7ae38a;
+  --orange: #ffb25a;
+  --red: #ff707d;
+
+  --shadow: 0 18px 42px rgba(0, 0, 0, .42);
+  --glow: 0 0 30px rgba(62, 145, 255, .12);
+  --radius: 18px;
+  --radius-sm: 13px;
+  --nav-height: 78px;
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(38, 73, 122, .20), transparent 34%),
+    radial-gradient(circle at 0% 35%, rgba(24, 57, 101, .10), transparent 28%),
+    linear-gradient(180deg, #070a11 0%, #080d15 52%, #05080d 100%);
+}
+
+.main-content {
+  width: min(100%, 980px);
+  padding-top: 26px;
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+/* CABECERA / MARCA */
+.app-header {
+  min-height: 74px;
+  padding: 11px 18px;
+  background: linear-gradient(180deg, rgba(7, 11, 19, .98), rgba(7, 11, 19, .92));
+  border-bottom-color: rgba(132, 161, 197, .14);
+}
+
+.header-brand { gap: 11px; }
+.brand-icon {
+  width: 46px;
+  height: 46px;
+  flex-basis: 46px;
+  border-radius: 13px;
+  background-color: #111a28;
+}
+.brand-text h1 { font-size: 20px; letter-spacing: -.45px; }
+.brand-text span { font-size: 11px; margin-top: 3px; }
+.header-action {
+  width: 46px;
+  height: 46px;
+  flex-basis: 46px;
+  border-radius: 14px;
+  font-size: 21px;
+}
+
+/* HERO SUPERIOR */
+.hero-grid {
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, .75fr);
+  gap: 14px;
+}
+
+.brand-hero {
+  min-height: 178px;
+  padding: 22px 20px;
+  gap: 20px;
+  border-radius: 19px;
+  background:
+    radial-gradient(circle at 0% 100%, rgba(43, 105, 182, .13), transparent 40%),
+    linear-gradient(135deg, rgba(30, 46, 68, .98), rgba(11, 18, 29, .99) 72%);
+  border-color: rgba(128, 159, 195, .42);
+  box-shadow: 0 15px 30px rgba(0,0,0,.33), inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.brand-hero-icon {
+  width: 126px;
+  height: 126px;
+  flex-basis: 126px;
+  border-radius: 9px;
+  background-color: rgba(10, 18, 30, .60);
+  border-color: rgba(112, 155, 205, .35);
+  box-shadow: inset 0 0 22px rgba(73, 133, 207, .08), 0 10px 22px rgba(0,0,0,.30);
+}
+
+.brand-hero-title {
+  font-size: clamp(34px, 5.2vw, 50px);
+  line-height: .95;
+  letter-spacing: -1.7px;
+}
+.brand-hero-title span { color: #ffd81a; }
+.brand-hero-tagline {
+  margin-top: 9px;
+  margin-bottom: 14px;
+  color: #d6dce6;
+  font-size: 12px;
+  letter-spacing: 1.9px;
+}
+.status-pill {
+  padding: 6px 11px;
+  color: #9ce89d;
+  border-color: rgba(135, 230, 144, .36);
+  background: rgba(117, 215, 122, .08);
+  font-size: 10px;
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  background: #8ff398;
+  box-shadow: 0 0 0 3px rgba(143, 243, 152, .14);
+}
+
+.agent-card {
+  min-height: 178px;
+  padding: 18px 20px;
+  border-radius: 19px;
+  background: linear-gradient(150deg, rgba(22, 31, 44, .99), rgba(10, 15, 24, .99));
+  border-color: rgba(122, 145, 174, .34);
+  box-shadow: 0 15px 30px rgba(0,0,0,.30);
+}
+.agent-card-label { color: #f0f4fb; font-size: 10px; }
+.agent-card-name { font-size: 18px; }
+.agent-card-id { font-size: 12px; }
+.agent-card-badge {
+  padding: 5px 10px;
+  margin-top: 3px;
+  border-radius: 9px;
+  color: #b9d7ff;
+  background: rgba(58, 144, 255, .13);
+  border-color: rgba(58, 144, 255, .34);
+  font-size: 11px;
+}
+
+/* TITULOS */
+.section-heading { margin: 22px 3px 12px; }
+.section-heading h2 {
+  font-size: 16px;
+  letter-spacing: .1px;
+  text-transform: uppercase;
+}
+
+/* ACCESO RÁPIDO — TRES TARJETAS COMO LA REFERENCIA */
+.quick-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.quick-action {
+  min-height: 220px;
+  padding: 16px;
+  border-radius: 15px;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  gap: 9px;
+  box-shadow: 0 12px 24px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.035);
+}
+.quick-action::after { display: none; }
+.quick-action-icon {
+  width: 82px;
+  height: 82px;
+  flex-basis: 82px;
+  border-radius: 50%;
+  margin-bottom: 2px;
+  background: transparent;
+  border: 1px solid rgba(196, 213, 235, .18);
+  box-shadow: inset 0 0 20px rgba(255,255,255,.02);
+  font-size: 37px;
+}
+.quick-action-text { padding-right: 0; }
+.quick-action-text strong {
+  margin-bottom: 3px;
+  font-size: 18px;
+  letter-spacing: -.2px;
+  text-transform: uppercase;
+}
+.quick-action-text small {
+  font-size: 11px;
+  line-height: 1.35;
+}
+.quick-action-footer {
+  display: flex;
+  margin-top: auto;
+  padding-top: 10px;
+  min-height: 28px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  color: #d9e6f7;
+  border-top: 1px solid rgba(216,230,248,.22);
+  font-size: 9px;
+  letter-spacing: .35px;
+}
+.quick-action--blue {
+  background: linear-gradient(155deg, rgba(35, 72, 116, .98), rgba(19, 39, 63, .98));
+  border-color: rgba(77, 158, 255, .62);
+}
+.quick-action--blue .quick-action-icon { border-color: rgba(111, 188, 255, .45); }
+.quick-action--teal {
+  background: linear-gradient(155deg, rgba(39, 105, 122, .98), rgba(23, 52, 64, .98));
+  border-color: rgba(86, 214, 234, .54);
+}
+.quick-action--teal .quick-action-icon { border-color: rgba(122, 231, 244, .48); }
+.quick-action--teal .quick-action-footer { color: #d5f7fb; }
+.quick-action--gold {
+  background: linear-gradient(155deg, rgba(119, 105, 49, .98), rgba(65, 59, 30, .98));
+  border-color: rgba(248, 218, 117, .66);
+}
+.quick-action--gold .quick-action-icon { border-color: rgba(255, 234, 141, .55); }
+.quick-action--gold .quick-action-text strong,
+.quick-action--gold .quick-action-footer { color: #ffe782; }
+
+/* ESTADO DEL SISTEMA */
+.stats-grid {
+  grid-template-columns: minmax(0, 1.6fr) minmax(240px, .78fr);
+  gap: 10px;
+}
+.status-card,
+.resumen-card {
+  border-radius: 15px;
+  background: linear-gradient(155deg, rgba(28, 38, 52, .98), rgba(15, 22, 33, .99));
+  border-color: rgba(115, 140, 169, .31);
+  box-shadow: 0 12px 24px rgba(0,0,0,.22);
+}
+.status-row,
+.resumen-row {
+  min-height: 58px;
+  padding: 10px 14px;
+  gap: 10px;
+}
+.status-row span,
+.data-status-row span,
+.resumen-label { font-size: 11px; }
+.status-value { font-size: 12px; }
+.resumen-card { padding: 0 14px; }
+.resumen-card-title { padding: 12px 0 7px; font-size: 12px; text-transform: uppercase; }
+.resumen-row { min-height: 60px; }
+.resumen-icon {
+  width: 34px;
+  height: 34px;
+  flex-basis: 34px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+.resumen-value { font-size: 17px; }
+
+/* FORMULARIOS Y TARJETAS SECUNDARIAS */
+.search-box input { height: 54px; border-radius: 14px; }
+.filter-chip { padding: 8px 12px; font-size: 12px; }
+.result-card,
+.infraccion-card,
+.normativa-card,
+.acta-editor,
+.settings-card,
+.normativa-viewer {
+  border-radius: 15px;
+}
+
+/* NAVEGACIÓN INFERIOR — ASPECTO DEL MOCKUP */
+.bottom-navigation {
+  height: calc(70px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(9, 16, 28, .97), rgba(5, 9, 16, .99));
+  border-top-color: rgba(118, 145, 177, .22);
+  box-shadow: 0 -12px 30px rgba(0,0,0,.34);
+}
+.nav-item {
+  border-radius: 13px;
+  gap: 3px;
+}
+.nav-icon { font-size: 21px; }
+.nav-label { font-size: 10px; }
+.nav-item.active {
+  background: linear-gradient(180deg, rgba(30, 57, 91, .50), rgba(15, 30, 51, .38));
+  color: #eef6ff;
+}
+.nav-item.active::after {
+  height: 2px;
+  bottom: 3px;
+}
+
+/* BOTÓN DE VOLVER / INICIO (si el JS lo añade) */
+.back-button,
+.home-back-button,
+.section-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  margin: 0 0 14px;
+  padding: 0 13px;
+  border: 1px solid rgba(116, 148, 184, .30);
+  border-radius: 11px;
+  color: #d8e7f8;
+  background: linear-gradient(145deg, rgba(31, 48, 68, .94), rgba(17, 27, 40, .98));
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.back-button:hover,
+.home-back-button:hover,
+.section-back-button:hover {
+  border-color: rgba(94, 168, 255, .56);
+}
+
+/* TABLET / MÓVIL */
+@media (max-width: 760px) {
+  .main-content { padding-top: 18px; }
+  .hero-grid { grid-template-columns: 1fr; }
+  .brand-hero { min-height: 165px; }
+  .agent-card { min-height: 150px; }
+  .quick-actions { grid-template-columns: 1fr; }
+  .quick-action {
+    min-height: 108px;
+    padding: 14px;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+  }
+  .quick-action-icon {
+    width: 62px;
+    height: 62px;
+    flex-basis: 62px;
+    font-size: 28px;
+  }
+  .quick-action-footer {
+    display: none;
+  }
+  .stats-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .app-header { min-height: 66px; padding: 9px 12px; }
+  .brand-icon { width: 42px; height: 42px; flex-basis: 42px; }
+  .header-action { width: 42px; height: 42px; flex-basis: 42px; }
+  .main-content { padding-left: 12px; padding-right: 12px; }
+  .brand-hero { padding: 18px; gap: 14px; }
+  .brand-hero-icon { width: 88px; height: 88px; flex-basis: 88px; }
+  .brand-hero-title { font-size: 31px; }
+  .brand-hero-tagline { font-size: 9px; letter-spacing: 1.35px; }
+  .section-heading { margin-top: 19px; }
 }
