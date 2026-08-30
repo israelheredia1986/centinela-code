@@ -81,7 +81,7 @@ href="manifest.json"
 
 <link
 rel="stylesheet"
-href="style.css?v=20260830"
+href="style.css?v=20260831"
 >
 
 </head>
@@ -144,25 +144,63 @@ class="app-section active"
 data-section="home"
 >
 
-<div class="welcome-card">
+<div class="hero-grid">
 
-<div class="welcome-icon">
-🛡️
-</div>
+<div class="brand-hero">
 
-<div>
+<div class="brand-hero-icon" aria-hidden="true"></div>
 
-<h2>
-Centinela Code
+<div class="brand-hero-text">
+
+<h2 class="brand-hero-title">
+Centinela
+<span>Code</span>
 </h2>
 
-<p>
-Consulta rápida de normativa,
-infracciones y herramientas para
-la elaboración de actas.
+<p class="brand-hero-tagline">
+Police &amp; Normative App
 </p>
 
+<span class="status-pill">
+<span class="status-dot"></span>
+Sistema operativo
+</span>
+
 </div>
+
+</div>
+
+
+<button
+type="button"
+id="agentCard"
+class="agent-card"
+aria-label="Ver y editar datos del agente en Ajustes"
+>
+
+<span class="agent-card-label">
+👤 Agente activo
+</span>
+
+<strong
+id="agentName"
+class="agent-card-name"
+>
+Agente sin configurar
+</strong>
+
+<span
+id="agentId"
+class="agent-card-id"
+>
+Configura tu identificador en Ajustes
+</span>
+
+<span class="agent-card-badge">
+🛡️ Policía Local
+</span>
+
+</button>
 
 </div>
 
@@ -180,7 +218,7 @@ Acceso rápido
 
 <button
 type="button"
-class="quick-action"
+class="quick-action quick-action--blue"
 data-target="consulta"
 >
 
@@ -200,12 +238,17 @@ Buscar infracciones y normativa
 
 </span>
 
+<span class="quick-action-footer">
+Consulta rápida
+<span class="quick-action-arrow">→</span>
+</span>
+
 </button>
 
 
 <button
 type="button"
-class="quick-action"
+class="quick-action quick-action--teal"
 data-target="actas"
 >
 
@@ -216,13 +259,18 @@ data-target="actas"
 <span class="quick-action-text">
 
 <strong>
-Crear acta
+Actas
 </strong>
 
 <small>
-Redactar y guardar un acta
+Crear y gestionar actas
 </small>
 
+</span>
+
+<span class="quick-action-footer">
+Nueva acta
+<span class="quick-action-arrow">→</span>
 </span>
 
 </button>
@@ -230,7 +278,7 @@ Redactar y guardar un acta
 
 <button
 type="button"
-class="quick-action"
+class="quick-action quick-action--gold"
 data-target="normativa"
 >
 
@@ -245,9 +293,14 @@ Normativa
 </strong>
 
 <small>
-Consultar legislación
+Legislación y artículos
 </small>
 
+</span>
+
+<span class="quick-action-footer">
+Ver normativa
+<span class="quick-action-arrow">→</span>
 </span>
 
 </button>
@@ -263,6 +316,8 @@ Estado del sistema
 
 </div>
 
+
+<div class="stats-grid">
 
 <div class="status-card">
 
@@ -326,6 +381,73 @@ class="status-value"
 >
 Comprobando...
 </strong>
+
+</div>
+
+</div>
+
+
+<div class="resumen-card">
+
+<div class="resumen-card-title">
+Resumen
+</div>
+
+<div class="resumen-row">
+
+<span class="resumen-icon">📋</span>
+
+<span class="resumen-label">
+Infracciones
+disponibles
+</span>
+
+<strong
+id="resumenInfracciones"
+class="resumen-value"
+>
+0
+</strong>
+
+</div>
+
+
+<div class="resumen-row">
+
+<span class="resumen-icon">📚</span>
+
+<span class="resumen-label">
+Artículos de
+normativa
+</span>
+
+<strong
+id="resumenArticulos"
+class="resumen-value"
+>
+0
+</strong>
+
+</div>
+
+
+<div class="resumen-row">
+
+<span class="resumen-icon">🗂️</span>
+
+<span class="resumen-label">
+Actas
+almacenadas
+</span>
+
+<strong
+id="resumenActas"
+class="resumen-value"
+>
+0
+</strong>
+
+</div>
 
 </div>
 
@@ -1050,6 +1172,67 @@ Offline / Online
 <div class="settings-card">
 
 <div class="settings-card-title">
+Agente
+</div>
+
+<div class="settings-form">
+
+<div class="form-group">
+
+<label for="agentNameInput">
+Nombre del agente
+</label>
+
+<input
+id="agentNameInput"
+type="text"
+placeholder="Ej. J. García"
+autocomplete="off"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label for="agentIdInput">
+Identificador / TIP
+</label>
+
+<input
+id="agentIdInput"
+type="text"
+placeholder="Ej. 1234PL"
+autocomplete="off"
+>
+
+</div>
+
+</div>
+
+
+<button
+id="saveAgentButton"
+type="button"
+class="settings-button"
+>
+
+<span>
+💾
+</span>
+
+<span>
+Guardar datos del agente
+</span>
+
+</button>
+
+</div>
+
+
+<div class="settings-card">
+
+<div class="settings-card-title">
 Datos
 </div>
 
@@ -1375,54 +1558,14 @@ Versión renovada para evitar caché
 ====================================================== -->
 
 <script
-src="app.js?v=20260830"
+src="app.js?v=20260831"
 defer
 ></script>
 
 
-<!-- =====================================================
-SERVICE WORKER
-====================================================== -->
-
-<script>
-
-if ("serviceWorker" in navigator) {
-
-window.addEventListener(
-"load",
-function () {
-
-navigator.serviceWorker
-.register(
-"service-worker.js?v=20260827"
-)
-.then(
-function (registration) {
-
-console.log(
-"Centinela Code: Service Worker registrado.",
-registration.scope
-);
-
-}
-)
-.catch(
-function (error) {
-
-console.warn(
-"Centinela Code: no se pudo registrar el Service Worker.",
-error
-);
-
-}
-);
-
-}
-);
-
-}
-
-</script>
+<!-- El Service Worker se registra una única vez desde app.js
+(registrarServiceWorker), con updateViaCache: "none" para
+evitar que quede una versión antigua cacheada. -->
 
 </body>
 
