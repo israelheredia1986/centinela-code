@@ -428,6 +428,39 @@ Muy graves
 
 </div>
 
+<!-- ===== NUEVO: FILTROS AVANZADOS ===== -->
+<div class="filtros-avanzados">
+
+<div class="filtro-group">
+<label for="filtroLey">Ley</label>
+<select id="filtroLey">
+<option value="todas">Todas</option>
+<option value="LO 4/2015">LO 4/2015 (LOPSC)</option>
+<option value="CP">Código Penal</option>
+<option value="RDL 6/2015">RDL 6/2015 (Tráfico)</option>
+<option value="Ley 7/2023">Ley 7/2023 (Animales)</option>
+<option value="Ley 11/2003">Ley 11/2003 (Animales Andalucía)</option>
+<option value="Ley 50/1999">Ley 50/1999 (PPP)</option>
+<option value="Decreto 42/2008">Decreto 42/2008 (PPP Andalucía)</option>
+<option value="Ordenanza municipal">Ordenanzas</option>
+</select>
+</div>
+
+<div class="filtro-group">
+<label for="filtroRangoMin">Sanción mínima (€)</label>
+<input type="number" id="filtroRangoMin" placeholder="Mín" min="0" step="1">
+</div>
+
+<div class="filtro-group">
+<label for="filtroRangoMax">Sanción máxima (€)</label>
+<input type="number" id="filtroRangoMax" placeholder="Máx" min="0" step="1">
+</div>
+
+<button type="button" id="resetFiltros" class="secondary-button">Restablecer filtros</button>
+
+</div>
+<!-- ===== FIN FILTROS AVANZADOS ===== -->
+
 
 <div class="results-header">
 
