@@ -184,6 +184,57 @@ margin: 0 auto;
 padding: 28px 18px calc(var(--nav-height) + 35px);
 }
 
+/* =========================================================
+BOTÓN VOLVER AL INICIO
+========================================================= */
+
+.back-home-button {
+display: none;
+align-items: center;
+justify-content: center;
+gap: 8px;
+width: fit-content;
+min-height: 42px;
+margin: 0 0 18px 2px;
+padding: 9px 15px;
+border: 1px solid rgba(101, 181, 255, .42);
+border-radius: 13px;
+background: linear-gradient(145deg, rgba(17, 47, 85, .96), rgba(8, 24, 45, .96));
+color: #eaf4ff;
+font-size: 14px;
+font-weight: 800;
+letter-spacing: .1px;
+box-shadow: 0 7px 22px rgba(0, 0, 0, .24), inset 0 0 16px rgba(47, 140, 255, .07);
+cursor: pointer;
+transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+
+.back-home-button.visible {
+display: inline-flex;
+}
+
+.back-home-button:hover {
+border-color: rgba(101, 181, 255, .75);
+background: linear-gradient(145deg, rgba(22, 61, 109, .98), rgba(9, 29, 54, .98));
+}
+
+.back-home-button:active {
+transform: translateY(1px) scale(.98);
+}
+
+.back-home-button span:first-child {
+font-size: 20px;
+line-height: 1;
+}
+
+@media (max-width: 620px) {
+.back-home-button {
+min-height: 44px;
+padding: 9px 14px;
+margin-bottom: 15px;
+}
+}
+
 .app-section {
 display: none;
 animation: sectionIn .25s ease both;
@@ -1594,426 +1645,4 @@ padding-right: 17px;
 animation-duration: .01ms !important;
 transition-duration: .01ms !important;
 }
-}
-
-
-/* =========================================================
-   CENTINELA CODE — DISEÑO DE REFERENCIA / ESCRITORIO
-   Revisión 2026-08-31
-   Estos ajustes se aplican al HTML actual sin modificar la
-   lógica de app.js ni los datos.
-   ========================================================= */
-
-/* La app usa directamente el icono incluido en el ZIP.
-   El ZIP no contiene logo-centinela.png, por lo que se usa
-   el recurso real icon-512.png. */
-.brand-icon,
-.welcome-icon,
-.brand-hero-icon,
-.loading-logo {
-  background-image: url("icon-512.png");
-}
-
-/* Base visual: más cercana a la captura de referencia. */
-body {
-  background:
-    radial-gradient(circle at 50% -12%, rgba(44, 110, 185, .24), transparent 36%),
-    radial-gradient(circle at 8% 48%, rgba(28, 72, 130, .11), transparent 28%),
-    radial-gradient(circle at 95% 58%, rgba(24, 69, 122, .10), transparent 27%),
-    linear-gradient(180deg, #020710 0%, #050b16 55%, #02050c 100%);
-}
-
-/* En escritorio la referencia no muestra la cabecera móvil. */
-@media (min-width: 700px) {
-
-  .app-header {
-    display: none;
-  }
-
-  .main-content {
-    width: min(100%, 820px);
-    padding: 18px 14px calc(var(--nav-height) + 24px);
-  }
-
-  .hero-grid {
-    grid-template-columns: 1.62fr .95fr;
-    gap: 14px;
-    align-items: stretch;
-  }
-
-  .brand-hero,
-  .agent-card {
-    min-height: 180px;
-  }
-
-  .brand-hero {
-    padding: 23px 22px;
-    gap: 18px;
-    border-radius: 20px;
-    border-color: rgba(109, 157, 211, .42);
-    background:
-      radial-gradient(circle at 86% 8%, rgba(46, 111, 183, .18), transparent 38%),
-      linear-gradient(145deg, rgba(25, 43, 68, .96), rgba(8, 18, 32, .99));
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.045),
-      inset 0 0 45px rgba(61, 130, 205, .07),
-      0 14px 35px rgba(0,0,0,.28);
-  }
-
-  .brand-hero-icon {
-    width: 128px;
-    height: 128px;
-    flex-basis: 128px;
-    border-radius: 3px;
-    background-color: #52657b;
-    background-size: 112px 112px;
-    border: 1px solid rgba(204, 220, 238, .20);
-    box-shadow:
-      inset 0 0 0 1px rgba(255,255,255,.03),
-      0 8px 22px rgba(0,0,0,.18);
-  }
-
-  .brand-hero-title {
-    font-size: clamp(34px, 5.2vw, 45px);
-    line-height: .95;
-    letter-spacing: -1.7px;
-  }
-
-  .brand-hero-tagline {
-    margin: 8px 0 13px;
-    font-size: 10px;
-    letter-spacing: 1.45px;
-  }
-
-  .status-pill {
-    padding: 6px 11px;
-    font-size: 9px;
-  }
-
-  .status-dot {
-    width: 7px;
-    height: 7px;
-  }
-
-  .agent-card {
-    padding: 18px 20px;
-    border-radius: 19px;
-    border-color: rgba(105, 144, 187, .44);
-    background:
-      linear-gradient(145deg, rgba(26, 40, 61, .96), rgba(9, 19, 33, .98));
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.035),
-      0 12px 30px rgba(0,0,0,.25);
-  }
-
-  .agent-card-label {
-    font-size: 9px;
-    letter-spacing: .45px;
-    text-transform: uppercase;
-    color: #e9f2ff;
-  }
-
-  .agent-card-name {
-    font-size: 15px;
-    line-height: 1.15;
-  }
-
-  .agent-card-id {
-    font-size: 10px;
-  }
-
-  .agent-card-badge {
-    margin-top: 2px;
-    padding: 5px 10px;
-    font-size: 10px;
-  }
-
-  .section-heading {
-    margin: 18px 3px 12px;
-  }
-
-  .section-heading h2 {
-    font-size: 13px;
-    letter-spacing: .25px;
-    text-transform: uppercase;
-  }
-
-  .quick-actions {
-    gap: 10px;
-  }
-
-  .quick-action {
-    min-height: 220px;
-    padding: 20px 13px 13px;
-    border-radius: 16px;
-    gap: 11px;
-    border-color: rgba(111, 151, 195, .34);
-    box-shadow:
-      0 10px 24px rgba(0,0,0,.22),
-      inset 0 1px 0 rgba(255,255,255,.03);
-  }
-
-  .quick-action:hover {
-    transform: translateY(-1px);
-  }
-
-  .quick-action-icon {
-    width: 80px;
-    height: 80px;
-    flex-basis: 80px;
-    align-self: center;
-    border-radius: 24px;
-    font-size: 0;
-    background: transparent !important;
-    border: 0;
-    box-shadow: none;
-    position: relative;
-  }
-
-  /* Línea de iconos, en vez del emoji grande. */
-  .quick-action--blue .quick-action-icon::before {
-    content: "";
-    position: absolute;
-    width: 44px;
-    height: 44px;
-    left: 11px;
-    top: 8px;
-    border: 4px solid #edf7ff;
-    border-radius: 50%;
-  }
-
-  .quick-action--blue .quick-action-icon::after {
-    content: "";
-    position: absolute;
-    width: 26px;
-    height: 4px;
-    left: 49px;
-    top: 55px;
-    background: #edf7ff;
-    border-radius: 10px;
-    transform: rotate(45deg);
-    transform-origin: left center;
-  }
-
-  .quick-action--teal .quick-action-icon::before {
-    content: "";
-    position: absolute;
-    left: 11px;
-    top: 24px;
-    width: 55px;
-    height: 42px;
-    border: 4px solid #f2ffff;
-    border-radius: 8px;
-  }
-
-  .quick-action--teal .quick-action-icon::after {
-    content: "";
-    position: absolute;
-    left: 24px;
-    top: 12px;
-    width: 28px;
-    height: 18px;
-    border: 4px solid #f2ffff;
-    border-bottom: 0;
-    border-radius: 8px 8px 0 0;
-  }
-
-  .quick-action--gold .quick-action-icon {
-    color: #fff3b0;
-    font-size: 54px;
-    line-height: 1;
-  }
-
-  .quick-action--gold .quick-action-icon::before {
-    content: "⚖";
-    position: absolute;
-    inset: 7px 0 auto;
-    text-align: center;
-    font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
-    font-size: 55px;
-    font-weight: 400;
-    color: #fff1a8;
-  }
-
-  .quick-action--gold .quick-action-icon::after {
-    display: none;
-  }
-
-  .quick-action-text {
-    width: 100%;
-    padding-right: 0;
-    text-align: center;
-  }
-
-  .quick-action-text strong {
-    margin-bottom: 4px;
-    font-size: 18px;
-    line-height: 1;
-  }
-
-  .quick-action-text small {
-    display: block;
-    font-size: 10px;
-    line-height: 1.25;
-  }
-
-  .quick-action-footer {
-    min-height: 28px;
-    margin-top: auto;
-    padding-top: 7px;
-    font-size: 8px;
-    letter-spacing: .35px;
-  }
-
-  .quick-action-arrow {
-    font-size: 14px;
-  }
-
-  .quick-action--blue {
-    background:
-      linear-gradient(150deg, rgba(39, 93, 151, .95), rgba(16, 43, 79, .98));
-    border-color: rgba(101, 180, 255, .65);
-  }
-
-  .quick-action--teal {
-    background:
-      linear-gradient(150deg, rgba(44, 132, 153, .92), rgba(18, 67, 83, .98));
-    border-color: rgba(116, 211, 224, .62);
-  }
-
-  .quick-action--gold {
-    background:
-      linear-gradient(150deg, rgba(155, 132, 59, .88), rgba(80, 68, 25, .98));
-    border-color: rgba(255, 225, 115, .70);
-  }
-
-  .stats-grid {
-    grid-template-columns: 1.45fr .82fr;
-    gap: 10px;
-    align-items: stretch;
-  }
-
-  .status-card,
-  .resumen-card {
-    border-radius: 17px;
-    border-color: rgba(111, 151, 195, .34);
-    background:
-      linear-gradient(145deg, rgba(22, 37, 59, .97), rgba(9, 19, 33, .99));
-    box-shadow:
-      0 10px 24px rgba(0,0,0,.22),
-      inset 0 1px 0 rgba(255,255,255,.03);
-  }
-
-  .status-row {
-    min-height: 54px;
-    padding: 10px 15px;
-    gap: 10px;
-  }
-
-  .status-row span,
-  .data-status-row span {
-    font-size: 10px;
-  }
-
-  .status-row span {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .status-value {
-    font-size: 9px;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .resumen-card {
-    padding: 0 13px;
-  }
-
-  .resumen-card-title {
-    padding: 12px 0 6px;
-    font-size: 11px;
-    text-transform: uppercase;
-  }
-
-  .resumen-row {
-    min-height: 58px;
-    padding: 8px 0;
-    gap: 9px;
-  }
-
-  .resumen-icon {
-    width: 31px;
-    height: 31px;
-    flex-basis: 31px;
-    border-radius: 10px;
-    font-size: 14px;
-  }
-
-  .resumen-label {
-    font-size: 9px;
-  }
-
-  .resumen-value {
-    font-size: 16px;
-  }
-
-  /* Barra inferior como en la captura: Consulta / Actas / Normativa. */
-  .bottom-navigation {
-    height: 70px;
-    padding: 5px 12px;
-    grid-template-columns: repeat(3, 1fr);
-    background:
-      linear-gradient(180deg, rgba(17, 30, 48, .94), rgba(8, 18, 31, .99));
-    border-top-color: rgba(113, 152, 194, .35);
-    box-shadow: 0 -10px 28px rgba(0,0,0,.32);
-  }
-
-  .bottom-navigation .nav-item[data-section="home"],
-  .bottom-navigation .nav-item[data-section="ajustes"] {
-    display: none;
-  }
-
-  .nav-item {
-    border-radius: 12px;
-    gap: 2px;
-  }
-
-  .nav-icon {
-    font-size: 18px;
-    line-height: 1;
-  }
-
-  .nav-label {
-    font-size: 10px;
-    font-weight: 800;
-  }
-
-  .nav-item.active {
-    background: transparent;
-    color: #f1f7ff;
-  }
-
-  .nav-item.active::after {
-    left: 34%;
-    right: 34%;
-    bottom: 1px;
-    height: 2px;
-  }
-}
-
-/* Ajuste final para pantallas muy anchas: mantiene el mismo
-   tamaño visual de la captura en el centro de la ventana. */
-@media (min-width: 1100px) {
-  .main-content {
-    width: 820px;
-  }
-}
-
-/* En móvil se conserva la navegación de 5 secciones. */
-@media (max-width: 699px) {
-  .brand-hero-icon {
-    background-size: contain;
-  }
 }
