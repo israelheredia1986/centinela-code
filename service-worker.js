@@ -23,15 +23,15 @@ para forzar la renovación de la caché en los dispositivos.
 
 "use strict";
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_ESTATICA = `centinela-estatica-${CACHE_VERSION}`;
 const CACHE_DATOS = `centinela-datos-${CACHE_VERSION}`;
 
 const ASSETS_APP_SHELL = [
 "./",
 "./index.html",
-"./style.css?v=20260827",
-"./app.js?v=20260827",
+"./style.css?v=20260830b",
+"./app.js?v=20260830b",
 "./manifest.json",
 "./favicon.ico",
 "./icon-16.png",
