@@ -31,7 +31,8 @@ ordenanzas: "./data/ordenanzas.json",
 animales: "./data/normativa_animales.json", 
 trafico: "./data/normativa_trafico.json" 
 }, 
-STORAGE_ACTAS: "centinela_code_actas_v1" 
+STORAGE_ACTAS: "centinela_code_actas_v1", 
+STORAGE_AGENTE: "centinela_code_agente_v1" 
 }; 
 
 const estado = { 
@@ -634,6 +635,21 @@ hayOrdenanzas
 hayOrdenanzas 
 ); 
 
+const resumenInfracciones = $("resumenInfracciones"); 
+if (resumenInfracciones) { 
+resumenInfracciones.textContent = estado.infracciones.length; 
+} 
+
+const resumenArticulos = $("resumenArticulos"); 
+if (resumenArticulos) { 
+resumenArticulos.textContent = totalArticulosBase; 
+} 
+
+const resumenActas = $("resumenActas"); 
+if (resumenActas) { 
+resumenActas.textContent = estado.actas.length; 
+} 
+
 establecerEstado( 
 $("settingsLopscStatus"), 
 hayLopsc ? "Disponible" : "No disponible", 
@@ -669,6 +685,97 @@ modo.textContent = conectado
 ? "Online" 
 : "Offline"; 
 } 
+} 
+
+/* ========================================================= 
+AGENTE ACTIVO 
+========================================================= */ 
+
+function cargarAgente() { 
+try { 
+const guardado = JSON.parse( 
+localStorage.getItem(CONFIG.STORAGE_AGENTE) || "null" 
+); 
+
+return guardado && typeof guardado === "object" ? guardado : {}; 
+
+} catch (error) { 
+return {}; 
+} 
+} 
+
+function guardarAgente(datos) { 
+localStorage.setItem( 
+CONFIG.STORAGE_AGENTE, 
+JSON.stringify(datos) 
+); 
+} 
+
+function actualizarAgenteUI() { 
+const datos = cargarAgente(); 
+
+const nombre = $("agentName"); 
+const id = $("agentId"); 
+
+const nombreLimpio = 
+typeof datos.nombre === "string" ? datos.nombre.trim() : ""; 
+
+const idLimpio = 
+typeof datos.identificador === "string" ? datos.identificador.trim() : ""; 
+
+if (nombre) { 
+nombre.textContent = 
+nombreLimpio || "Agente sin configurar"; 
+} 
+
+if (id) { 
+id.textContent = 
+idLimpio 
+? `ID: ${idLimpio}` 
+: "Configura tu identificador en Ajustes"; 
+} 
+} 
+
+function configurarAgente() { 
+$("agentCard")?.addEventListener("click", () => { 
+activarSeccion("ajustes"); 
+
+setTimeout(() => { 
+$("agentNameInput")?.focus(); 
+}, 100); 
+}); 
+
+const datos = cargarAgente(); 
+
+const nombreInput = $("agentNameInput"); 
+const idInput = $("agentIdInput"); 
+
+if (nombreInput) { 
+nombreInput.value = 
+typeof datos.nombre === "string" ? datos.nombre : ""; 
+} 
+
+if (idInput) { 
+idInput.value = 
+typeof datos.identificador === "string" ? datos.identificador : ""; 
+} 
+
+$("saveAgentButton")?.addEventListener("click", () => { 
+const nuevoNombre = 
+$("agentNameInput")?.value.trim() || ""; 
+
+const nuevoId = 
+$("agentIdInput")?.value.trim() || ""; 
+
+guardarAgente({ 
+nombre: nuevoNombre, 
+identificador: nuevoId 
+}); 
+
+actualizarAgenteUI(); 
+
+mostrarToast("Datos del agente guardados."); 
+}); 
 } 
 
 /* ========================================================= 
@@ -1342,6 +1449,11 @@ localStorage.setItem(
 CONFIG.STORAGE_ACTAS, 
 JSON.stringify(estado.actas) 
 ); 
+
+const resumenActas = $("resumenActas"); 
+if (resumenActas) { 
+resumenActas.textContent = estado.actas.length; 
+} 
 } 
 
 function configurarActas() { 
