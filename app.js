@@ -46,7 +46,11 @@ trafico: null,
 resultados: [], 
 gravedad: "all", 
 normativaBusqueda: "", 
-actas: [] 
+actas: [], 
+/* NUEVOS FILTROS AVANZADOS */
+filtroLey: "todas",
+filtroRangoMin: "",
+filtroRangoMax: ""
 }; 
 
 /* ========================================================= 
@@ -752,7 +756,55 @@ boton.dataset.severity || "all";
 actualizarBusqueda(); 
 }); 
 }); 
+
+/* ===== NUEVO: FILTROS AVANZADOS ===== */
+const filtroLey = $("filtroLey");
+const filtroRangoMin = $("filtroRangoMin");
+const filtroRangoMax = $("filtroRangoMax");
+const resetFiltrosBtn = $("resetFiltros");
+
+if (filtroLey) {
+filtroLey.addEventListener("change", () => {
+estado.filtroLey = filtroLey.value;
+actualizarBusqueda();
+});
+}
+
+if (filtroRangoMin) {
+filtroRangoMin.addEventListener("input", () => {
+estado.filtroRangoMin = filtroRangoMin.value;
+actualizarBusqueda();
+});
+}
+
+if (filtroRangoMax) {
+filtroRangoMax.addEventListener("input", () => {
+estado.filtroRangoMax = filtroRangoMax.value;
+actualizarBusqueda();
+});
+}
+
+if (resetFiltrosBtn) {
+resetFiltrosBtn.addEventListener("click", resetearFiltros);
+}
 } 
+
+function resetearFiltros() {
+const filtroLey = $("filtroLey");
+const filtroRangoMin = $("filtroRangoMin");
+const filtroRangoMax = $("filtroRangoMax");
+
+if (filtroLey) filtroLey.value = "todas";
+if (filtroRangoMin) filtroRangoMin.value = "";
+if (filtroRangoMax) filtroRangoMax.value = "";
+
+estado.filtroLey = "todas";
+estado.filtroRangoMin = "";
+estado.filtroRangoMax = "";
+
+actualizarBusqueda();
+mostrarToast("Filtros restablecidos.");
+}
 
 function obtenerArticulosNormativa() { 
 const registros = []; 
@@ -821,6 +873,73 @@ navId: ordenanza.id || ""
 
 return registros; 
 } 
+
+/* ===== NUEVA FUNCIÓN: APLICAR FILTROS AVANZADOS ===== */
+function aplicarFiltros(resultados) {
+const { filtroLey, filtroRangoMin, filtroRangoMax } = estado;
+
+return resultados.filter(item => {
+// Filtro por ley
+if (filtroLey !== "todas") {
+if (item.tipoResultado === "infraccion") {
+// Para infracciones, comparar con el campo ley (abreviatura)
+const leyInfraccion = item.ley || "";
+// Normalizar para comparar (eliminar espacios, etc.)
+const leyNormalizada = normalizarTexto(leyInfraccion);
+const filtroNormalizado = normalizarTexto(filtroLey);
+if (!leyNormalizada.includes(filtroNormalizado)) {
+return false;
+}
+} else if (item.tipoResultado === "articulo") {
+// Para artículos, comparar con ley o leyCompleta
+const leyArticulo = item.ley || item.leyCompleta || "";
+const leyNormalizada = normalizarTexto(leyArticulo);
+const filtroNormalizado = normalizarTexto(filtroLey);
+if (!leyNormalizada.includes(filtroNormalizado)) {
+return false;
+}
+}
+}
+
+// Filtro por rango de sanción (solo para infracciones)
+if (item.tipoResultado === "infraccion") {
+const sancion = item.sancion || {};
+const min = Number(sancion.min);
+const max = Number(sancion.max);
+
+// Si no hay sanción definida, no se filtra por rango (a menos que se haya especificado rango)
+const hayRango = filtroRangoMin !== "" || filtroRangoMax !== "";
+if (hayRango) {
+// Si no tiene sanción, no pasa el filtro (porque no cumple el rango)
+if (isNaN(min) && isNaN(max)) {
+return false;
+}
+// Comprobar mínimo
+if (filtroRangoMin !== "") {
+const minFiltro = Number(filtroRangoMin);
+if (!isNaN(minFiltro)) {
+// Si la infracción tiene min definido y es menor que el filtro, descartar
+if (!isNaN(min) && min < minFiltro) return false;
+// Si no tiene min pero tiene max, comprobar que max >= minFiltro
+if (isNaN(min) && !isNaN(max) && max < minFiltro) return false;
+}
+}
+// Comprobar máximo
+if (filtroRangoMax !== "") {
+const maxFiltro = Number(filtroRangoMax);
+if (!isNaN(maxFiltro)) {
+// Si la infracción tiene max definido y es mayor que el filtro, descartar
+if (!isNaN(max) && max > maxFiltro) return false;
+// Si no tiene max pero tiene min, comprobar que min <= maxFiltro
+if (!isNaN(min) && isNaN(max) && min > maxFiltro) return false;
+}
+}
+}
+}
+
+return true;
+});
+}
 
 function actualizarBusqueda() { 
 const input = $("consultaSearch"); 
@@ -912,8 +1031,13 @@ tipoResultado: "articulo"
 })); 
 } 
 
-estado.resultados = 
+let resultados = 
 resultadosInfracciones.concat(resultadosArticulos); 
+
+/* ===== APLICAR FILTROS AVANZADOS ===== */
+resultados = aplicarFiltros(resultados);
+
+estado.resultados = resultados; 
 
 ordenarResultados(texto); 
 renderizarResultados(); 
@@ -3598,7 +3722,7 @@ borrar.dataset.deleteActa
 return; 
 } 
 
-/* === NUEVO: Exportar PDF === */ 
+/* Exportar PDF */ 
 const exportar = 
 evento.target.closest( 
 "[data-export-acta]" 
