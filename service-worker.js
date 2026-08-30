@@ -3,7 +3,7 @@ CENTINELA CODE — SERVICE WORKER
 ACTUALIZACIÓN FORZADA DE CACHÉ
 ============================================================ */
 
-const CACHE_VERSION = "centinela-code-v20260828-02";
+const CACHE_VERSION = "centinela-code-v20260830-01";
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 
 const APP_SHELL = [
@@ -102,8 +102,8 @@ return;
 }
 
 const dataFile =
-path.endsWith("/infracciones.json") ||
-path.endsWith("/lopsc.json");
+path.includes("/data/") &&
+path.endsWith(".json");
 
 if (dataFile) {
 event.respondWith(
