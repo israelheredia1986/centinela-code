@@ -344,12 +344,13 @@ cargarJSON(CONFIG.RUTAS.infraccionesTrafico),
 cargarJSON(CONFIG.RUTAS.lopsc), 
 cargarJSON(CONFIG.RUTAS.codigoPenal), 
 cargarJSON(CONFIG.RUTAS.menores), 
+cargarJSON(CONFIG.RUTAS.violenciaGenero), 
 cargarJSON(CONFIG.RUTAS.ordenanzas), 
 cargarJSON(CONFIG.RUTAS.animales), 
 cargarJSON(CONFIG.RUTAS.trafico) 
 ]); 
 
-const [rInfracciones, rInfraccionesTrafico, rLopsc, rCodigoPenal, rMenores, rOrdenanzas, rAnimales, rTrafico] = resultados; 
+const [rInfracciones, rInfraccionesTrafico, rLopsc, rCodigoPenal, rMenores, rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico] = resultados; 
 
 if (rInfracciones.status === "fulfilled") { 
 estado.infracciones = extraerInfracciones( 
