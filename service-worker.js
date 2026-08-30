@@ -3,7 +3,7 @@
    Caché de la app (shell + datos normativos) para uso offline.
    ========================================================= */
 
-const CACHE_VERSION = "20260830";
+const CACHE_VERSION = "20260831";
 const CACHE_NAME = `centinela-code-${CACHE_VERSION}`;
 
 /* Archivos del "app shell": lo mínimo para que la app arranque
@@ -11,8 +11,8 @@ const CACHE_NAME = `centinela-code-${CACHE_VERSION}`;
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./style.css?v=20260830",
-  "./app.js?v=20260830",
+  "./style.css?v=20260831",
+  "./app.js?v=20260831",
   "./manifest.json",
   "./favicon.ico",
   "./icon-16.png",
