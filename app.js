@@ -1807,16 +1807,6 @@ escaparHTML(acta.id)
 Borrar 
 </button> 
 
-<button 
-type="button" 
-class="secondary-button export-pdf-button" 
-data-export-acta="${ 
-escaparHTML(acta.id) 
-}" 
-> 
-📄 PDF 
-</button> 
-
 </div> 
 
 </article> 
@@ -1853,171 +1843,6 @@ estado.actas.filter(
 guardarActas(); 
 renderizarActas(); 
 mostrarToast("Acta borrada."); 
-} 
-
-/* ========================================================= 
-EXPORTACIÓN DE ACTA A PDF 
-========================================================= */ 
-
-function exportarActaPDF(id) { 
-const acta = estado.actas.find(item => item.id === id); 
-if (!acta) { 
-mostrarToast("Acta no encontrada."); 
-return; 
-} 
-
-// Construir contenido HTML para el PDF 
-const contenidoHTML = ` 
-<!DOCTYPE html> 
-<html lang="es"> 
-<head> 
-<meta charset="UTF-8"> 
-<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-<title>Acta ${acta.numero || "sin número"}</title> 
-<style> 
-/* Estilos para la impresión */ 
-body { 
-font-family: 'Times New Roman', Times, serif; 
-margin: 2.5cm 2cm; 
-color: #000; 
-background: #fff; 
-line-height: 1.5; 
-} 
-h1 { 
-font-size: 22pt; 
-text-align: center; 
-margin-bottom: 0.2cm; 
-text-transform: uppercase; 
-letter-spacing: 1px; 
-} 
-.subtitulo { 
-text-align: center; 
-font-size: 14pt; 
-margin-top: 0; 
-margin-bottom: 1cm; 
-font-weight: normal; 
-} 
-.fecha-lugar { 
-text-align: right; 
-font-size: 12pt; 
-margin-bottom: 0.8cm; 
-} 
-.campo { 
-margin-bottom: 0.5cm; 
-} 
-.campo-label { 
-font-weight: bold; 
-display: inline-block; 
-min-width: 4cm; 
-} 
-.campo-valor { 
-display: inline-block; 
-} 
-.separador { 
-border-top: 1px solid #333; 
-margin: 0.8cm 0; 
-} 
-.firma { 
-margin-top: 1.5cm; 
-display: flex; 
-justify-content: space-between; 
-} 
-.firma div { 
-text-align: center; 
-} 
-.firma-linea { 
-border-top: 1px solid #000; 
-width: 6cm; 
-margin: 0.2cm auto 0; 
-} 
-.firma-etiqueta { 
-font-size: 10pt; 
-} 
-@media print { 
-body { margin: 2.5cm 2cm; } 
-.no-print { display: none; } 
-} 
-</style> 
-</head> 
-<body> 
-<h1>Acta de Denuncia</h1> 
-<p class="subtitulo">${acta.numero ? `Nº ${acta.numero}` : "Sin número"}</p> 
-<div class="fecha-lugar"> 
-${acta.fecha ? `Fecha: ${acta.fecha}` : ""} 
-${acta.hora ? ` Hora: ${acta.hora}` : ""} 
-${acta.lugar ? `<br>Lugar: ${acta.lugar}` : ""} 
-</div> 
-
-<div class="campo"> 
-<span class="campo-label">Denunciado:</span> 
-<span class="campo-valor">${acta.nombre || "No indicado"}</span> 
-</div> 
-<div class="campo"> 
-<span class="campo-label">DNI/NIE:</span> 
-<span class="campo-valor">${acta.dni || "No indicado"}</span> 
-</div> 
-<div class="campo"> 
-<span class="campo-label">Domicilio:</span> 
-<span class="campo-valor">${acta.domicilio || "No indicado"}</span> 
-</div> 
-
-<div class="separador"></div> 
-
-<div class="campo"> 
-<span class="campo-label">Hechos:</span><br> 
-<span class="campo-valor">${acta.hechos || "No descritos"}</span> 
-</div> 
-
-<div class="separador"></div> 
-
-<div class="campo"> 
-<span class="campo-label">Infracción:</span><br> 
-<span class="campo-valor">${acta.infraccion || "No indicada"}</span> 
-</div> 
-
-${acta.observaciones ? ` 
-<div class="separador"></div> 
-<div class="campo"> 
-<span class="campo-label">Observaciones:</span><br> 
-<span class="campo-valor">${acta.observaciones}</span> 
-</div> 
-` : ""} 
-
-<div class="separador"></div> 
-
-<div class="firma"> 
-<div> 
-<div>Agente instructor</div> 
-<div class="firma-linea"></div> 
-<div class="firma-etiqueta">Firma</div> 
-</div> 
-<div> 
-<div>Denunciado</div> 
-<div class="firma-linea"></div> 
-<div class="firma-etiqueta">Firma (si procede)</div> 
-</div> 
-</div> 
-
-<p style="font-size: 9pt; text-align: center; margin-top: 2cm; color: #555;"> 
-Documento generado por Centinela Code - ${new Date().toLocaleDateString()} 
-</p> 
-</body> 
-</html> 
-`; 
-
-// Abrir nueva ventana para impresión 
-const ventana = window.open("", "_blank", "width=800,height=600"); 
-if (!ventana) { 
-mostrarToast("Permite ventanas emergentes para exportar el PDF."); 
-return; 
-} 
-
-ventana.document.write(contenidoHTML); 
-ventana.document.close(); 
-
-// Esperar a que cargue el contenido y luego imprimir 
-ventana.focus(); 
-ventana.print(); 
 } 
 
 function actualizarPreviewInfraccion() { 
@@ -3595,20 +3420,6 @@ if (borrar) {
 borrarActa( 
 borrar.dataset.deleteActa 
 ); 
-return; 
-} 
-
-/* === NUEVO: Exportar PDF === */ 
-const exportar = 
-evento.target.closest( 
-"[data-export-acta]" 
-); 
-
-if (exportar) { 
-exportarActaPDF( 
-exportar.dataset.exportActa 
-); 
-return; 
 } 
 } 
 ); 
