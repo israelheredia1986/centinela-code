@@ -50,28 +50,28 @@ sizes="any"
 
 <link
 rel="icon"
-href="icon-32.png"
+href="icons/icon-32.png"
 sizes="32x32"
 type="image/png"
 >
 
 <link
 rel="icon"
-href="icon-192.png"
+href="icons/icon-192.png"
 sizes="192x192"
 type="image/png"
 >
 
 <link
 rel="icon"
-href="icon-512.png"
+href="icons/icon-512.png"
 sizes="512x512"
 type="image/png"
 >
 
 <link
 rel="apple-touch-icon"
-href="icon-180.png"
+href="icons/icon-180.png"
 >
 
 <link
@@ -81,7 +81,7 @@ href="manifest.json"
 
 <link
 rel="stylesheet"
-href="style.css?v=20260827"
+href="style.css?v=20260830"
 >
 
 </head>
@@ -184,7 +184,7 @@ class="quick-action"
 data-target="consulta"
 >
 
-<span class="quick-action-icon">
+<span class="quick-action-icon" style="background: #1e3a8a;">
 🔎
 </span>
 
@@ -209,7 +209,7 @@ class="quick-action"
 data-target="actas"
 >
 
-<span class="quick-action-icon">
+<span class="quick-action-icon" style="background: #065f46;">
 📝
 </span>
 
@@ -234,7 +234,7 @@ class="quick-action"
 data-target="normativa"
 >
 
-<span class="quick-action-icon">
+<span class="quick-action-icon" style="background: #7c3aed;">
 ⚖️
 </span>
 
@@ -428,7 +428,7 @@ Muy graves
 
 </div>
 
-<!-- ===== NUEVO: FILTROS AVANZADOS ===== -->
+<!-- ===== FILTROS AVANZADOS ===== -->
 <div class="filtros-avanzados">
 
 <div class="filtro-group">
@@ -1404,11 +1404,10 @@ Cargando aplicación...
 
 <!-- =====================================================
 APP.JS
-Versión renovada para evitar caché
 ====================================================== -->
 
 <script
-src="app.js?v=20260827"
+src="app.js?v=20260830"
 defer
 ></script>
 
@@ -1427,7 +1426,7 @@ function () {
 
 navigator.serviceWorker
 .register(
-"service-worker.js?v=20260827"
+"service-worker.js?v=20260830"
 )
 .then(
 function (registration) {
