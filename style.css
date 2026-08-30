@@ -114,7 +114,7 @@ gap: 14px;
 .brand-icon,
 .welcome-icon,
 .loading-logo {
-background-image: url("icon-512.png");
+background-image: url("logo-centinela.png");
 background-position: center;
 background-repeat: no-repeat;
 background-size: contain;
@@ -545,16 +545,6 @@ color: var(--text-soft);
 line-height: 1.55;
 }
 
-.result-ley {
-display: block;
-margin-bottom: 4px;
-color: var(--blue-2);
-font-size: 12px;
-font-weight: 700;
-text-transform: uppercase;
-letter-spacing: .04em;
-}
-
 /* =========================================================
 BOTONES
 ========================================================= */
@@ -692,61 +682,6 @@ box-shadow: 0 0 0 3px rgba(47,140,255,.09);
 
 .form-actions {
 margin-top: 23px;
-}
-
-.input-with-button {
-position: relative;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-
-.input-with-button input,
-.input-with-button textarea {
-flex: 1;
-padding-right: 52px;
-}
-
-.input-with-button--textarea {
-align-items: flex-start;
-}
-
-.input-action-button {
-position: absolute;
-right: 8px;
-top: 8px;
-width: 36px;
-height: 36px;
-display: flex;
-align-items: center;
-justify-content: center;
-border: 1px solid rgba(82, 135, 190, .3);
-border-radius: 10px;
-background: #0f253f;
-font-size: 17px;
-line-height: 1;
-cursor: pointer;
-transition: background .15s ease, border-color .15s ease;
-}
-
-.input-with-button input ~ .input-action-button {
-top: 50%;
-transform: translateY(-50%);
-}
-
-.input-action-button:active {
-background: #14314f;
-}
-
-.input-action-button--activo {
-background: rgba(220, 53, 69, .18);
-border-color: rgba(220, 53, 69, .55);
-animation: pulseDictado 1.4s ease-in-out infinite;
-}
-
-@keyframes pulseDictado {
-0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, .35); }
-50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
 }
 
 .infraccion-preview {
