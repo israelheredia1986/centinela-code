@@ -587,17 +587,6 @@ background: rgba(255,255,255,.05);
 font-size: 25px;
 }
 
-/* === NUEVO: Botón de exportación PDF === */
-.export-pdf-button {
-background: #1a4a6e;
-border-color: rgba(69, 151, 255, .45);
-color: #dcecff;
-}
-
-.export-pdf-button:hover {
-background: #1f5a88;
-}
-
 /* =========================================================
 ACTAS / FORMULARIOS
 ========================================================= */
@@ -1290,89 +1279,24 @@ animation-duration: .01ms !important;
 transition-duration: .01ms !important;
 }
 }
-
-/* =========================================================
-ESTILOS PARA IMPRESIÓN (PDF)
-========================================================= */
-
-@media print {
-/* Ocultar elementos que no deben aparecer en el PDF */
-.app-header,
-.bottom-navigation,
-.header-action,
-#bottomNavigation,
-.no-print,
-button,
-.nav-item,
-.quick-action,
-.status-card,
-.settings-card,
-#toast,
-#loadingScreen,
-#appModal,
-#actaEditor,
-#actasList .form-actions button,
-#normativaViewer,
-.search-box,
-.filters,
-.results-header,
-#consultaResults .result-card button,
-#normativaList .normativa-card button,
-#normativaList .normativa-open {
-display: none !important;
+ARCHIVO: manifest.json — CÓDIGO COMPLETO
+Sustituye COMPLETAMENTE el manifest.json actual por este código. Así la instalación de la PWA utilizará logo-centinela.png como icono.
+{
+"name": "Centinela Code",
+"short_name": "Centinela",
+"description": "Consulta normativa policial y herramientas para la elaboración de actas.",
+"start_url": "./",
+"scope": "./",
+"display": "standalone",
+"orientation": "portrait",
+"background_color": "#020817",
+"theme_color": "#020817",
+"icons": [
+{
+"src": "logo-centinela.png",
+"sizes": "512x512",
+"type": "image/png",
+"purpose": "any maskable"
 }
-
-/* Mostrar solo el contenido del acta */
-body {
-background: #fff !important;
-color: #000 !important;
-}
-
-.main-content {
-padding: 0 !important;
-max-width: 100% !important;
-}
-
-.app-section.active {
-display: block !important;
-}
-
-/* Estilos para el contenido del acta en impresión */
-.acta-card {
-border: 1px solid #000 !important;
-background: #fff !important;
-color: #000 !important;
-box-shadow: none !important;
-padding: 20px !important;
-margin: 10px 0 !important;
-page-break-inside: avoid !important;
-}
-
-.acta-card h3 {
-font-size: 18pt !important;
-}
-
-.acta-card p {
-font-size: 12pt !important;
-line-height: 1.6 !important;
-}
-
-/* Forzar visibilidad de las actas */
-#actasList {
-display: block !important;
-}
-
-/* Ocultar botones de acción dentro de actas */
-.acta-card .form-actions {
-display: none !important;
-}
-
-/* Asegurar que el nombre y número de acta se vean */
-.acta-card-header {
-display: flex !important;
-justify-content: space-between !important;
-background: #f0f0f0 !important;
-padding: 10px !important;
-margin-bottom: 10px !important;
-}
+]
 }
