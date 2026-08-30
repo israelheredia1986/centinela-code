@@ -12,7 +12,7 @@ const APP_SHELL = [
   "./",
   "./index.html",
   "./style.css?v=20260830",
-  "./app.js?v=20260827",
+  "./app.js?v=20260830",
   "./manifest.json",
   "./favicon.ico",
   "./icon-16.png",
