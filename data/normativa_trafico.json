@@ -200,6 +200,29 @@
           "texto": "Establece el régimen especial de matriculación y circulación de los vehículos históricos, aquellos que por su antigüedad, características técnicas o valor cultural merecen ser preservados, con condiciones específicas de inspección y circulación."
         }
       ]
+    },
+    {
+      "id": "rdl-8-2004",
+      "ambito": "Estatal",
+      "ley": "Real Decreto Legislativo 8/2004, de 29 de octubre",
+      "abreviatura": "Ley sobre responsabilidad civil y seguro en la circulación de vehículos a motor (Ley del Seguro Obligatorio / LRCSCVM)",
+      "boe": "BOE núm. 267, de 5 de noviembre de 2004 (BOE-A-2004-18911)",
+      "entradaVigor": "06/11/2004",
+      "estado": "vigente",
+      "enlaceOficial": "https://www.boe.es/buscar/act.php?id=BOE-A-2004-18911",
+      "resumen": "Regula el seguro obligatorio de responsabilidad civil de los vehículos a motor (comúnmente conocido como SOA) y las consecuencias de circular o mantener un vehículo sin él: inmovilización, depósito o precinto y sanción económica. La conducta se tipifica además como infracción muy grave en el artículo 76 de la Ley de Tráfico (RDL 6/2015).",
+      "articulos": [
+        {
+          "numero": "2",
+          "titulo": "De la obligación de asegurarse (seguro obligatorio)",
+          "texto": "Todo propietario de un vehículo a motor con estacionamiento habitual en España está obligado a suscribir y mantener en vigor un contrato de seguro de responsabilidad civil por cada vehículo del que sea titular, hasta la cuantía de los límites del aseguramiento obligatorio (SOA). La obligación existe con independencia de que el vehículo circule, esté estacionado en la vía pública o guardado en un garaje privado; sólo cesa si el vehículo está dado de baja temporal o definitiva en la DGT. El seguro puede ser concertado por cualquier persona con interés en el aseguramiento, además del propietario."
+        },
+        {
+          "numero": "3",
+          "titulo": "Incumplimiento de la obligación de asegurarse",
+          "texto": "Circular o mantener un vehículo a motor sin el seguro obligatorio en vigor conlleva: a) la prohibición de circular por territorio nacional; b) el depósito o precinto del vehículo, con cargo al propietario, mientras no se concierte el seguro (un mes, tres en caso de reincidencia, un año si se quebranta el precinto); y c) una sanción pecuniaria de 601 a 3.005 euros, graduada según el vehículo circulase o no, su categoría, la duración de la falta de aseguramiento y la reiteración. Esta conducta constituye además la infracción muy grave del artículo 76 de la Ley de Tráfico (RDL 6/2015), competencia de las Jefaturas Provinciales de Tráfico."
+        }
+      ]
     }
   ]
 }
