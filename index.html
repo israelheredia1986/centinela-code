@@ -81,7 +81,7 @@ href="manifest.json"
 
 <link
 rel="stylesheet"
-href="style.css?v=20260830-v5"
+href="style.css?v=20260830"
 >
 
 </head>
@@ -144,107 +144,195 @@ class="app-section active"
 data-section="home"
 >
 
-<div class="dashboard-hero">
-  <div class="hero-brand-panel">
-    <div class="hero-logo" aria-hidden="true"></div>
-    <div class="hero-title-block">
-      <h2><span>CENTINELA</span><strong>CODE</strong></h2>
-      <div class="hero-kicker">POLICE &amp; NORMATIVE APP</div>
-      <div class="system-pill"><span class="system-dot"></span><span>SISTEMA OPERATIVO</span></div>
-    </div>
-  </div>
+<div class="welcome-card">
 
-  <div class="agent-panel">
-    <div class="agent-panel-title"><span class="agent-user-icon">♟</span> AGENTE ACTIVO</div>
-    <div class="agent-divider"></div>
-    <strong>Israel Heredia</strong>
-    <span class="agent-subtitle">ID: 1986PL</span>
-    <div class="agent-role"><span>✦</span> Policía Local</div>
-  </div>
+<div class="welcome-icon">
+🛡️
 </div>
 
-<div class="dashboard-section-heading">
-  <span class="heading-mark">ϟ</span>
-  <h2>ACCESO RÁPIDO</h2>
+<div>
+
+<h2>
+Centinela Code
+</h2>
+
+<p>
+Consulta rápida de normativa,
+infracciones y herramientas para
+la elaboración de actas.
+</p>
+
 </div>
 
-<div class="dashboard-actions">
-  <button type="button" class="dashboard-action dashboard-action-blue" data-target="consulta">
-    <span class="dashboard-action-icon icon-search" aria-hidden="true"></span>
-    <span class="dashboard-action-title">CONSULTA</span>
-    <span class="dashboard-action-description">Buscar infracciones<br>y normativa</span>
-    <span class="dashboard-action-link">CONSULTA RÁPIDA <b>→</b></span>
-  </button>
-
-  <button type="button" class="dashboard-action dashboard-action-cyan" data-target="actas">
-    <span class="dashboard-action-icon icon-clipboard" aria-hidden="true"></span>
-    <span class="dashboard-action-title">ACTAS</span>
-    <span class="dashboard-action-description">Crear y gestionar<br>actas</span>
-    <span class="dashboard-action-link">NUEVA ACTA <b>→</b></span>
-  </button>
-
-  <button type="button" class="dashboard-action dashboard-action-gold" data-target="normativa">
-    <span class="dashboard-action-icon icon-scales" aria-hidden="true"></span>
-    <span class="dashboard-action-title">NORMATIVA</span>
-    <span class="dashboard-action-description">Legislación y<br>artículos</span>
-    <span class="dashboard-action-link">VER NORMATIVA <b>→</b></span>
-  </button>
 </div>
 
-<div class="dashboard-grid">
-  <section class="dashboard-card system-card">
-    <div class="dashboard-card-title"><span>▤</span> ESTADO DEL SISTEMA</div>
 
-    <div class="system-item">
-      <span class="system-item-icon green icon-db" aria-hidden="true"></span>
-      <div><strong>Base de Infracciones</strong><small id="homeInfraccionesSummary">Comprobando datos disponibles</small></div>
-      <b id="homeInfraccionesStatus" class="status-value">Cargando...</b>
-    </div>
+<div class="section-heading">
 
-    <div class="system-item">
-      <span class="system-item-icon green icon-scales" aria-hidden="true"></span>
-      <div><strong>Ley Orgánica 4/2015</strong><small id="homeNormativaSummary">Comprobando artículos disponibles</small></div>
-      <b id="homeNormativaStatus" class="status-value">Cargando...</b>
-    </div>
+<h2>
+Acceso rápido
+</h2>
 
-    <div class="system-item">
-      <span class="system-item-icon green icon-document" aria-hidden="true"></span>
-      <div><strong>Ordenanzas Municipales</strong><small id="homeOrdenanzasSummary">Comprobando datos disponibles</small></div>
-      <b id="homeOrdenanzasStatus" class="status-value">Cargando...</b>
-    </div>
-
-    <div class="system-item">
-      <span class="system-item-icon blue icon-cloud" aria-hidden="true"></span>
-      <div><strong>Modo Offline</strong><small>Aplicación disponible sin conexión</small></div>
-      <b id="homeNetworkStatus" class="status-value">Comprobando...</b>
-    </div>
-  </section>
-
-  <section class="dashboard-card summary-card">
-    <div class="dashboard-card-title"><span>◈</span> RESUMEN</div>
-    <div class="summary-stack">
-      <div class="summary-item blue"><span class="icon-shield" aria-hidden="true"></span><div><strong id="homeInfraccionesCount">—</strong><small>Infracciones<br>disponibles</small></div></div>
-      <div class="summary-item gold"><span class="icon-document" aria-hidden="true"></span><div><strong id="homeNormativaCount">—</strong><small>Artículos de<br>normativa</small></div></div>
-      <div class="summary-item cyan"><span class="icon-clipboard" aria-hidden="true"></span><div><strong id="homeActasCount">—</strong><small>Actas<br>almacenadas</small></div></div>
-    </div>
-  </section>
 </div>
 
-<div class="dashboard-lower-grid">
-  <section class="dashboard-card recent-card">
-    <div class="dashboard-card-title"><span>▣</span> ÚLTIMAS ACTAS</div>
-    <div id="homeRecentActas" class="home-recent-actas">
-      <div class="home-empty">No hay actas guardadas todavía.</div>
-    </div>
-  </section>
 
-  <button type="button" class="dashboard-card new-acta-card" data-target="actas">
-    <span class="new-acta-icon" aria-hidden="true">+</span>
-    <strong>NUEVA ACTA</strong>
-    <small>Crear una nueva<br>acta de denuncia</small>
-  </button>
+<div class="quick-actions">
+
+<button
+type="button"
+class="quick-action"
+data-target="consulta"
+>
+
+<span class="quick-action-icon">
+🔎
+</span>
+
+<span class="quick-action-text">
+
+<strong>
+Consulta
+</strong>
+
+<small>
+Buscar infracciones y normativa
+</small>
+
+</span>
+
+</button>
+
+
+<button
+type="button"
+class="quick-action"
+data-target="actas"
+>
+
+<span class="quick-action-icon">
+📝
+</span>
+
+<span class="quick-action-text">
+
+<strong>
+Crear acta
+</strong>
+
+<small>
+Redactar y guardar un acta
+</small>
+
+</span>
+
+</button>
+
+
+<button
+type="button"
+class="quick-action"
+data-target="normativa"
+>
+
+<span class="quick-action-icon">
+⚖️
+</span>
+
+<span class="quick-action-text">
+
+<strong>
+Normativa
+</strong>
+
+<small>
+Consultar legislación
+</small>
+
+</span>
+
+</button>
+
 </div>
+
+
+<div class="section-heading">
+
+<h2>
+Estado del sistema
+</h2>
+
+</div>
+
+
+<div class="status-card">
+
+<div class="status-row">
+
+<span>
+📚 Base normativa
+</span>
+
+<strong
+id="homeNormativaStatus"
+class="status-value"
+>
+Cargando...
+</strong>
+
+</div>
+
+
+<div class="status-row">
+
+<span>
+📋 Infracciones
+</span>
+
+<strong
+id="homeInfraccionesStatus"
+class="status-value"
+>
+Cargando...
+</strong>
+
+</div>
+
+
+<div class="status-row">
+
+<span>
+🏛️ Ordenanzas
+</span>
+
+<strong
+id="homeOrdenanzasStatus"
+class="status-value"
+>
+Cargando...
+</strong>
+
+</div>
+
+
+<div class="status-row">
+
+<span>
+📡 Conexión
+</span>
+
+<strong
+id="homeNetworkStatus"
+class="status-value"
+>
+Comprobando...
+</strong>
+
+</div>
+
+</div>
+
 </section>
+
 
 <!-- =================================================
 CONSULTA
@@ -1287,7 +1375,7 @@ Versión renovada para evitar caché
 ====================================================== -->
 
 <script
-src="app.js?v=20260830"
+src="app.js?v=20260827"
 defer
 ></script>
 
@@ -1306,7 +1394,7 @@ function () {
 
 navigator.serviceWorker
 .register(
-"service-worker.js?v=20260830"
+"service-worker.js?v=20260827"
 )
 .then(
 function (registration) {
