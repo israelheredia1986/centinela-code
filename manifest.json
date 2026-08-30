@@ -1,103 +1,28 @@
 {
   "name": "Centinela Code",
   "short_name": "Centinela",
-  "description": "Herramienta profesional de consulta normativa, infracciones y confección de actas para Policía Local.",
-  "lang": "es-ES",
-  "dir": "ltr",
-
-  "start_url": "./",
+  "description": "Aplicación policial de consulta normativa y gestión de actas.",
+  "start_url": "./index.html",
   "scope": "./",
-
   "display": "standalone",
-  "display_override": [
-    "window-controls-overlay",
-    "standalone"
-  ],
-
   "orientation": "portrait",
+  "lang": "es-ES",
 
-  "background_color": "#020617",
   "theme_color": "#0f172a",
-
-  "categories": [
-    "productivity",
-    "utilities",
-    "government"
-  ],
-
-  "prefer_related_applications": false,
-
-  "shortcuts": [
-    {
-      "name": "Consulta de infracciones",
-      "short_name": "Consulta",
-      "description": "Consultar infracciones y normativa",
-      "url": "./?seccion=consulta"
-    },
-    {
-      "name": "Nueva acta",
-      "short_name": "Nueva acta",
-      "description": "Crear una nueva acta",
-      "url": "./?seccion=actas"
-    },
-    {
-      "name": "Normativa",
-      "short_name": "Normativa",
-      "description": "Consultar la Ley Orgánica 4/2015",
-      "url": "./?seccion=normativa"
-    }
-  ],
-
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
-
-  "handle_links": "preferred",
-
-  "protocol_handlers": [],
+  "background_color": "#020617",
 
   "icons": [
     {
-      "src": "icon-16.png",
-      "sizes": "16x16",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-32.png",
-      "sizes": "32x32",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-180.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-192.png",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-maskable-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "icon-maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }
