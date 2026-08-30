@@ -6,7 +6,7 @@
 
 "use strict";
 
-const CACHE_NAME = "centinela-code-v1-2-0";
+const CACHE_NAME = "centinela-code-v1-3-0";
 
 const APP_SHELL = [
   "./",
