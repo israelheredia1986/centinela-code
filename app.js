@@ -222,6 +222,15 @@ item.dataset.section === nombre
 ); 
 }); 
 
+// Mostrar el botón de regreso al inicio en las pantallas secundarias.
+const botonVolverInicio = $("backHomeButton");
+if (botonVolverInicio) {
+const esInicio = nombre === "home";
+botonVolverInicio.classList.toggle("visible", !esInicio);
+botonVolverInicio.setAttribute("aria-hidden", esInicio ? "true" : "false");
+botonVolverInicio.tabIndex = esInicio ? -1 : 0;
+}
+
 window.scrollTo({ 
 top: 0, 
 behavior: "smooth" 
@@ -783,6 +792,14 @@ NAVEGACIÓN
 ========================================================= */ 
 
 function configurarNavegacion() { 
+const botonVolverInicio = $("backHomeButton");
+
+if (botonVolverInicio) {
+botonVolverInicio.addEventListener("click", () => {
+activarSeccion("home");
+});
+}
+
 document.querySelectorAll( 
 ".nav-item[data-section]" 
 ).forEach((boton) => { 
