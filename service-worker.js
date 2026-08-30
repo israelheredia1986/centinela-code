@@ -3,7 +3,7 @@ CENTINELA CODE — SERVICE WORKER
 ACTUALIZACIÓN FORZADA DE CACHÉ
 ============================================================ */
 
-const CACHE_VERSION = "centinela-code-v20260830-01";
+const CACHE_VERSION = "centinela-code-v20260830-02";
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 
 const APP_SHELL = [
