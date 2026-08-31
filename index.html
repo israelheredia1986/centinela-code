@@ -383,6 +383,28 @@ Normativa
 </div>
 </section>
 <!-- =================================================
+ASISTENTE IA POLICIAL
+================================================== -->
+<section class="app-section" data-section="ia" id="section-ia">
+<div class="page-title">
+<div>
+<h2>Asistente IA</h2>
+<p>Consultas operativas, encuadre legal y redacción.</p>
+</div>
+</div>
+<div class="chat-container" style="display: flex; flex-direction: column; height: 60vh; background: #1e293b; border-radius: 12px; padding: 15px; border: 1px solid #334155;">
+<div id="chatMessages" style="flex: 1; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px;">
+<div class="chat-bubble ai" style="background: #334155; padding: 12px; border-radius: 8px; color: #f8fafc; max-width: 85%; font-size: 0.95rem;">
+🤖 <strong>Centinela AI:</strong> Saludos, Agente. Indícame los hechos o la duda normativa y te ayudaré a calificar la infracción o redactar la diligencia.
+</div>
+</div>
+<div class="chat-input-bar" style="display: flex; gap: 8px;">
+<input id="chatInput" placeholder="Ej: Negativa a identificarse en vía pública..." style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff;" type="text"/>
+<button class="primary-button" id="btnSendChat" type="button">Enviar</button>
+</div>
+</div>
+</section>
+<!-- =================================================
 AJUSTES
 ================================================== -->
 <section class="app-section" data-section="ajustes" id="section-ajustes">
@@ -561,6 +583,14 @@ Actas
 </span>
 <span class="nav-label">
 Normativa
+</span>
+</button>
+<button aria-label="IA Policial" class="nav-item" data-section="ia" type="button">
+<span class="nav-icon">
+🤖
+</span>
+<span class="nav-label">
+IA
 </span>
 </button>
 <button aria-label="Ajustes" class="nav-item" data-section="ajustes" type="button">
