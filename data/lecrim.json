@@ -1,0 +1,29 @@
+[
+  {
+    "id": "LEC-001",
+    "articulo": "Art. 490",
+    "normativa": "Ley de Enjuiciamiento Criminal",
+    "concepto": "Detención por particulares",
+    "descripcion": "Cualquier persona puede detener: al que intentare cometer un delito, al delincuente in fraganti, al fugado de un establecimiento penal o al procesado por delito con pena superior a 3 años.",
+    "gravedad": "Procedimiento procedimental",
+    "sancion": "Entrega inmediata del detenido a la autoridad o agente más cercano."
+  },
+  {
+    "id": "LEC-002",
+    "articulo": "Art. 492",
+    "normativa": "Ley de Enjuiciamiento Criminal",
+    "concepto": "Detención por la Autoridad o Agentes de Policía Judicial",
+    "descripcion": "Obligación de detener a quien se halle en los casos del Art. 490, imputado por delito con pena superior a 3 años, o cuando concurran motivos bastantes para creer que ha participado en un hecho punible y no comparecerá.",
+    "gravedad": "Procedimiento procedimental",
+    "sancion": "Puesta a disposición judicial en un máximo de 72 horas."
+  },
+  {
+    "id": "LEC-003",
+    "articulo": "Art. 520",
+    "normativa": "Ley de Enjuiciamiento Criminal",
+    "concepto": "Derechos del detenido o preso",
+    "descripcion": "Derecho a ser informado de los motivos de la detención, guardar silencio, no declarar contra sí mismo, designar abogado, informar a un familiar, ser asistido por intérprete y reconocimiento médico.",
+    "gravedad": "Garantía constitucional",
+    "sancion": "Su vulneración produce la nulidad de la actuación / recurso de Habeas Corpus."
+  }
+]
