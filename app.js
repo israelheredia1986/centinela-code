@@ -25,7 +25,7 @@ Funciones:
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 const SUPABASE_URL  = "https://okuygqbaliaeavhyezri.supabase.co";
-const SUPABASE_ANON = "TU_ANON_KEY_AQUI"; // ← pega aquí tu anon key de Supabase
+const SUPABASE_ANON = "sb_publishable_fbEAcJZxMv8PD3VB3Bcx6A_l_8BdP2m"; // ← pega aquí tu anon key de Supabase
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ============================================================
