@@ -1,7 +1,7 @@
 /* 
 ============================================================ 
 CENTINELA CODE 
-app.js - Con Supabase Auth + Actas + Subida de Fotos Incautación + PDF + Asistente IA (API Directa)
+app.js - Con Supabase Auth + Actas + Subida de Fotos Incautación + PDF + Asistente IA
 ============================================================ 
 */ 
 
@@ -1861,44 +1861,8 @@ function cerrarVisorNormativa() {
 }
 
 /* ========================================================= 
-ASISTENTE IA POLICIAL (API DIRECTA CON CLAVE)
+ASISTENTE IA POLICIAL 
 ========================================================= */
-
-const IA_API_KEY = "AQ.Ab8RN6LZqnvRVKVznE1ghkYuFXvhEcctzb94rvCgtkWDsUL9Bg"; 
-
-async function solicitarRespuestaIA(mensajeUsuario) {
-  // Configuración de endpoint para Google Gemini REST API
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${IA_API_KEY}`;
-  
-  const payload = {
-    system_instruction: {
-      parts: [{
-        text: "Eres Centinela AI, un asistente experto en legislación policial española (LOPSC 4/2015, Código Penal, Tráfico y Ordenanzas Municipal). Responde de forma concisa, citando artículos específicos y encuadres legales exactos cuando el agente consulte sobre una intervención o hecho."
-      }]
-    },
-    contents: [{
-      parts: [{
-        text: mensajeUsuario
-      }]
-    }]
-  };
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.error?.message || `Error HTTP ${response.status}`);
-  }
-
-  const data = await response.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "No se obtuvo respuesta de la IA.";
-}
 
 function configurarAsistenteIA() {
   const btnSend = $("btnSendChat");
@@ -1906,39 +1870,38 @@ function configurarAsistenteIA() {
   const container = $("chatMessages");
   if (!btnSend || !input || !container) return;
 
-  const responderIA = async (mensaje) => {
-    // 1. Renderizar mensaje del agente
+  const responderIA = (mensaje) => {
     const userBubble = document.createElement("div");
     userBubble.className = "chat-bubble user";
-    userBubble.style.cssText = "background: #0f172a; padding: 12px; border-radius: 8px; color: #fff; align-self: flex-end; max-width: 85%; font-size: 0.95rem; margin-bottom: 8px;";
+    userBubble.style.cssText = "background: #0f172a; padding: 12px; border-radius: 8px; color: #fff; align-self: flex-end; max-width: 85%; font-size: 0.95rem;";
     userBubble.textContent = mensaje;
     container.appendChild(userBubble);
 
-    input.value = "";
-    container.scrollTop = container.scrollHeight;
+    const tokens = tokenizarConsulta(mensaje);
+    const coincidencias = estado.infracciones.filter(i => {
+      const cont = [i.codigo, i.conducta, i.titulo, ...(i.palabrasClave||[])].join(" ");
+      return coincideConsulta(normalizarTexto(cont), tokens);
+    });
 
-    // 2. Mostrar indicador de estado
-    const loadingBubble = document.createElement("div");
-    loadingBubble.className = "chat-bubble ai";
-    loadingBubble.style.cssText = "background: #334155; padding: 12px; border-radius: 8px; color: #94a3b8; max-width: 85%; font-size: 0.95rem; margin-bottom: 8px;";
-    loadingBubble.textContent = "🤖 Consultando con Centinela AI...";
-    container.appendChild(loadingBubble);
-    container.scrollTop = container.scrollHeight;
-
-    // 3. Ejecutar llamada remota
-    try {
-      const respuestaTexto = await solicitarRespuestaIA(mensaje);
-      loadingBubble.style.color = "#f8fafc";
-      loadingBubble.style.whiteSpace = "pre-wrap";
-      loadingBubble.innerHTML = respuestaTexto
-        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-        .replace(/\n/g, "<br>");
-    } catch (error) {
-      console.error("Error en llamada IA:", error);
-      loadingBubble.style.color = "#f85149";
-      loadingBubble.textContent = `❌ Error al conectar con la IA: ${error.message}`;
+    let respuestaText = "";
+    if (coincidencias.length > 0) {
+      const top = coincidencias.slice(0, 3);
+      respuestaText = `🤖 **Centinela AI:** He encuadrado los hechos en las siguientes infracciones:\n\n` +
+        top.map(i => `• **${i.codigo}** (${i.ley || 'Normativa'}): ${i.titulo}\n  *Conducta:* ${i.conducta}`).join("\n\n");
+    } else {
+      respuestaText = `🤖 **Centinela AI:** No he encontrado un encuadre directo para "${mensaje}". Intenta consultar términos clave como "drogas", "respeto", "desobediencia" o revisa el apartado de Normativa.`;
     }
 
+    setTimeout(() => {
+      const aiBubble = document.createElement("div");
+      aiBubble.className = "chat-bubble ai";
+      aiBubble.style.cssText = "background: #334155; padding: 12px; border-radius: 8px; color: #f8fafc; max-width: 85%; font-size: 0.95rem; white-space: pre-wrap;";
+      aiBubble.innerHTML = respuestaText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      container.appendChild(aiBubble);
+      container.scrollTop = container.scrollHeight;
+    }, 400);
+
+    input.value = "";
     container.scrollTop = container.scrollHeight;
   };
 
