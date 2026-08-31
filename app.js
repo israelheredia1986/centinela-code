@@ -26,16 +26,18 @@ Funciones:
 // ============================================================
 const SUPABASE_URL  = "https://okuygqbaliaeavhyezri.supabase.co";
 const SUPABASE_ANON = "sb_publishable_fbEAcJZxMv8PD3VB3Bcx6A_l_8BdP2m";
-const supabase = window.supabase
+var supabase = window.CENTINELA_SUPABASE_CLIENT || (window.supabase
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
   : {
       auth: {
-        getSession: async () => ({data:{session:null}}),
-        signInWithPassword: async () => ({error:{message:"Supabase no disponible"}}),
-        signUp: async () => ({error:{message:"Supabase no disponible"}}),
+        getSession: async () => ({ data: { session: null } }),
+        signInWithPassword: async () => ({ error: { message: "Supabase no disponible" } }),
+        signUp: async () => ({ error: { message: "Supabase no disponible" } }),
         signOut: async () => ({})
       }
-    };
+    });
+
+window.CENTINELA_SUPABASE_CLIENT = supabase;
 
 // ============================================================
 // AUTH HELPERS
@@ -3827,9 +3829,8 @@ async function iniciarAplicacion() {
 
 async function arrancar() {
   try {
-    // Centinela funciona en modo offline.
-    // La sesión de Supabase queda como sincronización opcional.
-    await obtenerSesion().catch(() => {
+    await obtenerSesion().catch(error => {
+      console.warn("Supabase no disponible:", error);
       usuarioActual = null;
     });
 
@@ -3837,7 +3838,11 @@ async function arrancar() {
 
   } catch (error) {
     console.error("Error de arranque:", error);
-    await iniciarAplicacion().catch(() => {});
+    try {
+      await iniciarAplicacion();
+    } catch (e) {
+      mostrarToast("Error iniciando la aplicación");
+    }
   }
 }
 
