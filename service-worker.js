@@ -1,4 +1,4 @@
-const CACHE_NAME = "centinela-code-v5";
+const CACHE_NAME = "centinela-code-v6";
 
 const ARCHIVOS = [
  "./",
