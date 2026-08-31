@@ -5,7 +5,7 @@
 // SOLO PARA PRUEBAS
 // Más adelante se moverá a un servidor seguro
 
-const OPENAI_API_KEY = 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 ;
+const OPENAI_API_KEY = "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" ;
 
 
 async function preguntarCentinelaIA(pregunta) {
