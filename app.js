@@ -8,10 +8,11 @@ app.js - Con Supabase Auth + Actas + Subida de Fotos Incautación + PDF + Asiste
 "use strict";
 
 // ============================================================
-// SUPABASE – configuración
+// SUPABASE – Configuración y Cliente de Respaldo Safe
 // ============================================================
 const SUPABASE_URL  = "https://okuygqbaliaeavhyezri.supabase.co";
 const SUPABASE_ANON = "sb_publishable_fbEAcJZxMv8PD3VB3Bcx6A_l_8BdP2m";
+
 var supabase = window.CENTINELA_SUPABASE_CLIENT || (window.supabase
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
   : {
@@ -21,6 +22,11 @@ var supabase = window.CENTINELA_SUPABASE_CLIENT || (window.supabase
         signUp: async () => ({ error: { message: "Supabase no disponible" } }),
         signOut: async () => ({})
       },
+      from: () => ({
+        select: () => ({ eq: () => ({ order: async () => ({ data: [], error: null }) }) }),
+        upsert: async () => ({ error: null }),
+        delete: () => ({ eq: () => ({ eq: async () => ({ error: null }) }) })
+      }),
       storage: {
         from: () => ({
           upload: async () => ({ error: new Error("Storage no configurado") }),
@@ -37,9 +43,14 @@ window.CENTINELA_SUPABASE_CLIENT = supabase;
 let usuarioActual = null;
 
 async function obtenerSesion() {
-  const { data: { session } } = await supabase.auth.getSession();
-  usuarioActual = session?.user ?? null;
-  return usuarioActual;
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    usuarioActual = session?.user ?? null;
+    return usuarioActual;
+  } catch (e) {
+    console.warn("Error comprobando sesión:", e);
+    return null;
+  }
 }
 
 async function login(email, password) {
@@ -112,7 +123,7 @@ function inyectarPantallaLogin() {
   `;
   document.body.appendChild(div);
 
-  document.getElementById("loginBtn").addEventListener("click", async () => {
+  document.getElementById("loginBtn")?.addEventListener("click", async () => {
     const email    = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
     const errEl    = document.getElementById("loginError");
@@ -127,7 +138,7 @@ function inyectarPantallaLogin() {
     }
   });
 
-  document.getElementById("registroBtn").addEventListener("click", async () => {
+  document.getElementById("registroBtn")?.addEventListener("click", async () => {
     const email    = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
     const errEl    = document.getElementById("loginError");
@@ -140,8 +151,8 @@ function inyectarPantallaLogin() {
     }
   });
 
-  document.getElementById("loginPassword").addEventListener("keydown", e => {
-    if (e.key === "Enter") document.getElementById("loginBtn").click();
+  document.getElementById("loginPassword")?.addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("loginBtn")?.click();
   });
 }
 
@@ -172,9 +183,12 @@ function inyectarBotonLogout() {
     </p>
   `;
   seccionAjustes.insertBefore(wrapper, seccionAjustes.firstChild);
-  document.getElementById("logoutBtn").addEventListener("click", cerrarSesion);
+  document.getElementById("logoutBtn")?.addEventListener("click", cerrarSesion);
 } 
 
+// ============================================================
+// CONFIGURACIÓN Y ESTADO DE LA APLICACIÓN
+// ============================================================
 const CONFIG = { 
   VERSION: "1.3.0", 
   RUTAS: { 
@@ -206,6 +220,8 @@ const estado = {
   normativaBusqueda: "", 
   actas: [] 
 }; 
+
+let appInicializada = false;
 
 /* ========================================================= 
 UTILIDADES 
@@ -394,6 +410,13 @@ function extraerArticulos(datos) {
   return []; 
 } 
 
+function extraerLeyes(datos) { 
+  if (datos && Array.isArray(datos.leyes)) return datos.leyes; 
+  return []; 
+} 
+const extraerAnimales = extraerLeyes;
+const extraerTrafico = extraerLeyes;
+
 const PALABRAS_CLAVE_EXTRA_36_16 = [
   "hachis", "hachís", "cocaina", "cocaína", "marihuana", "resina de hachis", "resina de hachís", 
   "mdma", "extasis", "éxtasis", "anfetaminas", "heroina", "heroína", "sustancia estupefaciente", 
@@ -412,14 +435,6 @@ function aplicarPalabrasClaveExtra(infracciones) {
       PALABRAS_CLAVE_EXTRA_36_16.filter((palabra) => !existentes.includes(palabra)) 
     ); 
   }); 
-} 
-
-function extraerAnimales(datos) { 
-  return (datos && Array.isArray(datos.leyes)) ? datos.leyes : []; 
-} 
-
-function extraerTrafico(datos) { 
-  return (datos && Array.isArray(datos.leyes)) ? datos.leyes : []; 
 } 
 
 function extraerOrdenanzas(datos) { 
@@ -478,6 +493,7 @@ async function cargarDatos() {
 
   const [rInfracciones, rInfraccionesTrafico, rLopsc, rCodigoPenal, rMenores, rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico] = resultados; 
 
+  estado.infracciones = [];
   if (rInfracciones.status === "fulfilled") { 
     estado.infracciones = extraerInfracciones(rInfracciones.value); 
     aplicarPalabrasClaveExtra(estado.infracciones); 
@@ -528,8 +544,8 @@ function actualizarEstadoDatos() {
 
   const totalArticulosBase = 
     extraerArticulos(estado.lopsc).length + 
-    contarArticulosLeyes(extraerAnimales(estado.animales)) + 
-    contarArticulosLeyes(extraerTrafico(estado.trafico)); 
+    contarArticulosLeyes(extraerLeyes(estado.animales)) + 
+    contarArticulosLeyes(extraerLeyes(estado.trafico)); 
 
   const hayBaseNormativa = totalArticulosBase > 0; 
 
@@ -810,9 +826,10 @@ function abrirDetalleInfraccion(id) {
         <p><strong>Artículo:</strong> ${escaparHTML(infraccion.articulo || "-")}${infraccion.apartado ? `.${escaparHTML(infraccion.apartado)}` : ""}</p> 
         <h4>Conducta</h4> 
         <p>${escaparHTML(infraccion.conducta || "")}</p> 
-        ${(sancion.min !== undefined || sancion.max !== undefined) ? ` 
+        ${(sancion.min !== undefined || sancion.max !== undefined || sancion.cuantia !== undefined) ? ` 
           <h4>Sanción</h4> 
           <p> 
+            ${sancion.cuantia ? `Cuantía: ${formatearEuros(sancion.cuantia)}<br>` : ""}
             ${sancion.min !== undefined ? `Mínimo: ${formatearEuros(sancion.min)}<br>` : ""} 
             ${sancion.max !== undefined ? `Máximo: ${formatearEuros(sancion.max)}` : ""} 
           </p> 
@@ -884,7 +901,7 @@ async function subirFotoIncautacion(archivo, actaId) {
       .from("incautaciones")
       .getPublicUrl(ruta);
 
-    return publicUrlData.publicUrl;
+    return publicUrlData?.publicUrl || null;
   } catch (error) {
     console.warn("Storage no disponible o error en subida, convirtiendo a Base64:", error);
     return await convertirArchivoABase64(archivo);
@@ -1074,6 +1091,16 @@ function alternarDictado(boton) {
       campo.value = textoAcumulado; 
     } 
   }; 
+
+  reconocimiento.onerror = (err) => {
+    console.warn("Error en el reconocimiento de voz:", err);
+    if (botonDictadoActivo) {
+      botonDictadoActivo.classList.remove("input-action-button--activo");
+      botonDictadoActivo.textContent = "🎤";
+    }
+    reconocimientoVozActivo = null;
+    botonDictadoActivo = null;
+  };
 
   reconocimiento.onend = () => { 
     if (botonDictadoActivo) { 
@@ -1644,7 +1671,7 @@ function abrirOrdenanza(id) {
 }
 
 function abrirAnimales() { 
-  const leyes = extraerAnimales(estado.animales); 
+  const leyes = extraerLeyes(estado.animales); 
   const visor = $("normativaViewer"); 
   const contenido = $("viewerContent"); 
   if (!visor || !contenido) return; 
@@ -1672,7 +1699,7 @@ function abrirAnimales() {
 } 
 
 function abrirLeyAnimal(id) { 
-  const leyes = extraerAnimales(estado.animales); 
+  const leyes = extraerLeyes(estado.animales); 
   const leyItem = leyes.find((item) => item.id === id); 
   const visor = $("normativaViewer"); 
   const contenido = $("viewerContent"); 
@@ -1697,7 +1724,7 @@ function abrirLeyAnimal(id) {
 } 
 
 function abrirMenoresGrupo() { 
-  const leyes = extraerAnimales(estado.menores); 
+  const leyes = extraerLeyes(estado.menores); 
   const visor = $("normativaViewer"); 
   const contenido = $("viewerContent"); 
   if (!visor || !contenido) return; 
@@ -1725,7 +1752,7 @@ function abrirMenoresGrupo() {
 } 
 
 function abrirLeyMenor(id) { 
-  const leyes = extraerAnimales(estado.menores); 
+  const leyes = extraerLeyes(estado.menores); 
   const leyItem = leyes.find((item) => item.id === id); 
   const visor = $("normativaViewer"); 
   const contenido = $("viewerContent"); 
@@ -1750,7 +1777,7 @@ function abrirLeyMenor(id) {
 } 
 
 function abrirViolenciaGeneroGrupo() { 
-  const leyes = extraerAnimales(estado.violenciaGenero); 
+  const leyes = extraerLeyes(estado.violenciaGenero); 
   const visor = $("normativaViewer"); 
   const contenido = $("viewerContent"); 
   if (!visor || !contenido) return; 
@@ -1778,7 +1805,7 @@ function abrirViolenciaGeneroGrupo() {
 } 
 
 function abrirLeyViolenciaGenero(id) { 
-  const leyes = extraerAnimales(estado.violenciaGenero); 
+  const leyes = extraerLeyes(estado.violenciaGenero); 
   const leyItem = leyes.find((item) => item.id === id); 
   const visor = $("normativaViewer"); 
   const contenido = $("viewerContent"); 
@@ -1803,7 +1830,7 @@ function abrirLeyViolenciaGenero(id) {
 } 
 
 function abrirTrafico() { 
-  const leyes = extraerTrafico(estado.trafico); 
+  const leyes = extraerLeyes(estado.trafico); 
   const visor = $("normativaViewer"); 
   const contenido = $("viewerContent"); 
   if (!visor || !contenido) return; 
@@ -1831,7 +1858,7 @@ function abrirTrafico() {
 } 
 
 function abrirLeyTrafico(id) { 
-  const leyes = extraerTrafico(estado.trafico); 
+  const leyes = extraerLeyes(estado.trafico); 
   const leyItem = leyes.find((item) => item.id === id); 
   const visor = $("normativaViewer"); 
   const contenido = $("viewerContent"); 
@@ -2017,6 +2044,8 @@ INICIALIZACIÓN DE LA APLICACIÓN
 ========================================================= */
 
 async function iniciarAplicacion() {
+  if (appInicializada) return;
+
   mostrarCarga(true);
   inyectarBotonLogout();
   configurarNavegacion();
@@ -2034,6 +2063,8 @@ async function iniciarAplicacion() {
   await cargarDatos();
   await cargarActas();
   mostrarCarga(false);
+
+  appInicializada = true;
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
