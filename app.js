@@ -2033,193 +2033,520 @@ function cerrarVisorNormativa() {
   if (visor) visor.classList.add("hidden");
 }
 
-/* ========================================================= 
-ASISTENTE IA POLICIAL 
+/* =========================================================
+ASISTENTE IA POLICIAL
 ========================================================= */
 
 function configurarAsistenteIA() {
+
   const btnSend = $("btnSendChat");
   const input = $("chatInput");
   const container = $("chatMessages");
+
   if (!btnSend || !input || !container) return;
 
-  const responderIA = (mensaje) => {
+
+  async function responderIA(mensaje) {
+
+
     const userBubble = document.createElement("div");
+
     userBubble.className = "chat-bubble user";
-    userBubble.style.cssText = "background: #0f172a; padding: 12px; border-radius: 8px; color: #fff; align-self: flex-end; max-width: 85%; font-size: 0.95rem;";
+
+    userBubble.style.cssText =
+      "background:#0f172a;padding:12px;border-radius:8px;color:#fff;align-self:flex-end;max-width:85%;font-size:0.95rem;";
+
     userBubble.textContent = mensaje;
+
     container.appendChild(userBubble);
 
-    const tokens = tokenizarConsulta(mensaje);
-    const coincidencias = estado.infracciones.filter(i => {
-      const cont = [i.codigo, i.conducta, i.titulo, ...(i.palabrasClave||[])].join(" ");
-      return coincideConsulta(normalizarTexto(cont), tokens);
-    });
 
-    let respuestaText = "";
-    if (coincidencias.length > 0) {
-      const top = coincidencias.slice(0, 3);
-      respuestaText = `🤖 **Centinela AI:** He encuadrado los hechos en las siguientes infracciones:\n\n` +
-        top.map(i => `• **${i.codigo}** (${i.ley || 'Normativa'}): ${i.titulo}\n  *Conducta:* ${i.conducta}`).join("\n\n");
-    } else {
-      respuestaText = `🤖 **Centinela AI:** No he encontrado un encuadre directo para "${mensaje}". Intenta consultar términos clave como "drogas", "respeto", "desobediencia" o revisa el apartado de Normativa.`;
-    }
-
-    setTimeout(() => {
-      const aiBubble = document.createElement("div");
-      aiBubble.className = "chat-bubble ai";
-      aiBubble.style.cssText = "background: #334155; padding: 12px; border-radius: 8px; color: #f8fafc; max-width: 85%; font-size: 0.95rem; white-space: pre-wrap;";
-      aiBubble.innerHTML = respuestaText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      container.appendChild(aiBubble);
-      container.scrollTop = container.scrollHeight;
-    }, 400);
 
     input.value = "";
+
+
+
+    const loadingBubble = document.createElement("div");
+
+    loadingBubble.className = "chat-bubble ai";
+
+    loadingBubble.style.cssText =
+      "background:#334155;padding:12px;border-radius:8px;color:#f8fafc;max-width:85%;";
+
+    loadingBubble.textContent =
+      "🤖 Centinela IA está consultando...";
+
+    container.appendChild(loadingBubble);
+
+
+
     container.scrollTop = container.scrollHeight;
-  };
 
-  btnSend.addEventListener("click", () => {
-    const txt = input.value.trim();
-    if (txt) responderIA(txt);
-  });
 
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      const txt = input.value.trim();
-      if (txt) responderIA(txt);
+
+    try {
+
+
+      const respuesta = await preguntarCentinelaIA(mensaje);
+
+
+
+      loadingBubble.remove();
+
+
+
+      const aiBubble = document.createElement("div");
+
+
+      aiBubble.className = "chat-bubble ai";
+
+
+      aiBubble.style.cssText =
+        "background:#334155;padding:12px;border-radius:8px;color:#f8fafc;max-width:85%;font-size:0.95rem;white-space:pre-wrap;";
+
+
+      aiBubble.innerHTML =
+        "🤖 <strong>Centinela IA:</strong><br><br>" +
+        (typeof respuesta === "string"
+          ? respuesta.replace(/\n/g,"<br>")
+          : JSON.stringify(respuesta));
+
+
+
+      container.appendChild(aiBubble);
+
+
+
+    } catch(error) {
+
+
+      console.error(
+        "Error IA:",
+        error
+      );
+
+
+      loadingBubble.remove();
+
+
+
+      const errorBubble =
+        document.createElement("div");
+
+
+      errorBubble.className =
+        "chat-bubble ai";
+
+
+      errorBubble.textContent =
+        "❌ Error conectando con Centinela IA";
+
+
+      container.appendChild(errorBubble);
+
+
     }
-  });
+
+
+
+    container.scrollTop =
+      container.scrollHeight;
+
+
+  }
+
+
+
+  btnSend.addEventListener(
+    "click",
+    () => {
+
+      const txt =
+        input.value.trim();
+
+      if (txt)
+        responderIA(txt);
+
+    }
+  );
+
+
+
+  input.addEventListener(
+    "keydown",
+    (e)=>{
+
+      if(e.key === "Enter"){
+
+        const txt =
+          input.value.trim();
+
+        if(txt)
+          responderIA(txt);
+
+      }
+
+    }
+  );
+
 }
 
-/* ========================================================= 
-AJUSTES Y DATOS DEL AGENTE 
+
+
+/* =========================================================
+AJUSTES Y DATOS DEL AGENTE
 ========================================================= */
 
 function cargarDatosAgente() {
-  const nombre = localStorage.getItem("centinela_agente_nombre") || "";
-  const tip = localStorage.getItem("centinela_agente_tip") || "";
 
-  if ($("agentNameInput")) $("agentNameInput").value = nombre;
-  if ($("agentIdInput")) $("agentIdInput").value = tip;
+  const nombre =
+    localStorage.getItem("centinela_agente_nombre") || "";
 
-  if ($("agentName")) $("agentName").textContent = nombre || "Agente sin configurar";
-  if ($("agentId")) $("agentId").textContent = tip ? `TIP / ID: ${tip}` : "Configura tu identificador en Ajustes";
+  const tip =
+    localStorage.getItem("centinela_agente_tip") || "";
+
+
+  if ($("agentNameInput"))
+    $("agentNameInput").value = nombre;
+
+
+  if ($("agentIdInput"))
+    $("agentIdInput").value = tip;
+
+
+  if ($("agentName"))
+    $("agentName").textContent =
+      nombre || "Agente sin configurar";
+
+
+  if ($("agentId"))
+    $("agentId").textContent =
+      tip
+      ? `TIP / ID: ${tip}`
+      : "Configura tu identificador en Ajustes";
+
 }
+
+
 
 function configurarAjustes() {
+
   cargarDatosAgente();
 
-  $("saveAgentButton")?.addEventListener("click", () => {
-    const nombre = $("agentNameInput")?.value.trim() || "";
-    const tip = $("agentIdInput")?.value.trim() || "";
 
-    localStorage.setItem("centinela_agente_nombre", nombre);
-    localStorage.setItem("centinela_agente_tip", tip);
-    cargarDatosAgente();
-    mostrarToast("Datos del agente guardados.");
-  });
 
-  $("agentCard")?.addEventListener("click", () => {
-    activarSeccion("ajustes");
-  });
+  $("saveAgentButton")?.addEventListener(
+    "click",
+    () => {
 
-  $("reloadDataButton")?.addEventListener("click", async () => {
-    mostrarCarga(true);
-    await cargarDatos();
-    mostrarCarga(false);
-  });
+      const nombre =
+        $("agentNameInput")?.value.trim() || "";
 
-  $("clearDraftsButton")?.addEventListener("click", () => {
-    if (confirm("¿Estás seguro de que deseas limpiar los borradores del acta?")) {
-      cerrarEditorActa();
-      mostrarToast("Borradores limpiados.");
+      const tip =
+        $("agentIdInput")?.value.trim() || "";
+
+
+      localStorage.setItem(
+        "centinela_agente_nombre",
+        nombre
+      );
+
+
+      localStorage.setItem(
+        "centinela_agente_tip",
+        tip
+      );
+
+
+      cargarDatosAgente();
+
+
+      mostrarToast(
+        "Datos del agente guardados."
+      );
+
     }
-  });
+  );
+
+
+
+  $("agentCard")?.addEventListener(
+    "click",
+    () => {
+
+      activarSeccion("ajustes");
+
+    }
+  );
+
+
+
+  $("reloadDataButton")?.addEventListener(
+    "click",
+    async () => {
+
+      mostrarCarga(true);
+
+      await cargarDatos();
+
+      mostrarCarga(false);
+
+    }
+  );
+
+
+
+  $("clearDraftsButton")?.addEventListener(
+    "click",
+    () => {
+
+      if(confirm(
+        "¿Estás seguro de que deseas limpiar los borradores del acta?"
+      )){
+
+        cerrarEditorActa();
+
+        mostrarToast(
+          "Borradores limpiados."
+        );
+
+      }
+
+    }
+  );
+
 }
 
-/* ========================================================= 
+
+
+/* =========================================================
 EVENTOS DELEGADOS Y MODAL
 ========================================================= */
 
 function configurarEventosDelegados() {
-  document.addEventListener("click", (e) => {
-    const btnInfraccion = e.target.closest("[data-infraccion-id]");
-    if (btnInfraccion) {
-      abrirDetalleInfraccion(btnInfraccion.dataset.infraccionId);
-      return;
-    }
 
-    const btnLaw = e.target.closest("[data-law]");
-    if (btnLaw) {
-      abrirNormativa(btnLaw.dataset.law, btnLaw.dataset.id || "");
-      return;
-    }
+  document.addEventListener(
+    "click",
+    (e)=>{
 
-    const btnNavTipo = e.target.closest("[data-nav-tipo]");
-    if (btnNavTipo) {
-      activarSeccion("normativa");
-      abrirNormativa(btnNavTipo.dataset.navTipo, btnNavTipo.dataset.navId || "");
-      return;
-    }
 
-    const btnEdit = e.target.closest("[data-edit-acta]");
-    if (btnEdit) {
-      editarActa(btnEdit.dataset.editActa);
-      return;
-    }
+      const btnInfraccion =
+        e.target.closest("[data-infraccion-id]");
 
-    const btnPdf = e.target.closest("[data-pdf-acta]");
-    if (btnPdf) {
-      exportarActaPDF(btnPdf.dataset.pdfActa);
-      return;
-    }
 
-    const btnDelete = e.target.closest("[data-delete-acta]");
-    if (btnDelete) {
-      borrarActa(btnDelete.dataset.deleteActa);
-      return;
-    }
-  });
+      if(btnInfraccion){
 
-  $("closeModal")?.addEventListener("click", cerrarModal);
-  $("modalOverlay")?.addEventListener("click", cerrarModal);
+        abrirDetalleInfraccion(
+          btnInfraccion.dataset.infraccionId
+        );
+
+        return;
+
+      }
+
+
+
+      const btnLaw =
+        e.target.closest("[data-law]");
+
+
+      if(btnLaw){
+
+        abrirNormativa(
+          btnLaw.dataset.law,
+          btnLaw.dataset.id || ""
+        );
+
+        return;
+
+      }
+
+
+
+      const btnNavTipo =
+        e.target.closest("[data-nav-tipo]");
+
+
+      if(btnNavTipo){
+
+        activarSeccion("normativa");
+
+        abrirNormativa(
+          btnNavTipo.dataset.navTipo,
+          btnNavTipo.dataset.navId || ""
+        );
+
+        return;
+
+      }
+
+
+
+      const btnEdit =
+        e.target.closest("[data-edit-acta]");
+
+
+      if(btnEdit){
+
+        editarActa(
+          btnEdit.dataset.editActa
+        );
+
+        return;
+
+      }
+
+
+
+      const btnPdf =
+        e.target.closest("[data-pdf-acta]");
+
+
+      if(btnPdf){
+
+        exportarActaPDF(
+          btnPdf.dataset.pdfActa
+        );
+
+        return;
+
+      }
+
+
+
+      const btnDelete =
+        e.target.closest("[data-delete-acta]");
+
+
+      if(btnDelete){
+
+        borrarActa(
+          btnDelete.dataset.deleteActa
+        );
+
+        return;
+
+      }
+
+
+    }
+  );
+
+
+
+  $("closeModal")?.addEventListener(
+    "click",
+    cerrarModal
+  );
+
+
+  $("modalOverlay")?.addEventListener(
+    "click",
+    cerrarModal
+  );
+
+
 }
 
-/* ========================================================= 
-INICIALIZACIÓN DE LA APLICACIÓN 
+
+
+/* =========================================================
+INICIALIZACIÓN DE LA APLICACIÓN
 ========================================================= */
 
 async function iniciarAplicacion() {
-  if (appInicializada) return;
+
+  if(appInicializada)
+    return;
+
 
   mostrarCarga(true);
+
+
   inyectarBotonLogout();
+
+
   configurarNavegacion();
+
+
   configurarConsulta();
+
+
   configurarActas();
+
+
   configurarNormativa();
+
+
   configurarAsistenteIA();
+
+
   configurarAjustes();
+
+
   configurarEventosDelegados();
+
+
   actualizarRed();
 
-  window.addEventListener("online", actualizarRed);
-  window.addEventListener("offline", actualizarRed);
+
+
+  window.addEventListener(
+    "online",
+    actualizarRed
+  );
+
+
+  window.addEventListener(
+    "offline",
+    actualizarRed
+  );
+
+
 
   await cargarDatos();
+
+
   await cargarActas();
+
+
+
   mostrarCarga(false);
 
+
+
   appInicializada = true;
+
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const sesion = await obtenerSesion();
-  if (sesion) {
-    ocultarPantallaLogin();
-    await iniciarAplicacion();
-  } else {
-    mostrarPantallaLogin();
-    mostrarCarga(false);
+
+
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async()=>{
+
+
+    const sesion =
+      await obtenerSesion();
+
+
+
+    if(sesion){
+
+      ocultarPantallaLogin();
+
+      await iniciarAplicacion();
+
+    }
+    else{
+
+      mostrarPantallaLogin();
+
+      mostrarCarga(false);
+
+    }
+
+
   }
-});
+);
