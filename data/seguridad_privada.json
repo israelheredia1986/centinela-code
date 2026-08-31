@@ -1,0 +1,20 @@
+[
+  {
+    "id": "SEG-001",
+    "articulo": "Art. 57.1.a",
+    "normativa": "Ley 5/2014 (Seguridad Privada)",
+    "concepto": "Intrusismo profesional en seguridad privada",
+    "descripcion": "Prestar servicios de seguridad privada o ejercer funciones de vigilante de seguridad sin contar con la habilitación oficial requerida por el Ministerio del Interior.",
+    "gravedad": "Muy Grave",
+    "sancion": "Multa de 30.001 € a 600.000 €."
+  },
+  {
+    "id": "SEG-002",
+    "articulo": "Art. 58.1.a",
+    "normativa": "Ley 5/2014 (Seguridad Privada)",
+    "concepto": "Falta de colaboración del personal de seguridad privada",
+    "descripcion": "Negativa de los vigilantes o personal habilitado a auxiliar o prestar colaboración a las Fuerzas y Cuerpos de Seguridad cuando sean requeridos para ello.",
+    "gravedad": "Grave",
+    "sancion": "Multa de 1.001 € a 6.000 € y posible extinción de la habilitación."
+  }
+]
