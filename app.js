@@ -1,19 +1,23 @@
 /* 
 ============================================================ 
 CENTINELA CODE 
-app.js - Con Supabase Auth + actas en la nube
+app.js
 ============================================================ 
 
 Funciones: 
 - Carga de infracciones, LOPSC y ordenanzas. 
 - Consulta por código, artículo, palabra y gravedad. 
 - Navegación inferior y accesos rápidos. 
-- Autenticación con Supabase Auth (email + contraseña). 
-- Creación, edición y borrado de actas sincronizadas en Supabase. 
+- Autenticación con Supabase Auth (email + contraseña), obligatoria. 
+- Creación, edición y borrado de actas guardadas en el dispositivo 
+  (localStorage), por agente. 
 - Visor de LOPSC y ordenanzas. 
 - Estado de conexión y estado de las bases. 
 - Limpieza/recarga de datos. 
 - Compatible con la estructura actual de index.html. 
+- El login nunca deja la app "colgada": si Supabase tarda o falla, 
+  se muestra un aviso claro en la propia pantalla de acceso en vez 
+  de quedarse cargando indefinidamente. 
 ============================================================ 
 */ 
 
@@ -21,25 +25,62 @@ Funciones:
 
 // ============================================================
 // SUPABASE – configuración
-// La librería se carga como UMD desde el index.html ANTES de
-// este script, exponiendo window.supabase como global.
+// La librería se carga desde index.html ANTES de este script,
+// exponiendo window.supabase como global. Si por lo que sea no
+// llega a cargar (sin red, CDN caído, etc.) el resto de la app
+// no debe romperse: se detecta y se avisa en la pantalla de login.
 // ============================================================
 const SUPABASE_URL  = "https://okuygqbaliaeavhyezri.supabase.co";
 const SUPABASE_ANON = "sb_publishable_fbEAcJZxMv8PD3VB3Bcx6A_l_8BdP2m";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let supabase = null;
+let supabaseListo = false;
+
+function inicializarSupabase() {
+  try {
+    if (window.supabase && typeof window.supabase.createClient === "function") {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+      supabaseListo = true;
+    } else {
+      console.error("La librería de Supabase no se ha cargado.");
+    }
+  } catch (error) {
+    console.error("No se pudo inicializar Supabase:", error);
+  }
+}
+inicializarSupabase();
 
 // ============================================================
 // AUTH HELPERS
 // ============================================================
 let usuarioActual = null;
 
-async function obtenerSesion() {
-  const { data: { session } } = await supabase.auth.getSession();
-  usuarioActual = session?.user ?? null;
-  return usuarioActual;
+// Comprueba la sesión con un límite de tiempo: si Supabase no
+// responde a tiempo (mala cobertura, CDN lento...) no nos
+// quedamos esperando para siempre, simplemente tratamos como
+// "sin sesión" y se muestra la pantalla de login.
+function obtenerSesion() {
+  if (!supabaseListo) return Promise.resolve(null);
+
+  const consulta = supabase.auth.getSession()
+    .then(({ data }) => data?.session ?? null)
+    .catch((error) => {
+      console.error("Error comprobando la sesión:", error);
+      return null;
+    });
+
+  const limite = new Promise((resolve) => setTimeout(() => resolve(null), 7000));
+
+  return Promise.race([consulta, limite]).then((session) => {
+    usuarioActual = session?.user ?? null;
+    return usuarioActual;
+  });
 }
 
 async function login(email, password) {
+  if (!supabaseListo) {
+    throw new Error("Sin conexión con el servidor de acceso. Comprueba tu conexión e inténtalo de nuevo.");
+  }
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
   usuarioActual = data.user;
@@ -47,6 +88,9 @@ async function login(email, password) {
 }
 
 async function registro(email, password) {
+  if (!supabaseListo) {
+    throw new Error("Sin conexión con el servidor de acceso. Comprueba tu conexión e inténtalo de nuevo.");
+  }
   const { data, error } = await supabase.auth.signUp({ email, password });
   if (error) throw error;
   mostrarToast("Revisa tu correo para confirmar el registro.");
@@ -54,9 +98,13 @@ async function registro(email, password) {
 }
 
 async function cerrarSesion() {
-  await supabase.auth.signOut();
+  try {
+    if (supabaseListo) await supabase.auth.signOut();
+  } catch (error) {
+    console.error("Error cerrando sesión:", error);
+  }
   usuarioActual = null;
-  mostrarPantallaLogin();
+  location.reload();
 }
 
 // ============================================================
@@ -84,11 +132,15 @@ function inyectarPantallaLogin() {
         <p style="margin:.25rem 0 0;font-size:.8rem;color:var(--color-muted,#8b949e);">Acceso para agentes</p>
       </div>
 
-      <input id="loginEmail" type="email" placeholder="Correo electrónico"
+      <p id="loginConexionAviso" style="color:#d29922;font-size:.8rem;text-align:center;margin:0;display:none;background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.3);border-radius:8px;padding:.5rem;">
+        No se pudo conectar con el servidor de acceso. Comprueba tu conexión.
+      </p>
+
+      <input id="loginEmail" type="email" placeholder="Correo electrónico" autocomplete="username"
         style="padding:.65rem .9rem;border-radius:8px;border:1px solid var(--color-border,#30363d);
         background:var(--color-bg,#0d1117);color:var(--color-text,#e6edf3);font-size:.95rem;width:100%;box-sizing:border-box;" />
 
-      <input id="loginPassword" type="password" placeholder="Contraseña"
+      <input id="loginPassword" type="password" placeholder="Contraseña" autocomplete="current-password"
         style="padding:.65rem .9rem;border-radius:8px;border:1px solid var(--color-border,#30363d);
         background:var(--color-bg,#0d1117);color:var(--color-text,#e6edf3);font-size:.95rem;width:100%;box-sizing:border-box;" />
 
@@ -104,16 +156,30 @@ function inyectarPantallaLogin() {
         Crear cuenta nueva
       </button>
 
+      <button id="reintentarConexionBtn" style="display:none;padding:.6rem;border-radius:8px;border:1px solid var(--color-border,#30363d);
+        background:transparent;color:var(--color-muted,#8b949e);font-size:.85rem;cursor:pointer;">
+        🔄 Reintentar conexión
+      </button>
+
       <p id="loginError" style="color:#f85149;font-size:.85rem;text-align:center;margin:0;display:none;"></p>
     </div>
   `;
   document.body.appendChild(div);
+
+  actualizarAvisoConexionLogin();
 
   document.getElementById("loginBtn").addEventListener("click", async () => {
     const email    = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
     const errEl    = document.getElementById("loginError");
     errEl.style.display = "none";
+
+    if (!email || !password) {
+      errEl.textContent = "Introduce correo y contraseña.";
+      errEl.style.display = "block";
+      return;
+    }
+
     try {
       await login(email, password);
       ocultarPantallaLogin();
@@ -129,6 +195,13 @@ function inyectarPantallaLogin() {
     const password = document.getElementById("loginPassword").value;
     const errEl    = document.getElementById("loginError");
     errEl.style.display = "none";
+
+    if (!email || !password) {
+      errEl.textContent = "Introduce correo y contraseña.";
+      errEl.style.display = "block";
+      return;
+    }
+
     try {
       await registro(email, password);
     } catch (e) {
@@ -137,16 +210,35 @@ function inyectarPantallaLogin() {
     }
   });
 
+  document.getElementById("reintentarConexionBtn").addEventListener("click", () => {
+    location.reload();
+  });
+
   // Entrar con Enter
   document.getElementById("loginPassword").addEventListener("keydown", e => {
     if (e.key === "Enter") document.getElementById("loginBtn").click();
   });
 }
 
+function actualizarAvisoConexionLogin() {
+  const aviso = document.getElementById("loginConexionAviso");
+  const reintentar = document.getElementById("reintentarConexionBtn");
+  if (!aviso || !reintentar) return;
+  if (!supabaseListo) {
+    aviso.style.display = "block";
+    reintentar.style.display = "block";
+  } else {
+    aviso.style.display = "none";
+    reintentar.style.display = "none";
+  }
+}
+
 function mostrarPantallaLogin() {
   inyectarPantallaLogin();
+  actualizarAvisoConexionLogin();
   const el = document.getElementById("loginScreen");
   if (el) el.style.display = "flex";
+  mostrarCarga(false);
 }
 
 function ocultarPantallaLogin() {
@@ -173,6 +265,13 @@ function inyectarBotonLogout() {
   seccionAjustes.insertBefore(wrapper, seccionAjustes.firstChild);
   document.getElementById("logoutBtn").addEventListener("click", cerrarSesion);
 } 
+
+// Clave de localStorage de las actas, aislada por agente para que
+// varios agentes que compartan dispositivo no mezclen sus actas.
+function claveStorageActas() {
+  const base = CONFIG.STORAGE_ACTAS;
+  return usuarioActual?.id ? `${base}_${usuarioActual.id}` : base;
+}
 
 const CONFIG = { 
 VERSION: "1.1.0", 
@@ -1467,16 +1566,11 @@ ACTAS
 ========================================================= */ 
 
 async function cargarActas() {
-  if (!usuarioActual) return;
   try {
-    const { data, error } = await supabase
-      .from("actas")
-      .select("*")
-      .eq("user_id", usuarioActual.id)
-      .order("actualizado", { ascending: false });
-
-    if (error) throw error;
-    estado.actas = data ?? [];
+    const guardado = localStorage.getItem(claveStorageActas());
+    const datos = guardado ? JSON.parse(guardado) : [];
+    datos.sort((a, b) => (b.actualizado || "").localeCompare(a.actualizado || ""));
+    estado.actas = datos;
   } catch (error) {
     console.error("No se pudieron cargar las actas:", error);
     estado.actas = [];
@@ -1484,9 +1578,12 @@ async function cargarActas() {
   renderizarActas();
 }
 
-// guardarActas ya no se usa (cada operación va directa a Supabase)
 function guardarActas() {
-  // Mantenido por compatibilidad; la persistencia ahora es en Supabase
+  try {
+    localStorage.setItem(claveStorageActas(), JSON.stringify(estado.actas));
+  } catch (error) {
+    console.error("No se pudieron guardar las actas:", error);
+  }
 } 
 
 function configurarActas() { 
@@ -1810,14 +1907,12 @@ return $(id)?.value?.trim() || "";
 
 async function guardarActaDesdeFormulario(evento) {
   evento.preventDefault();
-  if (!usuarioActual) { mostrarToast("Sesión no iniciada."); return; }
 
   const form = evento.currentTarget;
   const esEdicion = !!form.dataset.editingId;
 
   const acta = {
     id:           form.dataset.editingId || `acta-${Date.now()}`,
-    user_id:      usuarioActual.id,
     numero:       obtenerValor("actaNumero"),
     fecha:        obtenerValor("actaFecha"),
     hora:         obtenerValor("actaHora"),
@@ -1832,19 +1927,13 @@ async function guardarActaDesdeFormulario(evento) {
   };
 
   try {
-    const { error } = await supabase
-      .from("actas")
-      .upsert(acta, { onConflict: "id" });
-
-    if (error) throw error;
-
-    // Actualizar estado local
     const indice = estado.actas.findIndex(item => item.id === acta.id);
     if (indice >= 0) {
       estado.actas[indice] = acta;
     } else {
       estado.actas.unshift(acta);
     }
+    guardarActas();
 
     mostrarToast(esEdicion ? "Acta actualizada." : "Acta guardada.");
   } catch (error) {
@@ -1960,15 +2049,8 @@ async function borrarActa(id) {
   if (!confirmado) return;
 
   try {
-    const { error } = await supabase
-      .from("actas")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", usuarioActual.id);
-
-    if (error) throw error;
-
     estado.actas = estado.actas.filter(item => item.id !== id);
+    guardarActas();
     renderizarActas();
     mostrarToast("Acta borrada.");
   } catch (error) {
@@ -3471,7 +3553,7 @@ return;
 estado.actas = []; 
 
 localStorage.removeItem( 
-CONFIG.STORAGE_ACTAS 
+claveStorageActas() 
 ); 
 
 renderizarActas(); 
@@ -3816,11 +3898,20 @@ async function iniciarAplicacion() {
   }
 }
 
+// El login es obligatorio para entrar, pero la comprobación de
+// sesión tiene un límite de tiempo (ver obtenerSesion) para que,
+// si Supabase no responde, se muestre la pantalla de acceso con
+// un aviso claro en vez de dejar la app cargando para siempre.
 async function arrancar() {
-  const user = await obtenerSesion();
-  if (user) {
-    await iniciarAplicacion();
-  } else {
+  try {
+    const usuario = await obtenerSesion();
+    if (usuario) {
+      await iniciarAplicacion();
+    } else {
+      mostrarPantallaLogin();
+    }
+  } catch (error) {
+    console.error("Error al arrancar Centinela Code:", error);
     mostrarPantallaLogin();
   }
 }
