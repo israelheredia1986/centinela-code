@@ -1,7 +1,7 @@
 /* 
 ============================================================ 
 CENTINELA CODE 
-app.js - Con Supabase Auth + actas en la nube + Exportación PDF
+app.js - Con Supabase Auth + Actas + Subida de Fotos Incautación + PDF
 ============================================================ 
 */ 
 
@@ -20,6 +20,12 @@ var supabase = window.CENTINELA_SUPABASE_CLIENT || (window.supabase
         signInWithPassword: async () => ({ error: { message: "Supabase no disponible" } }),
         signUp: async () => ({ error: { message: "Supabase no disponible" } }),
         signOut: async () => ({})
+      },
+      storage: {
+        from: () => ({
+          upload: async () => ({ error: new Error("Storage no configurado") }),
+          getPublicUrl: () => ({ data: { publicUrl: "" } })
+        })
       }
     });
 
@@ -170,7 +176,7 @@ function inyectarBotonLogout() {
 } 
 
 const CONFIG = { 
-  VERSION: "1.2.0", 
+  VERSION: "1.3.0", 
   RUTAS: { 
     infracciones: "./data/infracciones.json", 
     infraccionesTrafico: "./data/infracciones_trafico.json", 
@@ -825,6 +831,87 @@ function determinarCuantiaSancion(infraccion) {
 }
 
 /* ========================================================= 
+GESTIÓN DE IMÁGENES E INCAUTACIONES
+========================================================= */
+
+async function subirFotoIncautacion(archivo, actaId) {
+  if (!archivo) return null;
+  try {
+    const ext = archivo.name ? archivo.name.split('.').pop() : 'jpg';
+    const nombreArchivo = `${actaId}_${Date.now()}.${ext}`;
+    const ruta = `incautaciones/${nombreArchivo}`;
+
+    const { data, error } = await supabase.storage
+      .from("incautaciones")
+      .upload(ruta, archivo, { cacheControl: "3600", upsert: true });
+
+    if (error) throw error;
+
+    const { data: publicUrlData } = supabase.storage
+      .from("incautaciones")
+      .getPublicUrl(ruta);
+
+    return publicUrlData.publicUrl;
+  } catch (error) {
+    console.warn("Storage no disponible o error en subida, convirtiendo a Base64:", error);
+    return await convertirArchivoABase64(archivo);
+  }
+}
+
+function convertirArchivoABase64(archivo) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (e) => reject(e);
+    reader.readAsDataURL(archivo);
+  });
+}
+
+function inyectarCamposFotoEditor() {
+  const form = $("actaForm");
+  if (!form || $("actaFotoGroup")) return;
+
+  const contenedor = document.createElement("div");
+  contenedor.id = "actaFotoGroup";
+  contenedor.className = "form-group";
+  contenedor.style.cssText = "margin-top:1rem; border-top:1px dashed var(--color-border,#30363d); padding-top:1rem;";
+  contenedor.innerHTML = `
+    <label style="font-weight:600;display:block;margin-bottom:.4rem;">📷 Fotografía de la Incautación / Efectos</label>
+    <input type="file" id="actaFotoInput" accept="image/*" capture="environment" style="width:100%;margin-bottom:.5rem;" />
+    <div id="actaFotoContainerPreview" style="display:none;margin-top:.5rem;position:relative;max-width:200px;">
+      <img id="actaFotoImgPreview" src="" alt="Previsualización" style="width:100%;border-radius:8px;border:1px solid var(--color-border,#30363d);display:block;" />
+      <button type="button" id="actaFotoEliminar" style="position:absolute;top:4px;right:4px;background:rgba(248,81,73,0.9);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-weight:bold;">×</button>
+    </div>
+  `;
+
+  const botonera = form.querySelector(".form-actions") || form.lastElementChild;
+  form.insertBefore(contenedor, botonera);
+
+  $("actaFotoInput")?.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      const img = $("actaFotoImgPreview");
+      const prev = $("actaFotoContainerPreview");
+      if (img && prev) {
+        img.src = url;
+        prev.style.display = "block";
+      }
+    }
+  });
+
+  $("actaFotoEliminar")?.addEventListener("click", () => {
+    const input = $("actaFotoInput");
+    const prev = $("actaFotoContainerPreview");
+    const img = $("actaFotoImgPreview");
+    if (input) input.value = "";
+    if (img) img.src = "";
+    if (prev) prev.style.display = "none";
+    if (form) delete form.dataset.fotoExistente;
+  });
+}
+
+/* ========================================================= 
 ACTAS - NUBE, FILTROS Y PDF 
 ========================================================= */ 
 
@@ -858,7 +945,6 @@ function configurarActas() {
   $("btnDictadoHechos")?.addEventListener("click", (evento) => alternarDictado(evento.currentTarget)); 
   $("btnDictadoObservaciones")?.addEventListener("click", (evento) => alternarDictado(evento.currentTarget)); 
   
-  // Eventos para filtros de historial y exportación PDF global
   $("actaFiltroFecha")?.addEventListener("change", renderizarActas);
   $("actaFiltroBusqueda")?.addEventListener("input", renderizarActas);
   $("btnExportarHistoricoPDF")?.addEventListener("click", exportarHistoricoPDF);
@@ -975,6 +1061,7 @@ function abrirEditorActa(acta = null) {
   const form = $("actaForm"); 
   if (!editor || !form) return; 
 
+  inyectarCamposFotoEditor();
   form.reset(); 
 
   const fecha = $("actaFecha"); 
@@ -982,6 +1069,9 @@ function abrirEditorActa(acta = null) {
 
   if (fecha) fecha.value = acta?.fecha || new Date().toISOString().slice(0, 10); 
   if (hora) hora.value = acta?.hora || new Date().toTimeString().slice(0, 5); 
+
+  const fotoContainer = $("actaFotoContainerPreview");
+  const fotoImg = $("actaFotoImgPreview");
 
   if (acta) { 
     $("actaNumero").value = acta.numero || ""; 
@@ -995,8 +1085,19 @@ function abrirEditorActa(acta = null) {
     if ($("actaAutoridad")) $("actaAutoridad").value = acta.autoridad_sancionadora || ""; 
     $("actaObservaciones").value = acta.observaciones || ""; 
     form.dataset.editingId = acta.id || ""; 
+    
+    if (acta.foto_url && fotoContainer && fotoImg) {
+      fotoImg.src = acta.foto_url;
+      fotoContainer.style.display = "block";
+      form.dataset.fotoExistente = acta.foto_url;
+    } else if (fotoContainer) {
+      fotoContainer.style.display = "none";
+      delete form.dataset.fotoExistente;
+    }
   } else { 
     delete form.dataset.editingId; 
+    delete form.dataset.fotoExistente;
+    if (fotoContainer) fotoContainer.style.display = "none";
   } 
 
   actualizarPreviewInfraccion(); 
@@ -1011,12 +1112,15 @@ function cerrarEditorActa() {
   if (form) { 
     form.reset(); 
     delete form.dataset.editingId; 
+    delete form.dataset.fotoExistente;
   } 
   const preview = $("actaInfraccionPreview"); 
   if (preview) { 
     preview.classList.add("hidden"); 
     preview.innerHTML = ""; 
   } 
+  const fotoPrev = $("actaFotoContainerPreview");
+  if (fotoPrev) fotoPrev.style.display = "none";
 } 
 
 function obtenerValor(id) { 
@@ -1029,9 +1133,18 @@ async function guardarActaDesdeFormulario(evento) {
 
   const form = evento.currentTarget;
   const esEdicion = !!form.dataset.editingId;
+  const idActa = form.dataset.editingId || `acta-${Date.now()}`;
+
+  const fotoInput = $("actaFotoInput");
+  let fotoUrl = form.dataset.fotoExistente || null;
+
+  if (fotoInput && fotoInput.files && fotoInput.files[0]) {
+    mostrarToast("Subiendo fotografía...");
+    fotoUrl = await subirFotoIncautacion(fotoInput.files[0], idActa);
+  }
 
   const acta = {
-    id:                     form.dataset.editingId || `acta-${Date.now()}`,
+    id:                     idActa,
     user_id:                usuarioActual.id,
     numero:                 obtenerValor("actaNumero"),
     fecha:                  obtenerValor("actaFecha"),
@@ -1045,6 +1158,7 @@ async function guardarActaDesdeFormulario(evento) {
     sancion_cuantia:        obtenerValor("actaSancion"),
     autoridad_sancionadora: obtenerValor("actaAutoridad"),
     observaciones:          obtenerValor("actaObservaciones"),
+    foto_url:               fotoUrl,
     actualizado:            new Date().toISOString()
   };
 
@@ -1120,6 +1234,12 @@ function renderizarActas() {
       <p><strong>Infracción:</strong> ${escaparHTML(acta.infraccion || "Sin especificar")}</p>
       ${acta.sancion_cuantia ? `<p><strong>Cuantía:</strong> ${escaparHTML(acta.sancion_cuantia)}</p>` : ""}
       ${acta.autoridad_sancionadora ? `<p><strong>Sanciona:</strong> ${escaparHTML(acta.autoridad_sancionadora)}</p>` : ""}
+      
+      ${acta.foto_url ? `
+        <div style="margin:0.5rem 0;">
+          <img src="${escaparHTML(acta.foto_url)}" alt="Fotografía de la incautación" style="max-width:100%;max-height:150px;border-radius:6px;border:1px solid var(--color-border,#30363d);object-fit:cover;" />
+        </div>
+      ` : ""}
 
       <div class="form-actions" style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;"> 
         <button type="button" class="secondary-button" data-edit-acta="${escaparHTML(acta.id)}">Editar</button> 
@@ -1179,7 +1299,6 @@ function actualizarPreviewInfraccion() {
     return; 
   } 
 
-  // Autocompletado dinámico de campos
   const autoridadCampo = $("actaAutoridad");
   const sancionCampo = $("actaSancion");
 
@@ -1232,6 +1351,8 @@ function exportarActaPDF(id) {
         .field { margin-bottom: 0.4rem; }
         .field label { font-weight: bold; display: block; font-size: 0.85rem; color: #444; }
         .field span { font-size: 1rem; }
+        .foto-incautacion { text-align: center; margin-top: 1rem; }
+        .foto-incautacion img { max-width: 100%; max-height: 250px; border: 1px solid #ccc; border-radius: 4px; }
         .footer { margin-top: 3rem; display: flex; justify-content: space-between; text-align: center; font-size: 0.85rem; }
         .signature { width: 45%; border-top: 1px solid #000; padding-top: 0.5rem; }
       </style>
@@ -1273,6 +1394,15 @@ function exportarActaPDF(id) {
         <div class="section-title">Relación sucinta de Hechos</div>
         <div class="field"><span>${escaparHTML(acta.hechos || "Sin observaciones").replace(/\n/g, "<br>")}</span></div>
       </div>
+
+      ${acta.foto_url ? `
+        <div class="section">
+          <div class="section-title">Fotografía / Anexo de la Incautación</div>
+          <div class="foto-incautacion">
+            <img src="${escaparHTML(acta.foto_url)}" alt="Incautación" />
+          </div>
+        </div>
+      ` : ""}
 
       ${acta.observaciones ? `
         <div class="section">
@@ -1340,6 +1470,7 @@ function exportarHistoricoPDF() {
             <th>Infracción</th>
             <th>Cuantía</th>
             <th>Autoridad Sancionadora</th>
+            <th>Foto</th>
           </tr>
         </thead>
         <tbody>
@@ -1352,6 +1483,7 @@ function exportarHistoricoPDF() {
               <td>${escaparHTML(a.infraccion || "-")}</td>
               <td>${escaparHTML(a.sancion_cuantia || "-")}</td>
               <td>${escaparHTML(a.autoridad_sancionadora || "-")}</td>
+              <td>${a.foto_url ? "Sí" : "No"}</td>
             </tr>
           `).join("")}
         </tbody>
