@@ -2120,9 +2120,9 @@ function configurarAsistenteIA() {
     } catch(error) {
 
 
-      console.error(
-        "Error IA:",
-        error
+    console.error(
+  "Error IA completo:",
+  JSON.stringify(error, null, 2)
       );
 
 
