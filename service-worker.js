@@ -1,30 +1,44 @@
-// ============================================================ //
-Centinela Code - Service Worker fusionado // Mantiene PWA offline y
-fuerza actualización de archivos //
-============================================================
+// ============================================================
+// Centinela Code - Service Worker fusionado
+// Mantiene PWA offline y fuerza actualización de archivos
+// ============================================================
 
-const CACHE_NAME = “centinela-code-v2”;
+const CACHE_NAME = "centinela-code-v3";
 
-const FILES_TO_CACHE = [ “./”, “./index.html”, “./style.css”,
-“./app.js”, “./manifest.json”,
+const FILES_TO_CACHE = [
+  "./",
+  "./index.html",
+  "./style.css",
+  "./app.js",
+  "./manifest.json",
 
-“./data/lopsc.json”, “./data/infracciones.json”,
-“./data/ordenanzas.json” ];
+  "./data/lopsc.json",
+  "./data/infracciones.json",
+  "./data/ordenanzas.json"
+];
 
-// Instalación self.addEventListener(“install”, event => {
-console.log(“Service Worker instalado”);
 
-self.skipWaiting();
+// Instalación
+self.addEventListener("install", event => {
+  console.log("Service Worker instalado");
 
-event.waitUntil( caches.open(CACHE_NAME) .then(cache => { return
-cache.addAll(FILES_TO_CACHE); }) ); });
+  self.skipWaiting();
+
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        return cache.addAll(FILES_TO_CACHE);
+      })
+  );
+});
+
 
 // Activación y limpieza de cachés antiguas
-self.addEventListener(“activate”, event => {
+self.addEventListener("activate", event => {
 
-console.log(“Service Worker activo”);
+  console.log("Service Worker activo");
 
-event.waitUntil(
+  event.waitUntil(
 
     caches.keys()
       .then(cacheNames => {
@@ -40,13 +54,15 @@ event.waitUntil(
       })
       .then(() => self.clients.claim())
 
-);
+  );
 
 });
 
-// Gestión de peticiones self.addEventListener(“fetch”, event => {
 
-event.respondWith(
+// Gestión de peticiones
+self.addEventListener("fetch", event => {
+
+  event.respondWith(
 
     caches.match(event.request)
       .then(response => {
@@ -59,6 +75,6 @@ event.respondWith(
 
       })
 
-);
+  );
 
 });
