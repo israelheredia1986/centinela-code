@@ -1,69 +1,39 @@
 <!DOCTYPE html>
 
-<html lang="es">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<meta content="#0f172a" name="theme-color"/>
-<meta content="Centinela Code - Consulta normativa y asistencia para la redacción de actas de Policía Local." name="description"/>
-<meta content="yes" name="mobile-web-app-capable"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<meta content="Centinela Code" name="apple-mobile-web-app-title"/>
-<title>Centinela Code</title>
-<link href="favicon.ico" rel="icon" sizes="any"/>
-<link href="icon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="icon-192.png" rel="icon" sizes="192x192" type="image/png"/>
-<link href="icon-512.png" rel="icon" sizes="512x512" type="image/png"/>
-<link href="icon-180.png" rel="apple-touch-icon"/>
-<link href="manifest.json" rel="manifest"/>
-<link href="style.css?v=20260901-premium" rel="stylesheet"/>
-</head>
-<body>
-<!-- =====================================================
-CABECERA
-====================================================== -->
-<header class="app-header">
-<div class="header-brand">
-<div aria-hidden="true" class="brand-icon">
+Centinela Code
 🛡️
-</div>
-<div class="brand-text">
-<h1>Centinela Code</h1>
-<span>
-Consulta normativa policial
-</span>
-</div>
-</div>
-<button aria-label="Buscar" class="header-action" id="headerSearchButton" title="Buscar" type="button">
-🔎
-</button>
-</header>
-<!-- =====================================================
-CONTENIDO PRINCIPAL
-====================================================== -->
-<main class="main-content">
-<!-- =================================================
-PANTALLA INICIO
-================================================== -->
-<section class="app-section active" data-section="home" id="section-home">
-<div class="hero-grid"><div class="brand-hero"><div aria-hidden="true" class="brand-hero-icon"></div><div class="brand-hero-text"><h2 class="brand-hero-title">Centinela <span>Code</span></h2><p class="brand-hero-tagline">Police &amp; Normative App</p><span class="status-pill"><span class="status-dot"></span>Sistema operativo</span></div></div>
-<button aria-label="Ver y editar datos del agente en Ajustes" class="agent-card" id="agentCard" type="button"><span class="agent-card-label"><span class="ui-person">●</span> Agente activo <span class="connection-pill"><i></i> Conectado</span></span><strong class="agent-card-name" id="agentName">Agente sin configurar</strong><span class="agent-card-id" id="agentId">Configura tu identificador en Ajustes</span><span class="agent-card-badge">✦ Policía Local</span><span aria-hidden="true" class="agent-card-police"></span></button></div>
-<div class="section-heading section-heading--quick"><span class="heading-mark">ϟ</span><h2>Acceso rápido</h2><span class="heading-line"></span></div>
-<div class="quick-actions">
-<button class="quick-action quick-action--blue" data-target="consulta" type="button"><span class="quick-action-icon">⌕</span><span class="quick-action-text"><strong>Consulta</strong><small>Buscar infracciones<br/>y normativa</small></span><span class="quick-action-footer">Consulta rápida <span class="quick-action-arrow">→</span></span></button>
-<button class="quick-action quick-action--teal" data-target="actas" type="button"><span class="quick-action-icon">▣</span><span class="quick-action-text"><strong>Actas</strong><small>Crear y gestionar<br/>actas</small></span><span class="quick-action-footer">Nueva acta <span class="quick-action-arrow">→</span></span></button>
-<button class="quick-action quick-action--gold" data-target="normativa" type="button"><span class="quick-action-icon">⚖</span><span class="quick-action-text"><strong>Normativa</strong><small>Legislación y<br/>artículos</small></span><span class="quick-action-footer">Ver normativa <span class="quick-action-arrow">→</span></span></button></div>
-<div class="home-info-grid"><div class="status-card home-panel"><div class="panel-title"><span class="panel-title-icon">▱</span> Estado del sistema</div>
-<div class="status-row"><span><b class="status-symbol green">▤</b><span><strong>Base de Infracciones</strong><small>Comprobando datos disponibles</small></span></span><strong class="status-value" id="homeInfraccionesStatus">Cargando...</strong></div>
-<div class="status-row"><span><b class="status-symbol green">⚖</b><span><strong>Ley Orgánica 4/2015</strong><small>Comprobando artículos disponibles</small></span></span><strong class="status-value" id="homeNormativaStatus">Cargando...</strong></div>
-<div class="status-row"><span><b class="status-symbol green">▤</b><span><strong>Ordenanzas Municipales</strong><small>Comprobando datos disponibles</small></span></span><strong class="status-value" id="homeOrdenanzasStatus">Cargando...</strong></div>
-<div class="status-row"><span><b class="status-symbol blue">⌁</b><span><strong>Modo Offline</strong><small>Aplicación disponible sin conexión</small></span></span><strong class="status-value" id="homeNetworkStatus">Comprobando...</strong></div></div>
-<div class="favoritos-card home-panel" id="favoritosPanel">
-  <div class="panel-title"><span class="panel-title-icon">⭐</span> Mis favoritos</div>
 
-  <!-- Grupo: Infracciones -->
-  <div class="fav-group">
+Centinela Code
+Consulta normativa policial
+
+🔎
+
+Centinela Code
+Police & Normative App
+Sistema operativo
+
+● Agente activo ConectadoAgente sin configurarConfigura tu identificador
+en Ajustes✦ Policía Local
+
+ϟ
+Acceso rápido
+
+⌕ConsultaBuscar infraccionesy normativaConsulta rápida →
+▣ActasCrear y gestionaractasNueva acta →
+⚖NormativaLegislación yartículosVer normativa →
+
+▱ Estado del sistema
+
+▤Base de InfraccionesComprobando datos disponiblesCargando…
+
+⚖Ley Orgánica 4/2015Comprobando artículos disponiblesCargando…
+
+▤Ordenanzas MunicipalesComprobando datos disponiblesCargando…
+
+⌁Modo OfflineAplicación disponible sin conexiónComprobando…
+
+⭐ Mis favoritos
+
     <div class="fav-group-header">
       <span class="fav-group-icon blue-ring">!</span>
       <span class="fav-group-label">Infracciones frecuentes</span>
@@ -72,10 +42,7 @@ PANTALLA INICIO
     <ul class="fav-list" id="favListInfracciones">
       <!-- se rellena desde JS -->
     </ul>
-  </div>
 
-  <!-- Grupo: Normativa -->
-  <div class="fav-group fav-group--border">
     <div class="fav-group-header">
       <span class="fav-group-icon teal-ring">▤</span>
       <span class="fav-group-label">Normas frecuentes</span>
@@ -84,524 +51,139 @@ PANTALLA INICIO
     <ul class="fav-list" id="favListNormativa">
       <!-- se rellena desde JS -->
     </ul>
-  </div>
-</div></div>
-<div class="home-bottom-grid"><div class="home-panel latest-panel"><div class="panel-title"><span class="panel-title-icon">▤</span> Últimas actas</div><div class="home-actas-list" id="homeActasList"><div class="home-acta-empty">No hay actas guardadas todavía.</div></div></div><button class="home-panel action-panel" id="homeNewActaButton" type="button"><div class="panel-title">Acción rápida</div><span class="action-plus">+</span><strong>Nueva acta</strong><small>Crear una nueva<br/>acta de denuncia</small></button></div>
-</section>
-<!-- =================================================
-CONSULTA
-================================================== -->
-<section class="app-section" data-section="consulta" id="section-consulta">
-<div class="page-title">
-<div>
-<h2>
+
+▤ Últimas actas
+
+No hay actas guardadas todavía.
+
 Consulta
-</h2>
-<p>
-Busca rápidamente una infracción,
-artículo o conducta.
-</p>
-</div>
-</div>
-<div class="search-box">
-<span aria-hidden="true" class="search-icon">
-🔎
-</span>
-<input aria-label="Buscar infracciones" autocomplete="off" id="consultaSearch" placeholder="Buscar por código, artículo, palabra..." type="search"/>
-<button aria-label="Borrar búsqueda" class="clear-search" id="clearConsultaSearch" title="Borrar" type="button">
-×
-</button>
-</div>
-<div class="filters">
-<button class="filter-chip active" data-severity="all" type="button">
+Busca rápidamente una infracción, artículo o conducta.
+
+🔎 ×
+
 Todas
-</button>
-<button class="filter-chip" data-severity="Leve" type="button">
 Leves
-</button>
-<button class="filter-chip" data-severity="Grave" type="button">
 Graves
-</button>
-<button class="filter-chip" data-severity="Muy Grave" type="button">
 Muy graves
-</button>
-</div>
-<div class="results-header">
-<span>
-Resultados
-</span>
-<strong id="consultaResultCount">
-0
-</strong>
-</div>
-<div class="results-list" id="consultaResults">
-<div class="empty-state">
-<div class="empty-icon">
+
+Resultados 0
+
 🔎
-</div>
-<h3>
+
 Buscar infracción
-</h3>
-<p>
-Introduce un código, artículo o
-palabra clave para comenzar.
-</p>
-</div>
-</div>
-</section>
-<!-- =================================================
-ACTAS
-================================================== -->
-<section class="app-section" data-section="actas" id="section-actas">
-<div class="page-title">
-<div>
-<h2>
+Introduce un código, artículo o palabra clave para comenzar.
+
 Actas
-</h2>
-<p>
 Redacción y gestión de actas.
-</p>
-</div>
-<button class="primary-button" id="newActaButton" type="button">
-+ Nueva
-</button>
-</div>
-<div class="acta-editor hidden" id="actaEditor">
-<div class="card-header">
-<h3>
+
+-   Nueva
+
 Nueva acta
-</h3>
-<button aria-label="Cerrar" class="icon-button" id="closeActaEditor" type="button">
 ×
-</button>
-</div>
-<form id="actaForm">
-<div class="form-section">
-<h4>
+
 Datos del acta
-</h4>
-<div class="form-group">
-<label for="actaNumero">
 Número de acta
-</label>
-<input id="actaNumero" name="numero" placeholder="Número de acta" type="text"/>
-</div>
-<div class="form-group">
-<label for="actaFecha">
+
 Fecha
-</label>
-<input id="actaFecha" name="fecha" type="date"/>
-</div>
-<div class="form-group">
-<label for="actaHora">
+
 Hora
-</label>
-<input id="actaHora" name="hora" type="time"/>
-</div>
-</div>
-<div class="form-section">
-<h4>
+
 Persona denunciada
-</h4>
-<div class="form-group">
-<label for="actaNombre">
 Nombre y apellidos
-</label>
-<input autocomplete="off" id="actaNombre" name="nombre" type="text"/>
-</div>
-<div class="form-group">
-<label for="actaDni">
+
 DNI / NIE
-</label>
-<input autocomplete="off" id="actaDni" name="dni" type="text"/>
-</div>
-<div class="form-group">
-<label for="actaDomicilio">
+
 Domicilio
-</label>
-<input id="actaDomicilio" name="domicilio" type="text"/>
-</div>
-</div>
-<div class="form-section">
-<h4>
+
 Hechos
-</h4>
-<div class="form-group">
-<label for="actaLugar">
 Lugar
-</label>
-<div class="input-with-button">
-<input id="actaLugar" name="lugar" type="text"/>
-<button aria-label="Usar mi ubicación actual" class="input-action-button" id="btnUbicacionActa" title="Usar mi ubicación actual" type="button">
+
 📍
-</button>
-</div>
-</div>
-<div class="form-group">
-<label for="actaHechos">
+
 Descripción de los hechos
-</label>
-<div class="input-with-button input-with-button--textarea">
-<textarea id="actaHechos" name="hechos" placeholder="Describa los hechos observados..." rows="7"></textarea>
-<button aria-label="Dictar por voz" class="input-action-button" data-target="actaHechos" id="btnDictadoHechos" title="Dictar por voz" type="button">
+
 🎤
-</button>
-</div>
-</div>
-</div>
-<div class="form-section">
-<h4>
+
 Infracción
-</h4>
-<div class="form-group">
-<label for="actaInfraccion">
 Código / artículo
-</label>
-<input autocomplete="off" id="actaInfraccion" name="infraccion" placeholder="Ej.: 36.16" type="text"/>
-</div>
-<div class="infraccion-preview hidden" id="actaInfraccionPreview">
-</div>
-</div>
-<div class="form-section">
-<h4>
+
 Observaciones
-</h4>
-<div class="form-group">
-<div class="input-with-button input-with-button--textarea">
-<textarea id="actaObservaciones" name="observaciones" placeholder="Observaciones adicionales..." rows="5"></textarea>
-<button aria-label="Dictar por voz" class="input-action-button" data-target="actaObservaciones" id="btnDictadoObservaciones" title="Dictar por voz" type="button">
 🎤
-</button>
-</div>
-</div>
-</div>
-<div class="form-actions">
-<button class="secondary-button" id="cancelActaButton" type="button">
+
 Cancelar
-</button>
-<button class="primary-button" type="submit">
 Guardar acta
-</button>
-</div>
-</form>
-</div>
-<div class="actas-list" id="actasList">
-<div class="empty-state">
-<div class="empty-icon">
+
 📝
-</div>
-<h3>
+
 No hay actas guardadas
-</h3>
-<p>
 Pulsa «Nueva» para comenzar un acta.
-</p>
-</div>
-</div>
-</section>
-<!-- =================================================
-NORMATIVA
-================================================== -->
-<section class="app-section" data-section="normativa" id="section-normativa">
-<div class="page-title">
-<div>
-<h2>
+
 Normativa
-</h2>
-<p>
-Consulta la legislación disponible
-en la aplicación.
-</p>
-</div>
-</div>
-<div class="search-box">
-<span aria-hidden="true" class="search-icon">
-🔎
-</span>
-<input aria-label="Buscar normativa" autocomplete="off" id="normativaSearch" placeholder="Buscar artículo o texto..." type="search"/>
-<button aria-label="Borrar búsqueda" class="clear-search" id="clearNormativaSearch" type="button">
-×
-</button>
-</div>
-<div class="normativa-list" id="normativaList">
-<div class="normativa-card">
-<div class="normativa-icon">
+Consulta la legislación disponible en la aplicación.
+
+🔎 ×
+
 ⚖️
-</div>
-<div class="normativa-info">
-<h3>
+
 Cargando normativa…
-</h3>
-<p>
 Un momento, por favor.
-</p>
-</div>
-</div>
-</div>
-<div class="normativa-viewer hidden" id="normativaViewer">
-<div class="viewer-header">
-<button aria-label="Cerrar normativa" class="icon-button" id="closeNormativaViewer" type="button">
+
 ←
-</button>
-<div>
-<h3 id="viewerTitle">
 Normativa
-</h3>
-<span id="viewerSubtitle">
-</span>
-</div>
-</div>
-<div class="viewer-content" id="viewerContent">
-</div>
-</div>
-</section>
-<!-- =================================================
-AJUSTES
-================================================== -->
-<section class="app-section" data-section="ajustes" id="section-ajustes">
-<div class="page-title">
-<div>
-<h2>
+
 Ajustes
-</h2>
-<p>
 Configuración de Centinela Code.
-</p>
-</div>
-</div>
-<div class="settings-card">
-<div class="settings-card-header">
-<span class="settings-icon">
+
 🛡️
-</span>
-<div>
-<h3>
+
 Centinela Code
-</h3>
-<p>
 Aplicación de consulta normativa
-</p>
-</div>
-</div>
-<div class="settings-row">
-<span>
-Versión
-</span>
-<strong id="appVersion">
-1.0.0
-</strong>
-</div>
-<div class="settings-row">
-<span>
-Estado
-</span>
-<strong class="status-value" id="appStatus">
-Operativa
-</strong>
-</div>
-<div class="settings-row">
-<span>
-Modo
-</span>
-<strong id="appMode">
-Offline / Online
-</strong>
-</div>
-</div>
-<div class="settings-card">
-<div class="settings-card-title">
+
+Versión 1.0.0
+
+Estado Operativa
+
+Modo Offline / Online
+
 Agente
-</div>
-<div class="settings-form">
-<div class="form-group">
-<label for="agentNameInput">
+
 Nombre del agente
-</label>
-<input autocomplete="off" id="agentNameInput" placeholder="Ej. J. García" type="text"/>
-</div>
-<div class="form-group">
-<label for="agentIdInput">
+
 Identificador / TIP
-</label>
-<input autocomplete="off" id="agentIdInput" placeholder="Ej. 1234PL" type="text"/>
-</div>
-</div>
-<button class="settings-button" id="saveAgentButton" type="button">
-<span>
-💾
-</span>
-<span>
-Guardar datos del agente
-</span>
-</button>
-</div>
-<div class="settings-card">
-<div class="settings-card-title">
+
+💾 Guardar datos del agente
+
 Datos
-</div>
-<button class="settings-button" id="reloadDataButton" type="button">
-<span>
-🔄
-</span>
-<span>
-Recargar datos
-</span>
-</button>
-<button class="settings-button danger" id="clearDraftsButton" type="button">
-<span>
-🗑️
-</span>
-<span>
-Borrar actas guardadas
-</span>
-</button>
-</div>
-<div class="settings-card">
-<div class="settings-card-title">
+
+🔄 Recargar datos
+🗑️ Borrar actas guardadas
+
 Estado de las bases de datos
-</div>
-<div class="settings-data-status">
-<div class="data-status-row">
-<span>
-LOPSC
-</span>
-<strong id="settingsLopscStatus">
-Pendiente
-</strong>
-</div>
-<div class="data-status-row">
-<span>
-Infracciones
-</span>
-<strong id="settingsInfraccionesStatus">
-Pendiente
-</strong>
-</div>
-<div class="data-status-row">
-<span>
-Ordenanzas
-</span>
-<strong id="settingsOrdenanzasStatus">
-Pendiente
-</strong>
-</div>
-</div>
-</div>
-<div class="settings-card">
-<div class="settings-card-title">
+
+LOPSC Pendiente
+
+Infracciones Pendiente
+
+Ordenanzas Pendiente
+
 Información
-</div>
-<p class="settings-description">
 
-Centinela Code está diseñada para facilitar
-la consulta de normativa y la preparación
-de actas durante el servicio.
+Centinela Code está diseñada para facilitar la consulta de normativa y
+la preparación de actas durante el servicio.
 
-</p>
-<p class="settings-description">
+La aplicación puede funcionar sin conexión cuando los datos necesarios
+se encuentran almacenados localmente.
 
-La aplicación puede funcionar sin conexión
-cuando los datos necesarios se encuentran
-almacenados localmente.
+🏠 Inicio
+🔎 Consulta
+📝 Actas
+⚖️ Normativa
+⚙️ Ajustes
 
-</p>
-</div>
-</section>
-</main>
-<!-- =====================================================
-BARRA DE NAVEGACIÓN INFERIOR
-====================================================== -->
-<nav aria-label="Navegación principal" class="bottom-navigation" id="bottomNavigation">
-<button aria-label="Inicio" class="nav-item active" data-section="home" type="button">
-<span class="nav-icon">
-🏠
-</span>
-<span class="nav-label">
-Inicio
-</span>
-</button>
-<button aria-label="Consulta" class="nav-item" data-section="consulta" type="button">
-<span class="nav-icon">
-🔎
-</span>
-<span class="nav-label">
-Consulta
-</span>
-</button>
-<button aria-label="Actas" class="nav-item" data-section="actas" type="button">
-<span class="nav-icon">
-📝
-</span>
-<span class="nav-label">
-Actas
-</span>
-</button>
-<button aria-label="Normativa" class="nav-item" data-section="normativa" type="button">
-<span class="nav-icon">
-⚖️
-</span>
-<span class="nav-label">
-Normativa
-</span>
-</button>
-<button aria-label="Ajustes" class="nav-item" data-section="ajustes" type="button">
-<span class="nav-icon">
-⚙️
-</span>
-<span class="nav-label">
-Ajustes
-</span>
-</button>
-</nav>
-<!-- =====================================================
-MODAL GENERAL
-====================================================== -->
-<div aria-labelledby="modalTitle" aria-modal="true" class="modal hidden" id="appModal" role="dialog">
-<div class="modal-overlay" id="modalOverlay"></div>
-<div class="modal-container">
-<div class="modal-header">
-<h3 id="modalTitle">
 Centinela Code
-</h3>
-<button aria-label="Cerrar" class="icon-button" id="closeModal" type="button">
 ×
-</button>
-</div>
-<div class="modal-body" id="modalBody">
-</div>
-<div class="modal-actions" id="modalActions">
-</div>
-</div>
-</div>
-<!-- =====================================================
-TOAST / AVISOS
-====================================================== -->
-<div aria-live="polite" class="toast" id="toast" role="status">
-<span id="toastMessage"></span>
-</div>
-<!-- =====================================================
-INDICADOR DE CARGA
-====================================================== -->
-<div class="loading-screen" id="loadingScreen">
-<div class="loading-logo">
+
 🛡️
-</div>
-<h2>
+
 Centinela Code
-</h2>
-<p>
-Cargando aplicación...
-</p>
-<div class="loading-spinner"></div>
-</div>
-<!-- =====================================================
-APP.JS
-Versión renovada para evitar caché
-====================================================== -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script defer="" src="app.js?v=20260901-login"></script>
-<!-- El Service Worker se registra una única vez desde app.js
-(registrarServiceWorker), con updateViaCache: "none" para
-evitar que quede una versión antigua cacheada. -->
-</body>
-</html>
+Cargando aplicación…
