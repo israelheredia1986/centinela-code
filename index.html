@@ -59,7 +59,33 @@ PANTALLA INICIO
 <div class="status-row"><span><b class="status-symbol green">⚖</b><span><strong>Ley Orgánica 4/2015</strong><small>Comprobando artículos disponibles</small></span></span><strong class="status-value" id="homeNormativaStatus">Cargando...</strong></div>
 <div class="status-row"><span><b class="status-symbol green">▤</b><span><strong>Ordenanzas Municipales</strong><small>Comprobando datos disponibles</small></span></span><strong class="status-value" id="homeOrdenanzasStatus">Cargando...</strong></div>
 <div class="status-row"><span><b class="status-symbol blue">⌁</b><span><strong>Modo Offline</strong><small>Aplicación disponible sin conexión</small></span></span><strong class="status-value" id="homeNetworkStatus">Comprobando...</strong></div></div>
-<div class="resumen-card home-panel"><div class="panel-title"><span class="panel-title-icon">▥</span> Resumen</div><div class="resumen-row"><span class="resumen-icon blue-ring">!</span><strong class="resumen-value" id="resumenInfracciones">0</strong><span class="resumen-label">Infracciones<br/>disponibles</span></div><div class="resumen-row"><span class="resumen-icon teal-ring">▤</span><strong class="resumen-value" id="resumenArticulos">0</strong><span class="resumen-label">Artículos de<br/>normativa</span></div><div class="resumen-row"><span class="resumen-icon gold-ring">▣</span><strong class="resumen-value" id="resumenActas">0</strong><span class="resumen-label">Actas<br/>almacenadas</span></div></div></div>
+<div class="favoritos-card home-panel" id="favoritosPanel">
+  <div class="panel-title"><span class="panel-title-icon">⭐</span> Mis favoritos</div>
+
+  <!-- Grupo: Infracciones -->
+  <div class="fav-group">
+    <div class="fav-group-header">
+      <span class="fav-group-icon blue-ring">!</span>
+      <span class="fav-group-label">Infracciones frecuentes</span>
+      <button class="fav-add-btn" data-fav-type="infraccion" title="Añadir infracción favorita">+</button>
+    </div>
+    <ul class="fav-list" id="favListInfracciones">
+      <!-- se rellena desde JS -->
+    </ul>
+  </div>
+
+  <!-- Grupo: Normativa -->
+  <div class="fav-group fav-group--border">
+    <div class="fav-group-header">
+      <span class="fav-group-icon teal-ring">▤</span>
+      <span class="fav-group-label">Normas frecuentes</span>
+      <button class="fav-add-btn" data-fav-type="normativa" title="Añadir norma favorita">+</button>
+    </div>
+    <ul class="fav-list" id="favListNormativa">
+      <!-- se rellena desde JS -->
+    </ul>
+  </div>
+</div></div>
 <div class="home-bottom-grid"><div class="home-panel latest-panel"><div class="panel-title"><span class="panel-title-icon">▤</span> Últimas actas</div><div class="home-actas-list" id="homeActasList"><div class="home-acta-empty">No hay actas guardadas todavía.</div></div></div><button class="home-panel action-panel" id="homeNewActaButton" type="button"><div class="panel-title">Acción rápida</div><span class="action-plus">+</span><strong>Nueva acta</strong><small>Crear una nueva<br/>acta de denuncia</small></button></div>
 </section>
 <!-- =================================================
@@ -572,7 +598,7 @@ Cargando aplicación...
 APP.JS
 Versión renovada para evitar caché
 ====================================================== -->
-<script type="module" src="app.js?v=20260901-supabase"></script>
+<script defer="" src="app.js?v=20260901-premium"></script>
 <!-- El Service Worker se registra una única vez desde app.js
 (registrarServiceWorker), con updateViaCache: "none" para
 evitar que quede una versión antigua cacheada. -->
