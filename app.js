@@ -126,7 +126,8 @@ function inyectarPantallaLogin() {
       border-radius:12px;padding:2rem;width:min(360px,90vw);
       display:flex;flex-direction:column;gap:1rem;
     ">
-      <div style="text-align:center;margin-bottom:.5rem;">
+      <div style="text-align:center;margin-bottom:.5rem;position:relative;">
+        <button id="cerrarLoginBtn" aria-label="Cerrar" style="position:absolute;top:-.5rem;right:-.5rem;background:none;border:none;color:var(--color-muted,#8b949e);font-size:1.4rem;cursor:pointer;line-height:1;padding:.25rem;">×</button>
         <div style="font-size:2rem;">🛡️</div>
         <h2 style="margin:0;font-size:1.2rem;color:var(--color-text,#e6edf3);">Centinela Code</h2>
         <p style="margin:.25rem 0 0;font-size:.8rem;color:var(--color-muted,#8b949e);">Acceso para agentes</p>
@@ -183,7 +184,9 @@ function inyectarPantallaLogin() {
     try {
       await login(email, password);
       ocultarPantallaLogin();
-      await iniciarAplicacion();
+      await cargarActas();
+      actualizarBloqueSesion();
+      mostrarToast("Sesión iniciada.");
     } catch (e) {
       errEl.textContent = e.message || "Error al iniciar sesión.";
       errEl.style.display = "block";
@@ -212,6 +215,10 @@ function inyectarPantallaLogin() {
 
   document.getElementById("reintentarConexionBtn").addEventListener("click", () => {
     location.reload();
+  });
+
+  document.getElementById("cerrarLoginBtn").addEventListener("click", () => {
+    ocultarPantallaLogin();
   });
 
   // Entrar con Enter
@@ -246,24 +253,52 @@ function ocultarPantallaLogin() {
   if (el) el.style.display = "none";
 }
 
-// Botón de cerrar sesión en Ajustes (lo añadimos si existe el contenedor)
-function inyectarBotonLogout() {
+// Bloque de sesión en Ajustes: muestra "Iniciar sesión" si no hay
+// sesión activa, o "Cerrar sesión" + correo si la hay. El login es
+// opcional: solo hace falta si en el futuro quieres sincronizar
+// actas en la nube; para consultar normativa no hace falta.
+function actualizarBloqueSesion() {
   const seccionAjustes = document.getElementById("section-ajustes");
-  if (!seccionAjustes || document.getElementById("logoutBtn")) return;
-  const wrapper = document.createElement("div");
-  wrapper.style.cssText = "padding:1rem 1rem 0;";
-  wrapper.innerHTML = `
-    <button id="logoutBtn" style="
-      width:100%;padding:.75rem;border-radius:8px;
-      border:1px solid #f85149;background:transparent;
-      color:#f85149;font-size:.95rem;cursor:pointer;font-weight:600;
-    ">Cerrar sesión</button>
-    <p style="text-align:center;font-size:.8rem;color:var(--color-muted,#8b949e);margin:.5rem 0 0;">
-      ${usuarioActual?.email ?? ""}
-    </p>
-  `;
-  seccionAjustes.insertBefore(wrapper, seccionAjustes.firstChild);
-  document.getElementById("logoutBtn").addEventListener("click", cerrarSesion);
+  if (!seccionAjustes) return;
+
+  let wrapper = document.getElementById("bloqueSesionAjustes");
+  if (!wrapper) {
+    wrapper = document.createElement("div");
+    wrapper.id = "bloqueSesionAjustes";
+    wrapper.style.cssText = "padding:1rem 1rem 0;";
+    seccionAjustes.insertBefore(wrapper, seccionAjustes.firstChild);
+  }
+
+  if (usuarioActual) {
+    wrapper.innerHTML = `
+      <button id="logoutBtn" style="
+        width:100%;padding:.75rem;border-radius:8px;
+        border:1px solid #f85149;background:transparent;
+        color:#f85149;font-size:.95rem;cursor:pointer;font-weight:600;
+      ">Cerrar sesión</button>
+      <p style="text-align:center;font-size:.8rem;color:var(--color-muted,#8b949e);margin:.5rem 0 0;">
+        ${usuarioActual?.email ?? ""}
+      </p>
+    `;
+    document.getElementById("logoutBtn").addEventListener("click", cerrarSesion);
+  } else {
+    wrapper.innerHTML = `
+      <button id="loginAjustesBtn" style="
+        width:100%;padding:.75rem;border-radius:8px;
+        border:1px solid var(--color-border,#30363d);background:transparent;
+        color:var(--color-text,#e6edf3);font-size:.95rem;cursor:pointer;font-weight:600;
+      ">🔐 Iniciar sesión</button>
+      <p style="text-align:center;font-size:.75rem;color:var(--color-muted,#8b949e);margin:.5rem 0 0;">
+        No es necesario para consultar normativa.
+      </p>
+    `;
+    document.getElementById("loginAjustesBtn").addEventListener("click", mostrarPantallaLogin);
+  }
+} 
+
+// Mantenido por compatibilidad con el resto del código.
+function inyectarBotonLogout() {
+  actualizarBloqueSesion();
 } 
 
 // Clave de localStorage de las actas, aislada por agente para que
@@ -3883,7 +3918,7 @@ async function iniciarAplicacion() {
     configurarAjustes();
     configurarEventosGlobales();
     configurarRed();
-    inyectarBotonLogout();
+    actualizarBloqueSesion();
     await cargarActas();
     await cargarDatos();
     const version = $("appVersion");
@@ -3898,22 +3933,20 @@ async function iniciarAplicacion() {
   }
 }
 
-// El login es obligatorio para entrar, pero la comprobación de
-// sesión tiene un límite de tiempo (ver obtenerSesion) para que,
-// si Supabase no responde, se muestre la pantalla de acceso con
-// un aviso claro en vez de dejar la app cargando para siempre.
+// La app arranca siempre, tengas sesión iniciada o no: el login
+// nunca debe impedir consultar la normativa ni usar los botones.
+// Si hay sesión guardada se comprueba en segundo plano (con límite
+// de tiempo) solo para mostrar el correo del agente en Ajustes.
 async function arrancar() {
-  try {
-    const usuario = await obtenerSesion();
-    if (usuario) {
-      await iniciarAplicacion();
-    } else {
-      mostrarPantallaLogin();
-    }
-  } catch (error) {
-    console.error("Error al arrancar Centinela Code:", error);
-    mostrarPantallaLogin();
-  }
+  await iniciarAplicacion();
+
+  obtenerSesion()
+    .then((usuario) => {
+      if (usuario) actualizarBloqueSesion();
+    })
+    .catch((error) => {
+      console.error("No se pudo comprobar la sesión:", error);
+    });
 }
 
 /* ========================================================= 
