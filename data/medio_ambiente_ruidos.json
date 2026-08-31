@@ -1,0 +1,20 @@
+[
+  {
+    "id": "AMB-001",
+    "articulo": "Art. 28.a",
+    "normativa": "Ley 37/2003 (Ley del Ruido)",
+    "concepto": "Superación de los límites sonoros permitidos",
+    "descripcion": "Producir ruidos o vibraciones que superen los límites fijados por la normativa o la ordenanza municipal en zonas de descanso o residenciales.",
+    "gravedad": "Grave",
+    "sancion": "Multa de 601 € a 12.000 €."
+  },
+  {
+    "id": "AMB-002",
+    "articulo": "Art. 108.3.c",
+    "normativa": "Ley 7/2022 (Residuos y Suelos Contaminados)",
+    "concepto": "Vertido incontrolado de residuos de construcción / escombros",
+    "descripcion": "Abandonar, verter o retirar de manera incontrolada residuos no peligrosos (como escombros o enseres) en terrenos públicos o privados no autorizados.",
+    "gravedad": "Grave",
+    "sancion": "Multa de 2.001 € a 100.000 €."
+  }
+]
