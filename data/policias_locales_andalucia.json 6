@@ -1,0 +1,38 @@
+[
+  {
+    "id": "PLA-001",
+    "articulo": "Art. 19 a 22",
+    "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+    "concepto": "Escalas y Categorías del Personal Funcionario",
+    "descripcion": "Estructura jerárquica: Escala Técnica (Superintendente, Intendente Mayor, Intendente), Escala Ejecutiva (Inspector/a, Subinspector/a) y Escala Básica (Oficial, Policía). Classificación en grupos A1, A2 y C1.",
+    "gravedad": "Estructura Orgánica",
+    "sancion": "Requisito de titulación y habilitación para el ejercicio de funciones."
+  },
+  {
+    "id": "PLA-002",
+    "articulo": "Art. 34 a 41",
+    "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+    "concepto": "Pase a la Situación de Segunda Actividad",
+    "descripcion": "Situación administrativa a la que se puede pasar por motivos de edad o disminuidas las aptitudes psico-físicas. Mantiene retribuciones básicas y complementos fijados municipalmente.",
+    "gravedad": "Derecho Administrativo",
+    "sancion": "Dictamen de tribunal médico u ordenanza municipal."
+  },
+  {
+    "id": "PLA-003",
+    "articulo": "Art. 68",
+    "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+    "concepto": "Faltas Disciplinarias Muy Graves",
+    "descripcion": "El incumplimiento del deber de fidelidad a la Constitución o Estatuto; manifiesta insubordinación; abandono del servicio; o condena firme por delito doloso relacionado con la función policial.",
+    "gravedad": "Muy Grave",
+    "sancion": "Separación del servicio o suspensión de funciones de 1 a 6 años."
+  },
+  {
+    "id": "PLA-004",
+    "articulo": "Art. 69",
+    "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+    "concepto": "Faltas Disciplinarias Graves",
+    "descripcion": "La grave desconsideración con los ciudadanos o mandos; la falta de rendimiento que afecte al servicio; la emisión de informes sin veracidad o el extravío por negligencia grave del arma reglamentaria.",
+    "gravedad": "Grave",
+    "sancion": "Suspensión de funciones de 5 días a 1 año o inmovilización de escalafón."
+  }
+]
