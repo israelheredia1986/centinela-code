@@ -32,7 +32,6 @@
       overflow: hidden;
     }
 
-    /* Header */
     header {
       padding: 24px 32px 12px 32px;
     }
@@ -49,7 +48,6 @@
       margin-top: 4px;
     }
 
-    /* Area Principal de Chat */
     main {
       flex: 1;
       display: flex;
@@ -99,7 +97,6 @@
       max-width: 100%;
     }
 
-    /* Formulario de entrada */
     .input-box {
       display: flex;
       gap: 12px;
@@ -144,7 +141,6 @@
       cursor: not-allowed;
     }
 
-    /* Navegación Inferior */
     nav {
       background-color: #080d17;
       border-top: 1px solid #1e2d4a;
@@ -207,7 +203,7 @@
   </nav>
 
   <script>
-    const API_KEY = "AQ.Ab8RN6KwUI-n-m3Njun0GjJNvvmBBsAyJGe6ehJTEcv-T_m8eA";
+    const API_KEY = "AQ.Ab8RN6KtidjsTLMFqyqv0FohuHjakHfaqFRGL84wyid3mLX9w";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
     const SYSTEM_INSTRUCTION = `Eres Centinela AI, un asistente virtual policial experto en el ordenamiento jurídico español (Ley Orgánica 4/2015 de Protección de la Seguridad Ciudadana, Código Penal, Reglamento General de Circulación y ordenanzas locales). Tu función es ayudar a agentes de la autoridad a calificar legalmente intervenciones, redactar actas, diligencias policiales y resolver dudas operativas de manera clara, concisa, rigurosa y directa.`;
@@ -217,7 +213,6 @@
     const userInput = document.getElementById('userInput');
     const sendBtn = document.getElementById('sendBtn');
 
-    // Historial de conversación
     let conversationHistory = [];
 
     chatForm.addEventListener('submit', async (e) => {
@@ -225,21 +220,21 @@
       const text = userInput.value.trim();
       if (!text) return;
 
-      // Mostrar mensaje del usuario
       appendMessage(text, 'user');
       userInput.value = '';
       sendBtn.disabled = true;
 
-      // Añadir al historial de la petición
       conversationHistory.push({ role: "user", parts: [{ text: text }] });
 
-      // Mensaje temporal de carga
       const loadingDiv = appendMessage("Pensando...", 'bot');
 
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${API_KEY}`
+          },
           body: JSON.stringify({
             system_instruction: {
               parts: [{ text: SYSTEM_INSTRUCTION }]
@@ -251,15 +246,13 @@
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error?.message || `Error en la petición (${response.status})`);
+          throw new Error(data.error?.message || `Error ${response.status}`);
         }
 
         const botReply = data.candidates[0].content.parts[0].text;
         
-        // Guardar respuesta en el historial
         conversationHistory.push({ role: "model", parts: [{ text: botReply }] });
 
-        // Actualizar mensaje de la IA
         loadingDiv.innerHTML = `🤖 <strong>Centinela AI:</strong> ${formatText(botReply)}`;
 
       } catch (err) {
