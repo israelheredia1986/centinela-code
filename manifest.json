@@ -2,7 +2,7 @@
   "name": "Centinela Code",
   "short_name": "Centinela",
   "description": "Aplicación policial de consulta normativa y gestión de actas.",
-  "start_url": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
