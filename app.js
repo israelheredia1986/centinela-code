@@ -1,7 +1,7 @@
-code = """/* 
+/* 
 ============================================================ 
 CENTINELA CODE 
-app.js - Con Supabase Auth + Actas + Subida de Fotos Incautación + PDF + Asistente IA + Eventos Delegados
+app.js - Con Supabase Auth + Actas + Subida de Fotos Incautación + PDF + Asistente IA
 ============================================================ 
 */ 
 
@@ -445,6 +445,15 @@ function aplicarPalabrasClaveExtra(infracciones) {
   }); 
 } 
 
+/**
+ * Los ficheros "simples" (ley_2_86, lecrim, extranjeria, seguridad_privada,
+ * espectaculos_publicos, medio_ambiente_ruidos, reglamento_armas,
+ * policias_locales_andalucia) usan un esquema plano distinto al de
+ * infracciones.json: {id, articulo, normativa, concepto, descripcion,
+ * gravedad, sancion (texto libre)}. Se normalizan aquí al esquema que ya
+ * entienden la búsqueda, las tarjetas de resultado y las actas, para que
+ * esta normativa deje de quedarse fuera de la app.
+ */
 function normalizarInfraccionSimple(datos) {
   if (!Array.isArray(datos)) return [];
   return datos.map((item) => {
@@ -1146,7 +1155,7 @@ function alternarDictado(boton) {
   reconocimiento.continuous = true; 
   reconocimiento.interimResults = false; 
 
-  const separador = campo.value && !campo.value.endsWith(" ") && !campo.value.endsWith("\\n") ? " " : ""; 
+  const separador = campo.value && !campo.value.endsWith(" ") && !campo.value.endsWith("\n") ? " " : ""; 
   let textoAcumulado = campo.value + separador; 
 
   reconocimiento.onresult = (evento) => { 
@@ -1532,7 +1541,7 @@ function exportarActaPDF(id) {
 
       <div class="section">
         <div class="section-title">Relación sucinta de Hechos</div>
-        <div class="field"><span>${escaparHTML(acta.hechos || "Sin observaciones").replace(/\\n/g, "<br>")}</span></div>
+        <div class="field"><span>${escaparHTML(acta.hechos || "Sin observaciones").replace(/\n/g, "<br>")}</span></div>
       </div>
 
       ${acta.foto_url ? `
@@ -1547,7 +1556,7 @@ function exportarActaPDF(id) {
       ${acta.observaciones ? `
         <div class="section">
           <div class="section-title">Observaciones adicionales</div>
-          <div class="field"><span>${escaparHTML(acta.observaciones).replace(/\\n/g, "<br>")}</span></div>
+          <div class="field"><span>${escaparHTML(acta.observaciones).replace(/\n/g, "<br>")}</span></div>
         </div>
       ` : ""}
 
@@ -1972,8 +1981,8 @@ function abrirTrafico() {
   const contenido = $("viewerContent"); 
   if (!visor || !contenido) return; 
 
-  $("viewerTitle").textContent = "Tráfico y Seguridad Vial"; 
-  $("viewerSubtitle").textContent = "Ley de Tráfico, RGC, RGV, RGCond y Reglamentos"; 
+  $("viewerTitle").textContent = "Tráfico"; 
+  $("viewerSubtitle").textContent = "Ley de Tráfico y reglamentos"; 
 
   contenido.innerHTML = ` 
     <div class="normativa-list"> 
@@ -2001,7 +2010,7 @@ function abrirLeyTrafico(id) {
   const contenido = $("viewerContent"); 
   if (!leyItem || !visor || !contenido) return; 
 
-  $("viewerTitle").textContent = leyItem.ley || "Normativa de Tráfico"; 
+  $("viewerTitle").textContent = leyItem.ley || "Normativa de tráfico"; 
   $("viewerSubtitle").textContent = leyItem.abreviatura || ""; 
   const articulos = Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
 
@@ -2019,215 +2028,198 @@ function abrirLeyTrafico(id) {
   visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
 } 
 
-function cerrarVisorNormativa() { 
-  const visor = $("normativaViewer"); 
-  if (visor) visor.classList.add("hidden"); 
-} 
+function cerrarVisorNormativa() {
+  const visor = $("normativaViewer");
+  if (visor) visor.classList.add("hidden");
+}
 
 /* ========================================================= 
-ASISTENTE IA DE CONSULTA POLICIAL
+ASISTENTE IA POLICIAL 
 ========================================================= */
 
 function configurarAsistenteIA() {
-  const btnEnviar = $("iaSendBtn");
-  const inputIa = $("iaInput");
-  const chatBox = $("iaChatMessages");
+  const btnSend = $("btnSendChat");
+  const input = $("chatInput");
+  const container = $("chatMessages");
+  if (!btnSend || !input || !container) return;
 
-  if (!btnEnviar || !inputIa || !chatBox) return;
+  const responderIA = (mensaje) => {
+    const userBubble = document.createElement("div");
+    userBubble.className = "chat-bubble user";
+    userBubble.style.cssText = "background: #0f172a; padding: 12px; border-radius: 8px; color: #fff; align-self: flex-end; max-width: 85%; font-size: 0.95rem;";
+    userBubble.textContent = mensaje;
+    container.appendChild(userBubble);
 
-  const enviarMensajeIA = () => {
-    const texto = inputIa.value.trim();
-    if (!texto) return;
+    const tokens = tokenizarConsulta(mensaje);
+    const coincidencias = estado.infracciones.filter(i => {
+      const cont = [i.codigo, i.conducta, i.titulo, ...(i.palabrasClave||[])].join(" ");
+      return coincideConsulta(normalizarTexto(cont), tokens);
+    });
 
-    // Mensaje usuario
-    const msgUser = document.createElement("div");
-    msgUser.className = "chat-message chat-message--user";
-    msgUser.style.cssText = "align-self: flex-end; background: var(--color-accent, #1f6feb); color: #fff; padding: 0.6rem 1rem; border-radius: 12px 12px 0 12px; margin-bottom: 0.5rem; max-width: 85%; font-size: 0.9rem;";
-    msgUser.textContent = texto;
-    chatBox.appendChild(msgUser);
+    let respuestaText = "";
+    if (coincidencias.length > 0) {
+      const top = coincidencias.slice(0, 3);
+      respuestaText = `🤖 **Centinela AI:** He encuadrado los hechos en las siguientes infracciones:\n\n` +
+        top.map(i => `• **${i.codigo}** (${i.ley || 'Normativa'}): ${i.titulo}\n  *Conducta:* ${i.conducta}`).join("\n\n");
+    } else {
+      respuestaText = `🤖 **Centinela AI:** No he encontrado un encuadre directo para "${mensaje}". Intenta consultar términos clave como "drogas", "respeto", "desobediencia" o revisa el apartado de Normativa.`;
+    }
 
-    inputIa.value = "";
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    // Búsqueda inteligente
     setTimeout(() => {
-      const msgBot = document.createElement("div");
-      msgBot.className = "chat-message chat-message--bot";
-      msgBot.style.cssText = "align-self: flex-start; background: var(--color-surface, #161b22); border: 1px solid var(--color-border, #30363d); color: var(--color-text, #e6edf3); padding: 0.8rem 1rem; border-radius: 12px 12px 12px 0; margin-bottom: 0.5rem; max-width: 85%; font-size: 0.9rem;";
+      const aiBubble = document.createElement("div");
+      aiBubble.className = "chat-bubble ai";
+      aiBubble.style.cssText = "background: #334155; padding: 12px; border-radius: 8px; color: #f8fafc; max-width: 85%; font-size: 0.95rem; white-space: pre-wrap;";
+      aiBubble.innerHTML = respuestaText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      container.appendChild(aiBubble);
+      container.scrollTop = container.scrollHeight;
+    }, 400);
 
-      const tokens = tokenizarConsulta(texto);
-      const resultados = estado.infracciones.filter((inf) => {
-        const contenido = [inf.id, inf.codigo, inf.ley, inf.articulo, inf.titulo, inf.conducta, ...(inf.palabrasClave || [])].join(" ");
-        return coincideConsulta(normalizarTexto(contenido), tokens);
-      }).slice(0, 3);
-
-      if (resultados.length > 0) {
-        let resp = `<strong>🤖 Centinela AI:</strong> He encontrado ${resultados.length} infracción(es) coincidente(s):<br><br>`;
-        resultados.forEach(r => {
-          resp += `• <strong>${escaparHTML(r.codigo || "")} (${escaparHTML(r.ley || "")}):</strong> ${escaparHTML(r.titulo || "")}<br><small style="color:var(--color-muted,#8b949e);">${escaparHTML(r.conducta || "")}</small><br><br>`;
-        });
-        msgBot.innerHTML = resp;
-      } else {
-        msgBot.innerHTML = `<strong>🤖 Centinela AI:</strong> No he localizado una infracción directa para "<em>${escaparHTML(texto)}</em>". Puedes probar a realizar la búsqueda en el apartado de <strong>Consulta</strong> o explorar la sección <strong>Normativa</strong>.`;
-      }
-
-      chatBox.appendChild(msgBot);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }, 350);
+    input.value = "";
+    container.scrollTop = container.scrollHeight;
   };
 
-  btnEnviar.addEventListener("click", enviarMensajeIA);
-  inputIa.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") enviarMensajeIA();
+  btnSend.addEventListener("click", () => {
+    const txt = input.value.trim();
+    if (txt) responderIA(txt);
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const txt = input.value.trim();
+      if (txt) responderIA(txt);
+    }
   });
 }
 
 /* ========================================================= 
-AJUSTES Y CONFIGURACIÓN
+AJUSTES Y DATOS DEL AGENTE 
 ========================================================= */
+
+function cargarDatosAgente() {
+  const nombre = localStorage.getItem("centinela_agente_nombre") || "";
+  const tip = localStorage.getItem("centinela_agente_tip") || "";
+
+  if ($("agentNameInput")) $("agentNameInput").value = nombre;
+  if ($("agentIdInput")) $("agentIdInput").value = tip;
+
+  if ($("agentName")) $("agentName").textContent = nombre || "Agente sin configurar";
+  if ($("agentId")) $("agentId").textContent = tip ? `TIP / ID: ${tip}` : "Configura tu identificador en Ajustes";
+}
 
 function configurarAjustes() {
-  inyectarBotonLogout();
-  
-  const themeToggle = $("themeToggle");
-  if (themeToggle) {
-    themeToggle.addEventListener("change", (e) => {
-      document.body.classList.toggle("light-theme", e.target.checked);
-    });
-  }
+  cargarDatosAgente();
 
-  const btnReload = $("btnReloadData");
-  if (btnReload) {
-    btnReload.addEventListener("click", async () => {
-      mostrarCarga(true);
-      await cargarDatos();
-      mostrarCarga(false);
-      mostrarToast("Bases de datos recargadas.");
-    });
-  }
-}
+  $("saveAgentButton")?.addEventListener("click", () => {
+    const nombre = $("agentNameInput")?.value.trim() || "";
+    const tip = $("agentIdInput")?.value.trim() || "";
 
-/* ========================================================= 
-DELEGACIÓN GLOBAL DE EVENTOS (MANEJO DE BOTONES DINÁMICOS)
-========================================================= */
+    localStorage.setItem("centinela_agente_nombre", nombre);
+    localStorage.setItem("centinela_agente_tip", tip);
+    cargarDatosAgente();
+    mostrarToast("Datos del agente guardados.");
+  });
 
-function configurarEventosGlobales() {
-  document.addEventListener("click", (e) => {
-    // 1. Ver detalle de infracción
-    const btnInfraccion = e.target.closest("[data-infraccion-id]");
-    if (btnInfraccion) {
-      const id = btnInfraccion.dataset.infraccionId;
-      if (id) abrirDetalleInfraccion(id);
-      return;
-    }
+  $("agentCard")?.addEventListener("click", () => {
+    activarSeccion("ajustes");
+  });
 
-    // 2. Navegar a normativa desde consulta ("Ver en Normativa")
-    const btnNavTipo = e.target.closest("[data-nav-tipo]");
-    if (btnNavTipo) {
-      const navTipo = btnNavTipo.dataset.navTipo;
-      const navId = btnNavTipo.dataset.navId || "";
-      if (navTipo) {
-        activarSeccion("normativa");
-        abrirNormativa(navTipo, navId);
-      }
-      return;
-    }
+  $("reloadDataButton")?.addEventListener("click", async () => {
+    mostrarCarga(true);
+    await cargarDatos();
+    mostrarCarga(false);
+  });
 
-    // 3. Abrir leyes, fichas y categorías ("Ver", "Ver ficha", etc.)
-    const btnLaw = e.target.closest("[data-law]");
-    if (btnLaw) {
-      const law = btnLaw.dataset.law;
-      const id = btnLaw.dataset.id || "";
-      if (law) abrirNormativa(law, id);
-      return;
-    }
-
-    // 4. Acciones de Actas: Editar, PDF, Borrar
-    const btnEditActa = e.target.closest("[data-edit-acta]");
-    if (btnEditActa) {
-      const id = btnEditActa.dataset.editActa;
-      if (id) editarActa(id);
-      return;
-    }
-
-    const btnPdfActa = e.target.closest("[data-pdf-acta]");
-    if (btnPdfActa) {
-      const id = btnPdfActa.dataset.pdfActa;
-      if (id) exportarActaPDF(id);
-      return;
-    }
-
-    const btnDeleteActa = e.target.closest("[data-delete-acta]");
-    if (btnDeleteActa) {
-      const id = btnDeleteActa.dataset.deleteActa;
-      if (id) borrarActa(id);
-      return;
-    }
-
-    // 5. Cierre de visor y modal
-    if (e.target.closest("#modalClose") || e.target.closest(".modal-close-btn")) {
-      cerrarModal();
-      return;
-    }
-
-    if (e.target.closest("#closeNormativaViewer")) {
-      cerrarVisorNormativa();
-      return;
+  $("clearDraftsButton")?.addEventListener("click", () => {
+    if (confirm("¿Estás seguro de que deseas limpiar los borradores del acta?")) {
+      cerrarEditorActa();
+      mostrarToast("Borradores limpiados.");
     }
   });
 }
 
 /* ========================================================= 
-INICIALIZACIÓN DE LA APLICACIÓN
+EVENTOS DELEGADOS Y MODAL
+========================================================= */
+
+function configurarEventosDelegados() {
+  document.addEventListener("click", (e) => {
+    const btnInfraccion = e.target.closest("[data-infraccion-id]");
+    if (btnInfraccion) {
+      abrirDetalleInfraccion(btnInfraccion.dataset.infraccionId);
+      return;
+    }
+
+    const btnLaw = e.target.closest("[data-law]");
+    if (btnLaw) {
+      abrirNormativa(btnLaw.dataset.law, btnLaw.dataset.id || "");
+      return;
+    }
+
+    const btnNavTipo = e.target.closest("[data-nav-tipo]");
+    if (btnNavTipo) {
+      activarSeccion("normativa");
+      abrirNormativa(btnNavTipo.dataset.navTipo, btnNavTipo.dataset.navId || "");
+      return;
+    }
+
+    const btnEdit = e.target.closest("[data-edit-acta]");
+    if (btnEdit) {
+      editarActa(btnEdit.dataset.editActa);
+      return;
+    }
+
+    const btnPdf = e.target.closest("[data-pdf-acta]");
+    if (btnPdf) {
+      exportarActaPDF(btnPdf.dataset.pdfActa);
+      return;
+    }
+
+    const btnDelete = e.target.closest("[data-delete-acta]");
+    if (btnDelete) {
+      borrarActa(btnDelete.dataset.deleteActa);
+      return;
+    }
+  });
+
+  $("closeModal")?.addEventListener("click", cerrarModal);
+  $("modalOverlay")?.addEventListener("click", cerrarModal);
+}
+
+/* ========================================================= 
+INICIALIZACIÓN DE LA APLICACIÓN 
 ========================================================= */
 
 async function iniciarAplicacion() {
   if (appInicializada) return;
 
   mostrarCarga(true);
-  try {
-    actualizarRed();
-    window.addEventListener("online", actualizarRed);
-    window.addEventListener("offline", actualizarRed);
+  inyectarBotonLogout();
+  configurarNavegacion();
+  configurarConsulta();
+  configurarActas();
+  configurarNormativa();
+  configurarAsistenteIA();
+  configurarAjustes();
+  configurarEventosDelegados();
+  actualizarRed();
 
-    configurarNavegacion();
-    configurarConsulta();
-    configurarActas();
-    configurarNormativa();
-    configurarAsistenteIA();
-    configurarAjustes();
-    configurarEventosGlobales();
+  window.addEventListener("online", actualizarRed);
+  window.addEventListener("offline", actualizarRed);
 
-    await cargarDatos();
-    await cargarActas();
+  await cargarDatos();
+  await cargarActas();
+  mostrarCarga(false);
 
-    appInicializada = true;
-  } catch (err) {
-    console.error("Error al inicializar la aplicación:", err);
-    mostrarToast("Error al inicializar componentes.");
-  } finally {
-    mostrarCarga(false);
-  }
+  appInicializada = true;
 }
 
-// Arranque principal con verificación de sesión Supabase
 document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const sesion = await obtenerSesion();
-    if (sesion) {
-      ocultarPantallaLogin();
-      await iniciarAplicacion();
-    } else {
-      mostrarPantallaLogin();
-    }
-  } catch (e) {
-    console.error("Error comprobando sesión inicial:", e);
+  const sesion = await obtenerSesion();
+  if (sesion) {
+    ocultarPantallaLogin();
+    await iniciarAplicacion();
+  } else {
     mostrarPantallaLogin();
+    mostrarCarga(false);
   }
 });
-"""
-
-with open("app.js", "w", encoding="utf-8") as f:
-    f.write(code)
-
-print("Line count:", len(code.splitlines()))
