@@ -187,7 +187,8 @@ ordenanzas: "./data/ordenanzas.json",
 animales: "./data/normativa_animales.json", 
 trafico: "./data/normativa_trafico.json" 
 }, 
-STORAGE_ACTAS: "centinela_code_actas_v1" 
+STORAGE_ACTAS: "centinela_code_actas_v1",
+STORAGE_FAVORITOS: "centinela_code_favoritos_v1"
 }; 
 
 const estado = { 
@@ -3556,6 +3557,162 @@ borrar.dataset.deleteActa
 ); 
 } 
 
+/* =========================================================
+FAVORITOS
+Favoritos predeterminados mostrados la primera vez
+========================================================= */
+
+const FAVORITOS_DEFAULT = {
+  infraccion: [
+    "Art. 36.6 LOPSC — Drogas",
+    "Art. 36.16 LOPSC — Desobediencia",
+    "Art. 37.4 LOPSC — Falta de respeto"
+  ],
+  normativa: [
+    "Ordenanza ruido",
+    "Ordenanza animales",
+    "Tráfico"
+  ]
+};
+
+function cargarFavoritos() {
+  try {
+    const raw = localStorage.getItem(CONFIG.STORAGE_FAVORITOS);
+    return raw ? JSON.parse(raw) : { ...FAVORITOS_DEFAULT };
+  } catch {
+    return { ...FAVORITOS_DEFAULT };
+  }
+}
+
+function guardarFavoritos(favs) {
+  localStorage.setItem(CONFIG.STORAGE_FAVORITOS, JSON.stringify(favs));
+}
+
+function renderizarFavoritos() {
+  const favs = cargarFavoritos();
+
+  const renderLista = (ulId, tipo) => {
+    const ul = document.getElementById(ulId);
+    if (!ul) return;
+    const items = favs[tipo] ?? [];
+    if (!items.length) {
+      ul.innerHTML = `<li class="fav-empty">Sin favoritos aún. Pulsa + para añadir.</li>`;
+      return;
+    }
+    ul.innerHTML = items.map((texto, i) => `
+      <li class="fav-item" data-fav-tipo="${tipo}" data-fav-idx="${i}">
+        <span class="fav-item-star">⭐</span>
+        <span class="fav-item-text">${escaparHTML(texto)}</span>
+        <button class="fav-item-remove" data-fav-remove-tipo="${tipo}" data-fav-remove-idx="${i}" title="Eliminar">×</button>
+      </li>
+    `).join("");
+  };
+
+  renderLista("favListInfracciones", "infraccion");
+  renderLista("favListNormativa", "normativa");
+}
+
+function abrirModalFavorito(tipo) {
+  if (document.getElementById("favModal")) return;
+
+  const labels = {
+    infraccion: "Añadir infracción favorita",
+    normativa: "Añadir norma favorita"
+  };
+  const placeholders = {
+    infraccion: "Ej: Art. 36.6 LOPSC — Drogas",
+    normativa: "Ej: Ordenanza ruido"
+  };
+
+  const overlay = document.createElement("div");
+  overlay.className = "fav-modal-overlay";
+  overlay.id = "favModal";
+  overlay.innerHTML = `
+    <div class="fav-modal">
+      <h3>${labels[tipo] ?? "Añadir favorito"}</h3>
+      <input id="favModalInput" type="text"
+        placeholder="${placeholders[tipo] ?? ""}"
+        maxlength="80" autocomplete="off" />
+      <div class="fav-modal-actions">
+        <button class="fav-btn-cancel" id="favModalCancelar">Cancelar</button>
+        <button class="fav-btn-ok" id="favModalGuardar">Guardar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const input = document.getElementById("favModalInput");
+  input.focus();
+
+  const cerrar = () => overlay.remove();
+
+  document.getElementById("favModalCancelar").addEventListener("click", cerrar);
+  overlay.addEventListener("click", e => { if (e.target === overlay) cerrar(); });
+
+  const guardar = () => {
+    const texto = input.value.trim();
+    if (!texto) return;
+    const favs = cargarFavoritos();
+    if (!Array.isArray(favs[tipo])) favs[tipo] = [];
+    favs[tipo].push(texto);
+    guardarFavoritos(favs);
+    renderizarFavoritos();
+    mostrarToast("Favorito añadido.");
+    cerrar();
+  };
+
+  document.getElementById("favModalGuardar").addEventListener("click", guardar);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") guardar(); });
+}
+
+function eliminarFavorito(tipo, idx) {
+  const favs = cargarFavoritos();
+  if (!Array.isArray(favs[tipo])) return;
+  favs[tipo].splice(idx, 1);
+  guardarFavoritos(favs);
+  renderizarFavoritos();
+  mostrarToast("Favorito eliminado.");
+}
+
+function configurarFavoritos() {
+  renderizarFavoritos();
+
+  // Delegación de eventos en el panel completo
+  const panel = document.getElementById("favoritosPanel");
+  if (!panel) return;
+
+  panel.addEventListener("click", e => {
+    // Botón añadir
+    const addBtn = e.target.closest("[data-fav-type]");
+    if (addBtn) {
+      abrirModalFavorito(addBtn.dataset.favType);
+      return;
+    }
+    // Botón eliminar
+    const removeBtn = e.target.closest("[data-fav-remove-tipo]");
+    if (removeBtn) {
+      e.stopPropagation();
+      eliminarFavorito(
+        removeBtn.dataset.favRemoveTipo,
+        parseInt(removeBtn.dataset.favRemoveIdx, 10)
+      );
+      return;
+    }
+    // Clic en el item → navegar a consulta con el texto prerellenado
+    const item = e.target.closest(".fav-item");
+    if (item && !e.target.closest("button")) {
+      const texto = item.querySelector(".fav-item-text")?.textContent ?? "";
+      const consultaInput = document.getElementById("consultaInput");
+      if (consultaInput) {
+        consultaInput.value = texto;
+        const btnConsulta = document.querySelector(".nav-item[data-section='consulta']");
+        btnConsulta?.click();
+        consultaInput.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+    }
+  });
+}
+
 /* ========================================================= 
 SERVICE WORKER 
 ========================================================= */ 
@@ -3638,6 +3795,7 @@ async function iniciarAplicacion() {
     configurarNavegacion();
     configurarConsulta();
     configurarActas();
+    configurarFavoritos();
     configurarNormativa();
     configurarModal();
     configurarAjustes();
