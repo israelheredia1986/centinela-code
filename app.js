@@ -1,14 +1,15 @@
 /* 
 ============================================================ 
 CENTINELA CODE 
-app.js - Versión corregida y compatible con index.html 
+app.js - Con Supabase Auth + actas en la nube
 ============================================================ 
 
 Funciones: 
 - Carga de infracciones, LOPSC y ordenanzas. 
 - Consulta por código, artículo, palabra y gravedad. 
 - Navegación inferior y accesos rápidos. 
-- Creación, edición básica y borrado de actas mediante localStorage. 
+- Autenticación con Supabase Auth (email + contraseña). 
+- Creación, edición y borrado de actas sincronizadas en Supabase. 
 - Visor de LOPSC y ordenanzas. 
 - Estado de conexión y estado de las bases. 
 - Limpieza/recarga de datos. 
@@ -16,7 +17,162 @@ Funciones:
 ============================================================ 
 */ 
 
-"use strict"; 
+"use strict";
+
+// ============================================================
+// SUPABASE – configuración
+// ============================================================
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const SUPABASE_URL  = "https://okuygqbaliaeavhyezri.supabase.co";
+const SUPABASE_ANON = "TU_ANON_KEY_AQUI"; // ← pega aquí tu anon key de Supabase
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ============================================================
+// AUTH HELPERS
+// ============================================================
+let usuarioActual = null;
+
+async function obtenerSesion() {
+  const { data: { session } } = await supabase.auth.getSession();
+  usuarioActual = session?.user ?? null;
+  return usuarioActual;
+}
+
+async function login(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  usuarioActual = data.user;
+  return data.user;
+}
+
+async function registro(email, password) {
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) throw error;
+  mostrarToast("Revisa tu correo para confirmar el registro.");
+  return data.user;
+}
+
+async function cerrarSesion() {
+  await supabase.auth.signOut();
+  usuarioActual = null;
+  mostrarPantallaLogin();
+}
+
+// ============================================================
+// PANTALLA DE LOGIN (inyectada dinámicamente)
+// ============================================================
+function inyectarPantallaLogin() {
+  if (document.getElementById("loginScreen")) return;
+  const div = document.createElement("div");
+  div.id = "loginScreen";
+  div.style.cssText = `
+    position:fixed;inset:0;z-index:9999;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--color-bg, #0d1117);
+  `;
+  div.innerHTML = `
+    <div style="
+      background:var(--color-surface, #161b22);
+      border:1px solid var(--color-border, #30363d);
+      border-radius:12px;padding:2rem;width:min(360px,90vw);
+      display:flex;flex-direction:column;gap:1rem;
+    ">
+      <div style="text-align:center;margin-bottom:.5rem;">
+        <div style="font-size:2rem;">🛡️</div>
+        <h2 style="margin:0;font-size:1.2rem;color:var(--color-text,#e6edf3);">Centinela Code</h2>
+        <p style="margin:.25rem 0 0;font-size:.8rem;color:var(--color-muted,#8b949e);">Acceso para agentes</p>
+      </div>
+
+      <input id="loginEmail" type="email" placeholder="Correo electrónico"
+        style="padding:.65rem .9rem;border-radius:8px;border:1px solid var(--color-border,#30363d);
+        background:var(--color-bg,#0d1117);color:var(--color-text,#e6edf3);font-size:.95rem;width:100%;box-sizing:border-box;" />
+
+      <input id="loginPassword" type="password" placeholder="Contraseña"
+        style="padding:.65rem .9rem;border-radius:8px;border:1px solid var(--color-border,#30363d);
+        background:var(--color-bg,#0d1117);color:var(--color-text,#e6edf3);font-size:.95rem;width:100%;box-sizing:border-box;" />
+
+      <button id="loginBtn"
+        style="padding:.75rem;border-radius:8px;border:none;background:var(--color-accent,#1f6feb);
+        color:#fff;font-size:1rem;cursor:pointer;font-weight:600;">
+        Entrar
+      </button>
+
+      <button id="registroBtn"
+        style="padding:.75rem;border-radius:8px;border:1px solid var(--color-border,#30363d);
+        background:transparent;color:var(--color-muted,#8b949e);font-size:.9rem;cursor:pointer;">
+        Crear cuenta nueva
+      </button>
+
+      <p id="loginError" style="color:#f85149;font-size:.85rem;text-align:center;margin:0;display:none;"></p>
+    </div>
+  `;
+  document.body.appendChild(div);
+
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const email    = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const errEl    = document.getElementById("loginError");
+    errEl.style.display = "none";
+    try {
+      await login(email, password);
+      ocultarPantallaLogin();
+      await iniciarAplicacion();
+    } catch (e) {
+      errEl.textContent = e.message || "Error al iniciar sesión.";
+      errEl.style.display = "block";
+    }
+  });
+
+  document.getElementById("registroBtn").addEventListener("click", async () => {
+    const email    = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const errEl    = document.getElementById("loginError");
+    errEl.style.display = "none";
+    try {
+      await registro(email, password);
+    } catch (e) {
+      errEl.textContent = e.message || "Error al registrar.";
+      errEl.style.display = "block";
+    }
+  });
+
+  // Entrar con Enter
+  document.getElementById("loginPassword").addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("loginBtn").click();
+  });
+}
+
+function mostrarPantallaLogin() {
+  inyectarPantallaLogin();
+  const el = document.getElementById("loginScreen");
+  if (el) el.style.display = "flex";
+}
+
+function ocultarPantallaLogin() {
+  const el = document.getElementById("loginScreen");
+  if (el) el.style.display = "none";
+}
+
+// Botón de cerrar sesión en Ajustes (lo añadimos si existe el contenedor)
+function inyectarBotonLogout() {
+  const seccionAjustes = document.getElementById("section-ajustes");
+  if (!seccionAjustes || document.getElementById("logoutBtn")) return;
+  const wrapper = document.createElement("div");
+  wrapper.style.cssText = "padding:1rem 1rem 0;";
+  wrapper.innerHTML = `
+    <button id="logoutBtn" style="
+      width:100%;padding:.75rem;border-radius:8px;
+      border:1px solid #f85149;background:transparent;
+      color:#f85149;font-size:.95rem;cursor:pointer;font-weight:600;
+    ">Cerrar sesión</button>
+    <p style="text-align:center;font-size:.8rem;color:var(--color-muted,#8b949e);margin:.5rem 0 0;">
+      ${usuarioActual?.email ?? ""}
+    </p>
+  `;
+  seccionAjustes.insertBefore(wrapper, seccionAjustes.firstChild);
+  document.getElementById("logoutBtn").addEventListener("click", cerrarSesion);
+} 
 
 const CONFIG = { 
 VERSION: "1.1.0", 
@@ -1309,39 +1465,27 @@ escaparHTML
 ACTAS 
 ========================================================= */ 
 
-function cargarActas() { 
-try { 
-const guardadas = 
-localStorage.getItem( 
-CONFIG.STORAGE_ACTAS 
-); 
+async function cargarActas() {
+  if (!usuarioActual) return;
+  try {
+    const { data, error } = await supabase
+      .from("actas")
+      .select("*")
+      .eq("user_id", usuarioActual.id)
+      .order("actualizado", { ascending: false });
 
-estado.actas = 
-guardadas 
-? JSON.parse(guardadas) 
-: []; 
+    if (error) throw error;
+    estado.actas = data ?? [];
+  } catch (error) {
+    console.error("No se pudieron cargar las actas:", error);
+    estado.actas = [];
+  }
+  renderizarActas();
+}
 
-if (!Array.isArray(estado.actas)) { 
-estado.actas = []; 
-} 
-
-} catch (error) { 
-console.error( 
-"No se pudieron cargar las actas:", 
-error 
-); 
-
-estado.actas = []; 
-} 
-
-renderizarActas(); 
-} 
-
-function guardarActas() { 
-localStorage.setItem( 
-CONFIG.STORAGE_ACTAS, 
-JSON.stringify(estado.actas) 
-); 
+// guardarActas ya no se usa (cada operación va directa a Supabase)
+function guardarActas() {
+  // Mantenido por compatibilidad; la persistencia ahora es en Supabase
 } 
 
 function configurarActas() { 
@@ -1663,67 +1807,52 @@ function obtenerValor(id) {
 return $(id)?.value?.trim() || ""; 
 } 
 
-function guardarActaDesdeFormulario(evento) { 
-evento.preventDefault(); 
+async function guardarActaDesdeFormulario(evento) {
+  evento.preventDefault();
+  if (!usuarioActual) { mostrarToast("Sesión no iniciada."); return; }
 
-const form = 
-evento.currentTarget; 
+  const form = evento.currentTarget;
+  const esEdicion = !!form.dataset.editingId;
 
-const acta = { 
-id: 
-form.dataset.editingId || 
-`acta-${Date.now()}`, 
+  const acta = {
+    id:           form.dataset.editingId || `acta-${Date.now()}`,
+    user_id:      usuarioActual.id,
+    numero:       obtenerValor("actaNumero"),
+    fecha:        obtenerValor("actaFecha"),
+    hora:         obtenerValor("actaHora"),
+    nombre:       obtenerValor("actaNombre"),
+    dni:          obtenerValor("actaDni"),
+    domicilio:    obtenerValor("actaDomicilio"),
+    lugar:        obtenerValor("actaLugar"),
+    hechos:       obtenerValor("actaHechos"),
+    infraccion:   obtenerValor("actaInfraccion"),
+    observaciones: obtenerValor("actaObservaciones"),
+    actualizado:  new Date().toISOString()
+  };
 
-numero: 
-obtenerValor("actaNumero"), 
+  try {
+    const { error } = await supabase
+      .from("actas")
+      .upsert(acta, { onConflict: "id" });
 
-fecha: 
-obtenerValor("actaFecha"), 
+    if (error) throw error;
 
-hora: 
-obtenerValor("actaHora"), 
+    // Actualizar estado local
+    const indice = estado.actas.findIndex(item => item.id === acta.id);
+    if (indice >= 0) {
+      estado.actas[indice] = acta;
+    } else {
+      estado.actas.unshift(acta);
+    }
 
-nombre: 
-obtenerValor("actaNombre"), 
+    mostrarToast(esEdicion ? "Acta actualizada." : "Acta guardada.");
+  } catch (error) {
+    console.error("Error guardando acta:", error);
+    mostrarToast("Error al guardar el acta.");
+  }
 
-dni: 
-obtenerValor("actaDni"), 
-
-domicilio: 
-obtenerValor("actaDomicilio"), 
-
-lugar: 
-obtenerValor("actaLugar"), 
-
-hechos: 
-obtenerValor("actaHechos"), 
-
-infraccion: 
-obtenerValor("actaInfraccion"), 
-
-observaciones: 
-obtenerValor("actaObservaciones"), 
-
-actualizado: 
-new Date().toISOString() 
-}; 
-
-const indice = 
-estado.actas.findIndex( 
-(item) => item.id === acta.id 
-); 
-
-if (indice >= 0) { 
-estado.actas[indice] = acta; 
-mostrarToast("Acta actualizada."); 
-} else { 
-estado.actas.unshift(acta); 
-mostrarToast("Acta guardada."); 
-} 
-
-guardarActas(); 
-renderizarActas(); 
-cerrarEditorActa(); 
+  renderizarActas();
+  cerrarEditorActa();
 } 
 
 function renderizarActas() { 
@@ -1825,24 +1954,26 @@ abrirEditorActa(acta);
 } 
 } 
 
-function borrarActa(id) { 
-const confirmado = 
-window.confirm( 
-"¿Quieres borrar esta acta?" 
-); 
+async function borrarActa(id) {
+  const confirmado = window.confirm("¿Quieres borrar esta acta?");
+  if (!confirmado) return;
 
-if (!confirmado) { 
-return; 
-} 
+  try {
+    const { error } = await supabase
+      .from("actas")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", usuarioActual.id);
 
-estado.actas = 
-estado.actas.filter( 
-(item) => item.id !== id 
-); 
+    if (error) throw error;
 
-guardarActas(); 
-renderizarActas(); 
-mostrarToast("Acta borrada."); 
+    estado.actas = estado.actas.filter(item => item.id !== id);
+    renderizarActas();
+    mostrarToast("Acta borrada.");
+  } catch (error) {
+    console.error("Error borrando acta:", error);
+    mostrarToast("Error al borrar el acta.");
+  }
 } 
 
 function actualizarPreviewInfraccion() { 
@@ -3499,46 +3630,51 @@ INICIALIZACIÓN
 
 
 /* =========================================================
-ARRANQUE DIRECTO (sin login)
+ARRANQUE CON SUPABASE AUTH
 ========================================================= */
 async function iniciarAplicacion() {
-try {
-mostrarCarga(true);
-configurarNavegacion();
-configurarConsulta();
-configurarActas();
-configurarNormativa();
-configurarModal();
-configurarAjustes();
-configurarEventosGlobales();
-configurarRed();
-cargarActas();
-await cargarDatos();
-const version = $("appVersion"); if (version) version.textContent = CONFIG.VERSION;
-} catch (error) {
-console.error("Error iniciando Centinela Code:", error);
-mostrarToast("La aplicación se inició con un error.");
-} finally {
-actualizarEstadoDatos();
-actualizarRed();
-mostrarCarga(false);
+  try {
+    mostrarCarga(true);
+    configurarNavegacion();
+    configurarConsulta();
+    configurarActas();
+    configurarNormativa();
+    configurarModal();
+    configurarAjustes();
+    configurarEventosGlobales();
+    configurarRed();
+    inyectarBotonLogout();
+    await cargarActas();
+    await cargarDatos();
+    const version = $("appVersion");
+    if (version) version.textContent = CONFIG.VERSION;
+  } catch (error) {
+    console.error("Error iniciando Centinela Code:", error);
+    mostrarToast("La aplicación se inició con un error.");
+  } finally {
+    actualizarEstadoDatos();
+    actualizarRed();
+    mostrarCarga(false);
+  }
 }
+
+async function arrancar() {
+  const user = await obtenerSesion();
+  if (user) {
+    await iniciarAplicacion();
+  } else {
+    mostrarPantallaLogin();
+  }
 }
 
 /* ========================================================= 
 ARRANQUE 
 ========================================================= */ 
 
-if ( 
-document.readyState === "loading" 
-) { 
-document.addEventListener( 
-"DOMContentLoaded", 
-iniciarAplicacion, 
-{ once: true } 
-); 
-} else { 
-iniciarAplicacion(); 
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", arrancar, { once: true });
+} else {
+  arrancar();
 } 
 
 registrarServiceWorker();
