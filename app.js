@@ -190,7 +190,7 @@ function inyectarBotonLogout() {
 // CONFIGURACIÓN Y ESTADO DE LA APLICACIÓN
 // ============================================================
 const CONFIG = { 
-  VERSION: "1.3.0", 
+  VERSION: "1.4.0", 
   RUTAS: { 
     infracciones: "./data/infracciones.json", 
     infraccionesTrafico: "./data/infracciones_trafico.json", 
@@ -200,7 +200,15 @@ const CONFIG = {
     violenciaGenero: "./data/normativa_violencia_genero.json", 
     ordenanzas: "./data/ordenanzas.json", 
     animales: "./data/normativa_animales.json", 
-    trafico: "./data/normativa_trafico.json" 
+    trafico: "./data/normativa_trafico.json", 
+    leyFcs: "./data/ley_2_86.json", 
+    lecrim: "./data/lecrim.json", 
+    extranjeria: "./data/extranjeria.json", 
+    seguridadPrivada: "./data/seguridad_privada.json", 
+    espectaculos: "./data/espectaculos_publicos.json", 
+    medioAmbiente: "./data/medio_ambiente_ruidos.json", 
+    reglamentoArmas: "./data/reglamento_armas.json", 
+    policiasLocales: "./data/policias_locales_andalucia.json" 
   }, 
   STORAGE_ACTAS: "centinela_code_actas_v1",
   STORAGE_FAVORITOS: "centinela_code_favoritos_v1"
@@ -437,6 +445,35 @@ function aplicarPalabrasClaveExtra(infracciones) {
   }); 
 } 
 
+/**
+ * Los ficheros "simples" (ley_2_86, lecrim, extranjeria, seguridad_privada,
+ * espectaculos_publicos, medio_ambiente_ruidos, reglamento_armas,
+ * policias_locales_andalucia) usan un esquema plano distinto al de
+ * infracciones.json: {id, articulo, normativa, concepto, descripcion,
+ * gravedad, sancion (texto libre)}. Se normalizan aquí al esquema que ya
+ * entienden la búsqueda, las tarjetas de resultado y las actas, para que
+ * esta normativa deje de quedarse fuera de la app.
+ */
+function normalizarInfraccionSimple(datos) {
+  if (!Array.isArray(datos)) return [];
+  return datos.map((item) => {
+    const articuloLimpio = String(item.articulo || "").replace(/^art\.?\s*/i, "").trim();
+    return {
+      id: item.id || "",
+      codigo: item.articulo || item.id || "",
+      ley: item.normativa || "",
+      articulo: articuloLimpio,
+      apartado: "",
+      titulo: item.concepto || "",
+      conducta: item.descripcion || "",
+      gravedad: item.gravedad || "",
+      sancion: { texto: item.sancion || "" },
+      palabrasClave: [],
+      responsables: []
+    };
+  });
+}
+
 function extraerOrdenanzas(datos) { 
   if (Array.isArray(datos)) return datos; 
   if (datos && Array.isArray(datos.ordenanzas)) return datos.ordenanzas; 
@@ -488,10 +525,23 @@ async function cargarDatos() {
     cargarJSON(CONFIG.RUTAS.violenciaGenero), 
     cargarJSON(CONFIG.RUTAS.ordenanzas), 
     cargarJSON(CONFIG.RUTAS.animales), 
-    cargarJSON(CONFIG.RUTAS.trafico) 
+    cargarJSON(CONFIG.RUTAS.trafico), 
+    cargarJSON(CONFIG.RUTAS.leyFcs), 
+    cargarJSON(CONFIG.RUTAS.lecrim), 
+    cargarJSON(CONFIG.RUTAS.extranjeria), 
+    cargarJSON(CONFIG.RUTAS.seguridadPrivada), 
+    cargarJSON(CONFIG.RUTAS.espectaculos), 
+    cargarJSON(CONFIG.RUTAS.medioAmbiente), 
+    cargarJSON(CONFIG.RUTAS.reglamentoArmas), 
+    cargarJSON(CONFIG.RUTAS.policiasLocales) 
   ]); 
 
-  const [rInfracciones, rInfraccionesTrafico, rLopsc, rCodigoPenal, rMenores, rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico] = resultados; 
+  const [ 
+    rInfracciones, rInfraccionesTrafico, rLopsc, rCodigoPenal, rMenores, 
+    rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico, 
+    rLeyFcs, rLecrim, rExtranjeria, rSeguridadPrivada, 
+    rEspectaculos, rMedioAmbiente, rReglamentoArmas, rPoliciasLocales 
+  ] = resultados; 
 
   estado.infracciones = [];
   if (rInfracciones.status === "fulfilled") { 
@@ -510,6 +560,12 @@ async function cargarDatos() {
   if (rOrdenanzas.status === "fulfilled") estado.ordenanzas = rOrdenanzas.value; 
   if (rAnimales.status === "fulfilled") estado.animales = rAnimales.value; 
   if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value; 
+
+  [rLeyFcs, rLecrim, rExtranjeria, rSeguridadPrivada, rEspectaculos, rMedioAmbiente, rReglamentoArmas, rPoliciasLocales] 
+    .filter((r) => r.status === "fulfilled") 
+    .forEach((r) => { 
+      estado.infracciones = estado.infracciones.concat(normalizarInfraccionSimple(r.value)); 
+    }); 
 
   actualizarEstadoDatos(); 
   actualizarBusqueda(); 
@@ -783,6 +839,7 @@ function renderizarTarjetaInfraccion(infraccion) {
   if (min !== null && max !== null) rango = `${formatearEuros(min)} - ${formatearEuros(max)}`; 
   else if (min !== null) rango = `Desde ${formatearEuros(min)}`; 
   else if (max !== null) rango = `Hasta ${formatearEuros(max)}`; 
+  else if (sancion.texto) rango = sancion.texto; 
 
   return ` 
     <article class="result-card"> 
@@ -833,7 +890,10 @@ function abrirDetalleInfraccion(id) {
             ${sancion.min !== undefined ? `Mínimo: ${formatearEuros(sancion.min)}<br>` : ""} 
             ${sancion.max !== undefined ? `Máximo: ${formatearEuros(sancion.max)}` : ""} 
           </p> 
-        ` : ""} 
+        ` : (sancion.texto ? ` 
+          <h4>Sanción</h4> 
+          <p>${escaparHTML(sancion.texto)}</p> 
+        ` : "")} 
         ${palabras.length ? ` 
           <h4>Palabras clave</h4> 
           <p>${palabras.map(escaparHTML).join(", ")}</p> 
@@ -865,6 +925,21 @@ function determinarAutoridadSancionadora(infraccion) {
   if (leyNorm.includes("animal") || leyNorm.includes("bienestar")) {
     return "Delegación Territorial de la Consejería Competente / Alcaldía";
   }
+  if (leyNorm.includes("extranjeria") || leyNorm.includes("4/2000")) {
+    return "Subdelegación del Gobierno (competencia estatal en extranjería)";
+  }
+  if (leyNorm.includes("armas") || leyNorm.includes("137/1993")) {
+    return "Intervención de Armas y Explosivos (Guardia Civil) / Delegación del Gobierno";
+  }
+  if (leyNorm.includes("seguridad privada") || leyNorm.includes("5/2014")) {
+    return "Secretaría de Estado de Seguridad / Delegación del Gobierno";
+  }
+  if (leyNorm.includes("espectaculos") || leyNorm.includes("espectáculos")) {
+    return "Delegación Territorial / Alcaldía - Ayuntamiento";
+  }
+  if (leyNorm.includes("ruido") || leyNorm.includes("residuos") || leyNorm.includes("37/2003") || leyNorm.includes("7/2022")) {
+    return "Alcaldía - Ayuntamiento / Consejería de Medio Ambiente";
+  }
   return "Autoridad Competente según la legislación vigente";
 }
 
@@ -877,6 +952,7 @@ function determinarCuantiaSancion(infraccion) {
   }
   if (sancion.min !== undefined) return `${sancion.min} €`;
   if (sancion.max !== undefined) return `Hasta ${sancion.max} €`;
+  if (sancion.texto) return sancion.texto;
   return "";
 }
 
