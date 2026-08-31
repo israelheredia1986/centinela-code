@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
@@ -18,6 +17,8 @@
 <link href="icon-180.png" rel="apple-touch-icon"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="style.css?v=20260901-premium" rel="stylesheet"/>
+<!-- Librería para generación de PDF de actas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <!-- =====================================================
@@ -159,13 +160,27 @@ ACTAS
 Actas
 </h2>
 <p>
-Redacción y gestión de actas.
+Redacción, filtrado y gestión de actas.
 </p>
 </div>
 <button class="primary-button" id="newActaButton" type="button">
 + Nueva
 </button>
 </div>
+
+<!-- Filtros por Fecha -->
+<div class="actas-filter-bar" style="display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+  <div style="flex: 1;">
+    <label for="filtroFechaDesde" style="font-size: 0.8rem; display: block; color: #94a3b8;">Desde:</label>
+    <input id="filtroFechaDesde" type="date" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: #fff;"/>
+  </div>
+  <div style="flex: 1;">
+    <label for="filtroFechaHasta" style="font-size: 0.8rem; display: block; color: #94a3b8;">Hasta:</label>
+    <input id="filtroFechaHasta" type="date" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: #fff;"/>
+  </div>
+  <button id="btnLimpiarFiltroFechas" style="padding: 8px 12px; margin-top: 15px; border-radius: 4px; background: #334155; color: #fff; border: none; cursor: pointer;" type="button">Limpiar</button>
+</div>
+
 <div class="acta-editor hidden" id="actaEditor">
 <div class="card-header">
 <h3>
@@ -251,7 +266,7 @@ Descripción de los hechos
 </div>
 <div class="form-section">
 <h4>
-Infracción
+Infracción y Propuesta de Sanción
 </h4>
 <div class="form-group">
 <label for="actaInfraccion">
@@ -260,6 +275,18 @@ Código / artículo
 <input autocomplete="off" id="actaInfraccion" name="infraccion" placeholder="Ej.: 36.16" type="text"/>
 </div>
 <div class="infraccion-preview hidden" id="actaInfraccionPreview">
+</div>
+<div class="form-group">
+<label for="actaCuantia">
+Cuantía propuesta (€)
+</label>
+<input autocomplete="off" id="actaCuantia" name="cuantia" placeholder="Ej. 100 € a 600 € / 601 € a 30.000 €" type="text"/>
+</div>
+<div class="form-group">
+<label for="actaAutoridad">
+Autoridad sancionadora competente
+</label>
+<input autocomplete="off" id="actaAutoridad" name="autoridad" placeholder="Ej. Subdelegación del Gobierno / Alcaldía" type="text"/>
 </div>
 </div>
 <div class="form-section">
@@ -492,18 +519,10 @@ Pendiente
 Información
 </div>
 <p class="settings-description">
-
-Centinela Code está diseñada para facilitar
-la consulta de normativa y la preparación
-de actas durante el servicio.
-
+Centinela Code está diseñada para facilitar la consulta de normativa y la preparación de actas durante el servicio.
 </p>
 <p class="settings-description">
-
-La aplicación puede funcionar sin conexión
-cuando los datos necesarios se encuentran
-almacenados localmente.
-
+La aplicación puede funcionar sin conexión cuando los datos necesarios se encuentran almacenados localmente.
 </p>
 </div>
 </section>
@@ -595,13 +614,9 @@ Cargando aplicación...
 <div class="loading-spinner"></div>
 </div>
 <!-- =====================================================
-APP.JS
-Versión renovada para evitar caché
+SCRIPTS
 ====================================================== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script defer="" src="app.js?v=20260901-supabase"></script>
-<!-- El Service Worker se registra una única vez desde app.js
-(registrarServiceWorker), con updateViaCache: "none" para
-evitar que quede una versión antigua cacheada. -->
 </body>
 </html>
