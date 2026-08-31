@@ -190,7 +190,7 @@ function inyectarBotonLogout() {
 // CONFIGURACIÓN Y ESTADO DE LA APLICACIÓN
 // ============================================================
 const CONFIG = { 
-  VERSION: "1.4.0", 
+  VERSION: "1.4.1", 
   RUTAS: { 
     infracciones: "./data/infracciones.json", 
     infraccionesTrafico: "./data/infracciones_trafico.json", 
@@ -469,7 +469,8 @@ function normalizarInfraccionSimple(datos) {
       gravedad: item.gravedad || "",
       sancion: { texto: item.sancion || "" },
       palabrasClave: [],
-      responsables: []
+      responsables: [],
+      origenSimple: true
     };
   });
 }
@@ -1604,6 +1605,8 @@ function renderizarNormativa() {
   const tokensNormativa = tokenizarConsulta(estado.normativaBusqueda); 
   const categorias = Array.isArray(estado.ordenanzas?.categorias) ? estado.ordenanzas.categorias : []; 
   const ordenanzas = extraerOrdenanzas(estado.ordenanzas); 
+  const otrasNormas = obtenerOtrasNormas(); 
+  const leyesOtrasNormas = [...new Set(otrasNormas.map((item) => item.ley))]; 
 
   const tarjetasPrincipales = [ 
     { tipo: "lopsc", titulo: "Ley Orgánica 4/2015", descripcion: "Protección de la seguridad ciudadana", etiqueta: "LOPSC", icono: "⚖️" }, 
@@ -1612,7 +1615,8 @@ function renderizarNormativa() {
     { tipo: "animales", titulo: "Animales", descripcion: "Bienestar animal y tenencia de PPP", etiqueta: "Estatal / Autonómica", icono: "🐾" }, 
     { tipo: "trafico", titulo: "Tráfico", descripcion: "Ley de Tráfico y reglamentos", etiqueta: "Estatal", icono: "🚦" }, 
     { tipo: "violencia-genero", titulo: "Violencia de Género", descripcion: "Protección integral y libertad sexual", etiqueta: "LO 1/2004", icono: "🛡️" }, 
-    { tipo: "ordenanzas", titulo: "Ordenanzas municipales", descripcion: `Normativa local — ${ordenanzas.length} ordenanzas`, etiqueta: `${categorias.length} categorías`, icono: "🏛️" } 
+    { tipo: "ordenanzas", titulo: "Ordenanzas municipales", descripcion: `Normativa local — ${ordenanzas.length} ordenanzas`, etiqueta: `${categorias.length} categorías`, icono: "🏛️" }, 
+    { tipo: "otras-normas", titulo: "Otras normas de interés", descripcion: `LOFCS, LECrim, extranjería, armas, seguridad privada y más — ${otrasNormas.length} normas`, etiqueta: `${leyesOtrasNormas.length} leyes`, icono: "📚" } 
   ]; 
 
   const coincide = (campos) => !tokensNormativa.length || coincideConsulta(normalizarTexto(campos.join(" ")), tokensNormativa); 
@@ -1645,6 +1649,10 @@ function renderizarNormativa() {
   lista.innerHTML = `<div class="normativa-list normativa-list--principal">${principalesFiltradas.map(renderTarjetaPrincipal).join("")}</div>`; 
 } 
 
+function obtenerOtrasNormas() { 
+  return estado.infracciones.filter((item) => item.origenSimple === true); 
+} 
+
 function abrirNormativa(tipo, id = "") { 
   if (tipo === "lopsc") return abrirLOPSC(); 
   if (tipo === "codigo-penal") return abrirCodigoPenal(); 
@@ -1658,7 +1666,69 @@ function abrirNormativa(tipo, id = "") {
   if (tipo === "ley-trafico") return abrirLeyTrafico(id); 
   if (tipo === "ordenanzas") return abrirOrdenanzas(); 
   if (tipo === "ordenanza") return abrirOrdenanza(id); 
+  if (tipo === "otras-normas") return abrirOtrasNormas(); 
+  if (tipo === "otra-ley") return abrirLeyOtraNorma(id); 
   if (tipo === "normativa-home") cerrarVisorNormativa(); 
+} 
+
+function abrirOtrasNormas() { 
+  const otrasNormas = obtenerOtrasNormas(); 
+  const visor = $("normativaViewer"); 
+  const contenido = $("viewerContent"); 
+  if (!visor || !contenido) return; 
+
+  $("viewerTitle").textContent = "Otras normas de interés"; 
+  $("viewerSubtitle").textContent = "LOFCS, LECrim, extranjería, armas, seguridad privada y más"; 
+
+  const grupos = new Map(); 
+  otrasNormas.forEach((item) => { 
+    const clave = item.ley || "Sin clasificar"; 
+    if (!grupos.has(clave)) grupos.set(clave, []); 
+    grupos.get(clave).push(item); 
+  }); 
+
+  contenido.innerHTML = ` 
+    <div class="normativa-list"> 
+      ${[...grupos.entries()].map(([ley, items]) => ` 
+        <div class="normativa-card"> 
+          <div class="normativa-icon">📚</div> 
+          <div class="normativa-info"> 
+            <h3>${escaparHTML(ley)}</h3> 
+            <p>${items.length} ${items.length === 1 ? "artículo" : "artículos"}</p> 
+          </div> 
+          <button type="button" class="normativa-open" data-law="otra-ley" data-id="${escaparHTML(ley)}">Ver</button> 
+        </div> 
+      `).join("")} 
+    </div> 
+  `; 
+
+  visor.classList.remove("hidden"); 
+  visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
+} 
+
+function abrirLeyOtraNorma(ley) { 
+  const items = obtenerOtrasNormas().filter((item) => item.ley === ley); 
+  const visor = $("normativaViewer"); 
+  const contenido = $("viewerContent"); 
+  if (!items.length || !visor || !contenido) return; 
+
+  $("viewerTitle").textContent = ley || "Normativa"; 
+  $("viewerSubtitle").textContent = `${items.length} ${items.length === 1 ? "artículo" : "artículos"}`; 
+
+  contenido.innerHTML = ` 
+    <button type="button" class="normativa-open law-back-button" data-law="otras-normas">← Volver a Otras normas</button> 
+    ${items.map((item) => ` 
+      <article class="law-article"> 
+        <h4>${escaparHTML(item.codigo || "")} ${escaparHTML(item.titulo || "")}</h4> 
+        <p>${escaparHTML(item.conducta || "")}</p> 
+        ${item.gravedad ? `<p><strong>Gravedad:</strong> ${escaparHTML(item.gravedad)}</p>` : ""} 
+        ${item.sancion?.texto ? `<p><strong>Sanción:</strong> ${escaparHTML(item.sancion.texto)}</p>` : ""} 
+      </article> 
+    `).join("")} 
+  `; 
+
+  visor.classList.remove("hidden"); 
+  visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
 } 
 
 function abrirLOPSC() { 
