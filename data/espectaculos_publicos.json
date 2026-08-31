@@ -1,0 +1,29 @@
+[
+  {
+    "id": "ESP-001",
+    "articulo": "Art. Marco (Aforo)",
+    "normativa": "Ley de Espectáculos Públicos",
+    "concepto": "Exceso de aforo permitido",
+    "descripcion": "Superar el aforo máximo autorizado en establecimientos públicos o locales de ocio cuando constituya un riesgo grave para la seguridad de las personas.",
+    "gravedad": "Muy Grave",
+    "sancion": "Multa de 30.001 € a 600.000 € y posible clausura del local."
+  },
+  {
+    "id": "ESP-002",
+    "articulo": "Art. Marco (Horarios)",
+    "normativa": "Ley de Espectáculos Públicos",
+    "concepto": "Incumplimiento del horario de cierre",
+    "descripcion": "Mantener abierto el local, permitir la entrada de público o continuar vendiendo consumiciones fuera del horario oficial de cierre fijado por la ordenanza o norma autonómica.",
+    "gravedad": "Grave",
+    "sancion": "Multa de 301 € a 30.000 €."
+  },
+  {
+    "id": "ESP-003",
+    "articulo": "Art. Marco (Menores)",
+    "normativa": "Ley de Espectáculos Públicos",
+    "concepto": "Venta o suministro de alcohol a menores",
+    "descripcion": "Vender, proporcionar o permitir el consumo de bebidas alcohólicas a menores de 18 años dentro del establecimiento o sus instalaciones.",
+    "gravedad": "Grave / Muy Grave",
+    "sancion": "Multa de 3.001 € a 30.000 € y suspensión de la licencia."
+  }
+]
