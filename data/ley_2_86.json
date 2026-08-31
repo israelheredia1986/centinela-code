@@ -1,0 +1,38 @@
+[
+  {
+    "id": "LOFCS-001",
+    "articulo": "Art. 5.1 y 5.2",
+    "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+    "concepto": "Principios Básicos de Actuación (Neutralidad, Proporcionalidad y Trato)",
+    "descripcion": "Absoluta neutralidad política e imparcialidad. Observar trato correcto y esmerado con el ciudadano. Aplicar los principios de congruencia, oportunidad y proporcionalidad en la utilización de los medios a su alcance.",
+    "gravedad": "Principio Fundamental",
+    "sancion": "Su vulneración constituye infracción disciplinaria grave o muy grave / responsabilidad penal."
+  },
+  {
+    "id": "LOFCS-002",
+    "articulo": "Art. 5.2.d",
+    "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+    "concepto": "Uso de Armas de Fuego",
+    "descripcion": "Solamente se deberán utilizar armas en situaciones donde exista un riesgo racionalmente grave para la vida, la integridad física o la de terceras personas, o que puedan suponer un grave riesgo para la seguridad ciudadana.",
+    "gravedad": "Principio de Fuerza Mayor",
+    "sancion": "Responsabilidad penal / administrativa en caso de uso indebido."
+  },
+  {
+    "id": "LOFCS-003",
+    "articulo": "Art. 5.4",
+    "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+    "concepto": "Dedicación profesional e intervención permanente",
+    "descripcion": "Deberán llevar a cabo sus funciones con total dedicación, debiendo intervenir siempre, en cualquier tiempo y lugar, se hallaren o no de servicio, en defensa de la Ley y de la seguridad ciudadana.",
+    "gravedad": "Deber Permanente",
+    "sancion": "Infracción disciplinaria por falta de auxilio o inasistencia."
+  },
+  {
+    "id": "LOFCS-004",
+    "articulo": "Art. 53.1",
+    "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+    "concepto": "Funciones exclusivas de los Cuerpos de Policía Local",
+    "descripcion": "Proteger autoridades locales; ordenar y regular tráfico urbano; instruir atestados por accidentes dentro del casco urbano; policía administrativa (ordenanzas y edictos); auxilio en catástrofes y cooperación con Policía Judicial.",
+    "gravedad": "Competencia Operativa",
+    "sancion": "Ámbito competencial marco del agente local."
+  }
+]
