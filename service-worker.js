@@ -1,60 +1,64 @@
-const CACHE_NAME = "centinela-code-v4";
+// ============================================================ //
+Centinela Code - Service Worker fusionado // Mantiene PWA offline y
+fuerza actualización de archivos //
+============================================================
 
-const ARCHIVOS = [
- "./",
- "./index.html",
- "./style.css",
- "./app.js",
- "./manifest.json",
+const CACHE_NAME = “centinela-code-v2”;
 
- "./data/lopsc.json",
- "./data/infracciones.json",
- "./data/ordenanzas.json"
-];
+const FILES_TO_CACHE = [ “./”, “./index.html”, “./style.css”,
+“./app.js”, “./manifest.json”,
 
+“./data/lopsc.json”, “./data/infracciones.json”,
+“./data/ordenanzas.json” ];
 
-self.addEventListener("install", event => {
+// Instalación self.addEventListener(“install”, event => {
+console.log(“Service Worker instalado”);
 
- console.log("Centinela SW instalado");
+self.skipWaiting();
 
- self.skipWaiting();
+event.waitUntil( caches.open(CACHE_NAME) .then(cache => { return
+cache.addAll(FILES_TO_CACHE); }) ); });
 
- event.waitUntil(
-  caches.open(CACHE_NAME)
-  .then(cache => cache.addAll(ARCHIVOS))
- );
+// Activación y limpieza de cachés antiguas
+self.addEventListener(“activate”, event => {
 
-});
+console.log(“Service Worker activo”);
 
+event.waitUntil(
 
-self.addEventListener("activate", event => {
+    caches.keys()
+      .then(cacheNames => {
 
- console.log("Centinela SW activo");
+        return Promise.all(
 
- event.waitUntil(
+          cacheNames
+            .filter(cache => cache !== CACHE_NAME)
+            .map(cache => caches.delete(cache))
 
-  caches.keys()
-  .then(keys =>
-   Promise.all(
-    keys
-    .filter(k => k !== CACHE_NAME)
-    .map(k => caches.delete(k))
-   )
-  )
-  .then(() => self.clients.claim())
+        );
 
- );
+      })
+      .then(() => self.clients.claim())
+
+);
 
 });
 
+// Gestión de peticiones self.addEventListener(“fetch”, event => {
 
-self.addEventListener("fetch", event => {
+event.respondWith(
 
- event.respondWith(
+    caches.match(event.request)
+      .then(response => {
 
-  fetch(event.request)
-  .catch(() => caches.match(event.request))
+        if (response) {
+          return response;
+        }
 
- );
+        return fetch(event.request);
+
+      })
+
+);
 
 });
