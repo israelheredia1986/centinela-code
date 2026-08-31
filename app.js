@@ -21,12 +21,12 @@ Funciones:
 
 // ============================================================
 // SUPABASE – configuración
+// La librería se carga como UMD desde el index.html ANTES de
+// este script, exponiendo window.supabase como global.
 // ============================================================
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
 const SUPABASE_URL  = "https://okuygqbaliaeavhyezri.supabase.co";
-const SUPABASE_ANON = "sb_publishable_fbEAcJZxMv8PD3VB3Bcx6A_l_8BdP2m"; // ← pega aquí tu anon key de Supabase
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+const SUPABASE_ANON = "sb_publishable_fbEAcJZxMv8PD3VB3Bcx6A_l_8BdP2m";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ============================================================
 // AUTH HELPERS
