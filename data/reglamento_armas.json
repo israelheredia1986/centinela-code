@@ -1,0 +1,29 @@
+[
+  {
+    "id": "ARM-001",
+    "articulo": "Art. 4 y 5",
+    "normativa": "RD 137/1993 (Reglamento de Armas)",
+    "concepto": "Armas prohibidas y de tenencia prohibida",
+    "descripcion": "Portar o poseer defensas eléctricas, sprays de defensa no homologados, navajas automáticas, nunchakus, puñales o armas de fuego transformadas.",
+    "gravedad": "Grave",
+    "sancion": "De 601 € a 30.000 € y decomiso del arma (Art. 156.a LO 4/2015 / RD 137/1993)."
+  },
+  {
+    "id": "ARM-002",
+    "articulo": "Art. 146.1",
+    "normativa": "RD 137/1993 (Reglamento de Armas)",
+    "concepto": "Portar armas fuera del domicilio o lugares autorizados",
+    "descripcion": "Llevar armas (incluidas las de 4ª categoría: aire comprimido/paintball/airsoft o armas blancas permitidas) en lugares de concurrencia pública, ocio o sin justificación.",
+    "gravedad": "Grave",
+    "sancion": "Multa de 601 € a 10.400 € y retirada de licencias/decomiso."
+  },
+  {
+    "id": "ARM-003",
+    "articulo": "Art. 149",
+    "normativa": "RD 137/1993 (Reglamento de Armas)",
+    "concepto": "Uso y transporte de armas de 4ª categoría (airsoft / aire comprimido)",
+    "descripcion": "Transportar o usar armas de 4ª categoría sin la correspondiente tarjeta de armas expedida por el Alcalde del municipio de residencia.",
+    "gravedad": "Leve / Grave",
+    "sancion": "Multa de 300 € a 600 € e incautación preventiva del arma."
+  }
+]
