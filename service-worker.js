@@ -3,7 +3,7 @@
 // Mantiene PWA offline y fuerza actualización de archivos
 // ============================================================
 
-const CACHE_NAME = "centinela-code-v4-login";
+const CACHE_NAME = "centinela-code-v3";
 
 const FILES_TO_CACHE = [
   "./",
@@ -14,9 +14,7 @@ const FILES_TO_CACHE = [
 
   "./data/lopsc.json",
   "./data/infracciones.json",
-  "./data/ordenanzas.json",
-
-  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"
+  "./data/ordenanzas.json"
 ];
 
 
@@ -28,15 +26,9 @@ self.addEventListener("install", event => {
 
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache =>
-        Promise.allSettled(
-          FILES_TO_CACHE.map(url =>
-            cache.add(url).catch(err => {
-              console.warn("No se pudo cachear:", url, err);
-            })
-          )
-        )
-      )
+      .then(cache => {
+        return cache.addAll(FILES_TO_CACHE);
+      })
   );
 });
 
