@@ -1,7 +1,7 @@
 /* 
 ============================================================ 
 CENTINELA CODE 
-app.js - Con Supabase Auth + Actas + Subida de Fotos Incautación + PDF
+app.js - Con Supabase Auth + Actas + Subida de Fotos Incautación + PDF + Asistente IA
 ============================================================ 
 */ 
 
@@ -327,6 +327,39 @@ function activarSeccion(nombre) {
 
   window.scrollTo({ top: 0, behavior: "smooth" }); 
 } 
+
+/* ========================================================= 
+SISTEMA MODAL DE AVISOS Y DETALLES
+========================================================= */
+
+function abrirModal(titulo, contenidoHTML, acciones = []) {
+  const modal = $("appModal");
+  const modalTitle = $("modalTitle");
+  const modalBody = $("modalBody");
+  const modalActions = $("modalActions");
+  if (!modal || !modalBody) return;
+
+  if (modalTitle) modalTitle.textContent = titulo;
+  modalBody.innerHTML = contenidoHTML;
+
+  if (modalActions) {
+    modalActions.innerHTML = "";
+    acciones.forEach(acc => {
+      const btn = document.createElement("button");
+      btn.className = acc.clase || "secondary-button";
+      btn.textContent = acc.texto;
+      btn.addEventListener("click", () => acc.onClick(modal));
+      modalActions.appendChild(btn);
+    });
+  }
+
+  modal.classList.remove("hidden");
+}
+
+function cerrarModal() {
+  const modal = $("appModal");
+  if (modal) modal.classList.add("hidden");
+}
 
 /* ========================================================= 
 CARGA DE DATOS 
@@ -790,7 +823,7 @@ function abrirDetalleInfraccion(id) {
         ` : ""} 
       </div> 
     `, 
-    [] 
+    [{ texto: "Cerrar", clase: "secondary-button", onClick: cerrarModal }] 
   ); 
 } 
 
@@ -933,8 +966,6 @@ async function cargarActas() {
   renderizarActas();
 }
 
-function guardarActas() {} 
-
 function configurarActas() { 
   $("newActaButton")?.addEventListener("click", () => abrirEditorActa()); 
   $("closeActaEditor")?.addEventListener("click", () => cerrarEditorActa()); 
@@ -945,9 +976,13 @@ function configurarActas() {
   $("btnDictadoHechos")?.addEventListener("click", (evento) => alternarDictado(evento.currentTarget)); 
   $("btnDictadoObservaciones")?.addEventListener("click", (evento) => alternarDictado(evento.currentTarget)); 
   
-  $("actaFiltroFecha")?.addEventListener("change", renderizarActas);
-  $("actaFiltroBusqueda")?.addEventListener("input", renderizarActas);
-  $("btnExportarHistoricoPDF")?.addEventListener("click", exportarHistoricoPDF);
+  $("filtroFechaDesde")?.addEventListener("change", renderizarActas);
+  $("filtroFechaHasta")?.addEventListener("change", renderizarActas);
+  $("btnLimpiarFiltroFechas")?.addEventListener("click", () => {
+    if ($("filtroFechaDesde")) $("filtroFechaDesde").value = "";
+    if ($("filtroFechaHasta")) $("filtroFechaHasta").value = "";
+    renderizarActas();
+  });
 
   renderizarActas(); 
 } 
@@ -1081,7 +1116,7 @@ function abrirEditorActa(acta = null) {
     $("actaLugar").value = acta.lugar || ""; 
     $("actaHechos").value = acta.hechos || ""; 
     $("actaInfraccion").value = acta.infraccion || ""; 
-    if ($("actaSancion")) $("actaSancion").value = acta.sancion_cuantia || ""; 
+    if ($("actaCuantia")) $("actaCuantia").value = acta.sancion_cuantia || ""; 
     if ($("actaAutoridad")) $("actaAutoridad").value = acta.autoridad_sancionadora || ""; 
     $("actaObservaciones").value = acta.observaciones || ""; 
     form.dataset.editingId = acta.id || ""; 
@@ -1155,7 +1190,7 @@ async function guardarActaDesdeFormulario(evento) {
     lugar:                  obtenerValor("actaLugar"),
     hechos:                 obtenerValor("actaHechos"),
     infraccion:             obtenerValor("actaInfraccion"),
-    sancion_cuantia:        obtenerValor("actaSancion"),
+    sancion_cuantia:        obtenerValor("actaCuantia"),
     autoridad_sancionadora: obtenerValor("actaAutoridad"),
     observaciones:          obtenerValor("actaObservaciones"),
     foto_url:               fotoUrl,
@@ -1187,25 +1222,19 @@ async function guardarActaDesdeFormulario(evento) {
 } 
 
 function obtenerActasFiltradas() {
-  const filtroFecha = $("actaFiltroFecha")?.value || "";
-  const filtroTexto = normalizarTexto($("actaFiltroBusqueda")?.value || "");
+  const fechaDesde = $("filtroFechaDesde")?.value || "";
+  const fechaHasta = $("filtroFechaHasta")?.value || "";
 
   return estado.actas.filter(acta => {
-    if (filtroFecha && acta.fecha !== filtroFecha) {
-      return false;
-    }
-    if (filtroTexto) {
-      const contenido = normalizarTexto(
-        `${acta.numero} ${acta.nombre} ${acta.dni} ${acta.infraccion} ${acta.autoridad_sancionadora}`
-      );
-      if (!contenido.includes(filtroTexto)) return false;
-    }
+    if (fechaDesde && acta.fecha < fechaDesde) return false;
+    if (fechaHasta && acta.fecha > fechaHasta) return false;
     return true;
   });
 }
 
 function renderizarActas() { 
   const lista = $("actasList"); 
+  const homeList = $("homeActasList");
   if (!lista) return; 
 
   const actasParaMostrar = obtenerActasFiltradas();
@@ -1218,6 +1247,9 @@ function renderizarActas() {
         <p>No existen registros que coincidan con la búsqueda o la fecha seleccionada.</p> 
       </div> 
     `; 
+    if (homeList) {
+      homeList.innerHTML = `<div class="home-acta-empty">No hay actas guardadas todavía.</div>`;
+    }
     return; 
   } 
 
@@ -1248,6 +1280,19 @@ function renderizarActas() {
       </div> 
     </article> 
   `).join(""); 
+
+  if (homeList) {
+    const ultimas = estado.actas.slice(0, 3);
+    homeList.innerHTML = ultimas.map(a => `
+      <div style="padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong>Acta ${escaparHTML(a.numero || "S/N")} - ${escaparHTML(a.nombre || "Sin nombre")}</strong>
+          <br><small style="color: #94a3b8;">${escaparHTML(a.infraccion || "")}</small>
+        </div>
+        <span style="font-size: 0.8rem; color: #64748b;">${escaparHTML(a.fecha || "")}</span>
+      </div>
+    `).join("");
+  }
 } 
 
 function editarActa(id) { 
@@ -1300,7 +1345,7 @@ function actualizarPreviewInfraccion() {
   } 
 
   const autoridadCampo = $("actaAutoridad");
-  const sancionCampo = $("actaSancion");
+  const sancionCampo = $("actaCuantia");
 
   if (autoridadCampo && !autoridadCampo.value) {
     autoridadCampo.value = determinarAutoridadSancionadora(encontrada);
@@ -1425,78 +1470,6 @@ function exportarActaPDF(id) {
   ventanaImp.document.close();
 }
 
-function exportarHistoricoPDF() {
-  const actas = obtenerActasFiltradas();
-  if (!actas.length) {
-    mostrarToast("No hay actas en el historial para exportar.");
-    return;
-  }
-
-  const ventanaImp = window.open("", "_blank");
-  if (!ventanaImp) {
-    alert("Por favor, permite las ventanas emergentes para generar el PDF.");
-    return;
-  }
-
-  const fechaFiltro = $("actaFiltroFecha")?.value;
-  const subtitulo = fechaFiltro ? `Filtrado por fecha: ${fechaFiltro}` : `Total de registros: ${actas.length}`;
-
-  ventanaImp.document.write(`
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-      <meta charset="UTF-8">
-      <title>Historial de Actas - Centinela Code</title>
-      <style>
-        body { font-family: Arial, sans-serif; margin: 1.5rem; color: #111; }
-        h1 { text-align: center; margin-bottom: 0.2rem; font-size: 1.4rem; }
-        p.sub { text-align: center; font-size: 0.85rem; color: #555; margin-top: 0; margin-bottom: 1.5rem; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
-        th { background: #f2f2f2; }
-        tr:nth-child(even) { background: #f9f9f9; }
-      </style>
-    </head>
-    <body>
-      <h1>HISTORIAL OFICIAL DE ACTAS Y DENUNCIAS</h1>
-      <p class="sub">${subtitulo}</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Nº Acta</th>
-            <th>Fecha / Hora</th>
-            <th>Nombre Implicado</th>
-            <th>DNI</th>
-            <th>Infracción</th>
-            <th>Cuantía</th>
-            <th>Autoridad Sancionadora</th>
-            <th>Foto</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${actas.map(a => `
-            <tr>
-              <td>${escaparHTML(a.numero || "-")}</td>
-              <td>${escaparHTML(a.fecha || "")} ${escaparHTML(a.hora || "")}</td>
-              <td>${escaparHTML(a.nombre || "-")}</td>
-              <td>${escaparHTML(a.dni || "-")}</td>
-              <td>${escaparHTML(a.infraccion || "-")}</td>
-              <td>${escaparHTML(a.sancion_cuantia || "-")}</td>
-              <td>${escaparHTML(a.autoridad_sancionadora || "-")}</td>
-              <td>${a.foto_url ? "Sí" : "No"}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-      <script>
-        window.onload = function() { window.print(); };
-      </script>
-    </body>
-    </html>
-  `);
-  ventanaImp.document.close();
-}
-
 /* ========================================================= 
 NORMATIVA 
 ========================================================= */ 
@@ -1585,6 +1558,46 @@ function abrirNormativa(tipo, id = "") {
   if (tipo === "normativa-home") cerrarVisorNormativa(); 
 } 
 
+function abrirLOPSC() { 
+  const articulos = extraerArticulos(estado.lopsc); 
+  const visor = $("normativaViewer"); 
+  const contenido = $("viewerContent"); 
+  if (!visor || !contenido) return; 
+
+  $("viewerTitle").textContent = "Ley Orgánica 4/2015"; 
+  $("viewerSubtitle").textContent = "Protección de la seguridad ciudadana"; 
+
+  contenido.innerHTML = articulos.map((articulo) => `
+    <article class="law-article"> 
+      <h4>Artículo ${escaparHTML(articulo.numero)}. ${escaparHTML(articulo.titulo || "")}</h4> 
+      <p>${escaparHTML(articulo.texto || "")}</p> 
+    </article> 
+  `).join(""); 
+
+  visor.classList.remove("hidden"); 
+  visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
+}
+
+function abrirCodigoPenal() { 
+  const articulos = extraerArticulos(estado.codigoPenal); 
+  const visor = $("normativaViewer"); 
+  const contenido = $("viewerContent"); 
+  if (!visor || !contenido) return; 
+
+  $("viewerTitle").textContent = "Código Penal (LO 10/1995)"; 
+  $("viewerSubtitle").textContent = "Selección de delitos de interés policial"; 
+
+  contenido.innerHTML = articulos.map((articulo) => `
+    <article class="law-article"> 
+      <h4>Artículo ${escaparHTML(articulo.numero)}. ${escaparHTML(articulo.titulo || "")}</h4> 
+      <p>${escaparHTML(articulo.texto || "")}</p> 
+    </article> 
+  `).join(""); 
+
+  visor.classList.remove("hidden"); 
+  visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
+}
+
 function abrirOrdenanzas() { 
   const categorias = Array.isArray(estado.ordenanzas?.categorias) ? estado.ordenanzas.categorias : []; 
   const ordenanzas = extraerOrdenanzas(estado.ordenanzas); 
@@ -1601,6 +1614,34 @@ function abrirOrdenanzas() {
   visor.classList.remove("hidden"); 
   visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
 } 
+
+function abrirOrdenanza(id) {
+  const ordenanzas = extraerOrdenanzas(estado.ordenanzas);
+  const ordenanza = ordenanzas.find((item) => item.id === id);
+  const visor = $("normativaViewer");
+  const contenido = $("viewerContent");
+  if (!ordenanza || !visor || !contenido) return;
+
+  $("viewerTitle").textContent = ordenanza.nombre || ordenanza.nombre_corto || "Ordenanza municipal";
+  $("viewerSubtitle").textContent = ordenanza.codigo || "";
+
+  contenido.innerHTML = `
+    <button type="button" class="normativa-open law-back-button" data-law="ordenanzas">← Volver a Ordenanzas</button>
+    <article class="law-article">
+      <h4>${escaparHTML(ordenanza.nombre || "")}</h4>
+      <p>${escaparHTML(ordenanza.descripcion || "")}</p>
+      ${ordenanza.articulos ? ordenanza.articulos.map(a => `
+        <div style="margin-top:1rem;">
+          <h5>Art. ${escaparHTML(a.numero)} ${escaparHTML(a.titulo || "")}</h5>
+          <p>${escaparHTML(a.texto || "")}</p>
+        </div>
+      `).join("") : ""}
+    </article>
+  `;
+
+  visor.classList.remove("hidden");
+  visor.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 function abrirAnimales() { 
   const leyes = extraerAnimales(estado.animales); 
@@ -1814,349 +1855,194 @@ function abrirLeyTrafico(id) {
   visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
 } 
 
-function abrirLOPSC() { 
-  const articulos = extraerArticulos(estado.lopsc); 
-  const visor = $("normativaViewer"); 
-  const contenido = $("viewerContent"); 
-  if (!visor || !contenido) return; 
-
-  $("viewerTitle").textContent = "Ley Orgánica 4/2015"; 
-  $("viewerSubtitle").textContent = "Protección de la seguridad ciudadana"; 
-
-  contenido.innerHTML = articulos.map((articulo) => ` 
-    <article class="law-article"> 
-      <h4>Artículo ${escaparHTML(articulo.numero)}. ${escaparHTML(articulo.titulo || "")}</h4> 
-      <p>${escaparHTML(articulo.texto || "")}</p> 
-    </article> 
-  `).join(""); 
-
-  visor.classList.remove("hidden"); 
-  visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
-} 
-
-function abrirCodigoPenal() { 
-  const articulos = extraerArticulos(estado.codigoPenal); 
-  const visor = $("normativaViewer"); 
-  const contenido = $("viewerContent"); 
-  if (!visor || !contenido) return; 
-
-  $("viewerTitle").textContent = "Código Penal"; 
-  $("viewerSubtitle").textContent = "Selección de delitos de interés policial"; 
-
-  contenido.innerHTML = articulos.map((articulo) => ` 
-    <article class="law-article"> 
-      <h4>Artículo ${escaparHTML(articulo.numero)}. ${escaparHTML(articulo.titulo || "")}</h4> 
-      <p>${escaparHTML(articulo.texto || "")}</p> 
-    </article> 
-  `).join(""); 
-
-  visor.classList.remove("hidden"); 
-  visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
-} 
-
-function abrirOrdenanza(id) { 
-  const ordenanzas = extraerOrdenanzas(estado.ordenanzas); 
-  const ordenanza = ordenanzas.find((item) => item.id === id); 
-  if (!ordenanza) return; 
-
-  const visor = $("normativaViewer"); 
-  const contenido = $("viewerContent"); 
-  if (!visor || !contenido) return; 
-
-  $("viewerTitle").textContent = ordenanza.nombre || ordenanza.nombre_corto || "Ordenanza"; 
-  $("viewerSubtitle").textContent = ordenanza.codigo || ""; 
-
-  contenido.innerHTML = ` 
-    <button type="button" class="normativa-open law-back-button" data-law="ordenanzas">← Volver a Ordenanzas</button> 
-    <article class="law-article"> 
-      <h4>${escaparHTML(ordenanza.nombre || "")}</h4> 
-      <p>${escaparHTML(ordenanza.descripcion || "")}</p> 
-    </article> 
-  `; 
-
-  visor.classList.remove("hidden"); 
-  visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
-} 
-
-function cerrarVisorNormativa() { 
-  $("normativaViewer")?.classList.add("hidden"); 
-} 
+function cerrarVisorNormativa() {
+  const visor = $("normativaViewer");
+  if (visor) visor.classList.add("hidden");
+}
 
 /* ========================================================= 
-MODAL & AJUSTES 
-========================================================= */ 
+ASISTENTE IA POLICIAL 
+========================================================= */
 
-function abrirModal(titulo, contenido, acciones = []) { 
-  const modal = $("appModal"); 
-  if (!modal) return; 
+function configurarAsistenteIA() {
+  const btnSend = $("btnSendChat");
+  const input = $("chatInput");
+  const container = $("chatMessages");
+  if (!btnSend || !input || !container) return;
 
-  $("modalTitle").textContent = titulo || "Centinela Code"; 
-  $("modalBody").innerHTML = contenido || ""; 
-  const contenedor = $("modalActions"); 
-  contenedor.innerHTML = ""; 
+  const responderIA = (mensaje) => {
+    const userBubble = document.createElement("div");
+    userBubble.className = "chat-bubble user";
+    userBubble.style.cssText = "background: #0f172a; padding: 12px; border-radius: 8px; color: #fff; align-self: flex-end; max-width: 85%; font-size: 0.95rem;";
+    userBubble.textContent = mensaje;
+    container.appendChild(userBubble);
 
-  acciones.forEach((accion) => { 
-    const boton = document.createElement("button"); 
-    boton.type = "button"; 
-    boton.className = accion.className || "primary-button"; 
-    boton.textContent = accion.label || "Aceptar"; 
-    boton.addEventListener("click", () => accion.onClick?.()); 
-    contenedor.appendChild(boton); 
-  }); 
+    const tokens = tokenizarConsulta(mensaje);
+    const coincidencias = estado.infracciones.filter(i => {
+      const cont = [i.codigo, i.conducta, i.titulo, ...(i.palabrasClave||[])].join(" ");
+      return coincideConsulta(normalizarTexto(cont), tokens);
+    });
 
-  modal.classList.remove("hidden"); 
-} 
-
-function cerrarModal() { 
-  $("appModal")?.classList.add("hidden"); 
-} 
-
-function configurarModal() { 
-  $("closeModal")?.addEventListener("click", cerrarModal); 
-  $("modalOverlay")?.addEventListener("click", cerrarModal); 
-} 
-
-function configurarAjustes() { 
-  const version = $("appVersion"); 
-  if (version) version.textContent = CONFIG.VERSION; 
-
-  $("reloadDataButton")?.addEventListener("click", async () => { 
-    mostrarToast("Recargando datos..."); 
-    await cargarDatos(); 
-  }); 
-
-  $("clearDraftsButton")?.addEventListener("click", () => { 
-    if (!window.confirm("¿Quieres borrar todas las actas guardadas localmente?")) return; 
-    estado.actas = []; 
-    localStorage.removeItem(CONFIG.STORAGE_ACTAS); 
-    renderizarActas(); 
-    mostrarToast("Actas borradas."); 
-  }); 
-} 
-
-/* ========================================================= 
-EVENTOS GLOBALES Y FAVORITOS
-========================================================= */ 
-
-function configurarEventosGlobales() { 
-  document.addEventListener("click", (evento) => { 
-    const detalle = evento.target.closest("[data-infraccion-id]"); 
-    if (detalle) return abrirDetalleInfraccion(detalle.dataset.infraccionId); 
-
-    const resultadoArticulo = evento.target.closest("[data-nav-tipo]"); 
-    if (resultadoArticulo) { 
-      activarSeccion("normativa"); 
-      return abrirNormativa(resultadoArticulo.dataset.navTipo, resultadoArticulo.dataset.navId || ""); 
-    } 
-
-    const normativa = evento.target.closest("button.normativa-open"); 
-    if (normativa) return abrirNormativa(normativa.dataset.law, normativa.dataset.id || ""); 
-
-    const editar = evento.target.closest("[data-edit-acta]"); 
-    if (editar) return editarActa(editar.dataset.editActa); 
-
-    const pdf = evento.target.closest("[data-pdf-acta]");
-    if (pdf) return exportarActaPDF(pdf.dataset.pdfActa);
-
-    const borrar = evento.target.closest("[data-delete-acta]"); 
-    if (borrar) return borrarActa(borrar.dataset.deleteActa); 
-  }); 
-} 
-
-const FAVORITOS_DEFAULT = {
-  infraccion: ["Art. 36.6 LOPSC — Drogas", "Art. 36.16 LOPSC — Desobediencia", "Art. 37.4 LOPSC — Falta de respeto"],
-  normativa: ["Ordenanza ruido", "Ordenanza animales", "Tráfico"]
-};
-
-function cargarFavoritos() {
-  try {
-    const raw = localStorage.getItem(CONFIG.STORAGE_FAVORITOS);
-    return raw ? JSON.parse(raw) : { ...FAVORITOS_DEFAULT };
-  } catch {
-    return { ...FAVORITOS_DEFAULT };
-  }
-}
-
-function guardarFavoritos(favs) {
-  localStorage.setItem(CONFIG.STORAGE_FAVORITOS, JSON.stringify(favs));
-}
-
-function renderizarFavoritos() {
-  const favs = cargarFavoritos();
-  const renderLista = (ulId, tipo) => {
-    const ul = document.getElementById(ulId);
-    if (!ul) return;
-    const items = favs[tipo] ?? [];
-    if (!items.length) {
-      ul.innerHTML = `<li class="fav-empty">Sin favoritos aún. Pulsa + para añadir.</li>`;
-      return;
-    }
-    ul.innerHTML = items.map((texto, i) => `
-      <li class="fav-item" data-fav-tipo="${tipo}" data-fav-idx="${i}">
-        <span class="fav-item-star">⭐</span>
-        <span class="fav-item-text">${escaparHTML(texto)}</span>
-        <button class="fav-item-remove" data-fav-remove-tipo="${tipo}" data-fav-remove-idx="${i}" title="Eliminar">×</button>
-      </li>
-    `).join("");
-  };
-
-  renderLista("favListInfracciones", "infraccion");
-  renderLista("favListNormativa", "normativa");
-}
-
-function abrirModalFavorito(tipo) {
-  if (document.getElementById("favModal")) return;
-
-  const overlay = document.createElement("div");
-  overlay.className = "fav-modal-overlay";
-  overlay.id = "favModal";
-  overlay.innerHTML = `
-    <div class="fav-modal">
-      <h3>Añadir a favoritos</h3>
-      <input id="favModalInput" type="text" placeholder="Ej: Art. 36.6 LOPSC" maxlength="80" autocomplete="off" />
-      <div class="fav-modal-actions">
-        <button class="fav-btn-cancel" id="favModalCancelar">Cancelar</button>
-        <button class="fav-btn-ok" id="favModalGuardar">Guardar</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  const input = document.getElementById("favModalInput");
-  input.focus();
-
-  const cerrar = () => overlay.remove();
-  document.getElementById("favModalCancelar").addEventListener("click", cerrar);
-  overlay.addEventListener("click", e => { if (e.target === overlay) cerrar(); });
-
-  const guardar = () => {
-    const texto = input.value.trim();
-    if (!texto) return;
-    const favs = cargarFavoritos();
-    if (!Array.isArray(favs[tipo])) favs[tipo] = [];
-    favs[tipo].push(texto);
-    guardarFavoritos(favs);
-    renderizarFavoritos();
-    mostrarToast("Favorito añadido.");
-    cerrar();
-  };
-
-  document.getElementById("favModalGuardar").addEventListener("click", guardar);
-  input.addEventListener("keydown", e => { if (e.key === "Enter") guardar(); });
-}
-
-function eliminarFavorito(tipo, idx) {
-  const favs = cargarFavoritos();
-  if (!Array.isArray(favs[tipo])) return;
-  favs[tipo].splice(idx, 1);
-  guardarFavoritos(favs);
-  renderizarFavoritos();
-  mostrarToast("Favorito eliminado.");
-}
-
-function configurarFavoritos() {
-  renderizarFavoritos();
-  const panel = document.getElementById("favoritosPanel");
-  if (!panel) return;
-
-  panel.addEventListener("click", e => {
-    const addBtn = e.target.closest("[data-fav-type]");
-    if (addBtn) return abrirModalFavorito(addBtn.dataset.favType);
-
-    const removeBtn = e.target.closest("[data-fav-remove-tipo]");
-    if (removeBtn) {
-      e.stopPropagation();
-      return eliminarFavorito(removeBtn.dataset.favRemoveTipo, parseInt(removeBtn.dataset.favRemoveIdx, 10));
+    let respuestaText = "";
+    if (coincidencias.length > 0) {
+      const top = coincidencias.slice(0, 3);
+      respuestaText = `🤖 **Centinela AI:** He encuadrado los hechos en las siguientes infracciones:\n\n` +
+        top.map(i => `• **${i.codigo}** (${i.ley || 'Normativa'}): ${i.titulo}\n  *Conducta:* ${i.conducta}`).join("\n\n");
+    } else {
+      respuestaText = `🤖 **Centinela AI:** No he encontrado un encuadre directo para "${mensaje}". Intenta consultar términos clave como "drogas", "respeto", "desobediencia" o revisa el apartado de Normativa.`;
     }
 
-    const item = e.target.closest(".fav-item");
-    if (item && !e.target.closest("button")) {
-      const texto = item.querySelector(".fav-item-text")?.textContent ?? "";
-      const consultaInput = document.getElementById("consultaInput");
-      if (consultaInput) {
-        consultaInput.value = texto;
-        document.querySelector(".nav-item[data-section='consulta']")?.click();
-        consultaInput.dispatchEvent(new Event("input", { bubbles: true }));
-      }
+    setTimeout(() => {
+      const aiBubble = document.createElement("div");
+      aiBubble.className = "chat-bubble ai";
+      aiBubble.style.cssText = "background: #334155; padding: 12px; border-radius: 8px; color: #f8fafc; max-width: 85%; font-size: 0.95rem; white-space: pre-wrap;";
+      aiBubble.innerHTML = respuestaText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      container.appendChild(aiBubble);
+      container.scrollTop = container.scrollHeight;
+    }, 400);
+
+    input.value = "";
+    container.scrollTop = container.scrollHeight;
+  };
+
+  btnSend.addEventListener("click", () => {
+    const txt = input.value.trim();
+    if (txt) responderIA(txt);
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const txt = input.value.trim();
+      if (txt) responderIA(txt);
     }
   });
 }
 
-function registrarServiceWorker() { 
-  if (!("serviceWorker" in navigator)) return; 
-  window.addEventListener("load", async () => { 
-    try { 
-      await navigator.serviceWorker.register("./service-worker.js", { updateViaCache: "none" }); 
-    } catch (error) { 
-      console.warn("Centinela Code: SW error", error); 
-    } 
-  }); 
-} 
+/* ========================================================= 
+AJUSTES Y DATOS DEL AGENTE 
+========================================================= */
 
-function configurarRed() { 
-  window.addEventListener("online", () => { 
-    actualizarRed(); 
-    mostrarToast("Conexión recuperada."); 
-  }); 
-  window.addEventListener("offline", () => { 
-    actualizarRed(); 
-    mostrarToast("Sin conexión."); 
-  }); 
-  actualizarRed(); 
-} 
+function cargarDatosAgente() {
+  const nombre = localStorage.getItem("centinela_agente_nombre") || "";
+  const tip = localStorage.getItem("centinela_agente_tip") || "";
+
+  if ($("agentNameInput")) $("agentNameInput").value = nombre;
+  if ($("agentIdInput")) $("agentIdInput").value = tip;
+
+  if ($("agentName")) $("agentName").textContent = nombre || "Agente sin configurar";
+  if ($("agentId")) $("agentId").textContent = tip ? `TIP / ID: ${tip}` : "Configura tu identificador en Ajustes";
+}
+
+function configurarAjustes() {
+  cargarDatosAgente();
+
+  $("saveAgentButton")?.addEventListener("click", () => {
+    const nombre = $("agentNameInput")?.value.trim() || "";
+    const tip = $("agentIdInput")?.value.trim() || "";
+
+    localStorage.setItem("centinela_agente_nombre", nombre);
+    localStorage.setItem("centinela_agente_tip", tip);
+    cargarDatosAgente();
+    mostrarToast("Datos del agente guardados.");
+  });
+
+  $("agentCard")?.addEventListener("click", () => {
+    activarSeccion("ajustes");
+  });
+
+  $("reloadDataButton")?.addEventListener("click", async () => {
+    mostrarCarga(true);
+    await cargarDatos();
+    mostrarCarga(false);
+  });
+
+  $("clearDraftsButton")?.addEventListener("click", () => {
+    if (confirm("¿Estás seguro de que deseas limpiar los borradores del acta?")) {
+      cerrarEditorActa();
+      mostrarToast("Borradores limpiados.");
+    }
+  });
+}
 
 /* ========================================================= 
-INICIALIZACIÓN 
-========================================================= */ 
+EVENTOS DELEGADOS Y MODAL
+========================================================= */
+
+function configurarEventosDelegados() {
+  document.addEventListener("click", (e) => {
+    const btnInfraccion = e.target.closest("[data-infraccion-id]");
+    if (btnInfraccion) {
+      abrirDetalleInfraccion(btnInfraccion.dataset.infraccionId);
+      return;
+    }
+
+    const btnLaw = e.target.closest("[data-law]");
+    if (btnLaw) {
+      abrirNormativa(btnLaw.dataset.law, btnLaw.dataset.id || "");
+      return;
+    }
+
+    const btnNavTipo = e.target.closest("[data-nav-tipo]");
+    if (btnNavTipo) {
+      activarSeccion("normativa");
+      abrirNormativa(btnNavTipo.dataset.navTipo, btnNavTipo.dataset.navId || "");
+      return;
+    }
+
+    const btnEdit = e.target.closest("[data-edit-acta]");
+    if (btnEdit) {
+      editarActa(btnEdit.dataset.editActa);
+      return;
+    }
+
+    const btnPdf = e.target.closest("[data-pdf-acta]");
+    if (btnPdf) {
+      exportarActaPDF(btnPdf.dataset.pdfActa);
+      return;
+    }
+
+    const btnDelete = e.target.closest("[data-delete-acta]");
+    if (btnDelete) {
+      borrarActa(btnDelete.dataset.deleteActa);
+      return;
+    }
+  });
+
+  $("closeModal")?.addEventListener("click", cerrarModal);
+  $("modalOverlay")?.addEventListener("click", cerrarModal);
+}
+
+/* ========================================================= 
+INICIALIZACIÓN DE LA APLICACIÓN 
+========================================================= */
 
 async function iniciarAplicacion() {
-  try {
-    mostrarCarga(true);
-    configurarNavegacion();
-    configurarConsulta();
-    configurarActas();
-    configurarFavoritos();
-    configurarNormativa();
-    configurarModal();
-    configurarAjustes();
-    configurarEventosGlobales();
-    configurarRed();
-    inyectarBotonLogout();
-    await cargarActas();
-    await cargarDatos();
-    const version = $("appVersion");
-    if (version) version.textContent = CONFIG.VERSION;
-  } catch (error) {
-    console.error("Error iniciando Centinela Code:", error);
-    mostrarToast("La aplicación se inició con un error.");
-  } finally {
-    actualizarEstadoDatos();
-    actualizarRed();
+  mostrarCarga(true);
+  inyectarBotonLogout();
+  configurarNavegacion();
+  configurarConsulta();
+  configurarActas();
+  configurarNormativa();
+  configurarAsistenteIA();
+  configurarAjustes();
+  configurarEventosDelegados();
+  actualizarRed();
+
+  window.addEventListener("online", actualizarRed);
+  window.addEventListener("offline", actualizarRed);
+
+  await cargarDatos();
+  await cargarActas();
+  mostrarCarga(false);
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const sesion = await obtenerSesion();
+  if (sesion) {
+    ocultarPantallaLogin();
+    await iniciarAplicacion();
+  } else {
+    mostrarPantallaLogin();
     mostrarCarga(false);
   }
-}
-
-async function arrancar() {
-  try {
-    await obtenerSesion().catch(error => {
-      console.warn("Supabase no disponible:", error);
-      usuarioActual = null;
-    });
-    await iniciarAplicacion();
-  } catch (error) {
-    console.error("Error de arranque:", error);
-    try {
-      await iniciarAplicacion();
-    } catch (e) {
-      mostrarToast("Error iniciando la aplicación");
-    }
-  }
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", arrancar, { once: true });
-} else {
-  arrancar();
-} 
-
-registrarServiceWorker();
+});
