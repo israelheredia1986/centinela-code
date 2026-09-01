@@ -316,6 +316,61 @@ function escaparHTML(valor) {
     .replace(/'/g, "&#039;"); 
 } 
 
+/**
+ * ENLACES OFICIALES — "Otras normas de interés"
+ * Estos ficheros (ley_2_86, lecrim, extranjeria, seguridad_privada,
+ * espectaculos_publicos, medio_ambiente_ruidos, reglamento_armas) usan el
+ * esquema plano normalizado en normalizarInfraccionSimple() y no incluyen
+ * enlaceOficial por artículo, así que se mapea aquí por nombre de norma
+ * (mismo valor que agrupa abrirOtrasNormas/abrirLeyOtraNorma) a su ficha
+ * consolidada en el BOE. Verificado manualmente, no inventado.
+ */
+const ENLACES_OTRAS_NORMAS = {
+  "Ley Orgánica 2/1986 (LOFCS)": "https://www.boe.es/buscar/act.php?id=BOE-A-1986-6859",
+  "Ley de Enjuiciamiento Criminal": "https://www.boe.es/buscar/act.php?id=BOE-A-1882-6036",
+  "LO 4/2000 (Ley de Extranjería)": "https://www.boe.es/buscar/act.php?id=BOE-A-2000-544",
+  "Ley 5/2014 (Seguridad Privada)": "https://www.boe.es/buscar/act.php?id=BOE-A-2014-3649",
+  "RD 137/1993 (Reglamento de Armas)": "https://www.boe.es/buscar/act.php?id=BOE-A-1993-6202",
+  "Ley 37/2003 (Ley del Ruido)": "https://www.boe.es/buscar/act.php?id=BOE-A-2003-20976",
+  "Ley 7/2022 (Residuos y Suelos Contaminados)": "https://www.boe.es/buscar/act.php?id=BOE-A-2022-5809",
+  "Ley de Espectáculos Públicos": "https://www.boe.es/buscar/act.php?id=BOE-A-2000-1009"
+};
+
+/**
+ * Botón de enlace directo a la fuente oficial (BOE, BOJA, portal de
+ * transparencia municipal, etc.). Devuelve "" si no hay URL, para no
+ * romper el layout de las vistas que aún no tengan enlace verificado.
+ */
+function renderBotonFuenteOficial(url, texto = "Ver texto oficial") {
+  if (!url) return "";
+  return `
+    <a class="btn-boe" href="${escaparHTML(url)}" target="_blank" rel="noopener noreferrer">
+      <span class="btn-boe-icon">📖</span> ${escaparHTML(texto)}
+    </a>
+  `;
+}
+
+/**
+ * Resuelve el enlace oficial (BOE/BOJA) a partir del campo corto "ley"
+ * que usan las infracciones (p. ej. "LO 4/2015", "RD 2822/1998"),
+ * cruzándolo con el enlaceOficial ya verificado en los ficheros de
+ * normativa cargados. No inventa enlaces: si no encuentra coincidencia
+ * fiable, devuelve "" y el botón simplemente no se muestra.
+ */
+function obtenerEnlaceOficialPorLey(leyCorta) {
+  if (!leyCorta) return "";
+  if (leyCorta.includes("4/2015") && estado.lopsc?.enlaceOficial) return estado.lopsc.enlaceOficial;
+  if (leyCorta.includes("10/1995") && estado.codigoPenal?.enlaceOficial) return estado.codigoPenal.enlaceOficial;
+  const numero = (leyCorta.match(/\d+\/\d{4}/) || [])[0];
+  if (!numero) return ENLACES_OTRAS_NORMAS[leyCorta] || "";
+  const fuentes = [estado.animales, estado.trafico, estado.menores, estado.violenciaGenero];
+  for (const fuente of fuentes) {
+    const encontrada = extraerLeyes(fuente).find((item) => (item.ley || "").includes(numero));
+    if (encontrada?.enlaceOficial) return encontrada.enlaceOficial;
+  }
+  return ENLACES_OTRAS_NORMAS[leyCorta] || "";
+}
+
 function mostrarToast(mensaje) { 
   const toast = $("toast"); 
   const texto = $("toastMessage"); 
@@ -899,6 +954,7 @@ function abrirDetalleInfraccion(id) {
           <h4>Palabras clave</h4> 
           <p>${palabras.map(escaparHTML).join(", ")}</p> 
         ` : ""} 
+        ${renderBotonFuenteOficial(obtenerEnlaceOficialPorLey(infraccion.ley), "Ver en el BOE")}
       </div> 
     `, 
     [{ texto: "Cerrar", clase: "secondary-button", onClick: cerrarModal }] 
@@ -1716,7 +1772,10 @@ function abrirLeyOtraNorma(ley) {
   $("viewerSubtitle").textContent = `${items.length} ${items.length === 1 ? "artículo" : "artículos"}`; 
 
   contenido.innerHTML = ` 
-    <button type="button" class="normativa-open law-back-button" data-law="otras-normas">← Volver a Otras normas</button> 
+    <div class="viewer-actions">
+      <button type="button" class="normativa-open law-back-button" data-law="otras-normas">← Volver a Otras normas</button>
+      ${renderBotonFuenteOficial(ENLACES_OTRAS_NORMAS[ley], "Ver en el BOE")}
+    </div>
     ${items.map((item) => ` 
       <article class="law-article"> 
         <h4>${escaparHTML(item.codigo || "")} ${escaparHTML(item.titulo || "")}</h4> 
@@ -1740,12 +1799,14 @@ function abrirLOPSC() {
   $("viewerTitle").textContent = "Ley Orgánica 4/2015"; 
   $("viewerSubtitle").textContent = "Protección de la seguridad ciudadana"; 
 
-  contenido.innerHTML = articulos.map((articulo) => `
+  contenido.innerHTML = `
+    <div class="viewer-actions">${renderBotonFuenteOficial(estado.lopsc?.enlaceOficial, "Ver en el BOE")}</div>
+    ${articulos.map((articulo) => `
     <article class="law-article"> 
       <h4>Artículo ${escaparHTML(articulo.numero)}. ${escaparHTML(articulo.titulo || "")}</h4> 
       <p>${escaparHTML(articulo.texto || "")}</p> 
     </article> 
-  `).join(""); 
+  `).join("")}`; 
 
   visor.classList.remove("hidden"); 
   visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
@@ -1760,12 +1821,14 @@ function abrirCodigoPenal() {
   $("viewerTitle").textContent = "Código Penal (LO 10/1995)"; 
   $("viewerSubtitle").textContent = "Selección de delitos de interés policial"; 
 
-  contenido.innerHTML = articulos.map((articulo) => `
+  contenido.innerHTML = `
+    <div class="viewer-actions">${renderBotonFuenteOficial(estado.codigoPenal?.enlaceOficial, "Ver en el BOE")}</div>
+    ${articulos.map((articulo) => `
     <article class="law-article"> 
       <h4>Artículo ${escaparHTML(articulo.numero)}. ${escaparHTML(articulo.titulo || "")}</h4> 
       <p>${escaparHTML(articulo.texto || "")}</p> 
     </article> 
-  `).join(""); 
+  `).join("")}`; 
 
   visor.classList.remove("hidden"); 
   visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
@@ -1799,7 +1862,10 @@ function abrirOrdenanza(id) {
   $("viewerSubtitle").textContent = ordenanza.codigo || "";
 
   contenido.innerHTML = `
-    <button type="button" class="normativa-open law-back-button" data-law="ordenanzas">← Volver a Ordenanzas</button>
+    <div class="viewer-actions">
+      <button type="button" class="normativa-open law-back-button" data-law="ordenanzas">← Volver a Ordenanzas</button>
+      ${renderBotonFuenteOficial(ordenanza.fuente?.url, "Ver fuente oficial")}
+    </div>
     <article class="law-article">
       <h4>${escaparHTML(ordenanza.nombre || "")}</h4>
       <p>${escaparHTML(ordenanza.descripcion || "")}</p>
@@ -1856,7 +1922,10 @@ function abrirLeyAnimal(id) {
   const articulos = Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
 
   contenido.innerHTML = ` 
-    <button type="button" class="normativa-open law-back-button" data-law="animales">← Volver a Animales</button> 
+    <div class="viewer-actions">
+      <button type="button" class="normativa-open law-back-button" data-law="animales">← Volver a Animales</button>
+      ${renderBotonFuenteOficial(leyItem.enlaceOficial, "Ver en el BOE")}
+    </div>
     ${articulos.map((articulo) => ` 
       <article class="law-article"> 
         <h4>Artículo ${escaparHTML(articulo.numero)}. ${escaparHTML(articulo.titulo || "")}</h4> 
@@ -1909,7 +1978,10 @@ function abrirLeyMenor(id) {
   const articulos = Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
 
   contenido.innerHTML = ` 
-    <button type="button" class="normativa-open law-back-button" data-law="menores">← Volver a Menores</button> 
+    <div class="viewer-actions">
+      <button type="button" class="normativa-open law-back-button" data-law="menores">← Volver a Menores</button>
+      ${renderBotonFuenteOficial(leyItem.enlaceOficial, "Ver en el BOE")}
+    </div>
     ${articulos.map((articulo) => ` 
       <article class="law-article"> 
         <h4>Artículo ${escaparHTML(articulo.numero)}. ${escaparHTML(articulo.titulo || "")}</h4> 
@@ -1962,7 +2034,10 @@ function abrirLeyViolenciaGenero(id) {
   const articulos = Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
 
   contenido.innerHTML = ` 
-    <button type="button" class="normativa-open law-back-button" data-law="violencia-genero">← Volver a Violencia de Género</button> 
+    <div class="viewer-actions">
+      <button type="button" class="normativa-open law-back-button" data-law="violencia-genero">← Volver a Violencia de Género</button>
+      ${renderBotonFuenteOficial(leyItem.enlaceOficial, "Ver en el BOE")}
+    </div>
     ${articulos.map((articulo) => ` 
       <article class="law-article"> 
         <h4>Artículo ${escaparHTML(articulo.numero)}. ${escaparHTML(articulo.titulo || "")}</h4> 
@@ -2015,7 +2090,10 @@ function abrirLeyTrafico(id) {
   const articulos = Array.isArray(leyItem.articulos) ? leyItem.articulos : []; 
 
   contenido.innerHTML = ` 
-    <button type="button" class="normativa-open law-back-button" data-law="trafico">← Volver a Tráfico</button> 
+    <div class="viewer-actions">
+      <button type="button" class="normativa-open law-back-button" data-law="trafico">← Volver a Tráfico</button>
+      ${renderBotonFuenteOficial(leyItem.enlaceOficial, "Ver en el BOE")}
+    </div>
     ${articulos.map((articulo) => ` 
       <article class="law-article"> 
         <h4>Artículo ${escaparHTML(articulo.numero)}. ${escaparHTML(articulo.titulo || "")}</h4> 
@@ -2298,18 +2376,41 @@ function configurarAjustes() {
 
   $("clearDraftsButton")?.addEventListener(
     "click",
-    () => {
+    async () => {
 
-      if(confirm(
-        "¿Estás seguro de que deseas limpiar los borradores del acta?"
-      )){
+      if (!usuarioActual) {
+        mostrarToast("Sesión no iniciada.");
+        return;
+      }
 
+      if (!estado.actas.length) {
+        mostrarToast("No hay actas guardadas.");
+        return;
+      }
+
+      const confirmado = confirm(
+        `¿Seguro que quieres borrar las ${estado.actas.length} actas guardadas? Esta acción no se puede deshacer.`
+      );
+
+      if (!confirmado) return;
+
+      try {
+
+        const { error } = await supabase
+          .from("actas")
+          .delete()
+          .eq("user_id", usuarioActual.id);
+
+        if (error) throw error;
+
+        estado.actas = [];
         cerrarEditorActa();
+        renderizarActas();
+        mostrarToast("Actas guardadas borradas.");
 
-        mostrarToast(
-          "Borradores limpiados."
-        );
-
+      } catch (error) {
+        console.error("Error borrando las actas:", error);
+        mostrarToast("Error al borrar las actas guardadas.");
       }
 
     }
