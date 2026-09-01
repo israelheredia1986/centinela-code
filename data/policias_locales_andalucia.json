@@ -1,38 +1,146 @@
 [
-  {
-    "id": "PLA-001",
-    "articulo": "Art. 19 a 22",
-    "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
-    "concepto": "Escalas y Categorías del Personal Funcionario",
-    "descripcion": "Estructura jerárquica: Escala Técnica (Superintendente, Intendente Mayor, Intendente), Escala Ejecutiva (Inspector/a, Subinspector/a) y Escala Básica (Oficial, Policía). Classificación en grupos A1, A2 y C1.",
-    "gravedad": "Estructura Orgánica",
-    "sancion": "Requisito de titulación y habilitación para el ejercicio de funciones."
-  },
-  {
-    "id": "PLA-002",
-    "articulo": "Art. 34 a 41",
-    "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
-    "concepto": "Pase a la Situación de Segunda Actividad",
-    "descripcion": "Situación administrativa a la que se puede pasar por motivos de edad o disminuidas las aptitudes psico-físicas. Mantiene retribuciones básicas y complementos fijados municipalmente.",
-    "gravedad": "Derecho Administrativo",
-    "sancion": "Dictamen de tribunal médico u ordenanza municipal."
-  },
-  {
-    "id": "PLA-003",
-    "articulo": "Art. 68",
-    "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
-    "concepto": "Faltas Disciplinarias Muy Graves",
-    "descripcion": "El incumplimiento del deber de fidelidad a la Constitución o Estatuto; manifiesta insubordinación; abandono del servicio; o condena firme por delito doloso relacionado con la función policial.",
-    "gravedad": "Muy Grave",
-    "sancion": "Separación del servicio o suspensión de funciones de 1 a 6 años."
-  },
-  {
-    "id": "PLA-004",
-    "articulo": "Art. 69",
-    "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
-    "concepto": "Faltas Disciplinarias Graves",
-    "descripcion": "La grave desconsideración con los ciudadanos o mandos; la falta de rendimiento que afecte al servicio; la emisión de informes sin veracidad o el extravío por negligencia grave del arma reglamentaria.",
-    "gravedad": "Grave",
-    "sancion": "Suspensión de funciones de 5 días a 1 año o inmovilización de escalafón."
-  }
+    {
+        "id": "PLA-001",
+        "articulo": "Art. 23",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Grupos, subgrupos, escalas y categorías",
+        "descripcion": "Los cuerpos de la Policía Local de Andalucía se estructuran en: Grupo A, subgrupo A1, escala técnica (Intendente principal, Intendente); Grupo A, subgrupo A2, escala ejecutiva (Inspector/a, Subinspector/a); Grupo C, subgrupo C1, escala básica (Oficial, Policía). Las plazas de Intendente principal solo pueden crearse en capitales de provincia o municipios de más de 100.000 habitantes (o excepcionalmente si el cuerpo supera los 100 efectivos). No puede crearse una plaza de categoría superior sin plazas cubiertas en todas las categorías inferiores.",
+        "gravedad": "Estructura Orgánica",
+        "sancion": "Norma organizativa de la plantilla; no lleva aparejada sanción."
+    },
+    {
+        "id": "PLA-002",
+        "articulo": "Art. 34 a 41",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Pase a la Situación de Segunda Actividad",
+        "descripcion": "Situación administrativa a la que se puede pasar por motivos de edad o disminuidas las aptitudes psico-físicas. Mantiene retribuciones básicas y complementos fijados municipalmente.",
+        "gravedad": "Derecho Administrativo",
+        "sancion": "Dictamen de tribunal médico u ordenanza municipal."
+    },
+    {
+        "id": "PLA-003",
+        "articulo": "Art. 67 y 70.1",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Régimen disciplinario aplicable y sanciones por falta muy grave",
+        "descripcion": "El régimen y procedimiento disciplinario de la Policía Local se rige por la normativa del Régimen Disciplinario de la Policía Nacional (Ley Orgánica 4/2010), con la adecuación a la Administración local que establece el Título VI de esta Ley. Por la comisión de faltas muy graves pueden imponerse: la separación del servicio, o la suspensión de funciones desde tres meses y un día hasta un máximo de seis años; en estos casos cabe además la sanción accesoria de cambio de destino dentro del cuerpo.",
+        "gravedad": "Muy Grave",
+        "sancion": "Separación del servicio o suspensión de funciones de 3 meses y 1 día a 6 años (Art. 70.1)."
+    },
+    {
+        "id": "PLA-004",
+        "articulo": "Art. 69 y 70.2",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Competencia sancionadora y sanción por falta grave",
+        "descripcion": "Corresponde al órgano competente del Ayuntamiento incoar los expedientes disciplinarios e imponer las sanciones por faltas muy graves, graves y leves. Por la comisión de una falta grave podrá imponerse la sanción de suspensión de funciones desde cinco días hasta tres meses.",
+        "gravedad": "Grave",
+        "sancion": "Suspensión de funciones de 5 días a 3 meses (Art. 70.2)."
+    },
+    {
+        "id": "PLA-005",
+        "articulo": "Art. 9",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Naturaleza jurídica de los cuerpos de la Policía Local",
+        "descripcion": "Los cuerpos de la Policía Local son institutos armados, de naturaleza civil, con estructura y organización jerarquizada, bajo la superior autoridad de la persona titular de la alcaldía, de conformidad con el artículo 52 de la Ley Orgánica 2/1986 y el artículo 21.1.i) de la Ley 7/1985 (Bases de Régimen Local).",
+        "gravedad": "Estructura Orgánica",
+        "sancion": "Norma organizativa; no lleva aparejada sanción."
+    },
+    {
+        "id": "PLA-006",
+        "articulo": "Art. 12 y 13",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Funciones y ámbito territorial de actuación",
+        "descripcion": "Los cuerpos de la Policía Local ejercen las funciones previstas en la LO 2/1986 y demás normativa aplicable, y pueden ejercer, previa delegación o encomienda de gestión, funciones de vigilancia de bienes autonómicos, inspección de actividades sometidas a disciplina autonómica y uso de la coacción para la ejecución forzosa de actos de la Comunidad Autónoma. Actúan en el ámbito territorial de su municipio, salvo por decisión del Ministerio Fiscal o la Autoridad Judicial y demás supuestos legalmente previstos, con conocimiento de la alcaldía.",
+        "gravedad": "Competencia Operativa",
+        "sancion": "Ámbito competencial marco del agente local."
+    },
+    {
+        "id": "PLA-007",
+        "articulo": "Art. 18",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Principios de actuación y carácter de agente de la autoridad",
+        "descripcion": "En el ejercicio de sus funciones, el personal de la Policía Local tiene, a todos los efectos legales, el carácter de agentes de la autoridad, y debe respetar los principios básicos de actuación de la LO 2/1986. La prestación del servicio será obligatoriamente por un mínimo de dos personas funcionarias, siempre que la plantilla lo permita.",
+        "gravedad": "Principio Fundamental",
+        "sancion": "Norma de actuación; no lleva aparejada sanción."
+    },
+    {
+        "id": "PLA-008",
+        "articulo": "Art. 19",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Documento de acreditación profesional (TIP)",
+        "descripcion": "Todo el personal de la Policía Local debe estar provisto de un documento de acreditación profesional expedido por la alcaldía, con nombre del municipio, nombre y apellidos, categoría profesional, número de identificación como agente (asignado por la Consejería competente) y DNI. Si se actúa sin uniforme o fuera de servicio, existe obligación de identificarse mostrando dicho documento.",
+        "gravedad": "Estatuto Común",
+        "sancion": "Requisito de identificación profesional; su incumplimiento puede constituir falta disciplinaria."
+    },
+    {
+        "id": "PLA-009",
+        "articulo": "Art. 20",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Armamento",
+        "descripcion": "El personal de la Policía Local porta el armamento reglamentario en el ejercicio de sus funciones. La alcaldía puede decidir motivadamente qué servicios se prestan sin arma de fuego, siempre que no exista riesgo racionalmente grave; no obstante, los servicios en vía pública y los de seguridad y custodia se prestarán siempre con arma de fuego. Los ayuntamientos deben disponer de lugares adecuados para su custodia.",
+        "gravedad": "Estatuto Común",
+        "sancion": "Norma de uso del armamento; su incumplimiento puede constituir falta disciplinaria."
+    },
+    {
+        "id": "PLA-010",
+        "articulo": "Art. 21",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Uniformidad",
+        "descripcion": "La uniformidad es común para toda Andalucía e incorpora el escudo de la Junta de Andalucía, el del municipio y el número de identificación del agente. Es obligatorio vestir el uniforme reglamentario en servicio, salvo dispensa; y está prohibido su uso fuera de servicio, salvo excepciones normativas.",
+        "gravedad": "Estatuto Común",
+        "sancion": "Norma de uniformidad; su incumplimiento puede constituir falta disciplinaria."
+    },
+    {
+        "id": "PLA-011",
+        "articulo": "Art. 26",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Jefatura del Cuerpo",
+        "descripcion": "La alcaldía nombra, por libre designación, a quien desempeña la jefatura inmediata del Cuerpo, entre personal funcionario de carrera de la máxima categoría del propio cuerpo o, si lo decide el Ayuntamiento, de otro cuerpo de Policía Local de Andalucía de categoría igual o superior. Puede ser removido discrecionalmente por la alcaldía.",
+        "gravedad": "Estructura Orgánica",
+        "sancion": "Norma organizativa; no lleva aparejada sanción."
+    },
+    {
+        "id": "PLA-012",
+        "articulo": "Art. 27, 29 y 30",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Personal funcionario de carrera, incompatibilidades y prohibición de huelga",
+        "descripcion": "Los cuerpos de la Policía Local están integrados solo por personal funcionario de carrera, quedando prohibida cualquier relación laboral o administrativa. Están sometidos al régimen general de incompatibilidades del personal al servicio de las Administraciones Públicas (Ley 53/1984). De conformidad con el artículo 6.8 de la LO 2/1986, la condición de policía local implica no poder ejercer en ningún caso el derecho de huelga ni acciones sustitutivas del mismo.",
+        "gravedad": "Estatuto Común",
+        "sancion": "Su incumplimiento puede constituir falta disciplinaria muy grave conforme al régimen del Art. 67."
+    },
+    {
+        "id": "PLA-013",
+        "articulo": "Art. 33",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Prevención de riesgos laborales",
+        "descripcion": "El personal de la Policía Local tiene derecho a una protección eficaz en materia de seguridad y salud en el trabajo, con aplicación de la normativa general de prevención de riesgos laborales en las funciones que no presenten características exclusivas de policía y seguridad. Comprende información y formación preventiva, vigilancia de la salud y participación en la prevención de riesgos específicos de su puesto.",
+        "gravedad": "Derecho Administrativo",
+        "sancion": "Norma de protección; no lleva aparejada sanción."
+    },
+    {
+        "id": "PLA-014",
+        "articulo": "Art. 42",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Jubilación",
+        "descripcion": "La jubilación puede ser voluntaria (a solicitud del interesado), forzosa (al cumplir la edad legalmente establecida en el Estatuto Básico del Empleado Público o normativa específica) o por declaración de incapacidad permanente absoluta o gran invalidez. El personal jubilado conserva la condición de policía local jubilado, con su categoría, y puede vestir el uniforme en actos institucionales solemnes y conservar el carné y la placa modificada, sin que ello permita portar armas de fuego.",
+        "gravedad": "Derecho Administrativo",
+        "sancion": "Norma administrativa; no lleva aparejada sanción."
+    },
+    {
+        "id": "PLA-015",
+        "articulo": "Art. 49",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Requisitos de ingreso por turno libre",
+        "descripcion": "Para el ingreso por turno libre se exige: nacionalidad española; tener 18 años cumplidos y no haber alcanzado la edad de jubilación forzosa; estatura mínima reglamentaria; titulación exigida para el subgrupo; superar examen médico, pruebas físicas, psicotécnicas y de conocimientos; superar el curso preceptivo de ingreso; poseer los permisos de conducción exigidos; comprometerse a portar y, en su caso, utilizar armas; no haber sido separado del servicio público ni inhabilitado por sentencia firme; y carecer de antecedentes penales por delito doloso.",
+        "gravedad": "Requisito de Acceso",
+        "sancion": "El incumplimiento de cualquier requisito determina la exclusión del proceso selectivo."
+    },
+    {
+        "id": "PLA-016",
+        "articulo": "Art. 71 a 75",
+        "normativa": "Ley 6/2023 de Policías Locales de Andalucía",
+        "concepto": "Procedimiento disciplinario: instructor, informes, notificación y ejecución",
+        "descripcion": "El instructor y el secretario del expediente disciplinario deben ser, respectivamente, personal funcionario del propio Cuerpo (de categoría igual o superior al expedientado) y personal funcionario de carrera del Ayuntamiento. Es preceptivo el informe (no vinculante) de la junta de personal en expedientes por falta muy grave o a representantes sindicales. Si no se localiza a la persona expedientada, la notificación se practica mediante anuncio en el BOE. La sanción de suspensión de funciones se ejecuta económicamente con cargo a la persona sancionada, pudiendo fraccionarse en falta grave. El órgano competente puede acordar la suspensión o inejecución de la sanción por causa justa.",
+        "gravedad": "Procedimiento Disciplinario",
+        "sancion": "Reglas procedimentales; no constituyen, por sí mismas, una sanción."
+    }
 ]
