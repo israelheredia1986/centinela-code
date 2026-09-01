@@ -870,17 +870,25 @@ function renderizarResultados() {
 } 
 
 function renderizarTarjetaArticulo(articulo) { 
+  const esPenal = articulo.navTipo === "codigo-penal"; 
+  const pena = esPenal ? extraerPena(articulo.texto) : ""; 
   const snippet = (articulo.texto || "").length > 220 ? articulo.texto.slice(0, 220).trim() + "…" : articulo.texto || ""; 
   return ` 
-    <article class="result-card result-card--articulo"> 
+    <article class="result-card${esPenal ? " result-card--penal" : ""}"> 
       <div class="result-card-header"> 
         <div> 
           <span class="result-ley">${escaparHTML(articulo.ley || "")}</span> 
           ${articulo.numero ? `<span class="result-code">Art. ${escaparHTML(articulo.numero)}</span>` : ""} 
           <h3>${escaparHTML(articulo.titulo || "Sin título")}</h3> 
         </div> 
+        ${esPenal ? `<span class="severity-badge" data-gravedad="Muy Grave">Delito penal</span>` : ""} 
       </div> 
       <p class="result-conducta">${escaparHTML(snippet)}</p> 
+      ${pena ? ` 
+        <div class="result-meta"> 
+          <span class="result-pill result-pill--pena"><span class="result-pill-label">Pena</span> ${escaparHTML(pena)}</span> 
+        </div> 
+      ` : ""} 
       <button type="button" class="result-detail-button" data-nav-tipo="${escaparHTML(articulo.navTipo || "")}" data-nav-id="${escaparHTML(articulo.navId || "")}"> 
         Ver en Normativa 
       </button> 
@@ -898,20 +906,23 @@ function renderizarTarjetaInfraccion(infraccion) {
   else if (max !== null) rango = `Hasta ${formatearEuros(max)}`; 
   else if (sancion.texto) rango = sancion.texto; 
 
+  const conductaSnippet = (infraccion.conducta || "").length > 180 
+    ? infraccion.conducta.slice(0, 180).trim() + "…" 
+    : (infraccion.conducta || ""); 
+
   return ` 
     <article class="result-card"> 
       <div class="result-card-header"> 
         <div> 
           <span class="result-ley">${escaparHTML(infraccion.ley || "")}</span> 
-          <span class="result-code">${escaparHTML(infraccion.codigo || "")}</span> 
           <h3>${escaparHTML(infraccion.titulo || "Sin título")}</h3> 
         </div> 
-        <span class="severity-badge">${escaparHTML(infraccion.gravedad || "")}</span> 
+        <span class="severity-badge" data-gravedad="${escaparHTML(infraccion.gravedad || "")}">${escaparHTML(infraccion.gravedad || "")}</span> 
       </div> 
-      <p class="result-conducta">${escaparHTML(infraccion.conducta || "")}</p> 
+      <p class="result-conducta">${escaparHTML(conductaSnippet)}</p> 
       <div class="result-meta"> 
-        <span>Art. ${escaparHTML(infraccion.articulo || "")}</span> 
-        ${rango ? `<span>${rango}</span>` : ""} 
+        <span class="result-pill result-pill--articulo"><span class="result-pill-label">Art.</span> ${escaparHTML(infraccion.articulo || "")}${infraccion.apartado ? "." + escaparHTML(infraccion.apartado) : ""}</span> 
+        ${rango ? `<span class="result-pill result-pill--sancion"><span class="result-pill-label">Sanción</span> ${escaparHTML(rango)}</span>` : ""} 
       </div> 
       <button type="button" class="result-detail-button" data-infraccion-id="${escaparHTML(infraccion.id || "")}"> 
         Ver detalle 
@@ -923,6 +934,14 @@ function renderizarTarjetaInfraccion(infraccion) {
 function formatearEuros(numero) { 
   return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(numero); 
 } 
+
+function extraerPena(texto) {
+  if (!texto) return "";
+  const match = String(texto).match(/penas?\s+de[^,.;]*(?:años|meses|días)/i);
+  if (!match) return "";
+  const fragmento = match[0];
+  return fragmento.charAt(0).toUpperCase() + fragmento.slice(1);
+}
 
 function abrirDetalleInfraccion(id) { 
   const infraccion = estado.infracciones.find((item) => item.id === id); 
@@ -943,9 +962,9 @@ function abrirDetalleInfraccion(id) {
         ${(sancion.min !== undefined || sancion.max !== undefined || sancion.cuantia !== undefined) ? ` 
           <h4>Sanción</h4> 
           <p> 
-            ${sancion.cuantia ? `Cuantía: ${formatearEuros(sancion.cuantia)}<br>` : ""}
-            ${sancion.min !== undefined ? `Mínimo: ${formatearEuros(sancion.min)}<br>` : ""} 
-            ${sancion.max !== undefined ? `Máximo: ${formatearEuros(sancion.max)}` : ""} 
+            ${sancion.cuantia ? `Cuantía: <span class="valor-sancion">${formatearEuros(sancion.cuantia)}</span><br>` : ""}
+            ${sancion.min !== undefined ? `Mínimo: <span class="valor-sancion">${formatearEuros(sancion.min)}</span><br>` : ""} 
+            ${sancion.max !== undefined ? `Máximo: <span class="valor-sancion">${formatearEuros(sancion.max)}</span>` : ""} 
           </p> 
         ` : (sancion.texto ? ` 
           <h4>Sanción</h4> 
