@@ -1,38 +1,128 @@
 [
-  {
-    "id": "LOFCS-001",
-    "articulo": "Art. 5.1 y 5.2",
-    "normativa": "Ley Orgánica 2/1986 (LOFCS)",
-    "concepto": "Principios Básicos de Actuación (Neutralidad, Proporcionalidad y Trato)",
-    "descripcion": "Absoluta neutralidad política e imparcialidad. Observar trato correcto y esmerado con el ciudadano. Aplicar los principios de congruencia, oportunidad y proporcionalidad en la utilización de los medios a su alcance.",
-    "gravedad": "Principio Fundamental",
-    "sancion": "Su vulneración constituye infracción disciplinaria grave o muy grave / responsabilidad penal."
-  },
-  {
-    "id": "LOFCS-002",
-    "articulo": "Art. 5.2.d",
-    "normativa": "Ley Orgánica 2/1986 (LOFCS)",
-    "concepto": "Uso de Armas de Fuego",
-    "descripcion": "Solamente se deberán utilizar armas en situaciones donde exista un riesgo racionalmente grave para la vida, la integridad física o la de terceras personas, o que puedan suponer un grave riesgo para la seguridad ciudadana.",
-    "gravedad": "Principio de Fuerza Mayor",
-    "sancion": "Responsabilidad penal / administrativa en caso de uso indebido."
-  },
-  {
-    "id": "LOFCS-003",
-    "articulo": "Art. 5.4",
-    "normativa": "Ley Orgánica 2/1986 (LOFCS)",
-    "concepto": "Dedicación profesional e intervención permanente",
-    "descripcion": "Deberán llevar a cabo sus funciones con total dedicación, debiendo intervenir siempre, en cualquier tiempo y lugar, se hallaren o no de servicio, en defensa de la Ley y de la seguridad ciudadana.",
-    "gravedad": "Deber Permanente",
-    "sancion": "Infracción disciplinaria por falta de auxilio o inasistencia."
-  },
-  {
-    "id": "LOFCS-004",
-    "articulo": "Art. 53.1",
-    "normativa": "Ley Orgánica 2/1986 (LOFCS)",
-    "concepto": "Funciones exclusivas de los Cuerpos de Policía Local",
-    "descripcion": "Proteger autoridades locales; ordenar y regular tráfico urbano; instruir atestados por accidentes dentro del casco urbano; policía administrativa (ordenanzas y edictos); auxilio en catástrofes y cooperación con Policía Judicial.",
-    "gravedad": "Competencia Operativa",
-    "sancion": "Ámbito competencial marco del agente local."
-  }
+    {
+        "id": "LOFCS-001",
+        "articulo": "Art. 5.1 y 5.2",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Principios Básicos de Actuación (Neutralidad, Proporcionalidad y Trato)",
+        "descripcion": "Absoluta neutralidad política e imparcialidad. Observar trato correcto y esmerado con el ciudadano. Aplicar los principios de congruencia, oportunidad y proporcionalidad en la utilización de los medios a su alcance.",
+        "gravedad": "Principio Fundamental",
+        "sancion": "Su vulneración constituye infracción disciplinaria grave o muy grave / responsabilidad penal."
+    },
+    {
+        "id": "LOFCS-002",
+        "articulo": "Art. 5.2.d",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Uso de Armas de Fuego",
+        "descripcion": "Solamente se deberán utilizar armas en situaciones donde exista un riesgo racionalmente grave para la vida, la integridad física o la de terceras personas, o que puedan suponer un grave riesgo para la seguridad ciudadana.",
+        "gravedad": "Principio de Fuerza Mayor",
+        "sancion": "Responsabilidad penal / administrativa en caso de uso indebido."
+    },
+    {
+        "id": "LOFCS-003",
+        "articulo": "Art. 5.4",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Dedicación profesional e intervención permanente",
+        "descripcion": "Deberán llevar a cabo sus funciones con total dedicación, debiendo intervenir siempre, en cualquier tiempo y lugar, se hallaren o no de servicio, en defensa de la Ley y de la seguridad ciudadana.",
+        "gravedad": "Deber Permanente",
+        "sancion": "Infracción disciplinaria por falta de auxilio o inasistencia."
+    },
+    {
+        "id": "LOFCS-004",
+        "articulo": "Art. 53.1",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Funciones exclusivas de los Cuerpos de Policía Local",
+        "descripcion": "Proteger autoridades locales; ordenar y regular tráfico urbano; instruir atestados por accidentes dentro del casco urbano; policía administrativa (ordenanzas y edictos); auxilio en catástrofes y cooperación con Policía Judicial.",
+        "gravedad": "Competencia Operativa",
+        "sancion": "Ámbito competencial marco del agente local."
+    },
+    {
+        "id": "LOFCS-005",
+        "articulo": "Art. 1",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Titularidad y reparto de la Seguridad Pública",
+        "descripcion": "La Seguridad Pública es competencia exclusiva del Estado y su mantenimiento corresponde al Gobierno de la Nación. Las Comunidades Autónomas participan en los términos de sus Estatutos y de esta Ley, y las Corporaciones Locales en los términos de la Ley de Bases de Régimen Local. El mantenimiento de la Seguridad Pública se ejerce por las distintas Administraciones a través de las Fuerzas y Cuerpos de Seguridad.",
+        "gravedad": "Principio Fundamental",
+        "sancion": "Norma de reparto competencial; no lleva aparejada sanción."
+    },
+    {
+        "id": "LOFCS-006",
+        "articulo": "Art. 2",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Qué son Fuerzas y Cuerpos de Seguridad",
+        "descripcion": "Son Fuerzas y Cuerpos de Seguridad: a) las Fuerzas y Cuerpos de Seguridad del Estado dependientes del Gobierno de la Nación; b) los Cuerpos de Policía dependientes de las Comunidades Autónomas; c) los Cuerpos de Policía dependientes de las Corporaciones Locales.",
+        "gravedad": "Principio Fundamental",
+        "sancion": "Norma clasificatoria; no lleva aparejada sanción."
+    },
+    {
+        "id": "LOFCS-007",
+        "articulo": "Art. 3 y 4",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Cooperación recíproca y deber de auxilio ciudadano",
+        "descripcion": "Los miembros de las Fuerzas y Cuerpos de Seguridad ajustarán su actuación al principio de cooperación recíproca, coordinándose a través de los órganos que establece la Ley. Todos tienen el deber de prestar a las FCS el auxilio necesario en la investigación y persecución de delitos; las personas y entidades que ejerzan funciones de vigilancia, seguridad o custodia tienen especial obligación de auxiliar y colaborar con las FCS.",
+        "gravedad": "Principio Fundamental",
+        "sancion": "Norma de cooperación; el incumplimiento del deber de auxilio por terceros se rige por la legislación general aplicable."
+    },
+    {
+        "id": "LOFCS-008",
+        "articulo": "Art. 6",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Disposiciones estatutarias comunes (formación, retribución, huelga, régimen disciplinario)",
+        "descripcion": "Los miembros de las FCS deben jurar o prometer acatamiento a la Constitución; tienen derecho a remuneración justa acorde a su formación, incompatibilidades, dedicación y riesgo; la provisión de puestos se rige por mérito, capacidad y antigüedad; la pertenencia a las FCS es causa de incompatibilidad con otra actividad pública o privada; no podrán ejercer en ningún caso el derecho de huelga ni acciones sustitutivas; y el régimen disciplinario estará inspirado en la estructura jerarquizada y disciplinada propia de estos Cuerpos, sin perjuicio de las debidas garantías.",
+        "gravedad": "Estatuto Común",
+        "sancion": "Estatuto general; las infracciones concretas se sancionan conforme al régimen disciplinario específico de cada Cuerpo."
+    },
+    {
+        "id": "LOFCS-009",
+        "articulo": "Art. 7",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Carácter de agentes de la autoridad y protección penal reforzada",
+        "descripcion": "En el ejercicio de sus funciones, los miembros de las Fuerzas y Cuerpos de Seguridad tienen a todos los efectos legales el carácter de agentes de la autoridad. Cuando se cometa delito de atentado empleando armas de fuego, explosivos u otros medios de agresión de análoga peligrosidad que puedan poner en peligro grave su integridad física, tendrán a efectos de su protección penal la consideración de autoridad.",
+        "gravedad": "Estatuto Común",
+        "sancion": "Norma de protección penal reforzada del agente; no impone sanción al propio agente."
+    },
+    {
+        "id": "LOFCS-010",
+        "articulo": "Art. 8",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Jurisdicción penal y compatibilidad con el expediente disciplinario",
+        "descripcion": "La jurisdicción ordinaria es competente para los delitos cometidos contra miembros de las FCS y de los cometidos por éstos en el ejercicio de sus funciones. El cumplimiento de prisión preventiva o penas privativas de libertad se realizará en establecimientos penitenciarios ordinarios, con separación del resto de detenidos o presos. La iniciación de un procedimiento penal no impide la incoación y tramitación de expedientes disciplinarios por los mismos hechos, si bien la resolución definitiva del expediente solo podrá producirse cuando la sentencia penal sea firme, y los hechos probados en ella vinculan a la Administración.",
+        "gravedad": "Estatuto Común",
+        "sancion": "Compatibilidad de vías penal y disciplinaria; las medidas cautelares administrativas pueden prolongarse hasta resolución judicial definitiva."
+    },
+    {
+        "id": "LOFCS-011",
+        "articulo": "Art. 51",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Creación de Cuerpos de Policía Local",
+        "descripcion": "Los municipios podrán crear cuerpos de policía propios de acuerdo con esta Ley, la Ley de Bases de Régimen Local y la legislación autonómica. En los municipios donde no exista policía municipal, esos cometidos serán ejercidos por personal de custodia y vigilancia (guardas, vigilantes, agentes, alguaciles o análogos). Dichos cuerpos solo podrán actuar en el ámbito territorial de su municipio, salvo en situaciones de emergencia o en el ejercicio de funciones de protección de autoridades locales, con la autorización correspondiente.",
+        "gravedad": "Estructura Orgánica",
+        "sancion": "Norma organizativa municipal; no lleva aparejada sanción."
+    },
+    {
+        "id": "LOFCS-012",
+        "articulo": "Art. 52",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Naturaleza jurídica de los Cuerpos de Policía Local",
+        "descripcion": "Los Cuerpos de Policía Local son Institutos armados de naturaleza civil, con estructura y organización jerarquizada, rigiéndose en su régimen estatutario por los principios generales de los capítulos II y III del título I (principios básicos de actuación y disposiciones estatutarias comunes) y por la sección cuarta del capítulo IV del título II de esta Ley, con adecuación a las disposiciones autonómicas, los reglamentos específicos de cada cuerpo y las normas municipales.",
+        "gravedad": "Estructura Orgánica",
+        "sancion": "Norma organizativa; no lleva aparejada sanción."
+    },
+    {
+        "id": "LOFCS-013",
+        "articulo": "Art. 53",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Funciones de los Cuerpos de Policía Local",
+        "descripcion": "Corresponde a los Cuerpos de Policía Local: proteger a las autoridades de las Corporaciones Locales y vigilar o custodiar sus edificios e instalaciones; ordenar, señalizar y dirigir el tráfico en el casco urbano; instruir atestados por accidentes de circulación dentro del casco urbano; ejercer funciones de Policía Administrativa (ordenanzas, bandos y disposiciones municipales); participar en funciones de Policía Judicial; prestar auxilio en accidente, catástrofe o calamidad pública; efectuar diligencias de prevención; vigilar espacios públicos y colaborar con las FCS del Estado y de la Comunidad Autónoma en la protección de manifestaciones y el mantenimiento del orden en grandes concentraciones humanas; y cooperar en la resolución de conflictos privados cuando sean requeridos.",
+        "gravedad": "Competencia Operativa",
+        "sancion": "Ámbito competencial marco del agente local; las actuaciones de atestados y prevención deben comunicarse a las FCS del Estado competentes."
+    },
+    {
+        "id": "LOFCS-014",
+        "articulo": "Art. 54",
+        "normativa": "Ley Orgánica 2/1986 (LOFCS)",
+        "concepto": "Junta Local de Seguridad",
+        "descripcion": "En los municipios con Cuerpo de Policía propio podrá constituirse una Junta Local de Seguridad, órgano competente para establecer las formas y procedimientos de colaboración entre los miembros de las FCS en su ámbito territorial. Su composición se determina reglamentariamente y su presidencia corresponde al Alcalde, salvo que asista el Gobernador civil (actual Delegado/Subdelegado del Gobierno), en cuyo caso la presidencia es compartida.",
+        "gravedad": "Estructura Orgánica",
+        "sancion": "Norma organizativa; no lleva aparejada sanción."
+    }
 ]
