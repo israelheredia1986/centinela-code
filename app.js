@@ -333,7 +333,8 @@ const ENLACES_OTRAS_NORMAS = {
   "RD 137/1993 (Reglamento de Armas)": "https://www.boe.es/buscar/act.php?id=BOE-A-1993-6202",
   "Ley 37/2003 (Ley del Ruido)": "https://www.boe.es/buscar/act.php?id=BOE-A-2003-20976",
   "Ley 7/2022 (Residuos y Suelos Contaminados)": "https://www.boe.es/buscar/act.php?id=BOE-A-2022-5809",
-  "Ley de Espectáculos Públicos": "https://www.boe.es/buscar/act.php?id=BOE-A-2000-1009"
+  "Ley de Espectáculos Públicos": "https://www.boe.es/buscar/act.php?id=BOE-A-2000-1009",
+  "Ley 6/2023 de Policías Locales de Andalucía": "https://www.boe.es/buscar/act.php?id=BOE-A-2023-17647"
 };
 
 /**
@@ -1663,16 +1664,20 @@ function renderizarNormativa() {
   const ordenanzas = extraerOrdenanzas(estado.ordenanzas); 
   const otrasNormas = obtenerOtrasNormas(); 
   const leyesOtrasNormas = [...new Set(otrasNormas.map((item) => item.ley))]; 
+  const fcsItems = obtenerFCS(); 
+  const lecrimItems = obtenerLecrim(); 
 
   const tarjetasPrincipales = [ 
     { tipo: "lopsc", titulo: "Ley Orgánica 4/2015", descripcion: "Protección de la seguridad ciudadana", etiqueta: "LOPSC", icono: "⚖️" }, 
     { tipo: "codigo-penal", titulo: "Código Penal", descripcion: "Selección de delitos de interés policial", etiqueta: "LO 10/1995", icono: "🔨" }, 
+    { tipo: "fcs", titulo: "Fuerzas y Cuerpos de Seguridad", descripcion: `LOFCS y Policía Local de Andalucía — ${fcsItems.length} artículos`, etiqueta: "LO 2/1986, Ley 6/2023", icono: "👮" }, 
+    { tipo: "lecrim", titulo: "Ley de Enjuiciamiento Criminal", descripcion: `Detención, entrada y registro, atestados — ${lecrimItems.length} artículos`, etiqueta: "LECrim", icono: "📖" }, 
     { tipo: "menores", titulo: "Menores", descripcion: "Responsabilidad penal y protección de menores", etiqueta: "LO 5/2000, LO 1/1996", icono: "🧑‍⚖️" }, 
     { tipo: "animales", titulo: "Animales", descripcion: "Bienestar animal y tenencia de PPP", etiqueta: "Estatal / Autonómica", icono: "🐾" }, 
     { tipo: "trafico", titulo: "Tráfico", descripcion: "Ley de Tráfico y reglamentos", etiqueta: "Estatal", icono: "🚦" }, 
     { tipo: "violencia-genero", titulo: "Violencia de Género", descripcion: "Protección integral y libertad sexual", etiqueta: "LO 1/2004", icono: "🛡️" }, 
     { tipo: "ordenanzas", titulo: "Ordenanzas municipales", descripcion: `Normativa local — ${ordenanzas.length} ordenanzas`, etiqueta: `${categorias.length} categorías`, icono: "🏛️" }, 
-    { tipo: "otras-normas", titulo: "Otras normas de interés", descripcion: `LOFCS, LECrim, extranjería, armas, seguridad privada y más — ${otrasNormas.length} normas`, etiqueta: `${leyesOtrasNormas.length} leyes`, icono: "📚" } 
+    { tipo: "otras-normas", titulo: "Otras normas de interés", descripcion: `Extranjería, armas, seguridad privada y más — ${otrasNormas.length} normas`, etiqueta: `${leyesOtrasNormas.length} leyes`, icono: "📚" } 
   ]; 
 
   const coincide = (campos) => !tokensNormativa.length || coincideConsulta(normalizarTexto(campos.join(" ")), tokensNormativa); 
@@ -1705,13 +1710,124 @@ function renderizarNormativa() {
   lista.innerHTML = `<div class="normativa-list normativa-list--principal">${principalesFiltradas.map(renderTarjetaPrincipal).join("")}</div>`; 
 } 
 
+/**
+ * Leyes que ahora tienen tarjeta propia en el nivel principal de
+ * Normativa (Fuerzas y Cuerpos de Seguridad, LECrim) y por tanto ya no
+ * deben aparecer también dentro de "Otras normas de interés".
+ */
+const LEYES_FCS = ["Ley Orgánica 2/1986 (LOFCS)", "Ley 6/2023 de Policías Locales de Andalucía"];
+const LEY_LECRIM = "Ley de Enjuiciamiento Criminal";
+
 function obtenerOtrasNormas() { 
-  return estado.infracciones.filter((item) => item.origenSimple === true); 
+  return estado.infracciones.filter((item) => 
+    item.origenSimple === true && 
+    !LEYES_FCS.includes(item.ley) && 
+    item.ley !== LEY_LECRIM 
+  ); 
+} 
+
+function obtenerFCS() { 
+  return estado.infracciones.filter((item) => item.origenSimple === true && LEYES_FCS.includes(item.ley)); 
+} 
+
+function obtenerLecrim() { 
+  return estado.infracciones.filter((item) => item.origenSimple === true && item.ley === LEY_LECRIM); 
+} 
+
+function abrirFCS() { 
+  const items = obtenerFCS(); 
+  const visor = $("normativaViewer"); 
+  const contenido = $("viewerContent"); 
+  if (!visor || !contenido) return; 
+
+  $("viewerTitle").textContent = "Fuerzas y Cuerpos de Seguridad"; 
+  $("viewerSubtitle").textContent = "LOFCS y Policía Local de Andalucía"; 
+
+  const grupos = new Map(); 
+  items.forEach((item) => { 
+    const clave = item.ley || "Sin clasificar"; 
+    if (!grupos.has(clave)) grupos.set(clave, []); 
+    grupos.get(clave).push(item); 
+  }); 
+
+  contenido.innerHTML = ` 
+    <div class="normativa-list"> 
+      ${[...grupos.entries()].map(([ley, its]) => ` 
+        <div class="normativa-card"> 
+          <div class="normativa-icon">👮</div> 
+          <div class="normativa-info"> 
+            <h3>${escaparHTML(ley)}</h3> 
+            <p>${its.length} ${its.length === 1 ? "artículo" : "artículos"}</p> 
+          </div> 
+          <button type="button" class="normativa-open" data-law="ley-fcs" data-id="${escaparHTML(ley)}">Ver</button> 
+        </div> 
+      `).join("")} 
+    </div> 
+  `; 
+
+  visor.classList.remove("hidden"); 
+  visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
+} 
+
+function abrirLeyFCS(ley) { 
+  const items = obtenerFCS().filter((item) => item.ley === ley); 
+  const visor = $("normativaViewer"); 
+  const contenido = $("viewerContent"); 
+  if (!items.length || !visor || !contenido) return; 
+
+  $("viewerTitle").textContent = ley || "Normativa"; 
+  $("viewerSubtitle").textContent = `${items.length} ${items.length === 1 ? "artículo" : "artículos"}`; 
+
+  contenido.innerHTML = ` 
+    <div class="viewer-actions">
+      <button type="button" class="normativa-open law-back-button" data-law="fcs">← Volver a Fuerzas y Cuerpos de Seguridad</button>
+      ${renderBotonFuenteOficial(ENLACES_OTRAS_NORMAS[ley], "Ver en el BOE")}
+    </div>
+    ${items.map((item) => ` 
+      <article class="law-article"> 
+        <h4>${escaparHTML(item.codigo || "")} ${escaparHTML(item.titulo || "")}</h4> 
+        <p>${escaparHTML(item.conducta || "")}</p> 
+        ${item.gravedad ? `<p><strong>Gravedad:</strong> ${escaparHTML(item.gravedad)}</p>` : ""} 
+        ${item.sancion?.texto ? `<p><strong>Sanción:</strong> ${escaparHTML(item.sancion.texto)}</p>` : ""} 
+      </article> 
+    `).join("")} 
+  `; 
+
+  visor.classList.remove("hidden"); 
+  visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
+} 
+
+function abrirLecrim() { 
+  const items = obtenerLecrim(); 
+  const visor = $("normativaViewer"); 
+  const contenido = $("viewerContent"); 
+  if (!visor || !contenido) return; 
+
+  $("viewerTitle").textContent = "Ley de Enjuiciamiento Criminal"; 
+  $("viewerSubtitle").textContent = `${items.length} ${items.length === 1 ? "artículo" : "artículos"}`; 
+
+  contenido.innerHTML = ` 
+    <div class="viewer-actions">${renderBotonFuenteOficial(ENLACES_OTRAS_NORMAS[LEY_LECRIM], "Ver en el BOE")}</div>
+    ${items.map((item) => ` 
+      <article class="law-article"> 
+        <h4>${escaparHTML(item.codigo || "")} ${escaparHTML(item.titulo || "")}</h4> 
+        <p>${escaparHTML(item.conducta || "")}</p> 
+        ${item.gravedad ? `<p><strong>Gravedad:</strong> ${escaparHTML(item.gravedad)}</p>` : ""} 
+        ${item.sancion?.texto ? `<p><strong>Sanción:</strong> ${escaparHTML(item.sancion.texto)}</p>` : ""} 
+      </article> 
+    `).join("")} 
+  `; 
+
+  visor.classList.remove("hidden"); 
+  visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
 } 
 
 function abrirNormativa(tipo, id = "") { 
   if (tipo === "lopsc") return abrirLOPSC(); 
   if (tipo === "codigo-penal") return abrirCodigoPenal(); 
+  if (tipo === "fcs") return abrirFCS(); 
+  if (tipo === "ley-fcs") return abrirLeyFCS(id); 
+  if (tipo === "lecrim") return abrirLecrim(); 
   if (tipo === "menores") return abrirMenoresGrupo(); 
   if (tipo === "ley-menor") return abrirLeyMenor(id); 
   if (tipo === "violencia-genero") return abrirViolenciaGeneroGrupo(); 
