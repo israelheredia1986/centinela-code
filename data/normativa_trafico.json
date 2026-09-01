@@ -94,9 +94,19 @@
       "resumen": "Desarrolla reglamentariamente la LSV: fija los límites de velocidad concretos, las tasas de alcoholemia, las distancias de seguridad, las normas de adelantamiento, parada y estacionamiento, y el uso de cinturón, casco y sistemas de retención infantil.",
       "articulos": [
         {
-          "numero": "50",
-          "titulo": "Límites genéricos de velocidad (turismos)",
-          "texto": "Con carácter general, para automóviles: 120 km/h en autopistas y autovías; 100 km/h en vías convencionales con arcén pavimentado igual o superior a 1,5 m o con más de un carril por sentido; 90 km/h en el resto de vías convencionales fuera de poblado; y 50 km/h en vías urbanas (30 km/h en vías de un único carril por sentido, y 20 km/h en las que no dispongan de acera diferenciada), salvo señalización específica que indique otro límite."
+          "numero": "3",
+          "titulo": "Conductores: diligencia, negligencia y temeridad",
+          "texto": "Se debe conducir con la diligencia y precaución necesarias para evitar todo daño propio o ajeno, quedando terminantemente prohibido conducir de modo negligente o temerario. La conducción negligente se sanciona como infracción grave y la conducción temeraria como infracción muy grave."
+        },
+        {
+          "numero": "18",
+          "titulo": "Otras obligaciones del conductor: móvil, auriculares e inhibidores de radar",
+          "texto": "Es incompatible con la atención permanente a la conducción el uso de pantallas, monitores de TV o vídeo. Queda prohibido conducir con cascos de audio o auriculares conectados a reproductores de sonido, así como usar dispositivos de telefonía móvil u otros sistemas de comunicación (salvo manos libres sin auriculares, o intercomunicadores homologados integrados en el casco de moto/ciclomotor). También se prohíbe instalar o llevar inhibidores o detectores de radares/cinemómetros. Infracción grave."
+        },
+        {
+          "numero": "19",
+          "titulo": "Visibilidad en el vehículo: lunas y láminas tintadas",
+          "texto": "La superficie acristalada debe permitir una visibilidad diáfana del conductor sobre toda la vía, sin interferencias de láminas o adhesivos. Sólo se permiten láminas o cortinillas contra el sol en ventanillas posteriores si el vehículo lleva dos retrovisores exteriores homologados. Queda prohibida en todo caso la colocación de vidrios tintados o coloreados no homologados."
         },
         {
           "numero": "20",
@@ -104,14 +114,79 @@
           "texto": "Con carácter general no se puede circular con una tasa de alcohol superior a 0,25 mg/l en aire espirado (0,5 g/l en sangre). Para conductores noveles (menos de 2 años de experiencia) y conductores profesionales (transporte de viajeros, mercancías peligrosas, vehículos de más de 3.500 kg, entre otros), el límite se reduce a 0,15 mg/l en aire espirado (0,3 g/l en sangre). Los menores de edad no pueden circular con ninguna tasa de alcohol."
         },
         {
+          "numero": "21",
+          "titulo": "Investigación de la alcoholemia: personas obligadas",
+          "texto": "Todos los conductores de vehículos y bicicletas están obligados a someterse a las pruebas de detección de alcohol. Los agentes pueden someter a estas pruebas a: a) cualquier usuario implicado como posible responsable en un accidente; b) quien conduzca con síntomas evidentes de haber bebido; c) quien sea denunciado por alguna infracción a este reglamento; d) quien sea requerido dentro de un control preventivo de alcoholemia."
+        },
+        {
+          "numero": "22",
+          "titulo": "Pruebas de detección alcohólica mediante el aire espirado",
+          "texto": "Las pruebas se practican mediante etilómetros oficialmente autorizados que determinan cuantitativamente el grado de impregnación alcohólica. A petición del interesado o por orden judicial, pueden repetirse a efectos de contraste mediante análisis de sangre, orina u otros análogos."
+        },
+        {
+          "numero": "23",
+          "titulo": "Práctica de las pruebas de alcoholemia: segunda prueba y garantías",
+          "texto": "Si el resultado supera 0,25 mg/l en aire espirado (o el límite aplicable) o hay síntomas evidentes, el agente debe someter al interesado a una segunda prueba de contraste, informándole antes de practicarla. Debe advertirle de su derecho a que medien al menos 10 minutos entre ambas pruebas, a formular alegaciones (por sí o por acompañante/defensor) y a contrastar el resultado mediante análisis de sangre, orina u otros en el centro sanitario más próximo, cuyo coste corre a cargo del interesado si el resultado es positivo."
+        },
+        {
+          "numero": "24",
+          "titulo": "Diligencias del agente en pruebas de alcoholemia",
+          "texto": "Si la segunda prueba o los análisis dan positivo, o si hay síntomas evidentes o indicios de delito, el agente debe describir en el boletín de denuncia o atestado el procedimiento seguido y el instrumento utilizado, consignar las advertencias hechas al interesado, y conducirlo al juzgado correspondiente cuando los hechos puedan ser constitutivos de delito, conforme a la Ley de Enjuiciamiento Criminal."
+        },
+        {
+          "numero": "25",
+          "titulo": "Inmovilización del vehículo tras control de alcoholemia/drogas",
+          "texto": "Si el resultado de las pruebas es positivo, o en caso de negativa a realizarlas, el agente puede proceder a la inmediata inmovilización del vehículo (precinto u otro medio efectivo), salvo que otra persona debidamente habilitada pueda hacerse cargo de la conducción. La inmovilización cesa en cuanto desaparece la causa que la motivó. Los gastos de inmovilización, traslado y depósito corren por cuenta del conductor o responsable."
+        },
+        {
+          "numero": "27",
+          "titulo": "Estupefacientes, psicotrópicos y otras sustancias",
+          "texto": "No pueden circular los conductores de vehículos o bicicletas que hayan ingerido o incorporado a su organismo psicotrópicos, estimulantes u otras sustancias análogas, incluidos medicamentos que alteren el estado físico o mental apropiado para circular sin peligro. Infracción muy grave."
+        },
+        {
+          "numero": "28",
+          "titulo": "Pruebas de detección de drogas",
+          "texto": "Las pruebas consisten normalmente en reconocimiento médico y en los análisis clínicos (sangre, orina u otros) que el médico forense o el personal facultativo estimen adecuados. Están obligados a someterse a ellas quienes se hallen en los mismos supuestos previstos para la alcoholemia (implicados en accidente, síntomas evidentes, denunciados por infracción o dentro de controles preventivos). La negativa permite la inmediata inmovilización del vehículo."
+        },
+        {
+          "numero": "29",
+          "titulo": "Sentido general de la circulación",
+          "texto": "Como norma general, y muy especialmente en curvas y cambios de rasante de reducida visibilidad, los vehículos circulan por la derecha y lo más cerca posible del borde de la calzada, manteniendo la separación lateral suficiente para cruzarse con seguridad. Circular en sentido contrario al establecido en una vía de doble sentido se considera infracción muy grave."
+        },
+        {
+          "numero": "36",
+          "titulo": "Utilización de los arcenes",
+          "texto": "Deben circular por el arcén derecho (si es transitable) los vehículos de tracción animal, vehículos especiales ≤3.500 kg, ciclos, ciclomotores, vehículos para personas de movilidad reducida y vehículos en seguimiento de ciclistas; también quien, por emergencia, circule a velocidad anormalmente reducida perturbando gravemente el tráfico. Se prohíbe circular en paralelo, salvo bicicletas que pueden ir en columna de a dos por el arcén (o por la calzada si no hay arcén transitable, colocándose en hilera si falta visibilidad, hay afluencia o es de noche)."
+        },
+        {
+          "numero": "45",
+          "titulo": "Adecuación de la velocidad a las circunstancias",
+          "texto": "Todo conductor debe respetar los límites de velocidad y tener en cuenta además sus propias condiciones físicas y psíquicas, el estado de la vía, del vehículo y de la carga, las condiciones meteorológicas y de circulación, de forma que siempre pueda detener el vehículo dentro de los límites de su campo de visión y ante cualquier obstáculo previsible."
+        },
+        {
+          "numero": "46",
+          "titulo": "Moderación de la velocidad: supuestos",
+          "texto": "Debe circularse a velocidad moderada, y detenerse si es preciso, especialmente: si hay peatones o puede preverse su irrupción (niños, mayores, personas con movilidad reducida); al aproximarse a ciclistas, intersecciones, pasos de peatones no regulados, colegios o mercados; si hay animales en la vía; en tramos con edificios de acceso inmediato; al aproximarse a un autobús parado (especialmente escolar); fuera de poblado al acercarse a vehículos inmovilizados, de auxilio o ciclistas; en pavimento deslizante; al aproximarse a pasos a nivel, glorietas o intersecciones sin prioridad, o lugares de reducida visibilidad; al cruzarse con otro vehículo sin visibilidad/condiciones seguras; en caso de deslumbramiento; y con niebla densa, lluvia intensa, nevada o nubes de polvo o humo."
+        },
+        {
+          "numero": "47",
+          "titulo": "Velocidades máximas y mínimas",
+          "texto": "Las limitaciones de velocidad específicas de cada tramo se fijan mediante señalización. En defecto de señal específica se aplica la genérica de cada tipo de vía."
+        },
+        {
+          "numero": "48",
+          "titulo": "Velocidades máximas fuera de poblado (tabla general)",
+          "texto": "Turismos, motos y autocaravanas ≤3.500 kg: 120 km/h en autopista/autovía, 90 km/h en vía convencional (100 km/h si hay separación física de sentidos). Camiones, furgonetas y vehículos >3.500 kg: 90 km/h en autopista/autovía, 80 km/h en convencional. Autobuses y derivados de turismo: 100 km/h en autopista/autovía, 90 km/h en convencional (80 km/h si hay pasajeros de pie o sin cinturón). Transporte escolar/menores o mercancías peligrosas: 10 km/h menos que el límite genérico del vehículo. Ciclos, ciclomotores de 2-3 ruedas y cuadriciclos ligeros: 45 km/h. Vías sin pavimentar: 30 km/h."
+        },
+        {
+          "numero": "50",
+          "titulo": "Límites genéricos de velocidad (turismos)",
+          "texto": "Con carácter general, para automóviles: 120 km/h en autopistas y autovías; 100 km/h en vías convencionales con arcén pavimentado igual o superior a 1,5 m o con más de un carril por sentido; 90 km/h en el resto de vías convencionales fuera de poblado; y 50 km/h en vías urbanas (30 km/h en vías de un único carril por sentido, y 20 km/h en las que no dispongan de acera diferenciada), salvo señalización específica que indique otro límite."
+        },
+        {
           "numero": "54",
           "titulo": "Distancia de seguridad",
           "texto": "Todo conductor debe dejar entre su vehículo y el que le precede un espacio libre que le permita detenerse en caso de frenazo brusco sin colisionar con él, teniendo en cuenta la velocidad, las condiciones de adherencia y frenado."
-        },
-        {
-          "numero": "117",
-          "titulo": "Uso del cinturón de seguridad",
-          "texto": "Los conductores y ocupantes de vehículos están obligados a usar el cinturón de seguridad y los sistemas de retención infantil homologados, en las condiciones que reglamentariamente se determinen, con las excepciones tasadas (certificado médico, marcha atrás, reparto a domicilio en poblado a corta distancia, entre otras)."
         },
         {
           "numero": "84",
@@ -122,6 +197,11 @@
           "numero": "94",
           "titulo": "Parada y estacionamiento prohibidos",
           "texto": "Desarrolla el catálogo de lugares en los que está prohibido parar o estacionar (pasos de peatones, curvas, intersecciones, dobles filas, carriles bus, vados, plazas de personas con discapacidad, etc.), coincidente con el artículo 40 de la Ley de Tráfico."
+        },
+        {
+          "numero": "117",
+          "titulo": "Uso del cinturón de seguridad",
+          "texto": "Los conductores y ocupantes de vehículos están obligados a usar el cinturón de seguridad y los sistemas de retención infantil homologados, en las condiciones que reglamentariamente se determinen, con las excepciones tasadas (certificado médico, marcha atrás, reparto a domicilio en poblado a corta distancia, entre otras)."
         }
       ]
     },
