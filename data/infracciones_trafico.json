@@ -144,10 +144,10 @@
       "apartado": "d",
       "gravedad": "Muy Grave",
       "titulo": "Negativa a someterse a las pruebas de alcoholemia o drogas",
-      "conducta": "Incumplir la obligación de todos los conductores, y de los demás usuarios de la vía implicados en un accidente o que hayan cometido una infracción, de someterse a las pruebas de detección de alcohol o de presencia de drogas en el organismo.",
+      "conducta": "Incumplir la obligación de todos los conductores, y de los demás usuarios de la vía implicados en un accidente o que hayan cometido una infracción, de someterse a las pruebas de detección de alcohol o de presencia de drogas en el organismo. (Cuantía fija de 1.000 € conforme al art. 80.2.a RDL 6/2015, no 500 €.)",
       "sancion": {
-        "min": 500,
-        "max": 500,
+        "min": 1000,
+        "max": 1000,
         "moneda": "EUR"
       },
       "palabrasClave": [
@@ -197,10 +197,10 @@
       "apartado": "h",
       "gravedad": "Muy Grave",
       "titulo": "Uso de inhibidores o detectores de radar",
-      "conducta": "Conducir vehículos que tengan instalados inhibidores de radar o cinemómetro, o cualquier otro mecanismo encaminado a interferir en el funcionamiento de los sistemas de vigilancia del tráfico, así como llevar mecanismos de detección de los mismos.",
+      "conducta": "Conducir vehículos que tengan instalados inhibidores de radar o cinemómetro, o cualquier otro mecanismo encaminado a interferir en el funcionamiento de los sistemas de vigilancia del tráfico, así como llevar mecanismos de detección de los mismos. (Cuantía fija de 6.000 € conforme al art. 80.2.c RDL 6/2015, no 500 €.)",
       "sancion": {
-        "min": 500,
-        "max": 500,
+        "min": 6000,
+        "max": 6000,
         "moneda": "EUR"
       },
       "palabrasClave": [
@@ -226,9 +226,10 @@
       "titulo": "No identificar al conductor responsable de la infracción",
       "conducta": "Incumplir el titular o arrendatario del vehículo la obligación de identificar verazmente al conductor responsable de una infracción cuando sea debidamente requerido para ello en el plazo establecido.",
       "sancion": {
-        "min": 500,
-        "max": 500,
-        "moneda": "EUR"
+        "min": null,
+        "max": null,
+        "moneda": "EUR",
+        "nota": "Variable: el doble de la multa de la infracción original si esta es leve, o el triple si es grave o muy grave (art. 80.2.b RDL 6/2015), no una cuantía fija de 500 €."
       },
       "palabrasClave": [
         "identificar conductor",
@@ -607,6 +608,320 @@
       "responsables": [
         "conductor",
         "propietario"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-76-B",
+      "codigo": "76.b",
+      "ley": "RDL 6/2015",
+      "articulo": "76",
+      "apartado": "b",
+      "gravedad": "Grave",
+      "titulo": "Obras en la vía sin comunicar",
+      "conducta": "Realizar obras en la vía sin comunicarlas con anterioridad a la autoridad responsable del tráfico, o no seguir sus instrucciones sobre las obras.",
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "obras",
+        "via publica",
+        "autorizacion"
+      ],
+      "responsables": [
+        "conductor"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-76-D",
+      "codigo": "76.d",
+      "ley": "RDL 6/2015",
+      "articulo": "76",
+      "apartado": "d",
+      "gravedad": "Grave",
+      "titulo": "Parada o estacionamiento en lugar peligroso",
+      "conducta": "Parar o estacionar en carril bus, carriles o vías ciclistas, curvas, cambios de rasante, zonas de estacionamiento para personas con discapacidad, túneles, pasos inferiores, intersecciones o cualquier otro lugar peligroso u obstaculizando gravemente la circulación, en especial para los peatones.",
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "estacionamiento",
+        "parada",
+        "carril bus",
+        "carril bici",
+        "lugar peligroso"
+      ],
+      "responsables": [
+        "conductor"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-76-E",
+      "codigo": "76.e",
+      "ley": "RDL 6/2015",
+      "articulo": "76",
+      "apartado": "e",
+      "gravedad": "Grave",
+      "titulo": "Circular sin alumbrado reglamentario",
+      "conducta": "Circular sin hacer uso del alumbrado reglamentario cuando es obligatorio (noche, túneles, condiciones de visibilidad reducida).",
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "luces",
+        "alumbrado",
+        "de noche"
+      ],
+      "responsables": [
+        "conductor"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-76-N",
+      "codigo": "76.n",
+      "ley": "RDL 6/2015",
+      "articulo": "76",
+      "apartado": "n",
+      "gravedad": "Grave",
+      "titulo": "Arrojar objetos a la vía",
+      "conducta": "Arrojar a la vía o en sus inmediaciones objetos que puedan obstaculizar la libre circulación.",
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "objetos",
+        "basura",
+        "obstaculo"
+      ],
+      "responsables": [
+        "conductor"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-76-Q",
+      "codigo": "76.q",
+      "ley": "RDL 6/2015",
+      "articulo": "76",
+      "apartado": "q",
+      "gravedad": "Grave",
+      "titulo": "No facilitar identidad o datos del vehículo tras un accidente",
+      "conducta": "No facilitar al agente su identidad, ni los datos del vehículo solicitados por los afectados en un accidente de circulación en el que esté implicado.",
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "accidente",
+        "identificacion",
+        "datos del vehiculo"
+      ],
+      "responsables": [
+        "conductor"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-76-S",
+      "codigo": "76.s",
+      "ley": "RDL 6/2015",
+      "articulo": "76",
+      "apartado": "s",
+      "gravedad": "Grave",
+      "titulo": "Conducir con el permiso suspendido cautelarmente o teniendo prohibido su uso",
+      "conducta": "Conducir un vehículo teniendo el permiso de conducción suspendido como medida cautelar, o teniendo prohibido su uso.",
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "permiso suspendido",
+        "prohibicion de conducir"
+      ],
+      "responsables": [
+        "conductor"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-76-T",
+      "codigo": "76.t",
+      "ley": "RDL 6/2015",
+      "articulo": "76",
+      "apartado": "t",
+      "gravedad": "Grave",
+      "titulo": "Circular con el permiso de circulación del vehículo suspendido",
+      "conducta": "Circular con un vehículo cuyo permiso de circulación está suspendido.",
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "permiso de circulacion",
+        "suspension"
+      ],
+      "responsables": [
+        "conductor",
+        "titular"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-76-X",
+      "codigo": "76.x",
+      "ley": "RDL 6/2015",
+      "articulo": "76",
+      "apartado": "x",
+      "gravedad": "Grave",
+      "titulo": "Circular con vehículo que lo tiene prohibido por autopista, autovía, vía interurbana, travesía o túnel urbano",
+      "conducta": "Circular por autopistas, autovías, vías interurbanas, travesías o túneles urbanos con vehículos que tienen prohibida la circulación por esas vías (p. ej. ciclomotores o VMP por autovía).",
+      "sancion": {
+        "min": 200,
+        "max": 200,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "autovia",
+        "autopista",
+        "travesia",
+        "prohibido"
+      ],
+      "responsables": [
+        "conductor"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-77-G",
+      "codigo": "77.g",
+      "ley": "RDL 6/2015",
+      "articulo": "77",
+      "apartado": "g",
+      "gravedad": "Muy Grave",
+      "titulo": "Participar en carreras o competiciones de velocidad no autorizadas",
+      "conducta": "Participar en competiciones y carreras de vehículos no autorizadas en las vías públicas.",
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "carrera ilegal",
+        "competicion",
+        "velocidad"
+      ],
+      "responsables": [
+        "conductor"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-77-K",
+      "codigo": "77.k",
+      "ley": "RDL 6/2015",
+      "articulo": "77",
+      "apartado": "k",
+      "gravedad": "Muy Grave",
+      "titulo": "Conducir careciendo de permiso o licencia de conducción",
+      "conducta": "Conducir un vehículo careciendo del permiso o licencia de conducción correspondiente.",
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "sin permiso",
+        "sin carnet",
+        "sin licencia"
+      ],
+      "responsables": [
+        "conductor"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-77-L",
+      "codigo": "77.l",
+      "ley": "RDL 6/2015",
+      "articulo": "77",
+      "apartado": "l",
+      "gravedad": "Muy Grave",
+      "titulo": "Circular sin autorización administrativa válida del vehículo",
+      "conducta": "Circular con un vehículo que carece de la autorización administrativa correspondiente, cuya autorización no es válida por incumplir requisitos reglamentarios, o incumpliendo las condiciones de dicha autorización.",
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "sin autorizacion",
+        "permiso de circulacion invalido"
+      ],
+      "responsables": [
+        "conductor",
+        "titular"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-77-M",
+      "codigo": "77.m",
+      "ley": "RDL 6/2015",
+      "articulo": "77",
+      "apartado": "m",
+      "gravedad": "Muy Grave",
+      "titulo": "Manipular el tacógrafo o el limitador de velocidad",
+      "conducta": "Participar o colaborar en la colocación o puesta en funcionamiento de elementos que alteren el normal funcionamiento del tacógrafo o del limitador de velocidad.",
+      "sancion": {
+        "min": 500,
+        "max": 500,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "tacografo",
+        "limitador de velocidad",
+        "transporte profesional"
+      ],
+      "responsables": [
+        "conductor"
+      ],
+      "fuente": "BOE"
+    },
+    {
+      "id": "TRAF-77-N",
+      "codigo": "77.n / ñ",
+      "ley": "RDL 6/2015",
+      "articulo": "77",
+      "apartado": "n",
+      "gravedad": "Muy Grave",
+      "titulo": "Obras en la vía sin autorización o retirada/alteración de la señalización",
+      "conducta": "Realizar obras en la vía sin autorización, retirar, ocultar, alterar o deteriorar la señalización permanente u ocasional; o no instalar la señalización de obras (o hacerlo incumpliendo la normativa) poniendo en grave riesgo la seguridad vial.",
+      "sancion": {
+        "min": 3000,
+        "max": 20000,
+        "moneda": "EUR"
+      },
+      "palabrasClave": [
+        "obras sin autorizacion",
+        "señalizacion",
+        "riesgo grave"
+      ],
+      "responsables": [
+        "conductor"
       ],
       "fuente": "BOE"
     }
