@@ -1329,7 +1329,8 @@ async function guardarActaDesdeFormulario(evento) {
 
   const form = evento.currentTarget;
   const esEdicion = !!form.dataset.editingId;
-  const idActa = form.dataset.editingId || `acta-${Date.now()}`;
+  const idActa = form.dataset.editingId ||
+    (window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
 
   const fotoInput = $("actaFotoInput");
   let fotoUrl = form.dataset.fotoExistente || null;
@@ -1375,7 +1376,7 @@ async function guardarActaDesdeFormulario(evento) {
     mostrarToast(esEdicion ? "Acta actualizada." : "Acta guardada.");
   } catch (error) {
     console.error("Error guardando acta:", error);
-    mostrarToast("Error al guardar el acta.");
+    mostrarToast("Error al guardar: " + (error?.message || error?.error_description || "revisa la consola"));
   }
 
   renderizarActas();
