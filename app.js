@@ -211,7 +211,7 @@ const CONFIG = {
     policiasLocales: "./data/policias_locales_andalucia.json",
     ley392015: "./data/ley_39_2015.json",
     ley71985: "./data/ley_7_1985.json",
-    ley52010Andalucia: "./data/ley_5_2010_andalucia.json"
+    ley52010Andalucia: "./data/ley_5_2010_andalucia.json" 
   }, 
   STORAGE_ACTAS: "centinela_code_actas_v1",
   STORAGE_FAVORITOS: "centinela_code_favoritos_v1"
@@ -340,10 +340,7 @@ const ENLACES_OTRAS_NORMAS = {
   "Ley 37/2003 (Ley del Ruido)": "https://www.boe.es/buscar/act.php?id=BOE-A-2003-20976",
   "Ley 7/2022 (Residuos y Suelos Contaminados)": "https://www.boe.es/buscar/act.php?id=BOE-A-2022-5809",
   "Ley de Espectáculos Públicos": "https://www.boe.es/buscar/act.php?id=BOE-A-2000-1009",
-  "Ley 6/2023 de Policías Locales de Andalucía": "https://www.boe.es/buscar/act.php?id=BOE-A-2023-17647",
-  "Ley 39/2015": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565",
-  "Ley 7/1985": "https://www.boe.es/buscar/act.php?id=BOE-A-1985-5392",
-  "Ley 5/2010 Andalucía": "https://www.boe.es/buscar/act.php?id=BOE-A-2010-11466"
+  "Ley 6/2023 de Policías Locales de Andalucía": "https://www.boe.es/buscar/act.php?id=BOE-A-2023-17647"
 };
 
 /**
@@ -371,9 +368,6 @@ function obtenerEnlaceOficialPorLey(leyCorta) {
   if (!leyCorta) return "";
   if (leyCorta.includes("4/2015") && estado.lopsc?.enlaceOficial) return estado.lopsc.enlaceOficial;
   if (leyCorta.includes("10/1995") && estado.codigoPenal?.enlaceOficial) return estado.codigoPenal.enlaceOficial;
-  if (leyCorta.includes("39/2015")) return estado.ley392015?.enlaceOficial || ENLACES_OTRAS_NORMAS["Ley 39/2015"] || "";
-  if (leyCorta.includes("7/1985")) return estado.ley71985?.enlaceOficial || ENLACES_OTRAS_NORMAS["Ley 7/1985"] || "";
-  if (leyCorta.includes("5/2010")) return estado.ley52010Andalucia?.enlaceOficial || ENLACES_OTRAS_NORMAS["Ley 5/2010 Andalucía"] || "";
   const numero = (leyCorta.match(/\d+\/\d{4}/) || [])[0];
   if (!numero) return ENLACES_OTRAS_NORMAS[leyCorta] || "";
   const fuentes = [estado.animales, estado.trafico, estado.menores, estado.violenciaGenero];
@@ -493,6 +487,39 @@ function extraerLeyes(datos) {
 const extraerAnimales = extraerLeyes;
 const extraerTrafico = extraerLeyes;
 
+/* =========================================================
+   NORMATIVA — PROCEDIMIENTO ADMINISTRATIVO
+   Las tres leyes se agrupan en una única carpeta visual.
+   Se admiten JSON con {articulos:[...]} o arrays directos.
+   ========================================================= */
+function extraerArticulosLeyProcedimiento(datos) {
+  if (Array.isArray(datos)) return datos;
+  if (datos && Array.isArray(datos.articulos)) return datos.articulos;
+  if (datos && datos.ley && Array.isArray(datos.ley.articulos)) return datos.ley.articulos;
+  return [];
+}
+
+function nombreLeyProcedimiento(datos, fallback) {
+  return datos?.ley || datos?.titulo || datos?.nombre || datos?.denominacion || fallback;
+}
+
+function etiquetaLeyProcedimiento(datos, fallback) {
+  return datos?.abreviatura || datos?.siglas || fallback;
+}
+
+function obtenerLeyesProcedimientoAdministrativo() {
+  return [
+    { key: "ley392015", datos: estado.ley392015, fallback: "Ley 39/2015", abreviatura: "Ley 39/2015" },
+    { key: "ley71985", datos: estado.ley71985, fallback: "Ley 7/1985", abreviatura: "LRBRL" },
+    { key: "ley52010Andalucia", datos: estado.ley52010Andalucia, fallback: "Ley 5/2010 de Andalucía", abreviatura: "Ley 5/2010" }
+  ].map((item) => ({
+    ...item,
+    nombre: nombreLeyProcedimiento(item.datos, item.fallback),
+    etiqueta: etiquetaLeyProcedimiento(item.datos, item.abreviatura),
+    articulos: extraerArticulosLeyProcedimiento(item.datos)
+  }));
+}
+
 const PALABRAS_CLAVE_EXTRA_36_16 = [
   "hachis", "hachís", "cocaina", "cocaína", "marihuana", "resina de hachis", "resina de hachís", 
   "mdma", "extasis", "éxtasis", "anfetaminas", "heroina", "heroína", "sustancia estupefaciente", 
@@ -584,132 +611,6 @@ function renderGruposOrdenanzas(categorias, ordenanzas) {
   }).join(""); 
 } 
 
-
-/* =========================================================
-   NORMATIVA ADMINISTRATIVA NUEVA
-   Ley 39/2015 + Ley 7/1985 + Ley 5/2010 Andalucía
-   ========================================================= */
-
-/**
- * Normaliza una ley administrativa para que la app pueda trabajar
- * aunque el JSON venga como:
- *   - { articulos: [...] }
- *   - [...]
- *   - { ley: "...", articulos: [...] }
- *
- * No modifica el contenido jurídico del JSON: solo crea una envoltura
- * compatible con el visor, la búsqueda y el contexto de la IA.
- */
-function normalizarLeyAdministrativa(datos, nombrePorDefecto = "", abreviaturaPorDefecto = "") {
-  if (!datos) return null;
-
-  let articulos = [];
-  let ley = "";
-  let abreviatura = "";
-  let enlaceOficial = "";
-  let descripcion = "";
-
-  if (Array.isArray(datos)) {
-    articulos = datos;
-  } else if (Array.isArray(datos.articulos)) {
-    articulos = datos.articulos;
-    ley = datos.ley || datos.nombre || "";
-    abreviatura = datos.abreviatura || datos.siglas || "";
-    enlaceOficial = datos.enlaceOficial || datos.url || datos.fuente?.url || "";
-    descripcion = datos.descripcion || "";
-  } else if (Array.isArray(datos.data?.articulos)) {
-    articulos = datos.data.articulos;
-    ley = datos.data.ley || datos.data.nombre || "";
-    abreviatura = datos.data.abreviatura || datos.data.siglas || "";
-    enlaceOficial = datos.data.enlaceOficial || datos.data.url || datos.data.fuente?.url || "";
-    descripcion = datos.data.descripcion || "";
-  }
-
-  const fuenteLey = ley || nombrePorDefecto;
-  const fuenteAbreviatura = abreviatura || abreviaturaPorDefecto;
-
-  return {
-    ...((!Array.isArray(datos) && typeof datos === "object") ? datos : {}),
-    ley: fuenteLey,
-    abreviatura: fuenteAbreviatura,
-    descripcion,
-    enlaceOficial,
-    articulos: Array.isArray(articulos) ? articulos.map((articulo) => ({
-      ...articulo,
-      numero: articulo?.numero ?? articulo?.articulo ?? articulo?.num ?? "",
-      titulo: articulo?.titulo || articulo?.epigrafe || articulo?.nombre || "",
-      texto: articulo?.texto || articulo?.contenido || articulo?.descripcion || ""
-    })) : []
-  };
-}
-
-function obtenerArticulosLeyAdministrativa(ley) {
-  if (!ley) return [];
-  return Array.isArray(ley.articulos) ? ley.articulos : [];
-}
-
-function obtenerNombreLeyAdministrativa(ley, fallback = "Normativa administrativa") {
-  if (!ley) return fallback;
-  return ley.ley || ley.nombre || fallback;
-}
-
-function abrirLeyAdministrativa(clave) {
-  const mapa = {
-    "ley-39-2015": {
-      ley: estado.ley392015,
-      titulo: "Ley 39/2015",
-      subtitulo: "Procedimiento Administrativo Común de las Administraciones Públicas"
-    },
-    "ley-7-1985": {
-      ley: estado.ley71985,
-      titulo: "Ley 7/1985",
-      subtitulo: "Bases del Régimen Local"
-    },
-    "ley-5-2010-andalucia": {
-      ley: estado.ley52010Andalucia,
-      titulo: "Ley 5/2010 de Andalucía",
-      subtitulo: "Autonomía Local de Andalucía"
-    }
-  };
-
-  const seleccion = mapa[clave];
-  if (!seleccion?.ley) {
-    mostrarToast("Esta normativa no está disponible.");
-    return;
-  }
-
-  const visor = $("normativaViewer");
-  const contenido = $("viewerContent");
-  if (!visor || !contenido) return;
-
-  const articulos = obtenerArticulosLeyAdministrativa(seleccion.ley);
-  const enlace = seleccion.ley.enlaceOficial || "";
-
-  $("viewerTitle").textContent = seleccion.titulo;
-  $("viewerSubtitle").textContent = seleccion.subtitulo + ` — ${articulos.length} ${articulos.length === 1 ? "artículo" : "artículos"}`;
-
-  contenido.innerHTML = `
-    <div class="viewer-actions">
-      <button type="button" class="normativa-open law-back-button" data-law="normativa-home">← Volver a Normativa</button>
-      ${renderBotonFuenteOficial(enlace, "Ver fuente oficial")}
-    </div>
-
-    ${
-      articulos.length
-        ? articulos.map((articulo) => `
-            <article class="law-article">
-              <h4>Artículo ${escaparHTML(articulo.numero || "")}. ${escaparHTML(articulo.titulo || "")}</h4>
-              <p>${escaparHTML(articulo.texto || "")}</p>
-            </article>
-          `).join("")
-        : `<div class="empty-state"><h3>Sin artículos disponibles</h3><p>El archivo JSON se ha cargado, pero no contiene un array de artículos reconocible.</p></div>`
-    }
-  `;
-
-  visor.classList.remove("hidden");
-  visor.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
 async function cargarDatos() { 
   const resultados = await Promise.allSettled([ 
     cargarJSON(CONFIG.RUTAS.infracciones), 
@@ -731,7 +632,7 @@ async function cargarDatos() {
     cargarJSON(CONFIG.RUTAS.policiasLocales),
     cargarJSON(CONFIG.RUTAS.ley392015),
     cargarJSON(CONFIG.RUTAS.ley71985),
-    cargarJSON(CONFIG.RUTAS.ley52010Andalucia)
+    cargarJSON(CONFIG.RUTAS.ley52010Andalucia) 
   ]); 
 
   const [ 
@@ -758,31 +659,10 @@ async function cargarDatos() {
   if (rViolenciaGenero.status === "fulfilled") estado.violenciaGenero = rViolenciaGenero.value; 
   if (rOrdenanzas.status === "fulfilled") estado.ordenanzas = rOrdenanzas.value; 
   if (rAnimales.status === "fulfilled") estado.animales = rAnimales.value; 
-  if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value;
-
-  if (rLey392015.status === "fulfilled") {
-    estado.ley392015 = normalizarLeyAdministrativa(
-      rLey392015.value,
-      "Ley 39/2015, de 1 de octubre",
-      "Ley 39/2015"
-    );
-  }
-
-  if (rLey71985.status === "fulfilled") {
-    estado.ley71985 = normalizarLeyAdministrativa(
-      rLey71985.value,
-      "Ley 7/1985, de 2 de abril",
-      "Ley 7/1985"
-    );
-  }
-
-  if (rLey52010Andalucia.status === "fulfilled") {
-    estado.ley52010Andalucia = normalizarLeyAdministrativa(
-      rLey52010Andalucia.value,
-      "Ley 5/2010, de 11 de junio, de Autonomía Local de Andalucía",
-      "Ley 5/2010 Andalucía"
-    );
-  }
+  if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value; 
+  if (rLey392015.status === "fulfilled") estado.ley392015 = rLey392015.value; 
+  if (rLey71985.status === "fulfilled") estado.ley71985 = rLey71985.value; 
+  if (rLey52010Andalucia.status === "fulfilled") estado.ley52010Andalucia = rLey52010Andalucia.value; 
 
   [rLeyFcs, rLecrim, rExtranjeria, rSeguridadPrivada, rEspectaculos, rMedioAmbiente, rReglamentoArmas, rPoliciasLocales] 
     .filter((r) => r.status === "fulfilled") 
@@ -816,19 +696,19 @@ function establecerEstado(elemento, texto, correcto) {
 function actualizarEstadoDatos() { 
   const hayLopsc = Boolean(estado.lopsc) && extraerArticulos(estado.lopsc).length > 0; 
   const hayInfracciones = estado.infracciones.length > 0; 
-  const hayOrdenanzas = Boolean(estado.ordenanzas) && extraerOrdenanzas(estado.ordenanzas).length > 0;
-  const contarArticulosLey = (ley) => Array.isArray(ley?.articulos) ? ley.articulos.length : 0;
+  const hayOrdenanzas = Boolean(estado.ordenanzas) && extraerOrdenanzas(estado.ordenanzas).length > 0; 
 
   const contarArticulosLeyes = (leyes) => 
     leyes.reduce((total, leyItem) => total + (Array.isArray(leyItem.articulos) ? leyItem.articulos.length : 0), 0); 
+
+  const totalArticulosProcedimiento = obtenerLeyesProcedimientoAdministrativo()
+    .reduce((total, ley) => total + ley.articulos.length, 0);
 
   const totalArticulosBase = 
     extraerArticulos(estado.lopsc).length + 
     contarArticulosLeyes(extraerLeyes(estado.animales)) + 
     contarArticulosLeyes(extraerLeyes(estado.trafico)) +
-    contarArticulosLey(estado.ley392015) +
-    contarArticulosLey(estado.ley71985) +
-    contarArticulosLey(estado.ley52010Andalucia);
+    totalArticulosProcedimiento; 
 
   const hayBaseNormativa = totalArticulosBase > 0; 
 
@@ -932,31 +812,25 @@ function obtenerArticulosNormativa() {
   }; 
 
   agregarLeySimple(estado.lopsc, "lopsc"); 
-  agregarLeySimple(estado.codigoPenal, "codigo-penal");
-
-  const agregarLeyAdministrativa = (datos, navTipo) => {
-    if (!datos || !Array.isArray(datos.articulos)) return;
-    datos.articulos.forEach((articulo) => {
-      registros.push({
-        ley: datos.abreviatura || datos.ley || "",
-        leyCompleta: datos.ley || "",
-        numero: articulo.numero || "",
-        titulo: articulo.titulo || "",
-        texto: articulo.texto || "",
-        navTipo,
-        navId: ""
-      });
-    });
-  };
-
-  agregarLeyAdministrativa(estado.ley392015, "ley-39-2015");
-  agregarLeyAdministrativa(estado.ley71985, "ley-7-1985");
-  agregarLeyAdministrativa(estado.ley52010Andalucia, "ley-5-2010-andalucia");
-
+  agregarLeySimple(estado.codigoPenal, "codigo-penal"); 
   agregarGrupoLeyes(estado.menores, "menores", "ley-menor"); 
   agregarGrupoLeyes(estado.animales, "animales", "ley-animal"); 
   agregarGrupoLeyes(estado.trafico, "trafico", "ley-trafico"); 
   agregarGrupoLeyes(estado.violenciaGenero, "violencia-genero", "ley-violencia-genero"); 
+
+  obtenerLeyesProcedimientoAdministrativo().forEach((leyItem) => {
+    leyItem.articulos.forEach((articulo) => {
+      registros.push({
+        ley: leyItem.etiqueta || leyItem.nombre,
+        leyCompleta: leyItem.nombre,
+        numero: articulo.numero || articulo.articulo || "",
+        titulo: articulo.titulo || articulo.nombre || "",
+        texto: articulo.texto || articulo.contenido || articulo.descripcion || "",
+        navTipo: "ley-procedimiento-administrativo",
+        navId: leyItem.key
+      });
+    });
+  });
 
   const ordenanzas = extraerOrdenanzas(estado.ordenanzas); 
   ordenanzas.forEach((ordenanza) => { 
@@ -1207,6 +1081,15 @@ function determinarAutoridadSancionadora(infraccion) {
   if (leyNorm.includes("ruido") || leyNorm.includes("residuos") || leyNorm.includes("37/2003") || leyNorm.includes("7/2022")) {
     return "Alcaldía - Ayuntamiento / Consejería de Medio Ambiente";
   }
+  if (leyNorm.includes("39/2015") || leyNorm.includes("procedimiento administrativo")) {
+    return "Órgano competente según la materia y la Administración actuante";
+  }
+  if (leyNorm.includes("7/1985") || leyNorm.includes("regimen local") || leyNorm.includes("régimen local")) {
+    return "Órgano competente de la Entidad Local";
+  }
+  if (leyNorm.includes("5/2010") && leyNorm.includes("andalucia")) {
+    return "Órgano competente de la Junta de Andalucía / Entidad Local";
+  }
   return "Autoridad Competente según la legislación vigente";
 }
 
@@ -1373,7 +1256,33 @@ function obtenerContextoNormativoIA(hechos) {
       texto: String(x.item.texto || "").slice(0, 900)
     }));
 
-  return { infracciones, articulos };
+  const articulosProcedimiento = obtenerLeyesProcedimientoAdministrativo()
+    .flatMap((ley) => ley.articulos.map((articulo) => {
+      const contenido = normalizarTexto([
+        ley.nombre, ley.etiqueta, articulo.numero, articulo.titulo,
+        articulo.texto, articulo.contenido, articulo.descripcion
+      ].join(" "));
+      let score = 0;
+      tokens.forEach((token) => {
+        if (contenido.includes(token)) score += 2;
+        (SINONIMOS_BUSQUEDA[token] || []).forEach((sinonimo) => {
+          if (contenido.includes(sinonimo)) score += 1;
+        });
+      });
+      return { ley, articulo, score };
+    }))
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 12)
+    .map((x) => ({
+      ley: x.ley.nombre,
+      abreviatura: x.ley.etiqueta,
+      articulo: x.articulo.numero || x.articulo.articulo || "",
+      titulo: x.articulo.titulo || x.articulo.nombre || "",
+      texto: String(x.articulo.texto || x.articulo.contenido || x.articulo.descripcion || "").slice(0, 1200)
+    }));
+
+  return { infracciones, articulos: [...articulos, ...articulosProcedimiento] };
 }
 
 function extraerJSONRespuestaIA(respuesta) {
@@ -2244,10 +2153,7 @@ function renderizarNormativa() {
   const lecrimItems = obtenerLecrim(); 
 
   const tarjetasPrincipales = [ 
-    { tipo: "lopsc", titulo: "Ley Orgánica 4/2015", descripcion: "Protección de la seguridad ciudadana", etiqueta: "LOPSC", icono: "⚖️" },
-    { tipo: "ley-39-2015", titulo: "Ley 39/2015", descripcion: "Procedimiento Administrativo Común", etiqueta: "Procedimiento administrativo", icono: "📝" },
-    { tipo: "ley-7-1985", titulo: "Ley 7/1985", descripcion: "Bases del Régimen Local", etiqueta: "Régimen local", icono: "🏛️" },
-    { tipo: "ley-5-2010-andalucia", titulo: "Ley 5/2010 de Andalucía", descripcion: "Autonomía Local de Andalucía", etiqueta: "Andalucía", icono: "🌐" },
+    { tipo: "lopsc", titulo: "Ley Orgánica 4/2015", descripcion: "Protección de la seguridad ciudadana", etiqueta: "LOPSC", icono: "⚖️" }, 
     { tipo: "codigo-penal", titulo: "Código Penal", descripcion: "Selección de delitos de interés policial", etiqueta: "LO 10/1995", icono: "🔨" }, 
     { tipo: "fcs", titulo: "Fuerzas y Cuerpos de Seguridad", descripcion: `LOFCS y Policía Local de Andalucía — ${fcsItems.length} artículos`, etiqueta: "LO 2/1986, Ley 6/2023", icono: "👮" }, 
     { tipo: "lecrim", titulo: "Ley de Enjuiciamiento Criminal", descripcion: `Detención, entrada y registro, atestados — ${lecrimItems.length} artículos`, etiqueta: "LECrim", icono: "📖" }, 
@@ -2255,6 +2161,7 @@ function renderizarNormativa() {
     { tipo: "animales", titulo: "Animales", descripcion: "Bienestar animal y tenencia de PPP", etiqueta: "Estatal / Autonómica", icono: "🐾" }, 
     { tipo: "trafico", titulo: "Tráfico", descripcion: "Ley de Tráfico y reglamentos", etiqueta: "Estatal", icono: "🚦" }, 
     { tipo: "violencia-genero", titulo: "Violencia de Género", descripcion: "Protección integral y libertad sexual", etiqueta: "LO 1/2004", icono: "🛡️" }, 
+    { tipo: "procedimiento-administrativo", titulo: "Procedimiento administrativo", descripcion: `Ley 39/2015, Ley 7/1985 y Ley 5/2010 de Andalucía — ${obtenerLeyesProcedimientoAdministrativo().filter((ley) => ley.articulos.length > 0).length}/3 leyes disponibles`, etiqueta: "Administración y régimen local", icono: "📑" }, 
     { tipo: "ordenanzas", titulo: "Ordenanzas municipales", descripcion: `Normativa local — ${ordenanzas.length} ordenanzas`, etiqueta: `${categorias.length} categorías`, icono: "🏛️" }, 
     { tipo: "otras-normas", titulo: "Otras normas de interés", descripcion: `Extranjería, armas, seguridad privada y más — ${otrasNormas.length} normas`, etiqueta: `${leyesOtrasNormas.length} leyes`, icono: "📚" } 
   ]; 
@@ -2401,11 +2308,64 @@ function abrirLecrim() {
   visor.scrollIntoView({ behavior: "smooth", block: "start" }); 
 } 
 
+function abrirProcedimientoAdministrativo() {
+  const visor = $("normativaViewer");
+  const contenido = $("viewerContent");
+  if (!visor || !contenido) return;
+
+  const leyes = obtenerLeyesProcedimientoAdministrativo();
+  $("viewerTitle").textContent = "Procedimiento administrativo";
+  $("viewerSubtitle").textContent = "Ley 39/2015 · Ley 7/1985 · Ley 5/2010 de Andalucía";
+
+  contenido.innerHTML = `
+    <div class="normativa-list">
+      ${leyes.map((ley) => `
+        <div class="normativa-card">
+          <div class="normativa-icon">📘</div>
+          <div class="normativa-info">
+            <h3>${escaparHTML(ley.nombre)}</h3>
+            <p>${escaparHTML(ley.etiqueta)}</p>
+            <span>${ley.articulos.length} ${ley.articulos.length === 1 ? "artículo" : "artículos"}</span>
+          </div>
+          <button type="button" class="normativa-open" data-law="ley-procedimiento-administrativo" data-id="${escaparHTML(ley.key)}" ${ley.articulos.length ? "" : "disabled"}>${ley.articulos.length ? "Ver" : "No disponible"}</button>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  visor.classList.remove("hidden");
+  visor.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function abrirLeyProcedimientoAdministrativo(key) {
+  const ley = obtenerLeyesProcedimientoAdministrativo().find((item) => item.key === key);
+  const visor = $("normativaViewer");
+  const contenido = $("viewerContent");
+  if (!ley || !visor || !contenido) return;
+
+  $("viewerTitle").textContent = ley.nombre;
+  $("viewerSubtitle").textContent = `${ley.etiqueta} · ${ley.articulos.length} ${ley.articulos.length === 1 ? "artículo" : "artículos"}`;
+
+  const articulosHTML = ley.articulos.map((articulo) => `
+    <article class="law-article">
+      <h4>Artículo ${escaparHTML(articulo.numero || articulo.articulo || "")} ${escaparHTML(articulo.titulo || articulo.nombre || "")}</h4>
+      <p>${escaparHTML(articulo.texto || articulo.contenido || articulo.descripcion || "")}</p>
+    </article>
+  `).join("");
+
+  contenido.innerHTML = `
+    <div class="viewer-actions">
+      <button type="button" class="normativa-open law-back-button" data-law="procedimiento-administrativo">← Volver a Procedimiento administrativo</button>
+    </div>
+    ${articulosHTML || `<div class="empty-state"><h3>Sin artículos cargados</h3><p>El JSON de esta ley no contiene artículos reconocibles.</p></div>`}
+  `;
+
+  visor.classList.remove("hidden");
+  visor.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function abrirNormativa(tipo, id = "") { 
-  if (tipo === "lopsc") return abrirLOPSC();
-  if (tipo === "ley-39-2015") return abrirLeyAdministrativa("ley-39-2015");
-  if (tipo === "ley-7-1985") return abrirLeyAdministrativa("ley-7-1985");
-  if (tipo === "ley-5-2010-andalucia") return abrirLeyAdministrativa("ley-5-2010-andalucia");
+  if (tipo === "lopsc") return abrirLOPSC(); 
   if (tipo === "codigo-penal") return abrirCodigoPenal(); 
   if (tipo === "fcs") return abrirFCS(); 
   if (tipo === "ley-fcs") return abrirLeyFCS(id); 
@@ -2418,6 +2378,8 @@ function abrirNormativa(tipo, id = "") {
   if (tipo === "ley-animal") return abrirLeyAnimal(id); 
   if (tipo === "trafico") return abrirTrafico(); 
   if (tipo === "ley-trafico") return abrirLeyTrafico(id); 
+  if (tipo === "procedimiento-administrativo") return abrirProcedimientoAdministrativo(); 
+  if (tipo === "ley-procedimiento-administrativo") return abrirLeyProcedimientoAdministrativo(id); 
   if (tipo === "ordenanzas") return abrirOrdenanzas(); 
   if (tipo === "ordenanza") return abrirOrdenanza(id); 
   if (tipo === "otras-normas") return abrirOtrasNormas(); 
