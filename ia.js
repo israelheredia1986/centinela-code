@@ -1,74 +1,71 @@
-const CACHE_NAME = "centinela-code-v6";
-
-const ARCHIVOS = [
- "./",
- "./index.html",
- "./style.css",
- "./app.js",
- "./manifest.json",
-
- "./data/lopsc.json",
- "./data/infracciones.json",
- "./data/infracciones_trafico.json",
- "./data/ordenanzas.json",
- "./data/codigo_penal.json",
- "./data/normativa_menores.json",
- "./data/normativa_violencia_genero.json",
- "./data/normativa_animales.json",
- "./data/normativa_trafico.json",
- "./data/ley_2_86.json",
- "./data/lecrim.json",
- "./data/extranjeria.json",
- "./data/seguridad_privada.json",
- "./data/espectaculos_publicos.json",
- "./data/medio_ambiente_ruidos.json",
- "./data/reglamento_armas.json",
- "./data/policias_locales_andalucia.json"
-];
+// =====================================================
+// CENTINELA CODE - IA SUPABASE EDGE FUNCTION
+// =====================================================
 
 
-self.addEventListener("install", event => {
-
- console.log("Centinela SW instalado");
-
- self.skipWaiting();
-
- event.waitUntil(
-  caches.open(CACHE_NAME)
-  .then(cache => cache.addAll(ARCHIVOS))
- );
-
-});
+const CENTINELA_IA_URL = 
+"https://okuygqbaliaeavhyezri.supabase.co/functions/v1/centinela-ia";
 
 
-self.addEventListener("activate", event => {
 
- console.log("Centinela SW activo");
+async function preguntarCentinelaIA(pregunta) {
 
- event.waitUntil(
-
-  caches.keys()
-  .then(keys =>
-   Promise.all(
-    keys
-    .filter(k => k !== CACHE_NAME)
-    .map(k => caches.delete(k))
-   )
-  )
-  .then(() => self.clients.claim())
-
- );
-
-});
+    try {
 
 
-self.addEventListener("fetch", event => {
+        const respuesta = await fetch(
+            CENTINELA_IA_URL,
+            {
 
- event.respondWith(
+                method: "POST",
 
-  fetch(event.request)
-  .catch(() => caches.match(event.request))
+                headers: {
 
- );
+                    "Content-Type": "application/json"
 
-});
+                },
+
+                body: JSON.stringify({
+
+                    pregunta: pregunta
+
+                })
+
+            }
+        );
+
+
+
+        const datos = await respuesta.json();
+
+
+
+        if (datos.error) {
+
+            console.error("Error IA:", datos.error);
+
+            return "Error IA: " + datos.error;
+
+        }
+
+
+
+        return datos.choices[0].message.content;
+
+
+
+    } catch(error) {
+
+
+        console.error(
+            "Error conexión Centinela IA:",
+            error
+        );
+
+
+        return "Error conectando con Centinela IA";
+
+
+    }
+
+}
