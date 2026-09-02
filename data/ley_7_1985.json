@@ -1,0 +1,38 @@
+{
+  "identificador": "BOE-A-1985-5392",
+  "tipo": "Ley",
+  "numero": "7/1985",
+  "fecha": "1985-04-02",
+  "titulo": "Ley 7/1985, de 2 de abril, Reguladora de las Bases del Régimen Local",
+  "ambito": "Estado",
+  "publicacion": {
+    "boletin": "BOE",
+    "numero": 80,
+    "fecha": "1985-04-03",
+    "entrada_en_vigor": "1985-04-23"
+  },
+  "estado": "vigente",
+  "version": {
+    "tipo": "texto consolidado",
+    "ultima_actualizacion_publicada": "2026-06-03",
+    "consultado_el": "2026-09-02"
+  },
+  "materia": "Bases del régimen local",
+  "estructura": [
+    "Preámbulo",
+    "Título I. Disposiciones generales",
+    "Título II. El municipio",
+    "Título III. La provincia",
+    "Título IV. Otras entidades locales",
+    "Título V. Disposiciones comunes a las entidades locales",
+    "Título VI. Bienes, actividades y servicios, y contratación",
+    "Título VII. Personal al servicio de las entidades locales",
+    "Título VIII. Haciendas locales"
+  ],
+  "fuente_oficial": {
+    "texto_consolidado": "https://www.boe.es/buscar/act.php?id=BOE-A-1985-5392",
+    "publicacion_original": "https://www.boe.es/buscar/doc.php?id=BOE-A-1985-5392",
+    "eli": "https://www.boe.es/eli/es/l/1985/04/02/7/con"
+  },
+  "aviso": "El texto consolidado del BOE es informativo; para efectos jurídicos debe consultarse la publicación oficial."
+}
