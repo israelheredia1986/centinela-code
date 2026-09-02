@@ -1,0 +1,37 @@
+{
+  "identificador": "BOE-A-2015-10565",
+  "tipo": "Ley",
+  "numero": "39/2015",
+  "fecha": "2015-10-01",
+  "titulo": "Ley 39/2015, de 1 de octubre, del Procedimiento Administrativo Común de las Administraciones Públicas",
+  "ambito": "Estado",
+  "publicacion": {
+    "boletin": "BOE",
+    "numero": 236,
+    "fecha": "2015-10-02",
+    "entrada_en_vigor": "2016-10-02"
+  },
+  "estado": "vigente",
+  "version": {
+    "tipo": "texto consolidado",
+    "ultima_actualizacion_publicada": "2024-11-06",
+    "consultado_el": "2026-09-02"
+  },
+  "materia": "Procedimiento administrativo común y relación electrónica con las administraciones públicas",
+  "estructura": [
+    "Preámbulo",
+    "Título preliminar. Disposiciones generales",
+    "Título I. De los interesados en el procedimiento",
+    "Título II. De la actividad de las Administraciones Públicas",
+    "Título III. De los actos administrativos",
+    "Título IV. De las disposiciones sobre el procedimiento administrativo común",
+    "Título V. De la revisión de los actos en vía administrativa",
+    "Título VI. De la iniciativa legislativa y de la potestad para dictar reglamentos y otras disposiciones"
+  ],
+  "fuente_oficial": {
+    "texto_consolidado": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565",
+    "publicacion_original": "https://www.boe.es/buscar/doc.php?id=BOE-A-2015-10565",
+    "eli": "https://www.boe.es/eli/es/l/2015/10/01/39/con"
+  },
+  "aviso": "El texto consolidado del BOE es informativo; para efectos jurídicos debe consultarse la publicación oficial."
+}
