@@ -1217,6 +1217,247 @@ function inyectarCamposFotoEditor() {
 }
 
 /* =========================================================
+FIRMA DIGITAL EN PANTALLA (CANVAS TÁCTIL)
+========================================================= */
+
+const FIRMA_CONFIG = {
+  agente: { etiqueta: "Firma del Agente Instructante" },
+  interviniente: { etiqueta: "Firma del Denunciado / Intervenido" }
+};
+
+const firmaEstado = {
+  agente: { dibujando: false, vacio: true, ultimoPunto: null, original: null, borradaManual: false },
+  interviniente: { dibujando: false, vacio: true, ultimoPunto: null, original: null, borradaManual: false }
+};
+
+function inyectarEstilosFirma() {
+  if ($("firmaEstilos")) return;
+  const style = document.createElement("style");
+  style.id = "firmaEstilos";
+  style.textContent = `
+    .firma-group { margin-top:1rem; border-top:1px dashed var(--color-border,#30363d); padding-top:1rem; }
+    .firma-titulo { font-weight:600; display:block; margin-bottom:.6rem; }
+    .firma-pareja { display:flex; flex-wrap:wrap; gap:1rem; }
+    .firma-bloque { flex:1 1 240px; min-width:220px; }
+    .firma-bloque-label { font-size:.8rem; color:var(--color-muted,#8b949e); margin-bottom:.3rem; display:block; }
+    .firma-canvas-wrap { position:relative; border:1px solid var(--color-border,#30363d); border-radius:8px; background:#fff; touch-action:none; overflow:hidden; }
+    .firma-canvas { display:block; width:100%; height:140px; cursor:crosshair; }
+    .firma-placeholder { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#9aa1a8; font-size:.85rem; pointer-events:none; }
+    .firma-acciones { display:flex; gap:.5rem; margin-top:.4rem; }
+    .firma-btn { flex:1; padding:.45rem; border-radius:6px; border:1px solid var(--color-border,#30363d); background:transparent; color:var(--color-muted,#8b949e); font-size:.8rem; cursor:pointer; }
+    .firma-btn:active { background:var(--color-surface,#161b22); }
+    .firma-estado-ok { color:#3fb950; font-size:.75rem; margin-top:.3rem; display:none; }
+    .firma-estado-ok.visible { display:block; }
+  `;
+  document.head.appendChild(style);
+}
+
+function crearBloqueFirma(clave) {
+  const cfg = FIRMA_CONFIG[clave];
+  const bloque = document.createElement("div");
+  bloque.className = "firma-bloque";
+  bloque.innerHTML = `
+    <span class="firma-bloque-label">${escaparHTML(cfg.etiqueta)}</span>
+    <div class="firma-canvas-wrap" id="firmaWrap_${clave}">
+      <canvas class="firma-canvas" id="firmaCanvas_${clave}"></canvas>
+      <div class="firma-placeholder" id="firmaPlaceholder_${clave}">Firmar aquí</div>
+    </div>
+    <div class="firma-acciones">
+      <button type="button" class="firma-btn" id="firmaBorrar_${clave}">🗑️ Borrar firma</button>
+    </div>
+    <p class="firma-estado-ok" id="firmaEstadoOk_${clave}">✓ Firma capturada</p>
+  `;
+  return bloque;
+}
+
+function obtenerPosicionCanvas(canvas, evento) {
+  const rect = canvas.getBoundingClientRect();
+  const escalaX = canvas.width / rect.width;
+  const escalaY = canvas.height / rect.height;
+  return {
+    x: (evento.clientX - rect.left) * escalaX,
+    y: (evento.clientY - rect.top) * escalaY
+  };
+}
+
+function redimensionarCanvasFirma(canvas) {
+  const wrap = canvas.parentElement;
+  const ratio = window.devicePixelRatio || 1;
+  const anchoCss = wrap.clientWidth || 260;
+  const altoCss = 140;
+
+  // Preserva el trazo existente al redimensionar (p.ej. al girar el móvil)
+  const datosPrevios = (canvas.width > 0 && canvas.height > 0) ? canvas.toDataURL("image/png") : null;
+
+  canvas.width = anchoCss * ratio;
+  canvas.height = altoCss * ratio;
+  canvas.style.height = altoCss + "px";
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(ratio, ratio);
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#111827";
+
+  if (datosPrevios) {
+    const img = new Image();
+    img.onload = () => ctx.drawImage(img, 0, 0, anchoCss, altoCss);
+    img.src = datosPrevios;
+  }
+}
+
+function activarCanvasFirma(clave) {
+  const canvas = $(`firmaCanvas_${clave}`);
+  if (!canvas || canvas.dataset.activado) return;
+  canvas.dataset.activado = "1";
+
+  redimensionarCanvasFirma(canvas);
+  const ctx = canvas.getContext("2d");
+  const estado = firmaEstado[clave];
+
+  const marcarComoFirmado = () => {
+    if (!estado.vacio) return;
+    estado.vacio = false;
+    const placeholder = $(`firmaPlaceholder_${clave}`);
+    if (placeholder) placeholder.style.display = "none";
+    $(`firmaEstadoOk_${clave}`)?.classList.add("visible");
+  };
+
+  const empezarTrazo = (evento) => {
+    evento.preventDefault();
+    canvas.setPointerCapture?.(evento.pointerId);
+    estado.dibujando = true;
+    estado.ultimoPunto = obtenerPosicionCanvas(canvas, evento);
+  };
+
+  const continuarTrazo = (evento) => {
+    if (!estado.dibujando) return;
+    evento.preventDefault();
+    const ratio = window.devicePixelRatio || 1;
+    const punto = obtenerPosicionCanvas(canvas, evento);
+    ctx.beginPath();
+    ctx.moveTo(estado.ultimoPunto.x / ratio, estado.ultimoPunto.y / ratio);
+    ctx.lineTo(punto.x / ratio, punto.y / ratio);
+    ctx.stroke();
+    estado.ultimoPunto = punto;
+    marcarComoFirmado();
+  };
+
+  const terminarTrazo = () => {
+    estado.dibujando = false;
+    estado.ultimoPunto = null;
+  };
+
+  canvas.addEventListener("pointerdown", empezarTrazo);
+  canvas.addEventListener("pointermove", continuarTrazo);
+  canvas.addEventListener("pointerleave", terminarTrazo);
+  window.addEventListener("pointerup", terminarTrazo);
+
+  $(`firmaBorrar_${clave}`)?.addEventListener("click", () => borrarFirma(clave, true));
+
+  window.addEventListener("resize", () => {
+    if (estado.vacio) redimensionarCanvasFirma(canvas);
+  });
+}
+
+function borrarFirma(clave, manual = false) {
+  const canvas = $(`firmaCanvas_${clave}`);
+  if (!canvas) return;
+  const ratio = window.devicePixelRatio || 1;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width / ratio, canvas.height / ratio);
+  firmaEstado[clave].vacio = true;
+  firmaEstado[clave].borradaManual = manual;
+  if (manual) firmaEstado[clave].original = null;
+  const placeholder = $(`firmaPlaceholder_${clave}`);
+  if (placeholder) placeholder.style.display = "flex";
+  $(`firmaEstadoOk_${clave}`)?.classList.remove("visible");
+}
+
+function firmaEstaVacia(clave) {
+  return firmaEstado[clave]?.vacio !== false;
+}
+
+function obtenerFirmaBase64(clave) {
+  if (firmaEstaVacia(clave)) return null;
+  const canvas = $(`firmaCanvas_${clave}`);
+  if (!canvas) return null;
+  return canvas.toDataURL("image/png");
+}
+
+/**
+ * Devuelve la firma que debe guardarse: la del canvas si el agente ha
+ * dibujado algo nuevo; si el canvas está vacío porque la imagen previa
+ * aún no ha terminado de cargar (carrera asíncrona), conserva la firma
+ * original en lugar de guardar null; si el agente pulsó "Borrar firma"
+ * explícitamente, sí se guarda null.
+ */
+function obtenerFirmaParaGuardar(clave) {
+  if (!firmaEstaVacia(clave)) return obtenerFirmaBase64(clave);
+  if (firmaEstado[clave].borradaManual) return null;
+  return firmaEstado[clave].original || null;
+}
+
+function cargarFirmaEnCanvas(clave, dataUrl) {
+  firmaEstado[clave].original = dataUrl || null;
+  if (!dataUrl) return;
+  const canvas = $(`firmaCanvas_${clave}`);
+  if (!canvas) return;
+  const ratio = window.devicePixelRatio || 1;
+  const ctx = canvas.getContext("2d");
+  const img = new Image();
+  img.onload = () => {
+    ctx.drawImage(img, 0, 0, canvas.width / ratio, canvas.height / ratio);
+    firmaEstado[clave].vacio = false;
+    const placeholder = $(`firmaPlaceholder_${clave}`);
+    if (placeholder) placeholder.style.display = "none";
+    $(`firmaEstadoOk_${clave}`)?.classList.add("visible");
+  };
+  img.src = dataUrl;
+}
+
+function inyectarCamposFirmaEditor() {
+  const form = $("actaForm");
+  if (!form || $("actaFirmaGroup")) return;
+
+  inyectarEstilosFirma();
+
+  const contenedor = document.createElement("div");
+  contenedor.id = "actaFirmaGroup";
+  contenedor.className = "form-group firma-group";
+
+  const titulo = document.createElement("span");
+  titulo.className = "firma-titulo";
+  titulo.textContent = "✍️ Firmas";
+  contenedor.appendChild(titulo);
+
+  const pareja = document.createElement("div");
+  pareja.className = "firma-pareja";
+  pareja.appendChild(crearBloqueFirma("agente"));
+  pareja.appendChild(crearBloqueFirma("interviniente"));
+  contenedor.appendChild(pareja);
+
+  const botonera = form.querySelector(".form-actions") || form.lastElementChild;
+  form.insertBefore(contenedor, botonera);
+}
+
+/**
+ * Debe llamarse cuando el editor YA es visible (después de quitar la
+ * clase "hidden"), porque el canvas necesita medir un ancho real para
+ * dimensionarse correctamente. Se llama con requestAnimationFrame desde
+ * abrirEditorActa().
+ */
+function activarYCargarFirmas(acta = null) {
+  activarCanvasFirma("agente");
+  activarCanvasFirma("interviniente");
+  borrarFirma("agente");
+  borrarFirma("interviniente");
+  if (acta?.firma_agente) cargarFirmaEnCanvas("agente", acta.firma_agente);
+  if (acta?.firma_interviniente) cargarFirmaEnCanvas("interviniente", acta.firma_interviniente);
+}
+
+/* =========================================================
  IA PARA NUEVA ACTA — ANÁLISIS Y REDACCIÓN
 ========================================================= */
 
@@ -1767,6 +2008,7 @@ function abrirEditorActa(acta = null) {
   if (!editor || !form) return; 
 
   inyectarCamposFotoEditor();
+  inyectarCamposFirmaEditor();
   inyectarAsistenteIAEnActa();
   actaIAResultadoActual = null;
   actaIAVerificaciones = {};
@@ -1812,6 +2054,10 @@ function abrirEditorActa(acta = null) {
   actualizarPreviewInfraccion(); 
   editor.classList.remove("hidden"); 
   editor.scrollIntoView({ behavior: "smooth", block: "start" }); 
+
+  // Los canvas de firma necesitan medir un ancho real, así que se
+  // activan en el siguiente frame, cuando el editor ya es visible.
+  requestAnimationFrame(() => activarYCargarFirmas(acta)); 
 } 
 
 function cerrarEditorActa() { 
@@ -1830,6 +2076,9 @@ function cerrarEditorActa() {
   } 
   const fotoPrev = $("actaFotoContainerPreview");
   if (fotoPrev) fotoPrev.style.display = "none";
+
+  borrarFirma("agente");
+  borrarFirma("interviniente");
 } 
 
 function obtenerValor(id) { 
@@ -1869,6 +2118,8 @@ async function guardarActaDesdeFormulario(evento) {
     autoridad_sancionadora: obtenerValor("actaAutoridad"),
     observaciones:          obtenerValor("actaObservaciones"),
     foto_url:               fotoUrl,
+    firma_agente:           obtenerFirmaParaGuardar("agente"),
+    firma_interviniente:    obtenerFirmaParaGuardar("interviniente"),
     actualizado:            new Date().toISOString()
   };
 
@@ -2074,7 +2325,9 @@ function exportarActaPDF(id) {
         .foto-incautacion { text-align: center; margin-top: 1rem; }
         .foto-incautacion img { max-width: 100%; max-height: 250px; border: 1px solid #ccc; border-radius: 4px; }
         .footer { margin-top: 3rem; display: flex; justify-content: space-between; text-align: center; font-size: 0.85rem; }
-        .signature { width: 45%; border-top: 1px solid #000; padding-top: 0.5rem; }
+        .signature { width: 45%; }
+        .signature-img { display: block; max-height: 70px; max-width: 100%; margin: 0 auto 4px; }
+        .signature-line { border-top: 1px solid #000; padding-top: 0.5rem; }
       </style>
     </head>
     <body>
@@ -2132,8 +2385,14 @@ function exportarActaPDF(id) {
       ` : ""}
 
       <div class="footer">
-        <div class="signature">Firma del Agente Instructante</div>
-        <div class="signature">Firma del Denunciado / Intervenido</div>
+        <div class="signature">
+          ${acta.firma_agente ? `<img class="signature-img" src="${escaparHTML(acta.firma_agente)}" alt="Firma del agente" />` : ""}
+          <div class="signature-line">Firma del Agente Instructante</div>
+        </div>
+        <div class="signature">
+          ${acta.firma_interviniente ? `<img class="signature-img" src="${escaparHTML(acta.firma_interviniente)}" alt="Firma del denunciado" />` : ""}
+          <div class="signature-line">Firma del Denunciado / Intervenido</div>
+        </div>
       </div>
 
       <script>
