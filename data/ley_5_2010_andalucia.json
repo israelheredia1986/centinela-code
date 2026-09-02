@@ -1,0 +1,36 @@
+{
+  "identificador": "LAN\\2010\\265",
+  "tipo": "Ley",
+  "numero": "5/2010",
+  "fecha": "2010-06-11",
+  "titulo": "Ley 5/2010, de 11 de junio, de Autonomía Local de Andalucía",
+  "ambito": "Comunidad Autónoma de Andalucía",
+  "publicacion": {
+    "boletin": "BOJA",
+    "numero": 122,
+    "fecha": "2010-06-23"
+  },
+  "estado": "vigente",
+  "version": {
+    "tipo": "texto consolidado",
+    "vigencia_desde": "2026-06-20",
+    "consultado_el": "2026-09-02"
+  },
+  "materia": "Autonomía, competencias, organización y relaciones de las entidades locales andaluzas",
+  "estructura": [
+    "Exposición de motivos",
+    "Título preliminar",
+    "Título I. La comunidad política local",
+    "Título II. Competencias y servicios locales",
+    "Título III. Organización territorial y entidades locales",
+    "Título IV. Relaciones entre la Junta de Andalucía y las entidades locales",
+    "Título V. Bienes de las entidades locales",
+    "Título VI. Servicios locales de interés general e iniciativa económica local"
+  ],
+  "fuente_oficial": {
+    "texto_consolidado": "https://ws040.juntadeandalucia.es/sedeboja/lconsolidada/eli/es-an/l/2010/06/11/5/con/20260620/spa/html/LE0000420718_20260620.html",
+    "publicacion_original": "https://www.juntadeandalucia.es/boja/2010/122/1",
+    "eli": "https://www.boe.es/eli/es-an/l/2010/06/11/5"
+  },
+  "aviso": "La versión consolidada facilita la consulta; para efectos jurídicos debe verificarse la publicación oficial aplicable."
+}
