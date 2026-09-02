@@ -211,8 +211,7 @@ const CONFIG = {
     policiasLocales: "./data/policias_locales_andalucia.json" 
   }, 
   STORAGE_ACTAS: "centinela_code_actas_v1",
-  STORAGE_FAVORITOS: "centinela_code_favoritos_v1",
-  STORAGE_COLA_PENDIENTES: "centinela_code_cola_pendientes_v1"
+  STORAGE_FAVORITOS: "centinela_code_favoritos_v1"
 }; 
 
 const estado = { 
@@ -315,154 +314,6 @@ function escaparHTML(valor) {
     .replace(/>/g, "&gt;") 
     .replace(/"/g, "&quot;") 
     .replace(/'/g, "&#039;"); 
-} 
-
-/* =========================================================
-COLA DE SINCRONIZACIÓN OFFLINE (ACTAS)
-========================================================= */
-
-function esErrorDeRed(error) {
-  if (!navigator.onLine) return true;
-  if (!error) return false;
-  const mensaje = String(error?.message || "").toLowerCase();
-  return (
-    error?.name === "TypeError" ||
-    mensaje.includes("fetch") ||
-    mensaje.includes("network") ||
-    mensaje.includes("failed to fetch")
-  );
-}
-
-function leerColaPendientes() {
-  try {
-    const crudo = localStorage.getItem(CONFIG.STORAGE_COLA_PENDIENTES);
-    const cola = crudo ? JSON.parse(crudo) : [];
-    return Array.isArray(cola) ? cola : [];
-  } catch (error) {
-    console.error("No se pudo leer la cola de pendientes:", error);
-    return [];
-  }
-}
-
-function guardarColaPendientes(cola) {
-  try {
-    localStorage.setItem(CONFIG.STORAGE_COLA_PENDIENTES, JSON.stringify(cola));
-  } catch (error) {
-    console.error("No se pudo guardar la cola de pendientes:", error);
-  }
-}
-
-function agregarAColaPendientes(operacion) {
-  const cola = leerColaPendientes();
-  cola.push({
-    opId: window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    creado: new Date().toISOString(),
-    ...operacion
-  });
-  guardarColaPendientes(cola);
-  actualizarBadgePendientes();
-}
-
-function quitarDeColaPendientes(opId) {
-  const cola = leerColaPendientes().filter((op) => op.opId !== opId);
-  guardarColaPendientes(cola);
-  actualizarBadgePendientes();
-}
-
-function actasConPendienteSync() {
-  const cola = leerColaPendientes();
-  const idsUpsert = new Set(cola.filter((op) => op.tipo === "upsert").map((op) => op.acta.id));
-  const idsDelete = new Set(cola.filter((op) => op.tipo === "delete").map((op) => op.id));
-  return { idsUpsert, idsDelete };
-}
-
-function actualizarBadgePendientes() {
-  const cantidad = leerColaPendientes().length;
-  const indicador = $("homeSyncStatus");
-  if (indicador) {
-    indicador.textContent = cantidad > 0 ? `⏳ ${cantidad} acta(s) pendiente(s) de sincronizar` : "";
-    indicador.style.display = cantidad > 0 ? "block" : "none";
-  }
-}
-
-let sincronizacionEnCurso = false;
-
-async function sincronizarPendientes() {
-  if (sincronizacionEnCurso) return;
-  if (!navigator.onLine) return;
-  if (!usuarioActual) return;
-
-  const cola = leerColaPendientes();
-  if (!cola.length) return;
-
-  sincronizacionEnCurso = true;
-  let sincronizadas = 0;
-
-  for (const operacion of cola) {
-    try {
-      if (operacion.tipo === "upsert") {
-        const acta = { ...operacion.acta };
-
-        // Si el acta se guardó offline con una foto pendiente, se sube ahora.
-        if (acta._fotoPendienteBase64) {
-          try {
-            const blob = await (await fetch(acta._fotoPendienteBase64)).blob();
-            const archivo = new File([blob], `incautacion_${acta.id}.jpg`, { type: blob.type || "image/jpeg" });
-            acta.foto_url = await subirFotoIncautacion(archivo, acta.id);
-          } catch (errorFoto) {
-            console.error("No se pudo sincronizar la foto pendiente:", errorFoto);
-            // Se sincroniza el resto del acta aunque falle la foto; se reintentará la foto en la próxima sync.
-          }
-          delete acta._fotoPendienteBase64;
-        }
-
-        const { error } = await supabase.from("actas").upsert(acta, { onConflict: "id" });
-        if (error) throw error;
-
-        const indice = estado.actas.findIndex((item) => item.id === acta.id);
-        if (indice >= 0) estado.actas[indice] = acta;
-
-      } else if (operacion.tipo === "delete") {
-        const { error } = await supabase
-          .from("actas")
-          .delete()
-          .eq("id", operacion.id)
-          .eq("user_id", usuarioActual.id);
-        if (error) throw error;
-      }
-
-      quitarDeColaPendientes(operacion.opId);
-      sincronizadas++;
-
-    } catch (error) {
-      if (esErrorDeRed(error)) {
-        // Seguimos sin conexión de verdad: paramos y reintentamos en el próximo evento "online".
-        break;
-      } else {
-        // Error real (no de red, ej. RLS o validación): la sacamos de la cola para no reintentar en bucle,
-        // y avisamos para que el agente lo revise manualmente.
-        console.error("Error de sincronización no relacionado con la red:", error);
-        quitarDeColaPendientes(operacion.opId);
-        mostrarToast(`No se pudo sincronizar un acta pendiente: ${error?.message || "revisa la consola"}`);
-      }
-    }
-  }
-
-  sincronizacionEnCurso = false;
-
-  if (sincronizadas > 0) {
-    mostrarToast(`${sincronizadas} acta(s) sincronizada(s).`);
-    renderizarActas();
-  }
-}
-
-function archivoABase64(archivo) {
-  return new Promise((resolve, reject) => {
-    const lector = new FileReader();
-    lector.onload = () => resolve(lector.result);
-    lector.onerror = reject;
-    lector.readAsDataURL(archivo);
-  });
 } 
 
 /**
@@ -1282,20 +1133,6 @@ async function cargarActas() {
     console.error("No se pudieron cargar las actas:", error);
     estado.actas = [];
   }
-
-  // Las actas creadas/editadas offline y aún no sincronizadas no están en el
-  // servidor todavía: las añadimos aquí para que no desaparezcan de la lista.
-  const cola = leerColaPendientes();
-  const idsBorradosPendientes = new Set(cola.filter(op => op.tipo === "delete").map(op => op.id));
-  estado.actas = estado.actas.filter(acta => !idsBorradosPendientes.has(acta.id));
-
-  cola.filter(op => op.tipo === "upsert").forEach(op => {
-    const { _fotoPendienteBase64, ...actaSinFoto } = op.acta;
-    const indice = estado.actas.findIndex(item => item.id === actaSinFoto.id);
-    if (indice >= 0) estado.actas[indice] = actaSinFoto;
-    else estado.actas.unshift(actaSinFoto);
-  });
-
   renderizarActas();
 }
 
@@ -1516,25 +1353,10 @@ async function guardarActaDesdeFormulario(evento) {
 
   const fotoInput = $("actaFotoInput");
   let fotoUrl = form.dataset.fotoExistente || null;
-  let fotoPendienteBase64 = null;
-  const hayFotoNueva = !!(fotoInput && fotoInput.files && fotoInput.files[0]);
 
-  if (hayFotoNueva && navigator.onLine) {
+  if (fotoInput && fotoInput.files && fotoInput.files[0]) {
     mostrarToast("Subiendo fotografía...");
-    try {
-      fotoUrl = await subirFotoIncautacion(fotoInput.files[0], idActa);
-    } catch (errorFoto) {
-      console.error("Error subiendo foto:", errorFoto);
-      mostrarToast("No se pudo subir la foto, se guardará el acta sin ella.");
-    }
-  } else if (hayFotoNueva && !navigator.onLine) {
-    // Sin conexión: guardamos la foto en base64 para subirla cuando vuelva la red.
-    try {
-      fotoPendienteBase64 = await archivoABase64(fotoInput.files[0]);
-      mostrarToast("Sin conexión: la foto se subirá al sincronizar.");
-    } catch (errorLectura) {
-      console.error("Error leyendo la foto:", errorLectura);
-    }
+    fotoUrl = await subirFotoIncautacion(fotoInput.files[0], idActa);
   }
 
   const acta = {
@@ -1557,8 +1379,6 @@ async function guardarActaDesdeFormulario(evento) {
   };
 
   try {
-    if (!navigator.onLine) throw new Error("offline");
-
     const { error } = await supabase
       .from("actas")
       .upsert(acta, { onConflict: "id" });
@@ -1573,28 +1393,9 @@ async function guardarActaDesdeFormulario(evento) {
     }
 
     mostrarToast(esEdicion ? "Acta actualizada." : "Acta guardada.");
-
   } catch (error) {
-    if (esErrorDeRed(error)) {
-      // Sin conexión: guardamos localmente y encolamos para sincronizar en cuanto vuelva la red.
-      const actaParaCola = fotoPendienteBase64
-        ? { ...acta, _fotoPendienteBase64: fotoPendienteBase64 }
-        : acta;
-
-      agregarAColaPendientes({ tipo: "upsert", acta: actaParaCola });
-
-      const indice = estado.actas.findIndex(item => item.id === acta.id);
-      if (indice >= 0) {
-        estado.actas[indice] = acta;
-      } else {
-        estado.actas.unshift(acta);
-      }
-
-      mostrarToast("Sin conexión: acta guardada en el dispositivo. Se sincronizará automáticamente.");
-    } else {
-      console.error("Error guardando acta:", error);
-      mostrarToast("Error al guardar: " + (error?.message || error?.error_description || "revisa la consola"));
-    }
+    console.error("Error guardando acta:", error);
+    mostrarToast("Error al guardar: " + (error?.message || error?.error_description || "revisa la consola"));
   }
 
   renderizarActas();
@@ -1618,7 +1419,6 @@ function renderizarActas() {
   if (!lista) return; 
 
   const actasParaMostrar = obtenerActasFiltradas();
-  const { idsUpsert } = actasConPendienteSync();
 
   if (!actasParaMostrar.length) { 
     lista.innerHTML = ` 
@@ -1636,7 +1436,6 @@ function renderizarActas() {
 
   lista.innerHTML = actasParaMostrar.map((acta) => ` 
     <article class="acta-card"> 
-      ${idsUpsert.has(acta.id) ? `<div class="acta-pendiente-badge">⏳ Pendiente de sincronizar</div>` : ""}
       <div class="acta-card-header"> 
         <div> 
           <span>Acta ${escaparHTML(acta.numero || "sin número")}</span> 
@@ -1687,8 +1486,6 @@ async function borrarActa(id) {
   if (!confirmado) return;
 
   try {
-    if (!navigator.onLine) throw new Error("offline");
-
     const { error } = await supabase
       .from("actas")
       .delete()
@@ -1700,23 +1497,9 @@ async function borrarActa(id) {
     estado.actas = estado.actas.filter(item => item.id !== id);
     renderizarActas();
     mostrarToast("Acta borrada.");
-
   } catch (error) {
-    if (esErrorDeRed(error)) {
-      // Sin conexión: la quitamos de la vista y encolamos el borrado para cuando vuelva la red.
-      // Si el acta tenía un "upsert" pendiente sin sincronizar todavía, lo retiramos de la cola:
-      // no tiene sentido subirla para acto seguido borrarla.
-      const cola = leerColaPendientes().filter((op) => !(op.tipo === "upsert" && op.acta.id === id));
-      guardarColaPendientes(cola);
-
-      agregarAColaPendientes({ tipo: "delete", id });
-      estado.actas = estado.actas.filter(item => item.id !== id);
-      renderizarActas();
-      mostrarToast("Sin conexión: el acta se borrará en el servidor al sincronizar.");
-    } else {
-      console.error("Error borrando acta:", error);
-      mostrarToast("Error al borrar el acta.");
-    }
+    console.error("Error borrando acta:", error);
+    mostrarToast("Error al borrar el acta.");
   }
 } 
 
@@ -2947,7 +2730,7 @@ async function iniciarAplicacion() {
 
   window.addEventListener(
     "online",
-    () => { actualizarRed(); sincronizarPendientes(); }
+    actualizarRed
   );
 
 
@@ -2962,9 +2745,6 @@ async function iniciarAplicacion() {
 
 
   await cargarActas();
-
-  actualizarBadgePendientes();
-  sincronizarPendientes();
 
 
 
