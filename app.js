@@ -1114,6 +1114,368 @@ function inyectarCamposFotoEditor() {
   });
 }
 
+/* =========================================================
+ IA PARA NUEVA ACTA — ANÁLISIS Y REDACCIÓN
+========================================================= */
+
+let actaIAResultadoActual = null;
+let actaIAVerificaciones = {};
+let actaIAProcesando = false;
+
+function escaparHTMLMultilinea(valor) {
+  return escaparHTML(valor || "").replace(/\n/g, "<br>");
+}
+
+function obtenerContextoNormativoIA(hechos) {
+  const tokens = tokenizarConsulta(hechos);
+  const scoreItem = (item) => {
+    const texto = normalizarTexto([
+      item?.id, item?.codigo, item?.ley, item?.articulo, item?.apartado,
+      item?.titulo, item?.conducta, item?.gravedad,
+      ...(Array.isArray(item?.palabrasClave) ? item.palabrasClave : []),
+      ...(Array.isArray(item?.responsables) ? item.responsables : [])
+    ].join(" "));
+    let score = 0;
+    tokens.forEach((token) => {
+      if (texto.includes(token)) score += 3;
+      const sinonimos = SINONIMOS_BUSQUEDA[token] || [];
+      sinonimos.forEach((sinonimo) => { if (texto.includes(sinonimo)) score += 1; });
+    });
+    return score;
+  };
+
+  const infracciones = [...estado.infracciones]
+    .map(item => ({ item, score: scoreItem(item) }))
+    .filter(x => x.score > 0)
+    .sort((a,b) => b.score - a.score)
+    .slice(0, 20)
+    .map(x => ({
+      id: x.item.id || "",
+      codigo: x.item.codigo || "",
+      ley: x.item.ley || "",
+      articulo: x.item.articulo || "",
+      apartado: x.item.apartado || "",
+      titulo: x.item.titulo || "",
+      conducta: x.item.conducta || "",
+      gravedad: x.item.gravedad || "",
+      sancion: x.item.sancion || {},
+      responsables: x.item.responsables || []
+    }));
+
+  const articulos = obtenerArticulosNormativa()
+    .map(item => {
+      const texto = normalizarTexto([item.ley, item.leyCompleta, item.numero, item.titulo, item.texto].join(" "));
+      let score = 0;
+      tokens.forEach((token) => {
+        if (texto.includes(token)) score += 2;
+        (SINONIMOS_BUSQUEDA[token] || []).forEach(s => { if (texto.includes(s)) score += 1; });
+      });
+      return { item, score };
+    })
+    .filter(x => x.score > 0)
+    .sort((a,b) => b.score - a.score)
+    .slice(0, 10)
+    .map(x => ({
+      ley: x.item.ley || "",
+      leyCompleta: x.item.leyCompleta || "",
+      articulo: x.item.numero || "",
+      titulo: x.item.titulo || "",
+      texto: String(x.item.texto || "").slice(0, 900)
+    }));
+
+  return { infracciones, articulos };
+}
+
+function extraerJSONRespuestaIA(respuesta) {
+  if (respuesta && typeof respuesta === "object") return respuesta;
+  const texto = String(respuesta || "").trim();
+  if (!texto) throw new Error("La IA no devolvió contenido.");
+
+  try { return JSON.parse(texto); } catch (_) {}
+
+  const sinMarkdown = texto
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```$/i, "")
+    .trim();
+  try { return JSON.parse(sinMarkdown); } catch (_) {}
+
+  const inicio = texto.indexOf("{");
+  const fin = texto.lastIndexOf("}");
+  if (inicio >= 0 && fin > inicio) {
+    try { return JSON.parse(texto.slice(inicio, fin + 1)); } catch (_) {}
+  }
+
+  throw new Error("La respuesta de la IA no tiene un formato válido.");
+}
+
+async function solicitarAnalisisActaIA(hechos) {
+  const contexto = obtenerContextoNormativoIA(hechos);
+  const prompt = `
+Eres CENTINELA IA, asistente de apoyo para agentes de Policía Local en España.
+Debes analizar unos HECHOS proporcionados por el agente usando EXCLUSIVAMENTE la normativa y las infracciones incluidas en el CONTEXTO NORMATIVO que se adjunta.
+
+REGLAS OBLIGATORIAS:
+1. No inventes hechos, datos, artículos, sanciones, cuantías ni autoridades.
+2. No conviertas una sospecha en un hecho probado.
+3. Si el contexto no permite determinar con seguridad un dato, devuelve null o "No determinado".
+4. Distingue claramente entre propuesta y decisión jurídica definitiva.
+5. La autoridad sancionadora debe basarse en el dato disponible y, si no es concluyente, indicar "Verificar competencia".
+6. La cuantía debe salir del contexto; si solo existe rango o texto sancionador, respétalo sin inventar una cantidad.
+7. Devuelve SOLO JSON válido, sin markdown ni explicaciones fuera del JSON.
+8. El campo "descripcion_juridica" debe ser una reformulación jurídica de LOS HECHOS DADOS, sin añadir circunstancias.
+
+HECHOS DEL AGENTE:
+${hechos}
+
+CONTEXTO NORMATIVO:
+${JSON.stringify(contexto, null, 2)}
+
+FORMATO JSON EXACTO:
+{
+  "infraccion": "",
+  "codigo": "",
+  "articulo": "",
+  "norma": "",
+  "gravedad": "",
+  "cuantia": "",
+  "autoridad_sancionadora": "",
+  "descripcion_juridica": "",
+  "confianza": "alta|media|baja",
+  "verificaciones": ["lista breve de puntos que el agente debe comprobar"]
+}
+`;
+
+  const respuesta = await preguntarCentinelaIA(prompt);
+  return extraerJSONRespuestaIA(respuesta);
+}
+
+async function solicitarMejoraHechosIA(hechos) {
+  const contexto = obtenerContextoNormativoIA(hechos);
+  const prompt = `
+Eres CENTINELA IA y debes mejorar exclusivamente la REDACCIÓN de unos hechos policiales.
+
+REGLAS OBLIGATORIAS:
+1. No inventes ningún hecho ni añadas datos que no aparezcan expresamente en el texto original.
+2. No elimines información sustancial aportada por el agente.
+3. No introduzcas horarios, cantidades, personas, intenciones, resistencia, consumo, testigos u otras circunstancias que no consten.
+4. Mantén el significado material de los hechos.
+5. Usa estilo formal, objetivo y apto para un acta policial.
+6. Devuelve SOLO JSON válido.
+
+HECHOS ORIGINALES:
+${hechos}
+
+CONTEXTO NORMATIVO SOLO COMO REFERENCIA TERMINOLÓGICA:
+${JSON.stringify(contexto, null, 2)}
+
+FORMATO JSON EXACTO:
+{
+  "hechos_mejorados": "",
+  "observacion": "Se ha mejorado únicamente la redacción sin añadir hechos"
+}
+`;
+  const respuesta = await preguntarCentinelaIA(prompt);
+  return extraerJSONRespuestaIA(respuesta);
+}
+
+function crearFilaResultadoIA(campo, etiqueta, valor, indice) {
+  const texto = valor === null || valor === undefined || valor === "" ? "No determinado" : String(valor);
+  const verificado = Boolean(actaIAVerificaciones[campo]);
+  return `
+    <div class="acta-ia-result-row">
+      <div class="acta-ia-result-label">${escaparHTML(etiqueta)}</div>
+      <div class="acta-ia-result-value">${escaparHTML(texto)}</div>
+      <button type="button" class="acta-ia-verify ${verificado ? "is-verified" : ""}" data-ia-verify="${escaparHTML(campo)}">
+        ${verificado ? "✓ Verificado" : "Verificar"}
+      </button>
+    </div>
+  `;
+}
+
+function renderizarResultadoActaIA() {
+  const resultado = $("actaIAResult");
+  if (!resultado) return;
+
+  if (!actaIAResultadoActual) {
+    resultado.classList.add("hidden");
+    resultado.innerHTML = "";
+    return;
+  }
+
+  const modo = actaIAResultadoActual.modo;
+  const datos = actaIAResultadoActual.datos || {};
+
+  if (modo === "redaccion") {
+    resultado.innerHTML = `
+      <div class="acta-ia-result-header">
+        <div>
+          <strong>✍️ REDACCIÓN MEJORADA</strong>
+          <span>Revisión del texto aportado por el agente</span>
+        </div>
+      </div>
+      <div class="acta-ia-redaccion-box">${escaparHTMLMultilinea(datos.hechos_mejorados || "")}</div>
+      <div class="acta-ia-warning">⚠️ Comprueba que la redacción no añada ni altere ningún hecho.</div>
+      <div class="acta-ia-actions">
+        <button type="button" class="primary-button" id="btnIAAplicarRedaccion">Aplicar redacción</button>
+        <button type="button" class="secondary-button" id="btnIARechazar">Descartar</button>
+      </div>
+    `;
+  } else {
+    resultado.innerHTML = `
+      <div class="acta-ia-result-header">
+        <div>
+          <strong>🤖 RESULTADO DEL ANÁLISIS</strong>
+          <span>Propuesta generada a partir de los hechos y la base normativa cargada</span>
+        </div>
+        <span class="acta-ia-confidence">Confianza: ${escaparHTML(datos.confianza || "no determinada")}</span>
+      </div>
+      ${crearFilaResultadoIA("infraccion", "Infracción", datos.infraccion, 0)}
+      ${crearFilaResultadoIA("articulo", "Artículo", datos.articulo, 1)}
+      ${crearFilaResultadoIA("norma", "Norma", datos.norma, 2)}
+      ${crearFilaResultadoIA("gravedad", "Gravedad", datos.gravedad, 3)}
+      ${crearFilaResultadoIA("cuantia", "Cuantía", datos.cuantia, 4)}
+      ${crearFilaResultadoIA("autoridad_sancionadora", "Autoridad sancionadora", datos.autoridad_sancionadora, 5)}
+      ${crearFilaResultadoIA("descripcion_juridica", "Descripción jurídica", datos.descripcion_juridica, 6)}
+      ${Array.isArray(datos.verificaciones) && datos.verificaciones.length ? `
+        <div class="acta-ia-checks">
+          <strong>Revisar antes de aplicar:</strong>
+          ${datos.verificaciones.map(v => `<div>• ${escaparHTML(v)}</div>`).join("")}
+        </div>` : ""}
+      <div class="acta-ia-warning">⚠️ La IA realiza una propuesta de apoyo. El agente debe verificar la calificación, competencia y cuantía antes de guardar el acta.</div>
+      <div class="acta-ia-actions">
+        <button type="button" class="primary-button" id="btnIAAplicarResultado">Aplicar al acta</button>
+        <button type="button" class="secondary-button" id="btnIARechazar">Descartar</button>
+      </div>
+    `;
+  }
+
+  resultado.classList.remove("hidden");
+  enlazarEventosResultadoActaIA();
+}
+
+function enlazarEventosResultadoActaIA() {
+  document.querySelectorAll("[data-ia-verify]").forEach((boton) => {
+    boton.addEventListener("click", () => {
+      const campo = boton.dataset.iaVerify;
+      actaIAVerificaciones[campo] = !actaIAVerificaciones[campo];
+      renderizarResultadoActaIA();
+    });
+  });
+
+  $("btnIAAplicarResultado")?.addEventListener("click", aplicarResultadoActaIA);
+  $("btnIAAplicarRedaccion")?.addEventListener("click", aplicarRedaccionActaIA);
+  $("btnIARechazar")?.addEventListener("click", () => {
+    actaIAResultadoActual = null;
+    actaIAVerificaciones = {};
+    renderizarResultadoActaIA();
+  });
+}
+
+function aplicarResultadoActaIA() {
+  const datos = actaIAResultadoActual?.datos;
+  if (!datos) return;
+
+  if ($("actaInfraccion") && datos.codigo) {
+    $("actaInfraccion").value = datos.codigo;
+  } else if ($("actaInfraccion") && datos.infraccion) {
+    $("actaInfraccion").value = datos.infraccion;
+  }
+  if ($("actaCuantia") && datos.cuantia) $("actaCuantia").value = datos.cuantia;
+  if ($("actaAutoridad") && datos.autoridad_sancionadora) $("actaAutoridad").value = datos.autoridad_sancionadora;
+  if ($("actaHechos") && datos.descripcion_juridica) $("actaHechos").value = datos.descripcion_juridica;
+
+  actualizarPreviewInfraccion();
+  mostrarToast("Propuesta de IA aplicada. Revísala antes de guardar.");
+}
+
+function aplicarRedaccionActaIA() {
+  const texto = actaIAResultadoActual?.datos?.hechos_mejorados;
+  if (!texto || !$("actaHechos")) return;
+  $("actaHechos").value = texto;
+  mostrarToast("Redacción aplicada. Revisa el texto antes de continuar.");
+  actaIAResultadoActual = null;
+  actaIAVerificaciones = {};
+  renderizarResultadoActaIA();
+}
+
+async function ejecutarAnalisisActaIA(modo) {
+  if (actaIAProcesando) return;
+  const hechos = obtenerValor("actaHechos");
+
+  if (!hechos) {
+    mostrarToast("Escribe primero los hechos.");
+    $("actaHechos")?.focus();
+    return;
+  }
+
+  actaIAProcesando = true;
+  actaIAResultadoActual = null;
+  actaIAVerificaciones = {};
+  renderizarResultadoActaIA();
+
+  const boton = modo === "redaccion" ? $("btnIARedaccion") : $("btnIAAnalizar");
+  const textoOriginal = boton?.textContent || "";
+  if (boton) {
+    boton.disabled = true;
+    boton.textContent = modo === "redaccion" ? "⏳ Mejorando redacción..." : "⏳ Analizando hechos...";
+  }
+
+  try {
+    const datos = modo === "redaccion"
+      ? await solicitarMejoraHechosIA(hechos)
+      : await solicitarAnalisisActaIA(hechos);
+
+    actaIAResultadoActual = { modo, datos };
+    renderizarResultadoActaIA();
+  } catch (error) {
+    console.error("Error IA en acta:", error);
+    mostrarToast(error?.message || "No se ha podido analizar el acta con IA.");
+  } finally {
+    actaIAProcesando = false;
+    if (boton) {
+      boton.disabled = false;
+      boton.textContent = textoOriginal;
+    }
+  }
+}
+
+function inyectarAsistenteIAEnActa() {
+  const form = $("actaForm");
+  const campoHechos = $("actaHechos");
+  if (!form || !campoHechos || $("actaIAGroup")) return;
+
+  const grupoHechos = campoHechos.closest(".form-group") || campoHechos.parentElement;
+  const contenedor = document.createElement("div");
+  contenedor.id = "actaIAGroup";
+  contenedor.className = "acta-ia-panel";
+  contenedor.innerHTML = `
+    <div class="acta-ia-panel-header">
+      <div>
+        <strong>🤖 CENTINELA IA</strong>
+        <span>Asistencia para redactar y calificar el acta</span>
+      </div>
+      <span class="acta-ia-badge">APOYO · REVISIÓN HUMANA</span>
+    </div>
+    <p class="acta-ia-help">Escribe los hechos tal y como han ocurrido. La IA utilizará la normativa cargada en la aplicación para realizar una propuesta.</p>
+    <div class="acta-ia-buttons">
+      <button type="button" class="acta-ia-primary" id="btnIAAnalizar">🤖 Analizar y autorrellenar</button>
+      <button type="button" class="acta-ia-secondary" id="btnIARedaccion">✍️ Mejorar redacción de hechos</button>
+    </div>
+    <div id="actaIAResult" class="acta-ia-result hidden"></div>
+  `;
+
+  if (grupoHechos?.parentNode) {
+    grupoHechos.parentNode.insertBefore(contenedor, grupoHechos.nextSibling);
+  } else {
+    form.appendChild(contenedor);
+  }
+
+  $("btnIAAnalizar")?.addEventListener("click", () => ejecutarAnalisisActaIA("analisis"));
+  $("btnIARedaccion")?.addEventListener("click", () => ejecutarAnalisisActaIA("redaccion"));
+}
+
+
 /* ========================================================= 
 ACTAS - NUBE, FILTROS Y PDF 
 ========================================================= */ 
@@ -1277,6 +1639,10 @@ function abrirEditorActa(acta = null) {
   if (!editor || !form) return; 
 
   inyectarCamposFotoEditor();
+  inyectarAsistenteIAEnActa();
+  actaIAResultadoActual = null;
+  actaIAVerificaciones = {};
+  renderizarResultadoActaIA();
   form.reset(); 
 
   const fecha = $("actaFecha"); 
