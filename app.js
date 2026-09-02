@@ -190,7 +190,7 @@ function inyectarBotonLogout() {
 // CONFIGURACIÓN Y ESTADO DE LA APLICACIÓN
 // ============================================================
 const CONFIG = { 
-  VERSION: "1.4.1", 
+  VERSION: "1.4.2", 
   RUTAS: { 
     infracciones: "./data/infracciones.json", 
     infraccionesTrafico: "./data/infracciones_trafico.json", 
@@ -489,34 +489,63 @@ const extraerTrafico = extraerLeyes;
 
 /* =========================================================
    NORMATIVA — PROCEDIMIENTO ADMINISTRATIVO
-   Las tres leyes se agrupan en una única carpeta visual.
-   Se admiten JSON con {articulos:[...]} o arrays directos.
+   Las tres leyes se muestran dentro de una única carpeta visual.
    ========================================================= */
-function extraerArticulosLeyProcedimiento(datos) {
-  if (Array.isArray(datos)) return datos;
-  if (datos && Array.isArray(datos.articulos)) return datos.articulos;
-  if (datos && datos.ley && Array.isArray(datos.ley.articulos)) return datos.ley.articulos;
-  return [];
-}
+function normalizarLeyAdministrativa(datos, nombrePorDefecto = "", abreviaturaPorDefecto = "") {
+  if (!datos) return null;
+  let articulos = [];
+  let ley = "";
+  let abreviatura = "";
+  let enlaceOficial = "";
+  let descripcion = "";
 
-function nombreLeyProcedimiento(datos, fallback) {
-  return datos?.ley || datos?.titulo || datos?.nombre || datos?.denominacion || fallback;
-}
+  if (Array.isArray(datos)) {
+    articulos = datos;
+  } else if (typeof datos === "object") {
+    if (Array.isArray(datos.articulos)) articulos = datos.articulos;
+    else if (Array.isArray(datos.data?.articulos)) articulos = datos.data.articulos;
+    else if (Array.isArray(datos.articles)) articulos = datos.articles;
 
-function etiquetaLeyProcedimiento(datos, fallback) {
-  return datos?.abreviatura || datos?.siglas || fallback;
+    ley = datos.ley || datos.nombre || datos.titulo || datos.denominacion || "";
+    abreviatura = datos.abreviatura || datos.siglas || "";
+    enlaceOficial = datos.enlaceOficial || datos.url || datos.boe || datos.fuente?.url || "";
+    descripcion = datos.descripcion || datos.resumen || "";
+
+    if (datos.data && typeof datos.data === "object") {
+      ley = ley || datos.data.ley || datos.data.nombre || datos.data.titulo || "";
+      abreviatura = abreviatura || datos.data.abreviatura || datos.data.siglas || "";
+      enlaceOficial = enlaceOficial || datos.data.enlaceOficial || datos.data.url || datos.data.boe || datos.data.fuente?.url || "";
+      descripcion = descripcion || datos.data.descripcion || datos.data.resumen || "";
+    }
+  }
+
+  return {
+    ...((typeof datos === "object" && !Array.isArray(datos)) ? datos : {}),
+    ley: ley || nombrePorDefecto,
+    abreviatura: abreviatura || abreviaturaPorDefecto,
+    descripcion,
+    enlaceOficial,
+    articulos: Array.isArray(articulos) ? articulos.map((articulo) => ({
+      ...articulo,
+      numero: articulo?.numero ?? articulo?.articulo ?? articulo?.num ?? articulo?.id ?? "",
+      titulo: articulo?.titulo || articulo?.epigrafe || articulo?.nombre || articulo?.concepto || "",
+      texto: articulo?.texto || articulo?.contenido || articulo?.descripcion || articulo?.body || ""
+    })) : []
+  };
 }
 
 function obtenerLeyesProcedimientoAdministrativo() {
   return [
-    { key: "ley392015", datos: estado.ley392015, fallback: "Ley 39/2015", abreviatura: "Ley 39/2015" },
-    { key: "ley71985", datos: estado.ley71985, fallback: "Ley 7/1985", abreviatura: "LRBRL" },
-    { key: "ley52010Andalucia", datos: estado.ley52010Andalucia, fallback: "Ley 5/2010 de Andalucía", abreviatura: "Ley 5/2010" }
+    { key: "ley392015", ley: estado.ley392015, nombre: "Ley 39/2015, de 1 de octubre", etiqueta: "Ley 39/2015" },
+    { key: "ley71985", ley: estado.ley71985, nombre: "Ley 7/1985, de 2 de abril", etiqueta: "Ley 7/1985" },
+    { key: "ley52010Andalucia", ley: estado.ley52010Andalucia, nombre: "Ley 5/2010, de 11 de junio, de Autonomía Local de Andalucía", etiqueta: "Ley 5/2010 Andalucía" }
   ].map((item) => ({
     ...item,
-    nombre: nombreLeyProcedimiento(item.datos, item.fallback),
-    etiqueta: etiquetaLeyProcedimiento(item.datos, item.abreviatura),
-    articulos: extraerArticulosLeyProcedimiento(item.datos)
+    datos: item.ley,
+    nombre: item.ley?.ley || item.ley?.nombre || item.ley?.titulo || item.nombre,
+    etiqueta: item.ley?.abreviatura || item.ley?.siglas || item.etiqueta,
+    articulos: Array.isArray(item.ley?.articulos) ? item.ley.articulos : [],
+    enlaceOficial: item.ley?.enlaceOficial || ""
   }));
 }
 
@@ -660,9 +689,9 @@ async function cargarDatos() {
   if (rOrdenanzas.status === "fulfilled") estado.ordenanzas = rOrdenanzas.value; 
   if (rAnimales.status === "fulfilled") estado.animales = rAnimales.value; 
   if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value; 
-  if (rLey392015.status === "fulfilled") estado.ley392015 = rLey392015.value; 
-  if (rLey71985.status === "fulfilled") estado.ley71985 = rLey71985.value; 
-  if (rLey52010Andalucia.status === "fulfilled") estado.ley52010Andalucia = rLey52010Andalucia.value; 
+  if (rLey392015.status === "fulfilled") estado.ley392015 = normalizarLeyAdministrativa(rLey392015.value, "Ley 39/2015, de 1 de octubre", "Ley 39/2015");
+  if (rLey71985.status === "fulfilled") estado.ley71985 = normalizarLeyAdministrativa(rLey71985.value, "Ley 7/1985, de 2 de abril", "Ley 7/1985");
+  if (rLey52010Andalucia.status === "fulfilled") estado.ley52010Andalucia = normalizarLeyAdministrativa(rLey52010Andalucia.value, "Ley 5/2010, de 11 de junio, de Autonomía Local de Andalucía", "Ley 5/2010 Andalucía");
 
   [rLeyFcs, rLecrim, rExtranjeria, rSeguridadPrivada, rEspectaculos, rMedioAmbiente, rReglamentoArmas, rPoliciasLocales] 
     .filter((r) => r.status === "fulfilled") 
@@ -2314,10 +2343,15 @@ function abrirProcedimientoAdministrativo() {
   if (!visor || !contenido) return;
 
   const leyes = obtenerLeyesProcedimientoAdministrativo();
+  const disponibles = leyes.filter((ley) => ley.articulos.length > 0).length;
+
   $("viewerTitle").textContent = "Procedimiento administrativo";
-  $("viewerSubtitle").textContent = "Ley 39/2015 · Ley 7/1985 · Ley 5/2010 de Andalucía";
+  $("viewerSubtitle").textContent = `Administración y régimen local · ${disponibles}/3 leyes disponibles`;
 
   contenido.innerHTML = `
+    <div class="viewer-actions">
+      <button type="button" class="normativa-open law-back-button" data-law="normativa-home">← Volver a Normativa</button>
+    </div>
     <div class="normativa-list">
       ${leyes.map((ley) => `
         <div class="normativa-card">
@@ -2327,7 +2361,7 @@ function abrirProcedimientoAdministrativo() {
             <p>${escaparHTML(ley.etiqueta)}</p>
             <span>${ley.articulos.length} ${ley.articulos.length === 1 ? "artículo" : "artículos"}</span>
           </div>
-          <button type="button" class="normativa-open" data-law="ley-procedimiento-administrativo" data-id="${escaparHTML(ley.key)}" ${ley.articulos.length ? "" : "disabled"}>${ley.articulos.length ? "Ver" : "No disponible"}</button>
+          <button type="button" class="normativa-open" data-law="ley-procedimiento-administrativo" data-id="${escaparHTML(ley.key)}" ${ley.articulos.length ? "" : "disabled"}>${ley.articulos.length ? "Ver" : "Sin artículos"}</button>
         </div>
       `).join("")}
     </div>
