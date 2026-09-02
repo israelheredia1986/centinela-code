@@ -432,3 +432,36 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
 .detail-content p strong { color: var(--white); }
 .detail-content h4 { margin: 16px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: #57aaff; }
 .valor-sancion { color: var(--green); font-weight: 800; }
+
+/* ============================================================
+   CENTINELA IA — ASISTENTE EN NUEVA ACTA
+   ============================================================ */
+.acta-ia-panel{margin:14px 0 18px;border:1px solid #1f6feb;border-radius:16px;background:linear-gradient(145deg,rgba(5,25,48,.98),rgba(3,15,29,.98));box-shadow:0 12px 32px rgba(0,0,0,.25),inset 0 0 35px rgba(31,111,235,.08);overflow:hidden}
+.acta-ia-panel-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px;border-bottom:1px solid rgba(71,183,255,.18)}
+.acta-ia-panel-header strong{display:block;font-size:16px;color:#6cc4ff;letter-spacing:.4px}
+.acta-ia-panel-header span{display:block;margin-top:4px;color:#afc5da;font-size:12px}
+.acta-ia-badge{display:inline-flex!important;align-items:center;padding:6px 9px;border:1px solid rgba(0,217,209,.45);border-radius:999px;color:#66efe9!important;background:rgba(0,217,209,.06);font-size:10px!important;font-weight:800;white-space:nowrap}
+.acta-ia-help{margin:0;padding:13px 17px 4px;color:#d8e6f4;font-size:13px;line-height:1.5}
+.acta-ia-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 17px 17px}
+.acta-ia-primary,.acta-ia-secondary{min-height:48px;padding:11px 14px;border-radius:11px;font-weight:800;font-size:13px;cursor:pointer;transition:.2s transform,.2s opacity,.2s box-shadow}
+.acta-ia-primary{border:1px solid #1597ff;background:linear-gradient(135deg,#0875e8,#0b55bd);color:#fff;box-shadow:0 8px 22px rgba(21,151,255,.2)}
+.acta-ia-secondary{border:1px solid #00d9d1;background:rgba(0,217,209,.08);color:#74f7f1}
+.acta-ia-primary:hover,.acta-ia-secondary:hover{transform:translateY(-1px)}
+.acta-ia-primary:disabled,.acta-ia-secondary:disabled{opacity:.6;cursor:wait;transform:none}
+.acta-ia-result{margin:0 17px 17px;border:1px solid rgba(71,183,255,.25);border-radius:13px;background:rgba(0,0,0,.16);overflow:hidden}
+.acta-ia-result.hidden{display:none}
+.acta-ia-result-header{display:flex;justify-content:space-between;gap:12px;padding:14px 15px;border-bottom:1px solid rgba(71,183,255,.15);background:rgba(9,39,68,.55)}
+.acta-ia-result-header strong{display:block;color:#f3f8ff;font-size:13px;letter-spacing:.4px}
+.acta-ia-result-header span{display:block;margin-top:3px;color:#9eb5ca;font-size:11px;line-height:1.35}
+.acta-ia-confidence{align-self:flex-start!important;border:1px solid rgba(255,197,28,.35);border-radius:999px;padding:5px 8px;color:#ffd84b!important;background:rgba(255,197,28,.06);font-size:10px!important;white-space:nowrap}
+.acta-ia-result-row{display:grid;grid-template-columns:145px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06)}
+.acta-ia-result-label{font-size:11px;color:#8fb0ca;text-transform:uppercase;letter-spacing:.4px;font-weight:800}
+.acta-ia-result-value{font-size:13px;color:#f4f8ff;line-height:1.4;word-break:break-word}
+.acta-ia-verify{padding:6px 8px;border:1px solid rgba(255,197,28,.35);border-radius:8px;color:#ffd84b;background:rgba(255,197,28,.05);font-size:10px;font-weight:800;white-space:nowrap}
+.acta-ia-verify.is-verified{border-color:rgba(76,255,105,.45);color:#69ff83;background:rgba(76,255,105,.05)}
+.acta-ia-warning{margin:12px;border:1px solid rgba(255,197,28,.25);border-radius:10px;padding:10px 11px;background:rgba(255,197,28,.05);color:#f8dc72;font-size:11px;line-height:1.45}
+.acta-ia-checks{margin:12px;border:1px solid rgba(71,183,255,.14);border-radius:10px;padding:10px 11px;color:#c8d9e9;font-size:11px;line-height:1.55}
+.acta-ia-actions{display:flex;gap:9px;padding:0 12px 12px;flex-wrap:wrap}
+.acta-ia-actions .primary-button,.acta-ia-actions .secondary-button{flex:1 1 170px}
+.acta-ia-redaccion-box{margin:13px;border:1px solid rgba(0,217,209,.2);border-radius:10px;padding:12px;background:rgba(0,217,209,.04);color:#eefcff;font-size:13px;line-height:1.6}
+@media (max-width:720px){.acta-ia-buttons{grid-template-columns:1fr}.acta-ia-result-row{grid-template-columns:1fr;gap:6px}.acta-ia-verify{justify-self:start}.acta-ia-panel-header{align-items:flex-start;flex-direction:column}.acta-ia-badge{white-space:normal}}
