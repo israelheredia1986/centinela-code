@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "categoria": "violencia-genero",
   "nombreCategoria": "Violencia de Género",
   "descripcion": "Normativa de referencia para la actuación policial ante casos de violencia de género y doméstica: medidas de protección integral, la orden de protección y los delitos contra la libertad sexual.",
@@ -13,47 +13,152 @@
       "entradaVigor": "29/01/2005",
       "estado": "vigente",
       "enlaceOficial": "https://www.boe.es/buscar/act.php?id=BOE-A-2004-21760",
-      "resumen": "Norma marco contra la violencia ejercida sobre la mujer por parte de quien sea o haya sido su cónyuge o esté o haya estado ligado a ella por relación de afectividad análoga, aun sin convivencia. Regula medidas de sensibilización, derechos de las víctimas, los Juzgados de Violencia sobre la Mujer y las medidas judiciales de protección.",
+      "resumen": "Norma marco contra la violencia ejercida sobre la mujer por parte de quien sea o haya sido su cónyuge o esté o haya estado ligado a ella por relación de afectividad análoga, aun sin convivencia. Regula medidas de sensibilización, derechos de las víctimas, los Juzgados de Violencia sobre la Mujer, las reformas penales específicas y las medidas judiciales de protección.",
       "articulos": [
         {
           "numero": "1",
           "titulo": "Objeto de la Ley",
-          "texto": "Define la violencia de género como manifestación de la discriminación y la desigualdad, ejercida sobre la mujer por parte de quien sea o haya sido su cónyuge o esté o haya estado ligado a ella por relación similar de afectividad, aun sin convivencia. Incluye violencia física, psicológica, agresiones a la libertad sexual, amenazas, coacciones y privación arbitraria de libertad, y establece medidas de protección integral para las víctimas y sus hijos menores o menores bajo su guarda."
+          "texto": "Tiene por objeto actuar contra la violencia que, como manifestación de la discriminación, la situación de desigualdad y las relaciones de poder de los hombres sobre las mujeres, se ejerce sobre éstas por parte de quienes sean o hayan sido sus cónyuges o de quienes estén o hayan estado ligados a ellas por relaciones similares de afectividad, aun sin convivencia. Se establecen medidas de protección integral para prevenir, sancionar y erradicar esta violencia y prestar asistencia a las mujeres, a sus hijos menores y a los menores sujetos a su tutela o guarda y custodia. La violencia de género comprende todo acto de violencia física y psicológica, incluidas las agresiones a la libertad sexual, las amenazas, las coacciones o la privación arbitraria de libertad, y también la violencia ejercida sobre familiares o allegados menores de edad con el objetivo de causar perjuicio o daño a la mujer."
+        },
+        {
+          "numero": "17",
+          "titulo": "Garantía de los derechos de las víctimas",
+          "texto": "Todas las mujeres víctimas de violencia de género tienen garantizados los derechos reconocidos en la Ley sin discriminación en el acceso. Los servicios de información y orientación, atención psicosocial inmediata, telefónica y en línea, asesoramiento jurídico 24 horas, y los servicios de acogida y asistencia social integral tienen carácter de servicios esenciales. Se garantizará el normal funcionamiento del sistema de seguimiento por medios telemáticos del cumplimiento de las medidas cautelares y penas de prohibición de aproximación."
+        },
+        {
+          "numero": "18",
+          "titulo": "Derecho a la información",
+          "texto": "Las víctimas tienen derecho a recibir plena información y asesoramiento sobre las medidas de protección y seguridad, los derechos y ayudas previstos en la Ley, y el lugar de prestación de los servicios de atención, emergencia, apoyo y recuperación integral. Se garantizará el acceso integral a esta información a mujeres con discapacidad (formatos accesibles, lengua de signos) y a quienes desconozcan el castellano o la lengua cooficial de su territorio."
+        },
+        {
+          "numero": "19",
+          "titulo": "Derecho a la atención integral",
+          "texto": "Las víctimas tienen derecho a servicios sociales de atención, emergencia, apoyo, acogida y recuperación integral, con principios de atención permanente, actuación urgente, especialización y multidisciplinariedad. Estos servicios actuarán coordinadamente con los Cuerpos de Seguridad, los Juzgados de Violencia sobre la Mujer y los servicios sanitarios. También tienen derecho a esta asistencia los menores bajo patria potestad o guarda de la víctima o que convivan en contextos de violencia de género, incluida la violencia vicaria."
         },
         {
           "numero": "23",
           "titulo": "Acreditación de las situaciones de violencia de género",
-          "texto": "Las situaciones de violencia de género que dan lugar a los derechos reconocidos en la Ley se acreditan mediante sentencia condenatoria, orden de protección o, excepcionalmente, informe del Ministerio Fiscal que indique la existencia de indicios. También puede acreditarse mediante el atestado policial cuando exista informe del Ministerio Fiscal que aprecie indicios de violencia de género."
+          "texto": "Las situaciones de violencia de género se acreditan mediante sentencia condenatoria, una orden de protección o cualquier otra resolución judicial que acuerde una medida cautelar a favor de la víctima, o por informe del Ministerio Fiscal que indique la existencia de indicios. También pueden acreditarse mediante informe de los servicios sociales o de acogida de la Administración competente, o por cualquier otro título previsto en la normativa sectorial. En el caso de víctimas menores de edad, la acreditación también puede realizarse por documentos sanitarios oficiales de comunicación a la Fiscalía o al órgano judicial."
+        },
+        {
+          "numero": "27",
+          "titulo": "Ayudas sociales",
+          "texto": "Las víctimas de violencia de género sin recursos suficientes (rentas no superiores al 75% del SMI) y con especiales dificultades para obtener empleo pueden recibir una ayuda de pago único equivalente a seis meses de subsidio por desempleo (doce meses si tienen discapacidad igual o superior al 33%), pudiendo ampliarse a 18 o 24 meses si tienen responsabilidades familiares. Estas ayudas son compatibles con las de la Ley 35/1995 de ayudas a víctimas de delitos violentos y contra la libertad sexual."
+        },
+        {
+          "numero": "31",
+          "titulo": "Fuerzas y Cuerpos de Seguridad",
+          "texto": "El Gobierno establecerá en las FCSE unidades especializadas en la prevención de la violencia de género y en el control de la ejecución de las medidas judiciales. Promoverá que las Policías Locales, en el marco de su colaboración con las FCSE, cooperen en asegurar el cumplimiento de las medidas acordadas por los órganos judiciales previstas en esta Ley, en el art. 544 bis LECrim o en el art. 57 del Código Penal. La actuación de las FCS tendrá en cuenta el Protocolo de Actuación de las Fuerzas y Cuerpos de Seguridad y de Coordinación con los Órganos Judiciales para la protección de la violencia doméstica y de género. Esta previsión es aplicable a las CCAA con cuerpos de policía propios, en los términos de la LO 2/1986."
+        },
+        {
+          "numero": "32",
+          "titulo": "Planes de colaboración",
+          "texto": "Los poderes públicos elaborarán planes de colaboración que garanticen la ordenación de actuaciones en prevención, asistencia y persecución de la violencia de género, implicando a sanidad, Justicia, FCS, servicios sociales y organismos de igualdad. Se articularán protocolos de actuación que aseguren una actuación global e integral y garanticen la actividad probatoria en los procesos. Se prestará especial atención a mujeres con mayor riesgo o dificultad de acceso: minorías, inmigrantes, exclusión social, discapacidad, mayores o ámbito rural."
+        },
+        {
+          "numero": "33",
+          "titulo": "Suspensión de penas (reforma art. 83 CP)",
+          "texto": "Si se trata de delitos relacionados con la violencia de género, el Juez o Tribunal condicionará en todo caso la suspensión de la pena al cumplimiento de las obligaciones o deberes previstos en las reglas 1.ª, 2.ª y 5.ª del apartado 1 del art. 83 del Código Penal (prohibición de acudir a determinados lugares, de aproximarse o comunicarse con la víctima, y participación en programas formativos)."
+        },
+        {
+          "numero": "34",
+          "titulo": "Comisión de delitos durante la suspensión de la pena (reforma art. 84 CP)",
+          "texto": "Si la pena suspendida es de prisión por delito relacionado con la violencia de género, el incumplimiento por el reo de las obligaciones o deberes de las reglas 1.ª, 2.ª y 5.ª del art. 83.1 CP determinará la revocación de la suspensión de la ejecución de la pena."
+        },
+        {
+          "numero": "35",
+          "titulo": "Sustitución de penas (reforma art. 88 CP)",
+          "texto": "Si el reo ha sido condenado por delito relacionado con la violencia de género, la pena de prisión sólo puede sustituirse por trabajos en beneficio de la comunidad. El Juez o Tribunal impondrá además la sujeción a programas de reeducación y tratamiento psicológico, y las obligaciones de las reglas 1.ª y 2.ª del art. 83.1 CP."
+        },
+        {
+          "numero": "36",
+          "titulo": "Protección contra las lesiones (reforma art. 148 CP)",
+          "texto": "Las lesiones del art. 147.1 CP pueden castigarse con prisión de dos a cinco años cuando: 1º se hayan usado armas u objetos peligrosos; 2º hubiere ensañamiento o alevosía; 3º la víctima fuere menor de doce años o incapaz; 4º la víctima fuere o hubiere sido esposa o mujer ligada al autor por análoga relación de afectividad, aun sin convivencia; 5º la víctima fuera persona especialmente vulnerable conviviente con el autor."
+        },
+        {
+          "numero": "37",
+          "titulo": "Protección contra los malos tratos (reforma art. 153 CP)",
+          "texto": "El que cause a otro menoscabo psíquico o lesión no constitutiva de delito, o golpee o maltrate de obra sin causar lesión, cuando la ofendida sea o haya sido esposa o mujer ligada al autor por análoga relación de afectividad aun sin convivencia, o persona especialmente vulnerable conviviente, será castigado con prisión de seis meses a un año o trabajos en beneficio de la comunidad de 31 a 80 días, y en todo caso privación de tenencia y porte de armas de uno a tres años. Si la víctima es otra persona del art. 173.2 CP, la pena es de tres meses a un año. Las penas se imponen en su mitad superior si el delito se comete en presencia de menores, con armas, en el domicilio común o de la víctima, o quebrantando una pena o medida cautelar de la misma naturaleza."
+        },
+        {
+          "numero": "38",
+          "titulo": "Protección contra las amenazas (reforma art. 171 CP)",
+          "texto": "El que de modo leve amenace a quien sea o haya sido su esposa o mujer ligada por análoga relación de afectividad aun sin convivencia, o a persona especialmente vulnerable conviviente, será castigado con prisión de seis meses a un año o trabajos en beneficio de la comunidad de 31 a 80 días, y privación de tenencia y porte de armas de uno a tres años. Si la amenaza leve se hace con armas u objetos peligrosos a otra persona del art. 173.2 CP, la pena es de tres meses a un año. Se agravan en su mitad superior si hay menores presentes, domicilio común/de la víctima, o quebrantamiento de medida cautelar."
+        },
+        {
+          "numero": "39",
+          "titulo": "Protección contra las coacciones (reforma art. 172 CP)",
+          "texto": "El que de modo leve coaccione a quien sea o haya sido su esposa o mujer ligada por análoga relación de afectividad aun sin convivencia, o a persona especialmente vulnerable conviviente, será castigado con prisión de seis meses a un año o trabajos en beneficio de la comunidad de 31 a 80 días, y privación de tenencia y porte de armas de uno a tres años. Se agrava en su mitad superior si hay menores presentes, domicilio común/de la víctima, o quebrantamiento de medida cautelar."
+        },
+        {
+          "numero": "40",
+          "titulo": "Quebrantamiento de condena o medida cautelar (reforma art. 468 CP)",
+          "texto": "Quien quebrante su condena, medida de seguridad, prisión, medida cautelar, conducción o custodia será castigado con prisión de seis meses a un año si estuviera privado de libertad, y multa de 12 a 24 meses en los demás casos. Se impondrá en todo caso prisión de seis meses a un año a quien quebrante una pena del art. 48 CP (alejamiento, prohibición de comunicación) o medida cautelar/de seguridad de la misma naturaleza, cuando el ofendido sea una de las personas del art. 173.2 CP."
+        },
+        {
+          "numero": "41",
+          "titulo": "Protección contra las vejaciones leves (reforma art. 620 CP)",
+          "texto": "Se castiga con multa de 10 a 20 días a quien amenace levemente con armas u objetos peligrosos, o a quien cause a otro amenaza, coacción, injuria o vejación injusta de carácter leve. Cuando el ofendido sea una de las personas del art. 173.2 CP, la pena es de localización permanente de cuatro a ocho días (en domicilio distinto y alejado de la víctima) o trabajos en beneficio de la comunidad de cinco a diez días, sin exigirse denuncia previa salvo para injurias."
+        },
+        {
+          "numero": "42",
+          "titulo": "Administración penitenciaria",
+          "texto": "La Administración penitenciaria realizará programas específicos para internos condenados por delitos relacionados con la violencia de género. Las Juntas de Tratamiento valorarán el seguimiento y aprovechamiento de estos programas en las progresiones de grado, permisos y libertad condicional."
+        },
+        {
+          "numero": "47",
+          "titulo": "Formación",
+          "texto": "El Gobierno, el CGPJ y las comunidades autónomas asegurarán formación específica en igualdad, no discriminación por razón de sexo y violencia de género en los cursos de formación de Jueces, Magistrados, Fiscales, Letrados de la Administración de Justicia, Fuerzas y Cuerpos de Seguridad y Médicos Forenses, incluyendo el enfoque de discapacidad de las víctimas y la violencia vicaria."
         },
         {
           "numero": "58",
-          "titulo": "Competencias en el orden penal (Juzgados de Violencia sobre la Mujer)",
-          "texto": "Los Juzgados de Violencia sobre la Mujer instruyen los procedimientos por delitos de homicidio, lesiones, contra la libertad, integridad moral, libertad e indemnidad sexual, o cualquier otro delito cometido con violencia o intimidación, cuando la víctima sea o haya sido esposa o pareja del autor, así como los delitos contra los hijos comunes o del cónyuge/pareja cuando se haya producido un acto de violencia de género."
+          "titulo": "Competencias en el orden penal (reforma art. 14 LECrim)",
+          "texto": "Establece las reglas de competencia objetiva: los Juzgados de Violencia sobre la Mujer conocerán de la instrucción de procesos por homicidio, aborto, lesiones, delitos contra la libertad, integridad moral, libertad e indemnidad sexuales o cualquier delito con violencia o intimidación cometidos contra quien sea o haya sido esposa o pareja del autor, o contra descendientes/menores bajo su guarda cuando también haya violencia de género; de la adopción de órdenes de protección; y del conocimiento y fallo de faltas de los títulos I y II del libro III CP cuando la víctima sea alguna de esas personas."
         },
         {
           "numero": "61",
           "titulo": "Disposiciones generales sobre medidas judiciales de protección",
-          "texto": "En cualquier fase del procedimiento el juez puede acordar medidas de protección o seguridad de la víctima, obligando al agresor a hacer o no hacer, medidas que serán compatibles entre sí. Deben notificarse siempre a la víctima y comunicarse a las administraciones que deban ejecutarlas."
+          "texto": "Las medidas de protección y seguridad de este capítulo son compatibles con las medidas cautelares y de aseguramiento de los procesos civiles y penales. En todos los procedimientos de violencia de género, el Juez competente debe pronunciarse, de oficio o a instancia de la víctima, los hijos, personas convivientes, el Ministerio Fiscal o la Administración, sobre la pertinencia de adoptar estas medidas cautelares, especialmente las de los arts. 64, 65 y 66, fijando plazo y régimen de cumplimiento."
         },
         {
           "numero": "62",
           "titulo": "De la orden de protección",
-          "texto": "En cualquier caso de violencia de género, la víctima podrá obtener una orden de protección que integre en una sola resolución medidas cautelares penales y civiles, en los términos de la Ley 27/2003, reguladora de la Orden de protección de las víctimas de la violencia doméstica. La orden puede solicitarse directamente en dependencias policiales, en el juzgado, la fiscalía, o servicios de asistencia a la víctima."
+          "texto": "Recibida la solicitud de orden de protección, el Juez de Violencia sobre la Mujer y, en su caso, el Juez de Guardia, actuarán conforme a lo dispuesto en el art. 544 ter de la Ley de Enjuiciamiento Criminal."
+        },
+        {
+          "numero": "63",
+          "titulo": "Protección de datos y limitaciones a la publicidad",
+          "texto": "En las actuaciones relacionadas con la violencia de género se protegerá la intimidad de las víctimas, sus datos personales y los de sus descendientes o personas bajo su guarda. Los Jueces pueden acordar de oficio o a instancia de parte que las vistas se desarrollen a puerta cerrada y que las actuaciones sean reservadas."
         },
         {
           "numero": "64",
           "titulo": "Medidas de salida del domicilio, alejamiento o suspensión de comunicaciones",
-          "texto": "El juez puede ordenar la salida obligatoria del agresor del domicilio familiar, prohibirle volver, y prohibirle aproximarse a la víctima (o a los familiares que se determine) en cualquier lugar donde se encuentre, así como acercarse a su domicilio, lugar de trabajo o cualquier otro que frecuente, fijando una distancia mínima. También puede prohibir toda comunicación con la víctima por cualquier medio."
+          "texto": "El Juez puede ordenar la salida obligatoria del inculpado del domicilio familiar y prohibirle volver; prohibirle aproximarse a la víctima en cualquier lugar donde se encuentre, así como a su domicilio, trabajo o cualquier lugar frecuentado, fijando una distancia mínima infranqueable bajo apercibimiento de responsabilidad penal; y prohibirle toda clase de comunicación con la víctima. Puede acordarse el uso de tecnología para verificar de inmediato el incumplimiento (dispositivos telemáticos). La medida de alejamiento puede acordarse aunque la víctima haya abandonado previamente el lugar. Estas medidas pueden acordarse acumulada o separadamente."
         },
         {
           "numero": "65",
-          "titulo": "Suspensión de la patria potestad o la custodia de menores",
-          "texto": "El juez puede suspender el ejercicio de la patria potestad o la custodia de menores respecto del inculpado por violencia de género."
+          "titulo": "Suspensión de la patria potestad o custodia de menores",
+          "texto": "El Juez puede suspender para el inculpado por violencia de género el ejercicio de la patria potestad, guarda y custodia, acogimiento, tutela, curatela o guarda de hecho respecto de los menores que dependan de él. Si no acuerda la suspensión, deberá pronunciarse sobre cómo se ejercerán estas funciones y adoptar medidas para garantizar la seguridad y recuperación de los menores y de la mujer, con seguimiento periódico."
+        },
+        {
+          "numero": "66",
+          "titulo": "Suspensión del régimen de visitas, estancia, relación o comunicación con los menores",
+          "texto": "El Juez ordenará la suspensión del régimen de visitas, estancia, relación o comunicación del inculpado respecto de los menores que dependan de él. Si en interés superior del menor no acuerda la suspensión, deberá pronunciarse sobre la forma de ejercicio y adoptar medidas de seguridad y seguimiento en coordinación con servicios especializados."
+        },
+        {
+          "numero": "67",
+          "titulo": "Suspensión del derecho a la tenencia, porte y uso de armas",
+          "texto": "El Juez puede acordar, respecto de los inculpados en delitos relacionados con la violencia de género, la suspensión del derecho a la tenencia, porte y uso de armas, con obligación de depositarlas conforme a la normativa vigente."
         },
         {
           "numero": "68",
-          "titulo": "Duración de las medidas de protección",
-          "texto": "Las medidas de protección y seguridad acordadas por el juez de instrucción tendrán vigencia hasta que se dicte sentencia firme o, en su caso, hasta la resolución que ponga fin al procedimiento, siempre sin perjuicio de que puedan ser mantenidas, modificadas o levantadas en el juicio de faltas o en la sentencia."
+          "titulo": "Garantías para la adopción de las medidas",
+          "texto": "Las medidas restrictivas de derechos de este capítulo deben adoptarse mediante auto motivado que aprecie su proporcionalidad y necesidad, con intervención del Ministerio Fiscal y respeto de los principios de contradicción, audiencia y defensa."
+        },
+        {
+          "numero": "69",
+          "titulo": "Mantenimiento de las medidas de protección y seguridad",
+          "texto": "Las medidas de este capítulo pueden mantenerse tras la sentencia definitiva y durante la tramitación de los recursos, debiendo constar expresamente en la sentencia."
         }
       ]
     },
@@ -66,22 +171,17 @@
       "entradaVigor": "02/08/2003",
       "estado": "vigente",
       "enlaceOficial": "https://www.boe.es/buscar/act.php?id=BOE-A-2003-15411",
-      "resumen": "Introduce el artículo 544 ter de la Ley de Enjuiciamiento Criminal, creando un procedimiento único y urgente que concentra en una sola resolución medidas cautelares penales (alejamiento, prisión, etc.) y medidas civiles (custodia, uso de vivienda, régimen de visitas), aplicable tanto a violencia doméstica como, por extensión del art. 62 de la LOVG, a violencia de género.",
+      "resumen": "Ley breve (dos artículos) que introduce el art. 544 ter en la Ley de Enjuiciamiento Criminal, creando la orden de protección: un procedimiento único y urgente que concentra en una sola resolución medidas cautelares penales (alejamiento, prisión, etc.) y medidas civiles (custodia, uso de vivienda, régimen de visitas), aplicable a violencia doméstica y, por extensión del art. 62 LOVG, a violencia de género. Es la norma clave para la actuación policial inmediata en la recepción de solicitudes de orden de protección.",
       "articulos": [
         {
-          "numero": "1",
-          "titulo": "Legitimación para solicitar la orden de protección",
-          "texto": "Puede solicitar la orden de protección la propia víctima, su cónyuge o persona ligada por análoga relación de afectividad, sus ascendientes, descendientes o hermanos (propios o del cónyuge), el Ministerio Fiscal, o cualquier entidad u organismo de asistencia a víctimas conocedor de los hechos con consentimiento de la víctima. La solicitud puede presentarse directamente ante el juzgado, el Ministerio Fiscal, las fuerzas y cuerpos de seguridad, las oficinas de atención a la víctima, o los servicios sociales, quienes deben remitirla de forma inmediata al juzgado competente."
+          "numero": "primero",
+          "titulo": "Modificación del art. 13 LECrim (primeras diligencias)",
+          "texto": "Se consideran primeras diligencias: consignar las pruebas del delito que puedan desaparecer, recoger y custodiar cuanto conduzca a su comprobación y a la identificación del delincuente, detener en su caso a los presuntos responsables, y proteger a los ofendidos o perjudicados, a sus familiares o a otras personas, pudiendo acordarse a tal efecto las medidas cautelares del art. 544 bis LECrim o la orden de protección del art. 544 ter LECrim."
         },
         {
-          "numero": "2",
-          "titulo": "Deber de información a la víctima",
-          "texto": "La autoridad o funcionario que reciba la solicitud debe informar a la víctima de la posibilidad de solicitar la orden de protección, y remitirla al juzgado competente de forma inmediata cuando exista riesgo objetivo para su integridad."
-        },
-        {
-          "numero": "3",
-          "titulo": "Tramitación urgente",
-          "texto": "Recibida la solicitud, el juez de guardia convoca una audiencia urgente a la víctima (o representante legal), al solicitante, al agresor (asistido de abogado) y al Ministerio Fiscal, resolviendo mediante auto motivado en el que se pronuncia sobre las medidas cautelares penales y civiles solicitadas. Cuando excepcionalmente no sea posible celebrar la audiencia durante el servicio de guardia, se convocará en el plazo más breve posible."
+          "numero": "segundo",
+          "titulo": "Art. 544 ter LECrim — La orden de protección",
+          "texto": "1. El juez de instrucción dictará orden de protección para las víctimas de violencia doméstica cuando existan indicios fundados de un delito o falta contra la vida, integridad física o moral, libertad sexual, libertad o seguridad de alguna de las personas del art. 153 CP, y resulte una situación objetiva de riesgo que requiera medidas de protección. 2. Se acuerda de oficio, a instancia de la víctima o persona con relación equivalente, o del Ministerio Fiscal; las entidades asistenciales que conozcan hechos deben ponerlos en conocimiento del juez de guardia o Fiscalía de inmediato. 3. Puede solicitarse directamente ante la autoridad judicial o el Ministerio Fiscal, o ante las Fuerzas y Cuerpos de Seguridad, oficinas de atención a la víctima o servicios sociales, quienes deben remitirla de forma inmediata al juez competente; en caso de dudas sobre competencia territorial, resuelve el juez ante quien se solicitó. 4. El juez de guardia convocará audiencia urgente a la víctima o representante, al solicitante, al agresor asistido de abogado, y al Ministerio Fiscal; la audiencia debe celebrarse en un plazo máximo de 72 horas desde la solicitud, adoptando medidas para evitar la confrontación entre agresor y víctima (declaración por separado). 5. La orden confiere a la víctima un estatuto integral de protección con medidas cautelares civiles y penales, y es válida ante cualquier autoridad y Administración pública. 6. Las medidas cautelares penales pueden ser cualesquiera previstas en la legislación procesal criminal, adoptadas atendiendo a la necesidad de protección integral e inmediata de la víctima. 7. Las medidas civiles (uso de la vivienda familiar, custodia, visitas, comunicación, alimentos) deben solicitarse por la víctima, su representante legal o el Ministerio Fiscal si hay menores o incapaces, y tienen vigencia de 30 días salvo que se inicie proceso de familia civil. 8. La orden se notifica a las partes y se comunica de inmediato a la víctima y a las Administraciones competentes en protección (seguridad, asistencia social, jurídica, sanitaria, psicológica). 9. Implica el deber de informar permanentemente a la víctima sobre la situación procesal del imputado y sobre las medidas cautelares, incluida su situación penitenciaria. 10. La orden se inscribe en el Registro Central para la Protección de las Víctimas de la Violencia Doméstica. 11. Si durante la tramitación de una causa penal surge una situación de riesgo, el Juez o Tribunal puede acordar la orden de protección conforme a este artículo."
         }
       ]
     },
@@ -94,22 +194,42 @@
       "entradaVigor": "07/10/2022",
       "estado": "vigente",
       "enlaceOficial": "https://www.boe.es/buscar/act.php?id=BOE-A-2022-14630",
-      "resumen": "Regula la protección integral frente a todas las formas de violencia sexual (agresión sexual, acoso, explotación, trata con fines sexuales, mutilación genital femenina, matrimonio forzado, violencia digital) y reformó el Código Penal para exigir el consentimiento expreso como eje de los delitos sexuales.",
+      "resumen": "Regula la protección integral frente a todas las formas de violencia sexual (agresión sexual, acoso, explotación, trata con fines sexuales, mutilación genital femenina, matrimonio forzado, violencia digital) y reformó el Código Penal para exigir el consentimiento expreso como eje de los delitos sexuales, eliminando la distinción entre abuso y agresión sexual. Su Título V regula específicamente la actuación de las Fuerzas y Cuerpos de Seguridad.",
       "articulos": [
         {
           "numero": "3",
-          "titulo": "Definición de violencias sexuales",
-          "texto": "Considera violencia sexual, entre otras conductas, cualquier acto que atente contra la libertad e indemnidad sexual de una persona: agresión sexual, acoso sexual, mutilación genital femenina, matrimonio forzoso, trata con fines de explotación sexual, prostitución forzada, violencia sexual facilitada digitalmente y explotación sexual."
+          "titulo": "Ámbito de aplicación / definición de violencias sexuales",
+          "texto": "Comprende cualquier acto de naturaleza sexual no consentido o que condicione el libre desarrollo de la vida sexual en cualquier ámbito público o privado, incluido el digital. Incluye a efectos estadísticos y de reparación el feminicidio sexual. Se consideran en todo caso violencias sexuales los delitos del Título VIII del Libro II del Código Penal, la mutilación genital femenina, el matrimonio forzado, el acoso con connotación sexual y la trata con fines de explotación sexual, con especial atención a la violencia sexual digital (difusión de actos, pornografía no consentida, extorsión sexual). Es aplicable a víctimas en España independientemente de su nacionalidad o situación administrativa, y a españolas en el extranjero."
         },
         {
           "numero": "4",
           "titulo": "Consentimiento",
-          "texto": "Solo se entiende que hay consentimiento cuando se ha manifestado libremente mediante actos que, en atención a las circunstancias del caso, expresen de manera clara la voluntad de la persona. La reforma del Código Penal asociada a esta ley elimina la distinción entre abuso y agresión sexual: cualquier acto sexual sin consentimiento se considera agresión sexual."
+          "texto": "Solo se entiende que hay consentimiento cuando se ha manifestado libremente mediante actos que, en atención a las circunstancias del caso, expresen de manera clara la voluntad de la persona. La reforma del Código Penal asociada elimina la distinción entre abuso y agresión sexual: cualquier acto sexual sin consentimiento se considera agresión sexual, incluyendo la sumisión química (uso de sustancias que anulan la voluntad de la víctima) como forma de comisión."
         },
         {
-          "numero": "35",
-          "titulo": "Oficinas de atención a las víctimas",
-          "texto": "Refuerza el papel de las Oficinas de Asistencia a las Víctimas del Delito y establece la obligación de información, acompañamiento y derivación de las víctimas de violencia sexual desde el primer contacto con cualquier servicio público, incluidos los cuerpos policiales."
+          "numero": "37",
+          "titulo": "Acreditación de la existencia de violencias sexuales",
+          "texto": "Las situaciones de violencia sexual se acreditan mediante sentencia condenatoria, una orden de protección o cualquier otra resolución judicial que declare la existencia de violencia sexual o acuerde una medida cautelar, o por informe del Ministerio Fiscal que indique indicios. También mediante informe de servicios sociales, servicios especializados en igualdad, servicios de acogida, Inspección de Trabajo, sentencia del orden social, o cualquier otro título previsto en normativa sectorial. En víctimas menores, también por documentos sanitarios oficiales de comunicación a Fiscalía o al órgano judicial."
+        },
+        {
+          "numero": "43",
+          "titulo": "Actuación policial especializada",
+          "texto": "1. Las unidades de las FCSE especializadas en violencia de género, así como policías autonómicas y locales que asuman estas competencias, ampliarán su trabajo a las violencias sexuales, desarrollando protocolos de intervención y asistencia a víctimas en colaboración con centros especializados en igualdad y violencia sexual y de género. 2. Se adaptarán las herramientas y protocolos policiales para la recogida de información, coordinación, valoración del riesgo, prevención, atención, seguimiento y protección de las víctimas; para menores se aplica el art. 50 LO 8/2021. 3. Las víctimas tienen derecho a ser atendidas por personal formado en género y violencias sexuales, evitando victimización secundaria y duplicación de intervenciones; en menores, la atención e investigación corresponde a unidades especializadas en violencia contra la infancia. 4. Las FCSE deben coordinarse y colaborar con los cuerpos de policía autonómicos. 5. El Ministerio del Interior promoverá estudios y estadísticas sobre la magnitud de la violencia sexual."
+        },
+        {
+          "numero": "44",
+          "titulo": "Investigación policial",
+          "texto": "Las administraciones competentes arbitrarán todos los medios disponibles, incluidas las técnicas más avanzadas, para garantizar la eficacia de las investigaciones de las FCS que verifiquen y acrediten hechos de violencia sexual, preservando siempre la integridad e intimidad de las víctimas. Las distintas FCS que actúen en un mismo territorio colaborarán entre sí conforme a la LO 2/1986. Se potenciará el desarrollo de herramientas tecnológicas interoperables que faciliten la investigación de los delitos."
+        },
+        {
+          "numero": "45",
+          "titulo": "Protección efectiva de las víctimas en riesgo",
+          "texto": "Las FCS y policías autonómicas y locales competentes desplegarán medidas de evaluación del riesgo y de protección orientadas a garantizar la no repetición de la violencia y a brindar protección efectiva ante represalias o amenazas, pudiendo mantenerse en casos de sobreseimiento provisional si se valora necesario. A través de unidades especializadas, se vigilará y controlará el cumplimiento exacto de las medidas judiciales de protección, incluyendo la vigilancia de investigados o condenados y el control de localización mediante dispositivos telemáticos cuando así se acuerde judicialmente."
+        },
+        {
+          "numero": "46",
+          "titulo": "Colaboración policial",
+          "texto": "El Gobierno, mediante acuerdos con comunidades autónomas y Entidades Locales, promoverá la formación y colaboración de las policías autonómicas y locales para mejorar la respuesta policial ante las distintas formas de violencia sexual, especialmente en la primera atención y protección de víctimas en riesgo, revisando y actualizando los acuerdos y protocolos de colaboración entre los distintos Cuerpos y Fuerzas de Seguridad."
         }
       ]
     }
