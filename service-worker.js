@@ -1,4 +1,4 @@
-const CACHE_NAME = "centinela-code-v7";
+const CACHE_NAME = "centinela-code-v8";
 
 const ARCHIVOS = [
  "./",
@@ -29,21 +29,36 @@ const ARCHIVOS = [
  "./data/ley_5_2010_andalucia.json"
 ];
 
+async function prepararHtml(response) {
+  if (!response || !response.ok) return response;
+  try {
+    const html = await response.text();
+    if (html.includes("buscadores.js")) {
+      return new Response(html, {status: response.status, statusText: response.statusText, headers: response.headers});
+    }
+    const inyeccion = '<script defer src="./buscadores.js?v=20260903-buscadores"></script>';
+    const modificado = html.includes("</body>")
+      ? html.replace("</body>", `${inyeccion}</body>`)
+      : `${html}${inyeccion}`;
+    const headers = new Headers(response.headers);
+    headers.set("Content-Type", "text/html; charset=utf-8");
+    return new Response(modificado, {status: response.status, statusText: response.statusText, headers});
+  } catch (_) {
+    return response;
+  }
+}
+
 self.addEventListener("install", event => {
-  console.log("Centinela SW instalado v7");
+  console.log("Centinela SW instalado v8");
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ARCHIVOS))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ARCHIVOS)));
 });
 
 self.addEventListener("activate", event => {
-  console.log("Centinela SW activo v7");
+  console.log("Centinela SW activo v8");
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      ))
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -52,16 +67,24 @@ self.addEventListener("fetch", event => {
   const request = event.request;
   if (request.method !== "GET") return;
 
-  event.respondWith(
-    fetch(request)
-      .then(response => {
-        const url = new URL(request.url);
-        if (url.origin === self.location.origin) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, copy)).catch(() => {});
-        }
-        return response;
-      })
-      .catch(() => caches.match(request))
-  );
+  event.respondWith((async () => {
+    const url = new URL(request.url);
+    const esInicio = url.origin === self.location.origin &&
+      (request.mode === "navigate" || url.pathname.endsWith("/index.html"));
+
+    try {
+      let response = await fetch(request);
+      if (esInicio) response = await prepararHtml(response);
+
+      if (url.origin === self.location.origin) {
+        caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone())).catch(() => {});
+      }
+      return response;
+    } catch (_) {
+      let cached = await caches.match(request);
+      if (!cached && esInicio) cached = await caches.match("./index.html");
+      if (esInicio && cached) cached = await prepararHtml(cached);
+      return cached || new Response("Sin conexión", {status: 503});
+    }
+  })());
 });
