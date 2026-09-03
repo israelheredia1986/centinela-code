@@ -17,39 +17,15 @@
 <link href="icon-180.png" rel="apple-touch-icon"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="style.css?v=20260903-matriculas" rel="stylesheet"/>
-<!-- Librería para generación de PDF de actas -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-<!-- =====================================================
-CABECERA
-====================================================== -->
 <header class="app-header">
-<div class="header-brand">
-<div aria-hidden="true" class="brand-icon">
-🛡️
-</div>
-<div class="brand-text">
-<h1>Centinela Code</h1>
-<span>
-Consulta normativa policial
-</span>
-</div>
-</div>
-<button aria-label="Buscar" class="header-action" id="headerSearchButton" title="Buscar" type="button">
-🔎
-</button>
-<button aria-label="Ajustes" class="header-action" id="headerAjustesButton" title="Ajustes" type="button">
-⚙️
-</button>
+<div class="header-brand"><div aria-hidden="true" class="brand-icon">🛡️</div><div class="brand-text"><h1>Centinela Code</h1><span>Consulta normativa policial</span></div></div>
+<button aria-label="Buscar" class="header-action" id="headerSearchButton" title="Buscar" type="button">🔎</button>
+<button aria-label="Ajustes" class="header-action" id="headerAjustesButton" title="Ajustes" type="button">⚙️</button>
 </header>
-<!-- =====================================================
-CONTENIDO PRINCIPAL
-====================================================== -->
 <main class="main-content">
-<!-- =================================================
-PANTALLA INICIO
-================================================== -->
 <section class="app-section active" data-section="home" id="section-home">
 <div class="hero-grid"><div class="brand-hero"><div aria-hidden="true" class="brand-hero-icon"></div><div class="brand-hero-text"><h2 class="brand-hero-title">Centinela <span>Code</span></h2><p class="brand-hero-tagline">Police &amp; Normative App</p><span class="status-pill"><span class="status-dot"></span>Sistema operativo</span></div></div>
 <button aria-label="Ver y editar datos del agente en Ajustes" class="agent-card" id="agentCard" type="button"><span class="agent-card-label"><span class="ui-person">●</span> Agente activo <span class="connection-pill"><i></i> Conectado</span></span><strong class="agent-card-name" id="agentName">Agente sin configurar</strong><span class="agent-card-id" id="agentId">Configura tu identificador en Ajustes</span><span class="agent-card-badge">✦ Policía Local</span><span aria-hidden="true" class="agent-card-police"></span></button></div>
@@ -64,629 +40,61 @@ PANTALLA INICIO
 <div class="status-row"><span><b class="status-symbol green">▤</b><span><strong>Ordenanzas Municipales</strong><small>Comprobando datos disponibles</small></span></span><strong class="status-value" id="homeOrdenanzasStatus">Cargando...</strong></div>
 <div class="status-row"><span><b class="status-symbol blue">⌁</b><span><strong>Modo Offline</strong><small>Aplicación disponible sin conexión</small></span></span><strong class="status-value" id="homeNetworkStatus">Comprobando...</strong></div>
 <div id="homeSyncStatus"></div></div>
-<div class="matriculas-card home-panel" id="matriculasHomeCard">
-  <div class="panel-title"><span class="panel-title-icon">🚗</span> Matrículas</div>
-  <p class="matriculas-card-desc">Consulta la información disponible de un vehículo a partir de su matrícula.</p>
-  <button class="matriculas-card-btn" data-target="matriculas" id="matriculasHomeCardBtn" type="button">
-    <span>Abrir Matrículas</span>
-    <span class="matriculas-card-btn-arrow">→</span>
-  </button>
-</div></div>
+<div class="matriculas-card home-panel" id="matriculasHomeCard"><div class="panel-title"><span class="panel-title-icon">🚗</span> Matrículas</div><p class="matriculas-card-desc">Consulta la información disponible de un vehículo a partir de su matrícula.</p><button class="matriculas-card-btn" data-target="matriculas" id="matriculasHomeCardBtn" type="button"><span>Abrir Matrículas</span><span class="matriculas-card-btn-arrow">→</span></button></div></div>
 <div class="home-bottom-grid"><div class="home-panel latest-panel" style="grid-column: 1 / -1;"><div class="panel-title"><span class="panel-title-icon">▤</span> Últimas actas</div><div class="home-actas-list" id="homeActasList"><div class="home-acta-empty">No hay actas guardadas todavía.</div></div></div></div>
 </section>
-<!-- =================================================
-CONSULTA
-================================================== -->
 <section class="app-section" data-section="consulta" id="section-consulta">
-<div class="page-title">
-<div>
-<h2>
-Consulta
-</h2>
-<p>
-Busca rápidamente una infracción,
-artículo o conducta.
-</p>
-</div>
-</div>
-<div class="search-box">
-<span aria-hidden="true" class="search-icon">
-🔎
-</span>
-<input aria-label="Buscar infracciones" autocomplete="off" id="consultaSearch" placeholder="Buscar por código, artículo, palabra..." type="search"/>
-<button aria-label="Borrar búsqueda" class="clear-search" id="clearConsultaSearch" title="Borrar" type="button">
-×
-</button>
-</div>
-<div class="filters">
-<button class="filter-chip active" data-severity="all" type="button">
-Todas
-</button>
-<button class="filter-chip" data-severity="Leve" type="button">
-Leves
-</button>
-<button class="filter-chip" data-severity="Grave" type="button">
-Graves
-</button>
-<button class="filter-chip" data-severity="Muy Grave" type="button">
-Muy graves
-</button>
-</div>
-<div class="results-header">
-<span>
-Resultados
-</span>
-<strong id="consultaResultCount">
-0
-</strong>
-</div>
-<div class="results-list" id="consultaResults">
-<div class="empty-state">
-<div class="empty-icon">
-🔎
-</div>
-<h3>
-Buscar infracción
-</h3>
-<p>
-Introduce un código, artículo o
-palabra clave para comenzar.
-</p>
-</div>
-</div>
+<div class="page-title"><div><h2>Consulta</h2><p>Busca rápidamente una infracción,<br/>artículo o conducta.</p></div></div>
+<div class="search-box"><span aria-hidden="true" class="search-icon">🔎</span><input aria-label="Buscar infracciones" autocomplete="off" id="consultaSearch" placeholder="Buscar por código, artículo, palabra..." type="search"/><button aria-label="Borrar búsqueda" class="clear-search" id="clearConsultaSearch" title="Borrar" type="button">×</button></div>
+<div class="filters"><button class="filter-chip active" data-severity="all" type="button">Todas</button><button class="filter-chip" data-severity="Leve" type="button">Leves</button><button class="filter-chip" data-severity="Grave" type="button">Graves</button><button class="filter-chip" data-severity="Muy Grave" type="button">Muy graves</button></div>
+<div class="results-header"><span>Resultados</span><strong id="consultaResultCount">0</strong></div>
+<div class="results-list" id="consultaResults"><div class="empty-state"><div class="empty-icon">🔎</div><h3>Buscar infracción</h3><p>Introduce un código, artículo o<br/>palabra clave para comenzar.</p></div></div>
 </section>
-<!-- =================================================
-ACTAS
-================================================== -->
 <section class="app-section" data-section="actas" id="section-actas">
-<div class="page-title">
-<div>
-<h2>
-Actas
-</h2>
-<p>
-Redacción, filtrado y gestión de actas.
-</p>
-</div>
-<button class="primary-button" id="newActaButton" type="button">
-+ Nueva
-</button>
-</div>
-
-<!-- Filtros por Fecha -->
-<div class="actas-filter-bar" style="display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-  <div style="flex: 1;">
-    <label for="filtroFechaDesde" style="font-size: 0.8rem; display: block; color: #94a3b8;">Desde:</label>
-    <input id="filtroFechaDesde" type="date" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: #fff;"/>
-  </div>
-  <div style="flex: 1;">
-    <label for="filtroFechaHasta" style="font-size: 0.8rem; display: block; color: #94a3b8;">Hasta:</label>
-    <input id="filtroFechaHasta" type="date" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: #fff;"/>
-  </div>
-  <button id="btnLimpiarFiltroFechas" style="padding: 8px 12px; margin-top: 15px; border-radius: 4px; background: #334155; color: #fff; border: none; cursor: pointer;" type="button">Limpiar</button>
-</div>
-
-<div class="acta-editor hidden" id="actaEditor">
-<div class="card-header">
-<h3>
-Nueva acta
-</h3>
-<button aria-label="Cerrar" class="icon-button" id="closeActaEditor" type="button">
-×
-</button>
-</div>
+<div class="page-title"><div><h2>Actas</h2><p>Redacción, filtrado y gestión de actas.</p></div><button class="primary-button" id="newActaButton" type="button">+ Nueva</button></div>
+<div class="actas-filter-bar" style="display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 15px;"><div style="flex: 1;"><label for="filtroFechaDesde" style="font-size: 0.8rem; display: block; color: #94a3b8;">Desde:</label><input id="filtroFechaDesde" type="date" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: #fff;"/></div><div style="flex: 1;"><label for="filtroFechaHasta" style="font-size: 0.8rem; display: block; color: #94a3b8;">Hasta:</label><input id="filtroFechaHasta" type="date" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: #fff;"/></div><button id="btnLimpiarFiltroFechas" style="padding: 8px 12px; margin-top: 15px; border-radius: 4px; background: #334155; color: #fff; border: none; cursor: pointer;" type="button">Limpiar</button></div>
+<div class="acta-editor hidden" id="actaEditor"><div class="card-header"><h3>Nueva acta</h3><button aria-label="Cerrar" class="icon-button" id="closeActaEditor" type="button">×</button></div>
 <form id="actaForm">
-<div class="form-section">
-<h4>
-Datos del acta
-</h4>
-<div class="form-group">
-<label for="actaNumero">
-Número de acta
-</label>
-<input id="actaNumero" name="numero" placeholder="Número de acta" type="text"/>
-</div>
-<div class="form-group">
-<label for="actaFecha">
-Fecha
-</label>
-<input id="actaFecha" name="fecha" type="date"/>
-</div>
-<div class="form-group">
-<label for="actaHora">
-Hora
-</label>
-<input id="actaHora" name="hora" type="time"/>
-</div>
-</div>
-<div class="form-section">
-<h4>
-Persona denunciada
-</h4>
-<div class="form-group">
-<label for="actaNombre">
-Nombre y apellidos
-</label>
-<input autocomplete="off" id="actaNombre" name="nombre" type="text"/>
-</div>
-<div class="form-group">
-<label for="actaDni">
-DNI / NIE
-</label>
-<input autocomplete="off" id="actaDni" name="dni" type="text"/>
-</div>
-<div class="form-group">
-<label for="actaDomicilio">
-Domicilio
-</label>
-<input id="actaDomicilio" name="domicilio" type="text"/>
-</div>
-</div>
-<div class="form-section">
-<h4>
-Hechos
-</h4>
-<div class="form-group">
-<label for="actaLugar">
-Lugar
-</label>
-<div class="input-with-button">
-<input id="actaLugar" name="lugar" type="text"/>
-<button aria-label="Usar mi ubicación actual" class="input-action-button" id="btnUbicacionActa" title="Usar mi ubicación actual" type="button">
-📍
-</button>
-</div>
-</div>
-<div class="form-group">
-<label for="actaHechos">
-Descripción de los hechos
-</label>
-<div class="input-with-button input-with-button--textarea">
-<textarea id="actaHechos" name="hechos" placeholder="Describa los hechos observados..." rows="7"></textarea>
-<button aria-label="Dictar por voz" class="input-action-button" data-target="actaHechos" id="btnDictadoHechos" title="Dictar por voz" type="button">
-🎤
-</button>
-</div>
-</div>
-</div>
-<div class="form-section">
-<h4>
-Infracción y Propuesta de Sanción
-</h4>
-<div class="form-group">
-<label for="actaInfraccion">
-Código / artículo
-</label>
-<input autocomplete="off" id="actaInfraccion" name="infraccion" placeholder="Ej.: 36.16" type="text"/>
-</div>
-<div class="infraccion-preview hidden" id="actaInfraccionPreview">
-</div>
-<div class="form-group">
-<label for="actaCuantia">
-Cuantía propuesta (€)
-</label>
-<input autocomplete="off" id="actaCuantia" name="cuantia" placeholder="Ej. 100 € a 600 € / 601 € a 30.000 €" type="text"/>
-</div>
-<div class="form-group">
-<label for="actaAutoridad">
-Autoridad sancionadora competente
-</label>
-<input autocomplete="off" id="actaAutoridad" name="autoridad" placeholder="Ej. Subdelegación del Gobierno / Alcaldía" type="text"/>
-</div>
-</div>
-<div class="form-section">
-<h4>
-Observaciones
-</h4>
-<div class="form-group">
-<div class="input-with-button input-with-button--textarea">
-<textarea id="actaObservaciones" name="observaciones" placeholder="Observaciones adicionales..." rows="5"></textarea>
-<button aria-label="Dictar por voz" class="input-action-button" data-target="actaObservaciones" id="btnDictadoObservaciones" title="Dictar por voz" type="button">
-🎤
-</button>
-</div>
-</div>
-</div>
-<div class="form-actions">
-<button class="secondary-button" id="cancelActaButton" type="button">
-Cancelar
-</button>
-<button class="primary-button" type="submit">
-Guardar acta
-</button>
-</div>
-</form>
-</div>
-<div class="actas-list" id="actasList">
-<div class="empty-state">
-<div class="empty-icon">
-📝
-</div>
-<h3>
-No hay actas guardadas
-</h3>
-<p>
-Pulsa «Nueva» para comenzar un acta.
-</p>
-</div>
-</div>
+<div class="form-section"><h4>Datos del acta</h4><div class="form-group"><label for="actaNumero">Número de acta</label><input id="actaNumero" name="numero" placeholder="Número de acta" type="text"/></div><div class="form-group"><label for="actaFecha">Fecha</label><input id="actaFecha" name="fecha" type="date"/></div><div class="form-group"><label for="actaHora">Hora</label><input id="actaHora" name="hora" type="time"/></div></div>
+<div class="form-section"><h4>Persona denunciada</h4><div class="form-group"><label for="actaNombre">Nombre y apellidos</label><input autocomplete="off" id="actaNombre" name="nombre" type="text"/></div><div class="form-group"><label for="actaDni">DNI / NIE</label><input autocomplete="off" id="actaDni" name="dni" type="text"/></div><div class="form-group"><label for="actaDomicilio">Domicilio</label><input id="actaDomicilio" name="domicilio" type="text"/></div></div>
+<div class="form-section"><h4>Hechos</h4><div class="form-group"><label for="actaLugar">Lugar</label><div class="input-with-button"><input id="actaLugar" name="lugar" type="text"/><button aria-label="Usar mi ubicación actual" class="input-action-button" id="btnUbicacionActa" title="Usar mi ubicación actual" type="button">📍</button></div></div><div class="form-group"><label for="actaHechos">Descripción de los hechos</label><div class="input-with-button input-with-button--textarea"><textarea id="actaHechos" name="hechos" placeholder="Describa los hechos observados..." rows="7"></textarea><button aria-label="Dictar por voz" class="input-action-button" data-target="actaHechos" id="btnDictadoHechos" title="Dictar por voz" type="button">🎤</button></div></div></div>
+<div class="form-section"><h4>Infracción y Propuesta de Sanción</h4><div class="form-group"><label for="actaInfraccion">Código / artículo</label><input autocomplete="off" id="actaInfraccion" name="infraccion" placeholder="Ej.: 36.16" type="text"/></div><div class="infraccion-preview hidden" id="actaInfraccionPreview"></div><div class="form-group"><label for="actaCuantia">Cuantía propuesta (€)</label><input autocomplete="off" id="actaCuantia" name="cuantia" placeholder="Ej. 100 € a 600 € / 601 € a 30.000 €" type="text"/></div><div class="form-group"><label for="actaAutoridad">Autoridad sancionadora competente</label><input autocomplete="off" id="actaAutoridad" name="autoridad" placeholder="Ej. Subdelegación del Gobierno / Alcaldía" type="text"/></div></div>
+<div class="form-section"><h4>Observaciones</h4><div class="form-group"><div class="input-with-button input-with-button--textarea"><textarea id="actaObservaciones" name="observaciones" placeholder="Observaciones adicionales..." rows="5"></textarea><button aria-label="Dictar por voz" class="input-action-button" data-target="actaObservaciones" id="btnDictadoObservaciones" title="Dictar por voz" type="button">🎤</button></div></div></div>
+<div class="form-actions"><button class="secondary-button" id="cancelActaButton" type="button">Cancelar</button><button class="primary-button" type="submit">Guardar acta</button></div>
+</form></div>
+<div class="actas-list" id="actasList"><div class="empty-state"><div class="empty-icon">📝</div><h3>No hay actas guardadas</h3><p>Pulsa «Nueva» para comenzar un acta.</p></div></div>
 </section>
-<!-- =================================================
-NORMATIVA
-================================================== -->
 <section class="app-section" data-section="normativa" id="section-normativa">
-<div class="page-title">
-<div>
-<h2>
-Normativa
-</h2>
-<p>
-Consulta la legislación disponible
-en la aplicación.
-</p>
-</div>
-</div>
-<div class="search-box">
-<span aria-hidden="true" class="search-icon">
-🔎
-</span>
-<input aria-label="Buscar normativa" autocomplete="off" id="normativaSearch" placeholder="Buscar artículo o texto..." type="search"/>
-<button aria-label="Borrar búsqueda" class="clear-search" id="clearNormativaSearch" type="button">
-×
-</button>
-</div>
-<div class="normativa-list" id="normativaList">
-<div class="normativa-card">
-<div class="normativa-icon">
-⚖️
-</div>
-<div class="normativa-info">
-<h3>
-Cargando normativa…
-</h3>
-<p>
-Un momento, por favor.
-</p>
-</div>
-</div>
-</div>
-<div class="normativa-viewer hidden" id="normativaViewer">
-<div class="viewer-header">
-<button aria-label="Cerrar normativa" class="icon-button" id="closeNormativaViewer" type="button">
-←
-</button>
-<div>
-<h3 id="viewerTitle">
-Normativa
-</h3>
-<span id="viewerSubtitle">
-</span>
-</div>
-</div>
-<div class="viewer-content" id="viewerContent">
-</div>
-</div>
+<div class="page-title"><div><h2>Normativa</h2><p>Consulta la legislación disponible<br/>en la aplicación.</p></div></div>
+<div class="search-box"><span aria-hidden="true" class="search-icon">🔎</span><input aria-label="Buscar normativa" autocomplete="off" id="normativaSearch" placeholder="Buscar artículo o texto..." type="search"/><button aria-label="Borrar búsqueda" class="clear-search" id="clearNormativaSearch" type="button">×</button></div>
+<div class="normativa-list" id="normativaList"><div class="normativa-card"><div class="normativa-icon">⚖️</div><div class="normativa-info"><h3>Cargando normativa…</h3><p>Un momento, por favor.</p></div></div></div>
+<div class="normativa-viewer hidden" id="normativaViewer"><div class="viewer-header"><button aria-label="Cerrar normativa" class="icon-button" id="closeNormativaViewer" type="button">←</button><div><h3 id="viewerTitle">Normativa</h3><span id="viewerSubtitle"></span></div></div><div class="viewer-content" id="viewerContent"></div></div>
 </section>
-<!-- =================================================
-MATRÍCULAS
-================================================== -->
 <section class="app-section" data-section="matriculas" id="section-matriculas">
-<div class="page-title">
-<div>
-<h2>Matrículas</h2>
-<p>Consulta la información disponible de un vehículo por su matrícula.</p>
-</div>
-</div>
-
-<div class="matriculas-input-card">
-<button class="matriculas-scan-btn" disabled="" id="matriculasScanBtn" title="Próximamente: escaneo con cámara" type="button">
-📷 Escanear matrícula <span class="matriculas-soon">(próximamente)</span>
-</button>
-<div class="matriculas-divider"><span>o introduce la matrícula</span></div>
-<div class="matriculas-manual-row">
-<input aria-label="Matrícula" autocomplete="off" id="matriculaInput" maxlength="8" placeholder="Ej: 1234 BCD" type="text"/>
-<button id="matriculaBuscarBtn" type="button">Buscar</button>
-</div>
-<div class="matriculas-error hidden" id="matriculaError"></div>
-</div>
-
-<div class="matriculas-result hidden" id="matriculasResult">
-<div class="matriculas-result-header">
-<span class="matriculas-result-plate" id="matriculasResultPlate"></span>
-</div>
-
-<div class="matriculas-field">
-<span class="matriculas-field-label">Distintivo ambiental</span>
-<span class="matriculas-field-value" id="matriculasDistintivo">—</span>
-<span class="matriculas-field-source" id="matriculasDistintivoFuente"></span>
-</div>
-
-<div class="matriculas-field matriculas-field--editable">
-<span class="matriculas-field-label">Marca / modelo</span>
-<input id="matriculaMarcaModelo" placeholder="Introduce marca y modelo (dato no disponible por matrícula)" type="text"/>
-</div>
-
-<div class="matriculas-field matriculas-field--editable">
-<span class="matriculas-field-label">Combustible</span>
-<input id="matriculaCombustible" placeholder="Ej: Diésel, Gasolina, Eléctrico..." type="text"/>
-</div>
-
-<div class="matriculas-field">
-<span class="matriculas-field-label">ZBE — reglas por distintivo</span>
-<span class="matriculas-field-value" id="matriculasZbe">—</span>
-</div>
-
-<div class="matriculas-field">
-<span class="matriculas-field-label">ITV</span>
-<span class="matriculas-field-value">Sin estimación automática todavía. <a href="https://sede.dgt.gob.es" rel="noopener" target="_blank">Consultar en miDGT</a></span>
-</div>
-
-<p class="matriculas-disclaimer">Los datos marcados como "estimación" o "sin verificar" no sustituyen a una comprobación oficial. Fuentes: DGT (datos abiertos) y entrada manual.</p>
-
-<button class="primary-button" id="matriculaCrearActaBtn" type="button">📝 Crear acta con estos datos</button>
-</div>
+<div class="page-title"><div><h2>Matrículas</h2><p>Consulta la información disponible de un vehículo por su matrícula.</p></div></div>
+<div class="matriculas-input-card"><button class="matriculas-scan-btn" disabled="" id="matriculasScanBtn" title="Próximamente: escaneo con cámara" type="button">📷 Escanear matrícula <span class="matriculas-soon">(próximamente)</span></button><div class="matriculas-divider"><span>o introduce la matrícula</span></div><div class="matriculas-manual-row"><input aria-label="Matrícula" autocomplete="off" id="matriculaInput" maxlength="8" placeholder="Ej: 1234 BCD" type="text"/><button id="matriculaBuscarBtn" type="button">Buscar</button></div><div class="matriculas-error hidden" id="matriculaError"></div></div>
+<div class="matriculas-result hidden" id="matriculasResult"><div class="matriculas-result-header"><span class="matriculas-result-plate" id="matriculasResultPlate"></span></div><div class="matriculas-field"><span class="matriculas-field-label">Distintivo ambiental</span><span class="matriculas-field-value" id="matriculasDistintivo">—</span><span class="matriculas-field-source" id="matriculasDistintivoFuente"></span></div><div class="matriculas-field matriculas-field--editable"><span class="matriculas-field-label">Marca / modelo</span><input id="matriculaMarcaModelo" placeholder="Introduce marca y modelo (dato no disponible por matrícula)" type="text"/></div><div class="matriculas-field matriculas-field--editable"><span class="matriculas-field-label">Combustible</span><input id="matriculaCombustible" placeholder="Ej: Diésel, Gasolina, Eléctrico..." type="text"/></div><div class="matriculas-field"><span class="matriculas-field-label">ZBE — reglas por distintivo</span><span class="matriculas-field-value" id="matriculasZbe">—</span></div><div class="matriculas-field"><span class="matriculas-field-label">ITV</span><span class="matriculas-field-value">Sin estimación automática todavía. <a href="https://sede.dgt.gob.es" rel="noopener" target="_blank">Consultar en miDGT</a></span></div><p class="matriculas-disclaimer">Los datos marcados como "estimación" o "sin verificar" no sustituyen a una comprobación oficial. Fuentes: DGT (datos abiertos) y entrada manual.</p><button class="primary-button" id="matriculaCrearActaBtn" type="button">📝 Crear acta con estos datos</button></div>
 </section>
-<!-- =================================================
-ASISTENTE IA POLICIAL
-================================================== -->
 <section class="app-section" data-section="ia" id="section-ia">
-<div class="page-title">
-<div>
-<h2>Asistente IA</h2>
-<p>Consultas operativas, encuadre legal y redacción.</p>
-</div>
-</div>
-<div class="chat-container" style="display: flex; flex-direction: column; height: 60vh; background: #1e293b; border-radius: 12px; padding: 15px; border: 1px solid #334155;">
-<div id="chatMessages" style="flex: 1; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px;">
-<div class="chat-bubble ai" style="background: #334155; padding: 12px; border-radius: 8px; color: #f8fafc; max-width: 85%; font-size: 0.95rem;">
-🤖 <strong>Centinela AI:</strong> Saludos, Agente. Indícame los hechos o la duda normativa y te ayudaré a calificar la infracción o redactar la diligencia.
-</div>
-</div>
-<div class="chat-input-bar" style="display: flex; gap: 8px;">
-<input id="chatInput" placeholder="Ej: Negativa a identificarse en vía pública..." style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff;" type="text"/>
-<button class="primary-button" id="btnSendChat" type="button">Enviar</button>
-</div>
-</div>
+<div class="page-title"><div><h2>Asistente IA</h2><p>Consultas operativas, encuadre legal y redacción.</p></div></div>
+<div class="chat-container" style="display: flex; flex-direction: column; height: 60vh; background: #1e293b; border-radius: 12px; padding: 15px; border: 1px solid #334155;"><div id="chatMessages" style="flex: 1; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px;"><div class="chat-bubble ai" style="background: #334155; padding: 12px; border-radius: 8px; color: #f8fafc; max-width: 85%; font-size: 0.95rem;">🤖 <strong>Centinela AI:</strong> Saludos, Agente. Indícame los hechos o la duda normativa y te ayudaré a calificar la infracción o redactar la diligencia.</div></div><div class="chat-input-bar" style="display: flex; gap: 8px;"><input id="chatInput" placeholder="Ej: Negativa a identificarse en vía pública..." style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff;" type="text"/><button class="primary-button" id="btnSendChat" type="button">Enviar</button></div></div>
 </section>
-<!-- =================================================
-AJUSTES
-================================================== -->
 <section class="app-section" data-section="ajustes" id="section-ajustes">
-<div class="page-title">
-<div>
-<h2>
-Ajustes
-</h2>
-<p>
-Configuración de Centinela Code.
-</p>
-</div>
-</div>
-<div class="settings-card">
-<div class="settings-card-header">
-<span class="settings-icon">
-🛡️
-</span>
-<div>
-<h3>
-Centinela Code
-</h3>
-<p>
-Aplicación de consulta normativa
-</p>
-</div>
-</div>
-<div class="settings-row">
-<span>
-Versión
-</span>
-<strong id="appVersion">
-1.0.0
-</strong>
-</div>
-<div class="settings-row">
-<span>
-Estado
-</span>
-<strong class="status-value" id="appStatus">
-Operativa
-</strong>
-</div>
-<div class="settings-row">
-<span>
-Modo
-</span>
-<strong id="appMode">
-Offline / Online
-</strong>
-</div>
-</div>
-<div class="settings-card">
-<div class="settings-card-title">
-Agente
-</div>
-<div class="settings-form">
-<div class="form-group">
-<label for="agentNameInput">
-Nombre del agente
-</label>
-<input autocomplete="off" id="agentNameInput" placeholder="Ej. J. García" type="text"/>
-</div>
-<div class="form-group">
-<label for="agentIdInput">
-Identificador / TIP
-</label>
-<input autocomplete="off" id="agentIdInput" placeholder="Ej. 1234PL" type="text"/>
-</div>
-</div>
-<button class="settings-button" id="saveAgentButton" type="button">
-<span>
-💾
-</span>
-<span>
-Guardar datos del agente
-</span>
-</button>
-</div>
-<div class="settings-card">
-<div class="settings-card-title">
-Datos
-</div>
-<button class="settings-button" id="reloadDataButton" type="button">
-<span>
-🔄
-</span>
-<span>
-Recargar datos
-</span>
-</button>
-<button class="settings-button danger" id="clearDraftsButton" type="button">
-<span>
-🗑️
-</span>
-<span>
-Borrar actas guardadas
-</span>
-</button>
-</div>
-<div class="settings-card">
-<div class="settings-card-title">
-Estado de las bases de datos
-</div>
-<div class="settings-data-status">
-<div class="data-status-row">
-<span>
-LOPSC
-</span>
-<strong id="settingsLopscStatus">
-Pendiente
-</strong>
-</div>
-<div class="data-status-row">
-<span>
-Infracciones
-</span>
-<strong id="settingsInfraccionesStatus">
-Pendiente
-</strong>
-</div>
-<div class="data-status-row">
-<span>
-Ordenanzas
-</span>
-<strong id="settingsOrdenanzasStatus">
-Pendiente
-</strong>
-</div>
-</div>
-</div>
-<div class="settings-card">
-<div class="settings-card-title">
-Información
-</div>
-<p class="settings-description">
-Centinela Code está diseñada para facilitar la consulta de normativa y la preparación de actas durante el servicio.
-</p>
-<p class="settings-description">
-La aplicación puede funcionar sin conexión cuando los datos necesarios se encuentran almacenados localmente.
-</p>
-</div>
+<div class="page-title"><div><h2>Ajustes</h2><p>Configuración de Centinela Code.</p></div></div>
+<div class="settings-card"><div class="settings-card-header"><span class="settings-icon">🛡️</span><div><h3>Centinela Code</h3><p>Aplicación de consulta normativa</p></div></div><div class="settings-row"><span>Versión</span><strong id="appVersion">1.0.0</strong></div><div class="settings-row"><span>Estado</span><strong class="status-value" id="appStatus">Operativa</strong></div><div class="settings-row"><span>Modo</span><strong id="appMode">Offline / Online</strong></div></div>
+<div class="settings-card"><div class="settings-card-title">Agente</div><div class="settings-form"><div class="form-group"><label for="agentNameInput">Nombre del agente</label><input autocomplete="off" id="agentNameInput" placeholder="Ej. J. García" type="text"/></div><div class="form-group"><label for="agentIdInput">Identificador / TIP</label><input autocomplete="off" id="agentIdInput" placeholder="Ej. 1234PL" type="text"/></div></div><button class="settings-button" id="saveAgentButton" type="button"><span>💾</span><span>Guardar datos del agente</span></button></div>
+<div class="settings-card"><div class="settings-card-title">Datos</div><button class="settings-button" id="reloadDataButton" type="button"><span>🔄</span><span>Recargar datos</span></button><button class="settings-button danger" id="clearDraftsButton" type="button"><span>🗑️</span><span>Borrar actas guardadas</span></button></div>
+<div class="settings-card"><div class="settings-card-title">Estado de las bases de datos</div><div class="settings-data-status"><div class="data-status-row"><span>LOPSC</span><strong id="settingsLopscStatus">Pendiente</strong></div><div class="data-status-row"><span>Infracciones</span><strong id="settingsInfraccionesStatus">Pendiente</strong></div><div class="data-status-row"><span>Ordenanzas</span><strong id="settingsOrdenanzasStatus">Pendiente</strong></div></div></div>
+<div class="settings-card"><div class="settings-card-title">Información</div><p class="settings-description">Centinela Code está diseñada para facilitar la consulta de normativa y la preparación de actas durante el servicio.</p><p class="settings-description">La aplicación puede funcionar sin conexión cuando los datos necesarios se encuentran almacenados localmente.</p></div>
 </section>
 </main>
-<!-- =====================================================
-BARRA DE NAVEGACIÓN INFERIOR
-====================================================== -->
-<nav aria-label="Navegación principal" class="bottom-navigation" id="bottomNavigation">
-<button aria-label="Inicio" class="nav-item active" data-section="home" type="button">
-<span class="nav-icon">
-🏠
-</span>
-<span class="nav-label">
-Inicio
-</span>
-</button>
-<button aria-label="Consulta" class="nav-item" data-section="consulta" type="button">
-<span class="nav-icon">
-🔎
-</span>
-<span class="nav-label">
-Consulta
-</span>
-</button>
-<button aria-label="Actas" class="nav-item" data-section="actas" type="button">
-<span class="nav-icon">
-📝
-</span>
-<span class="nav-label">
-Actas
-</span>
-</button>
-<button aria-label="Normativa" class="nav-item" data-section="normativa" type="button">
-<span class="nav-icon">
-⚖️
-</span>
-<span class="nav-label">
-Normativa
-</span>
-</button>
-<button aria-label="IA Policial" class="nav-item" data-section="ia" type="button">
-<span class="nav-icon">
-🤖
-</span>
-<span class="nav-label">
-IA
-</span>
-</button>
-</nav>
-<!-- =====================================================
-MODAL GENERAL
-====================================================== -->
-<div aria-labelledby="modalTitle" aria-modal="true" class="modal hidden" id="appModal" role="dialog">
-<div class="modal-overlay" id="modalOverlay"></div>
-<div class="modal-container">
-<div class="modal-header">
-<h3 id="modalTitle">
-Centinela Code
-</h3>
-<button aria-label="Cerrar" class="icon-button" id="closeModal" type="button">
-×
-</button>
-</div>
-<div class="modal-body" id="modalBody">
-</div>
-<div class="modal-actions" id="modalActions">
-</div>
-</div>
-</div>
-<!-- =====================================================
-TOAST / AVISOS
-====================================================== -->
-<div aria-live="polite" class="toast" id="toast" role="status">
-<span id="toastMessage"></span>
-</div>
-<!-- =====================================================
-INDICADOR DE CARGA
-====================================================== -->
-<div class="loading-screen" id="loadingScreen">
-<div class="loading-logo">
-🛡️
-</div>
-<h2>
-Centinela Code
-</h2>
-<p>
-Cargando aplicación...
-</p>
-<div class="loading-spinner"></div>
-</div>
-<!-- =====================================================
-SCRIPTS
-====================================================== -->
+<nav aria-label="Navegación principal" class="bottom-navigation" id="bottomNavigation"><button aria-label="Inicio" class="nav-item active" data-section="home" type="button"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></button><button aria-label="Consulta" class="nav-item" data-section="consulta" type="button"><span class="nav-icon">🔎</span><span class="nav-label">Consulta</span></button><button aria-label="Actas" class="nav-item" data-section="actas" type="button"><span class="nav-icon">📝</span><span class="nav-label">Actas</span></button><button aria-label="Normativa" class="nav-item" data-section="normativa" type="button"><span class="nav-icon">⚖️</span><span class="nav-label">Normativa</span></button><button aria-label="IA Policial" class="nav-item" data-section="ia" type="button"><span class="nav-icon">🤖</span><span class="nav-label">IA</span></button></nav>
+<div aria-labelledby="modalTitle" aria-modal="true" class="modal hidden" id="appModal" role="dialog"><div class="modal-overlay" id="modalOverlay"></div><div class="modal-container"><div class="modal-header"><h3 id="modalTitle">Centinela Code</h3><button aria-label="Cerrar" class="icon-button" id="closeModal" type="button">×</button></div><div class="modal-body" id="modalBody"></div><div class="modal-actions" id="modalActions"></div></div></div>
+<div aria-live="polite" class="toast" id="toast" role="status"><span id="toastMessage"></span></div>
+<div class="loading-screen" id="loadingScreen"><div class="loading-logo">🛡️</div><h2>Centinela Code</h2><p>Cargando aplicación...</p><div class="loading-spinner"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-
-<!-- CENTINELA IA OPENAI (PRUEBA) -->
 <script src="ia.js"></script>
-
-<script defer="" src="app.js?v=20260903-matriculas"></script>
+<script defer src="app.js?v=20260903-matriculas"></script>
+<script defer src="buscadores.js?v=20260903-buscadores"></script>
 </body>
 </html>
