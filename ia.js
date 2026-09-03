@@ -30,16 +30,13 @@ async function preguntarCentinelaIA(pregunta) {
 // =====================================================
 // CARGA DEL MÓDULO AVANZADO DE MATRÍCULAS
 // =====================================================
-// ia.js se carga antes de app.js. Esperamos a que app.js termine
-// su inicialización y después cargamos el módulo de matrículas.
-// De este modo no es necesario alterar index.html ni app.js.
 (function cargarModuloMatriculas() {
   function cargar() {
     if (document.getElementById("centinelaMatriculasScript")) return;
 
     const script = document.createElement("script");
     script.id = "centinelaMatriculasScript";
-    script.src = "./matriculas.js?v=20260904-matriculas";
+    script.src = "./matriculas.js?v=20260904-dgt-live-v2";
     script.async = true;
     script.onerror = () => console.warn("No se pudo cargar el módulo avanzado de Matrículas.");
     document.head.appendChild(script);
