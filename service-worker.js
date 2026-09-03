@@ -1,4 +1,4 @@
-const CACHE_NAME = "centinela-code-v10";
+const CACHE_NAME = "centinela-code-v11";
 
 const ARCHIVOS = [
  "./",
@@ -51,13 +51,13 @@ async function prepararHtml(response) {
 }
 
 self.addEventListener("install", event => {
-  console.log("Centinela SW instalado v10");
+  console.log("Centinela SW instalado v11");
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ARCHIVOS)));
 });
 
 self.addEventListener("activate", event => {
-  console.log("Centinela SW activo v10");
+  console.log("Centinela SW activo v11");
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
