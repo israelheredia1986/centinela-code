@@ -216,7 +216,14 @@
   }
 
   function navigate(section) {
-    const el = document.querySelector('[data-section="' + section + '"]');
+    // Preferimos llamar directamente a la función real de cambio de sección
+    // (evita el bug de querySelector encontrando la <section> en vez del
+    // botón del menú, ya que ambos comparten el mismo atributo data-section).
+    if (typeof window.activarSeccion === "function") {
+      window.activarSeccion(section);
+      return true;
+    }
+    const el = document.querySelector('.nav-item[data-section="' + section + '"]');
     if (!el) return false;
     el.click();
     return true;
@@ -539,3 +546,4 @@
     init();
   }
 })();
+
