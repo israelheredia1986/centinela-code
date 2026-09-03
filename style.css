@@ -6,7 +6,6 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
 button,input,textarea,select{font:inherit}
 button{color:inherit; background:transparent; border:none; cursor:pointer;}
 button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #54baff;outline-offset:3px}
-.app-header{display:none}
 .main-content{width:min(1500px,calc(100% - 34px));margin:0 auto;padding:24px 0 calc(var(--nav) + 28px)}
 .app-section{display:none}
 .app-section.active{display:block;animation:in .25s ease}
@@ -103,36 +102,6 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
 .nav-label{text-transform:uppercase;font-size:14px;font-weight:600}
 
 /* ============================================================
-   PANEL DE FAVORITOS
-   ============================================================ */
-.favoritos-card { padding-bottom: 4px; }
-.fav-group { padding: 0; }
-.fav-group--border { border-top: 1px solid rgba(60,113,155,.35); }
-.fav-group-header { display: flex; align-items: center; gap: 13px; padding: 14px 25px 10px; }
-.fav-group-label { flex: 1; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #9eb8d4; }
-.fav-add-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #1f6feb; background: transparent; color: #48b8ff; font-size: 20px; line-height: 1; cursor: pointer; display: grid; place-items: center; transition: background .15s; }
-.fav-add-btn:hover { background: rgba(31,111,235,.2); }
-.fav-list { list-style: none; margin: 0; padding: 0 25px 10px; display: flex; flex-direction: column; gap: 4px; }
-.fav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,.03); border: 1px solid rgba(60,113,155,.2); cursor: pointer; transition: background .15s, border-color .15s; }
-.fav-item:hover { background: rgba(21,151,255,.1); border-color: rgba(21,151,255,.35); }
-.fav-item-star { font-size: 13px; flex-shrink: 0; }
-.fav-item-text { flex: 1; font-size: 14px; color: #d4e2f0; line-height: 1.3; }
-.fav-item-remove { background: none; border: none; color: #4a6a88; font-size: 16px; cursor: pointer; line-height: 1; padding: 2px 4px; border-radius: 4px; transition: color .15s; flex-shrink: 0; }
-.fav-item-remove:hover { color: #ff5865; }
-.fav-empty { font-size: 13px; color: #4a6a88; padding: 4px 0 8px; font-style: italic; }
-
-/* Modal Favoritos */
-.fav-modal-overlay { position: fixed; inset: 0; z-index: 8000; background: rgba(0,0,0,.65); display: flex; align-items: center; justify-content: center; }
-.fav-modal { background: #0d1b2a; border: 1px solid #1f4f78; border-radius: 14px; padding: 1.5rem; width: min(380px, 92vw); display: flex; flex-direction: column; gap: .9rem; }
-.fav-modal h3 { margin: 0; font-size: 1rem; color: #dce8f7; text-transform: uppercase; letter-spacing: .3px; }
-.fav-modal input { width: 100%; box-sizing: border-box; padding: .65rem .9rem; border-radius: 8px; border: 1px solid #1c507b; background: #020c18; color: #fff; font-size: .95rem; }
-.fav-modal-actions { display: flex; gap: .7rem; justify-content: flex-end; }
-.fav-modal-actions button { padding: .55rem 1.1rem; border-radius: 8px; font-size: .9rem; cursor: pointer; }
-.fav-btn-ok { background: #1f6feb; border: none; color: #fff; font-weight: 600; }
-.fav-btn-cancel { background: transparent; border: 1px solid #2a5070; color: #9eb8d4; }
-
-
-/* ============================================================
    NUEVO DISEÑO INTERIOR (PESTAÑAS)
    ============================================================ */
 .page-title { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; margin: 0 0 16px; border: 1px solid #1b5c91; border-radius: 20px; background: linear-gradient(125deg, rgba(2,13,26,.98), rgba(4,21,39,.93) 55%, rgba(2,10,20,.98)); box-shadow: var(--shadow), inset 0 0 45px rgba(28,113,190,.06); position: relative; overflow: hidden; }
@@ -203,7 +172,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
    RESPONSIVE (MÓVIL)
    ============================================================ */
 @media(max-width:900px){.main-content{width:min(100% - 20px,680px);padding-top:10px}.hero-grid{grid-template-columns:1fr;gap:10px}.brand-hero{min-height:205px;padding:22px;gap:20px}.brand-hero-icon{width:105px;height:135px;flex-basis:105px}.brand-hero-title{font-size:45px}.brand-hero-tagline{font-size:12px;letter-spacing:2.8px}.agent-card{min-height:180px}.quick-actions{padding:0;gap:10px}.quick-action{min-height:270px;padding:20px 14px}.quick-action-icon{width:105px;height:105px;font-size:58px}.quick-action-text strong{font-size:20px}.quick-action-text small{font-size:13px}.home-info-grid,.home-bottom-grid{margin-left:0;margin-right:0;grid-template-columns:1fr;gap:10px}.status-row{padding:12px 16px}.home-acta-row{grid-template-columns:1fr 1fr 25px}.home-acta-date{display:none}.severity-pill{grid-column:2;grid-row:1;justify-self:end}.home-acta-arrow{grid-column:3;grid-row:1}.bottom-navigation{width:calc(100% - 16px);bottom:8px;height:74px}.nav-icon{font-size:25px}.nav-label{font-size:10px}.panel-title{font-size:17px;padding:17px}.main-content{padding-bottom:100px}}
-@media(max-width:560px){.brand-hero{min-height:165px}.brand-hero-icon{width:78px;height:105px;flex-basis:78px}.brand-hero-title{font-size:31px;letter-spacing:-1.5px}.brand-hero-tagline{font-size:9px;margin:10px 0 12px}.status-pill{font-size:10px;padding:7px 11px}.agent-card{padding:18px;min-height:155px}.agent-card-name{font-size:21px;margin-top:16px}.connection-pill{font-size:9px}.quick-actions{grid-template-columns:1fr}.quick-action{min-height:205px}.quick-action-icon{width:82px;height:82px;font-size:45px;margin-bottom:12px}.quick-action-text strong{font-size:21px}.quick-action-footer{font-size:11px;padding:9px 12px}.home-acta-person{display:none}.home-acta-row{grid-template-columns:1fr 85px 20px}.severity-pill{grid-column:2}.home-acta-number{font-size:13px}.home-bottom-grid{grid-template-columns:1fr} .fav-group-header { padding: 12px 16px 8px; } .fav-list { padding: 0 16px 10px; } .fav-item-text { font-size: 13px; }}
+@media(max-width:560px){.brand-hero{min-height:165px}.brand-hero-icon{width:78px;height:105px;flex-basis:78px}.brand-hero-title{font-size:31px;letter-spacing:-1.5px}.brand-hero-tagline{font-size:9px;margin:10px 0 12px}.status-pill{font-size:10px;padding:7px 11px}.agent-card{padding:18px;min-height:155px}.agent-card-name{font-size:21px;margin-top:16px}.connection-pill{font-size:9px}.quick-actions{grid-template-columns:1fr}.quick-action{min-height:205px}.quick-action-icon{width:82px;height:82px;font-size:45px;margin-bottom:12px}.quick-action-text strong{font-size:21px}.quick-action-footer{font-size:11px;padding:9px 12px}.home-acta-person{display:none}.home-acta-row{grid-template-columns:1fr 85px 20px}.severity-pill{grid-column:2}.home-acta-number{font-size:13px}.home-bottom-grid{grid-template-columns:1fr}}
 
 /* ============================================================
    ESTILOS ESPECÍFICOS DE NORMATIVA EN TARJETAS INDIVIDUALES
@@ -465,3 +434,58 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
 .acta-ia-actions .primary-button,.acta-ia-actions .secondary-button{flex:1 1 170px}
 .acta-ia-redaccion-box{margin:13px;border:1px solid rgba(0,217,209,.2);border-radius:10px;padding:12px;background:rgba(0,217,209,.04);color:#eefcff;font-size:13px;line-height:1.6}
 @media (max-width:720px){.acta-ia-buttons{grid-template-columns:1fr}.acta-ia-result-row{grid-template-columns:1fr;gap:6px}.acta-ia-verify{justify-self:start}.acta-ia-panel-header{align-items:flex-start;flex-direction:column}.acta-ia-badge{white-space:normal}}
+
+/* =========================================================
+MATRÍCULAS
+========================================================= */
+.matriculas-card { padding: 4px 25px 22px; }
+.matriculas-card-desc { margin: -8px 0 16px; font-size: 14px; color: var(--muted); line-height: 1.5; }
+.matriculas-card-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--gold); background: rgba(255,197,28,.08); color: var(--gold); font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: .3px; cursor: pointer; transition: background .15s, transform .15s; }
+.matriculas-card-btn:hover { background: rgba(255,197,28,.16); transform: translateY(-2px); }
+.matriculas-card-btn-arrow { font-size: 18px; }
+
+.matriculas-input-card, .matriculas-result { position: relative; border: 1px solid #1b5c91; border-radius: 20px; background: linear-gradient(125deg, rgba(2,13,26,.98), rgba(4,21,39,.93) 55%, rgba(2,10,20,.98)); box-shadow: var(--shadow), inset 0 0 45px rgba(28,113,190,.06); overflow: hidden; padding: 22px; margin-bottom: 16px; }
+
+.matriculas-scan-btn { width: 100%; padding: 16px; border-radius: 14px; border: 1px dashed #3c7bab; background: rgba(21,151,255,.05); color: #7fb8e6; font-weight: 700; font-size: 15px; cursor: not-allowed; opacity: .7; }
+.matriculas-soon { display: block; font-size: 11px; text-transform: none; font-weight: 400; margin-top: 4px; color: #6c93b3; }
+
+.matriculas-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: #5f87ab; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+.matriculas-divider::before, .matriculas-divider::after { content: ""; flex: 1; height: 1px; background: #1c507b; }
+
+.matriculas-manual-row { display: flex; gap: 10px; }
+.matriculas-manual-row input { flex: 1; background: rgba(2,10,20,.9); color: var(--white); border: 1px solid #1c507b; border-radius: 12px; padding: 13px 16px; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; box-shadow: inset 0 2px 8px rgba(0,0,0,.6); }
+.matriculas-manual-row input:focus { border-color: var(--blue2); outline: none; box-shadow: inset 0 2px 8px rgba(0,0,0,.6), 0 0 15px rgba(21,151,255,.35); }
+.matriculas-manual-row button { border-radius: 12px; padding: 12px 22px; border: 1px solid #238dff; background: #0875e8; color: #fff; font-weight: 800; text-transform: uppercase; font-size: 13px; cursor: pointer; }
+
+.matriculas-error { margin-top: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(255,61,79,.1); border: 1px solid rgba(255,61,79,.35); color: #ffb3ba; font-size: 13px; }
+
+.matriculas-result-header { margin-bottom: 16px; }
+.matriculas-result-plate { display: inline-block; padding: 8px 16px; border-radius: 8px; border: 2px solid #0f172a; background: linear-gradient(180deg,#fff,#dbe6f2); color: #0f172a; font-weight: 800; font-size: 20px; letter-spacing: 3px; }
+
+.matriculas-field { padding: 14px 0; border-top: 1px solid rgba(60,113,155,.25); display: flex; flex-direction: column; gap: 4px; }
+.matriculas-field:first-of-type { border-top: none; }
+.matriculas-field-label { font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: #9eb8d4; font-weight: 700; }
+.matriculas-field-value { font-size: 15px; color: var(--white); line-height: 1.5; }
+.matriculas-field-value a { color: var(--blue2); }
+.matriculas-field-source { font-size: 12px; color: #6c93b3; }
+.matriculas-field--editable input { margin-top: 4px; width: 100%; background: rgba(2,10,20,.9); color: var(--white); border: 1px solid #1c507b; border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+
+.matriculas-disclaimer { margin: 10px 0 18px; font-size: 12px; color: #6c93b3; line-height: 1.5; }
+
+@media (max-width: 560px) {
+  .matriculas-manual-row { flex-direction: column; }
+  .matriculas-result-plate { font-size: 17px; letter-spacing: 2px; }
+}
+
+/* =========================================================
+CABECERA (antes oculta con display:none; ahora visible y
+fija arriba para alojar el botón de Ajustes)
+========================================================= */
+.app-header { display: flex; align-items: center; gap: 10px; padding: 14px 18px; position: sticky; top: 0; z-index: 50; background: linear-gradient(180deg, rgba(2,9,20,.97), rgba(2,9,20,.88)); backdrop-filter: blur(10px); border-bottom: 1px solid #123a5c; }
+.header-brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+.header-brand .brand-icon { font-size: 22px; line-height: 1; }
+.header-brand h1 { margin: 0; font-size: 16px; font-weight: 800; color: #dce8f7; letter-spacing: .2px; }
+.header-brand .brand-text span { display: block; font-size: 11px; color: #7fa7c9; margin-top: 2px; }
+.header-action { width: 40px; height: 40px; flex-shrink: 0; border-radius: 12px; border: 1px solid #1c507b; background: rgba(21,151,255,.08); color: #dce8f7; font-size: 18px; display: grid; place-items: center; cursor: pointer; transition: background .15s, transform .15s; }
+.header-action:hover { background: rgba(21,151,255,.18); transform: translateY(-1px); }
+@media (max-width: 560px) { .header-brand .brand-text { display: none; } }
