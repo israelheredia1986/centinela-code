@@ -345,13 +345,17 @@
 
     [...container.querySelectorAll(".bc-view-btn")].forEach((b, i) =>
       b.addEventListener("click", e => {
-        e.preventDefault(); e.stopPropagation(); showViewer(results[i]);
+        e.preventDefault();
+        e.stopPropagation();
+        showViewer(results[i]);
       })
     );
 
     [...container.querySelectorAll(".bc-acta-btn")].forEach((b, i) =>
       b.addEventListener("click", e => {
-        e.preventDefault(); e.stopPropagation(); useInActa(results[i]);
+        e.preventDefault();
+        e.stopPropagation();
+        useInActa(results[i]);
       })
     );
   }
@@ -472,12 +476,12 @@
 
   /* ============================================================
      REPARACIÓN DIRECTA DE BOTONES DE NORMATIVA
-     Se utiliza delegación para que también funcione con HTML creado
-     dinámicamente por app.js después de cargar los JSON.
+     Delegación robusta para HTML creado dinámicamente por app.js.
+     IMPORTANTE: NO bloqueamos los botones del buscador global.
      ============================================================ */
   function instalarFixNormativa() {
-    if (document.documentElement.dataset.centFixNormativa === "1") return;
-    document.documentElement.dataset.centFixNormativa = "1";
+    if (document.documentElement.dataset.centFixNormativa === "2") return;
+    document.documentElement.dataset.centFixNormativa = "2";
 
     document.addEventListener("click", function (event) {
       const usar = event.target.closest(".bc-view-use-acta");
@@ -517,13 +521,6 @@
         if (typeof window.abrirNormativa === "function") {
           window.abrirNormativa(tipo, id);
         }
-        return;
-      }
-
-      const resultBtn = event.target.closest(".bc-result-card .bc-view-btn");
-      if (resultBtn) {
-        event.preventDefault();
-        event.stopPropagation();
         return;
       }
     }, true);
