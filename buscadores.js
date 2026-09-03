@@ -71,6 +71,29 @@
     return Object.entries(v).slice(0, 100).map(([k, x]) => k + " " + valueString(x)).join(" ");
   }
 
+  // Extrae el importe de la sanción también cuando viene como objeto
+  // {min,max,moneda} (formato usado en infracciones.json / infracciones_trafico.json),
+  // que `pick()` por sí solo no puede leer porque descarta valores tipo objeto.
+  function pickAmount(o) {
+    if (!o || typeof o !== "object") return "";
+    for (const key of ["sancion", "sanción", "multa"]) {
+      const entry = Object.entries(o).find(([k]) => norm(k) === norm(key));
+      const val = entry && entry[1];
+      if (val && typeof val === "object" && !Array.isArray(val)) {
+        const min = val.min ?? val.minimo ?? val.importe_min;
+        const max = val.max ?? val.maximo ?? val.importe_max;
+        const moneda = val.moneda || "€";
+        const fmt = n => (typeof n === "number" ? n.toLocaleString("es-ES") : n);
+        if (min != null && max != null) {
+          return min === max ? fmt(min) + " " + moneda : fmt(min) + " – " + fmt(max) + " " + moneda;
+        }
+        if (min != null) return "desde " + fmt(min) + " " + moneda;
+        if (max != null) return "hasta " + fmt(max) + " " + moneda;
+      }
+    }
+    return pick(o, ["cuantia", "cuantía", "importe", "importe_min", "importe_max", "multa", "sancion", "sanción"]);
+  }
+
   function pick(o, names) {
     if (!o || typeof o !== "object") return "";
     const e = Object.entries(o);
@@ -108,10 +131,15 @@
     const title = pick(v, ["titulo","título","title","nombre","name","denominacion","denominación","epigrafe","epígrafe"]);
     const desc = pick(v, ["descripcion","descripción","description","texto","text","contenido","content","conducta","hechos","tipificacion","tipificación"]);
     const severity = pick(v, ["gravedad","severity","tipo","clasificacion","clasificación"]);
-    const amount = pick(v, ["cuantia","cuantía","importe","importe_min","importe_max","multa","sancion","sanción"]);
+    const amount = pickAmount(v);
     const inf = isInf(v, src);
 
-    if (article || title || desc || inf) {
+    // Solo indexamos nodos con identidad propia (artículo, título o
+    // descripción explícitos). Esto evita indexar el objeto "contenedor"
+    // raíz de cada fichero (version, fuente, boe...), que no tiene texto
+    // propio y antes se colaba en los resultados mostrando un volcado
+    // ilegible de todo el JSON aplanado.
+    if (article || title || desc) {
       out.push({
         source: src,
         path,
@@ -293,16 +321,23 @@
 
       const texto = r.description || valueString(r.raw) || "Sin texto disponible.";
       const codigo = obtenerCodigoParaActa(r);
+      const gravKey = norm(r.severity).replace(/\s+/g, "");
+      const gravClass = gravKey.includes("muygrave") ? "grav-muygrave" : gravKey.includes("grave") ? "grav-grave" : "grav-leve";
+      const palabrasClave = Array.isArray(r.raw && r.raw.palabrasClave) ? r.raw.palabrasClave.slice(0, 10) : [];
 
       c.innerHTML =
         '<div class="buscador-viewer-card">' +
           '<div class="viewer-result-badge">' + esc(r.isInfraction ? "INFRACCIÓN" : "NORMATIVA") + '</div>' +
           '<h3>' + esc(r.article ? "Artículo " + r.article : (r.title || r.source)) + '</h3>' +
           (r.title && r.article ? '<h4>' + esc(r.title) + '</h4>' : '') +
-          '<p>' + esc(texto) + '</p>' +
-          (r.severity ? '<p><strong>Gravedad:</strong> ' + esc(r.severity) + '</p>' : '') +
-          (r.amount ? '<p><strong>Sanción / cuantía:</strong> ' + esc(r.amount) + '</p>' : '') +
-          '<div class="viewer-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">' +
+          '<div class="viewer-source-line">' + esc(r.source) + '</div>' +
+          '<div class="viewer-chips">' +
+            (r.severity ? '<span class="viewer-chip ' + gravClass + '">⚠ ' + esc(r.severity) + '</span>' : '') +
+            (r.amount ? '<span class="viewer-chip amount">💶 ' + esc(r.amount) + '</span>' : '') +
+          '</div>' +
+          '<div class="viewer-body"><p>' + esc(texto) + '</p></div>' +
+          (palabrasClave.length ? '<div class="viewer-keywords">' + palabrasClave.map(p => '<span class="viewer-keyword">' + esc(p) + '</span>').join("") + '</div>' : '') +
+          '<div class="viewer-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px">' +
             '<button type="button" class="primary-button bc-view-use-acta" data-code="' + esc(codigo) + '">📝 Usar en acta</button>' +
             '<button type="button" class="secondary-button bc-view-back">← Volver a resultados</button>' +
           '</div>' +
@@ -412,10 +447,20 @@
       .bc-result-actions button.primary{border-color:#2563eb;background:#1d4ed8;color:#fff}
       .bc-empty{padding:24px;text-align:center;border:1px dashed #334155;border-radius:14px;color:#94a3b8}
       .buscador-viewer-card{padding:4px}
-      .buscador-viewer-card h3{margin-top:6px;color:#f8fafc}
-      .buscador-viewer-card h4{color:#93c5fd;margin:.4rem 0 1rem}
-      .buscador-viewer-card p{line-height:1.65;color:#cbd5e1;white-space:pre-wrap}
-      .viewer-result-badge{display:inline-block;font-size:.65rem;font-weight:800;color:#60a5fa;margin-bottom:8px}
+      .buscador-viewer-card h3{margin:2px 0 2px;color:#f8fafc;font-size:1.25rem;line-height:1.3}
+      .buscador-viewer-card h4{color:#93c5fd;margin:.15rem 0 1rem;font-weight:600;font-size:1rem;line-height:1.4}
+      .buscador-viewer-card .viewer-source-line{margin:0 0 14px;font-size:.78rem;color:#64748b}
+      .buscador-viewer-card .viewer-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px}
+      .viewer-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;font-size:.72rem;font-weight:700;border:1px solid transparent}
+      .viewer-chip.grav-leve{background:rgba(59,130,246,.15);color:#93c5fd;border-color:rgba(59,130,246,.35)}
+      .viewer-chip.grav-grave{background:rgba(249,115,22,.15);color:#fdba74;border-color:rgba(249,115,22,.35)}
+      .viewer-chip.grav-muygrave{background:rgba(239,68,68,.15);color:#fca5a5;border-color:rgba(239,68,68,.35)}
+      .viewer-chip.amount{background:rgba(16,185,129,.14);color:#6ee7b7;border-color:rgba(16,185,129,.32)}
+      .buscador-viewer-card .viewer-body{border:1px solid rgba(148,163,184,.16);border-radius:14px;background:rgba(15,23,42,.65);padding:16px}
+      .buscador-viewer-card .viewer-body p{margin:0;line-height:1.75;color:#dbe4f0;white-space:pre-wrap;font-size:.94rem}
+      .buscador-viewer-card .viewer-keywords{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+      .viewer-keyword{padding:4px 9px;border-radius:8px;background:rgba(148,163,184,.1);color:#94a3b8;font-size:.68rem;border:1px solid rgba(148,163,184,.18)}
+      .viewer-result-badge{display:inline-block;font-size:.65rem;font-weight:800;color:#60a5fa;margin-bottom:8px;letter-spacing:.04em}
       #normativaViewer{scroll-margin-top:15px}
       .bc-view-use-acta{cursor:pointer!important;pointer-events:auto!important}
       @media(max-width:760px){.bc-results-list{grid-template-columns:1fr}.bc-search-card{padding:14px}}
@@ -546,4 +591,3 @@
     init();
   }
 })();
-
