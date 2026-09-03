@@ -1,4 +1,4 @@
-const CACHE_NAME = "centinela-code-v8";
+const CACHE_NAME = "centinela-code-v9";
 
 const ARCHIVOS = [
  "./",
@@ -36,7 +36,7 @@ async function prepararHtml(response) {
     if (html.includes("buscadores.js")) {
       return new Response(html, {status: response.status, statusText: response.statusText, headers: response.headers});
     }
-    const inyeccion = '<script defer src="./buscadores.js?v=20260903-buscadores"></script>';
+    const inyeccion = '<script defer src="./buscadores.js?v=20260903-consulta"></script>';
     const modificado = html.includes("</body>")
       ? html.replace("</body>", `${inyeccion}</body>`)
       : `${html}${inyeccion}`;
@@ -49,13 +49,13 @@ async function prepararHtml(response) {
 }
 
 self.addEventListener("install", event => {
-  console.log("Centinela SW instalado v8");
+  console.log("Centinela SW instalado v9");
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ARCHIVOS)));
 });
 
 self.addEventListener("activate", event => {
-  console.log("Centinela SW activo v8");
+  console.log("Centinela SW activo v9");
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
