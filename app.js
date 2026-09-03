@@ -213,8 +213,7 @@ const CONFIG = {
     ley71985: "./data/ley_7_1985.json",
     ley52010Andalucia: "./data/ley_5_2010_andalucia.json" 
   }, 
-  STORAGE_ACTAS: "centinela_code_actas_v1",
-  STORAGE_FAVORITOS: "centinela_code_favoritos_v1"
+  STORAGE_ACTAS: "centinela_code_actas_v1"
 }; 
 
 const estado = { 
@@ -771,6 +770,11 @@ function configurarNavegacion() {
       activarSeccion("consulta"); 
       setTimeout(() => $("consultaSearch")?.focus(), 100); 
     }); 
+  } 
+
+  const ajustesCabecera = $("headerAjustesButton"); 
+  if (ajustesCabecera) { 
+    ajustesCabecera.addEventListener("click", () => activarSeccion("ajustes")); 
   } 
 } 
 
@@ -3260,6 +3264,159 @@ function cargarDatosAgente() {
 
 
 
+/* =========================================================
+MATRÍCULAS
+Fuentes reales por campo:
+- Formato/normalización: validador local (sin red).
+- Distintivo ambiental: tabla Supabase "dgt_distintivo_ambiental",
+  cargada aparte a partir del fichero oficial de la DGT (ver
+  supabase_distintivo_ambiental.sql / import_dgt_distintivo.py).
+  Si la tabla no existe o está vacía, se informa de ello en vez
+  de fallar o inventar un dato.
+- Marca/modelo/combustible: entrada manual del agente (no existe
+  hoy una fuente gratuita que derive esto solo desde la matrícula).
+- ZBE: texto general orientativo según el distintivo, no una
+  autorización individual verificada.
+- ITV: sin estimación automática por ahora (no se dispone de una
+  fuente fiable verificada); se enlaza a miDGT.
+========================================================= */
+
+let matriculaActual = null;
+
+function normalizarMatricula(valor) {
+  return (valor || "").toUpperCase().replace(/[^0-9A-Z]/g, "");
+}
+
+function formatoMatriculaValido(matricula) {
+  // Formato vigente en España desde 2000: 4 dígitos + 3 consonantes
+  // (sin vocales, Ñ ni Q).
+  return /^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/.test(matricula);
+}
+
+async function consultarDistintivoAmbiental(matricula) {
+  if (!supabase || typeof supabase.from !== "function") {
+    return { estado: "no_disponible" };
+  }
+  try {
+    const { data, error } = await supabase
+      .from("dgt_distintivo_ambiental")
+      .select("distintivo, fecha_actualizacion")
+      .eq("matricula", matricula)
+      .maybeSingle();
+
+    if (error) {
+      // La tabla puede no existir todavía si aún no se ha hecho la
+      // carga inicial de datos DGT en Supabase.
+      return { estado: "no_disponible" };
+    }
+    if (!data) return { estado: "sin_dato" };
+    return { estado: "ok", distintivo: data.distintivo, fecha: data.fecha_actualizacion };
+  } catch (e) {
+    return { estado: "no_disponible" };
+  }
+}
+
+const TEXTO_ZBE_POR_DISTINTIVO = {
+  "0": "Etiqueta CERO: acceso permitido con carácter general en las ZBE existentes.",
+  ECO: "Etiqueta ECO: acceso permitido en la mayoría de ZBE; algunas zonas pueden restringirlo en episodios de alta contaminación.",
+  C: "Etiqueta C: acceso restringido en varias ZBE consolidadas; revisar la ordenanza local del municipio.",
+  B: "Etiqueta B: acceso limitado o restringido en la mayoría de ZBE; revisar la ordenanza local del municipio.",
+  "SIN DISTINTIVO": "Sin distintivo: acceso restringido en prácticamente todas las ZBE; revisar la ordenanza local del municipio.",
+};
+
+function textoZbePorDistintivo(distintivo) {
+  if (!distintivo) return "Sin distintivo conocido: no se puede orientar sobre ZBE.";
+  const clave = String(distintivo).toUpperCase().trim();
+  return (
+    TEXTO_ZBE_POR_DISTINTIVO[clave] ||
+    "Distintivo no reconocido: consulta la normativa de la ZBE correspondiente."
+  );
+}
+
+function mostrarErrorMatricula(mensaje) {
+  const el = $("matriculaError");
+  if (!el) return;
+  if (!mensaje) {
+    el.classList.add("hidden");
+    el.textContent = "";
+  } else {
+    el.textContent = mensaje;
+    el.classList.remove("hidden");
+  }
+}
+
+async function buscarMatricula() {
+  const input = $("matriculaInput");
+  const resultado = $("matriculasResult");
+  if (!input || !resultado) return;
+
+  const matricula = normalizarMatricula(input.value);
+  mostrarErrorMatricula("");
+
+  if (!formatoMatriculaValido(matricula)) {
+    mostrarErrorMatricula("Formato no reconocido. Usa el formato actual: 4 números + 3 consonantes (ej. 1234 BCD).");
+    resultado.classList.add("hidden");
+    return;
+  }
+
+  matriculaActual = matricula;
+  $("matriculasResultPlate").textContent = matricula.slice(0, 4) + " " + matricula.slice(4);
+
+  const distintivoEl = $("matriculasDistintivo");
+  const fuenteEl = $("matriculasDistintivoFuente");
+  distintivoEl.textContent = "Consultando…";
+  fuenteEl.textContent = "";
+
+  const consulta = await consultarDistintivoAmbiental(matricula);
+
+  if (consulta.estado === "ok") {
+    distintivoEl.textContent = consulta.distintivo || "SIN DISTINTIVO";
+    fuenteEl.textContent = `Fuente: DGT (datos abiertos)` + (consulta.fecha ? ` · actualizado ${consulta.fecha}` : "");
+    $("matriculasZbe").textContent = textoZbePorDistintivo(consulta.distintivo);
+  } else if (consulta.estado === "sin_dato") {
+    distintivoEl.textContent = "Sin resultado en los datos cargados";
+    fuenteEl.textContent = "Fuente: DGT (datos abiertos)";
+    $("matriculasZbe").textContent = "—";
+  } else {
+    distintivoEl.textContent = "No disponible todavía";
+    fuenteEl.textContent = "Falta cargar los datos oficiales de la DGT en Supabase";
+    $("matriculasZbe").textContent = "—";
+  }
+
+  $("matriculaMarcaModelo").value = "";
+  $("matriculaCombustible").value = "";
+  resultado.classList.remove("hidden");
+  resultado.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function crearActaDesdeMatricula() {
+  if (!matriculaActual) return;
+
+  const marcaModelo = ($("matriculaMarcaModelo")?.value || "").trim();
+  const combustible = ($("matriculaCombustible")?.value || "").trim();
+  const distintivo = $("matriculasDistintivo")?.textContent?.trim() || "";
+
+  const lineas = [`Vehículo con matrícula ${matriculaActual.slice(0, 4)} ${matriculaActual.slice(4)}.`];
+  if (marcaModelo) lineas.push(`Marca/modelo: ${marcaModelo}.`);
+  if (combustible) lineas.push(`Combustible: ${combustible}.`);
+  if (distintivo && !/no disponible|consultando|sin resultado/i.test(distintivo)) {
+    lineas.push(`Distintivo ambiental: ${distintivo}.`);
+  }
+
+  activarSeccion("actas");
+  abrirEditorActa({ hechos: lineas.join(" ") });
+  mostrarToast("Datos del vehículo añadidos al acta");
+}
+
+function configurarMatriculas() {
+  $("matriculasHomeCardBtn")?.addEventListener("click", () => activarSeccion("matriculas"));
+  $("matriculaBuscarBtn")?.addEventListener("click", () => buscarMatricula());
+  $("matriculaInput")?.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter") buscarMatricula();
+  });
+  $("matriculaCrearActaBtn")?.addEventListener("click", () => crearActaDesdeMatricula());
+}
+
 function configurarAjustes() {
 
   cargarDatosAgente();
@@ -3536,6 +3693,9 @@ async function iniciarAplicacion() {
 
 
   configurarAjustes();
+
+
+  configurarMatriculas();
 
 
   configurarEventosDelegados();
