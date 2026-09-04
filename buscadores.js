@@ -21,6 +21,7 @@
     try{
       await cargar(`${base}buscadores-core.js?v=20260904v5`);
       await cargar(`${base}buscador-home.js?v=20260904v1`);
+      await cargar(`${base}buscador-home-fix.js?v=20260904v1`);
     }catch(e){
       console.error("Centinela Code — sistema de búsqueda:",e);
     }
