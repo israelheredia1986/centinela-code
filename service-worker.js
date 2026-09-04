@@ -2,10 +2,10 @@
    CENTINELA CODE — SERVICE WORKER V29
    Buscador PRO + normativa VMP, patinetes y bicicletas eléctricas.
    ============================================================ */
-const CACHE_NAME="centinela-code-v29-vmp-bicicletas";
+const CACHE_NAME="centinela-code-v30-infra-assistant";
 const ARCHIVOS=[
   "./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css",
-  "./visual-enhancements.js?v=20260904-search-v2","./app.js","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js",
+  "./visual-enhancements.js?v=20260904-search-v2","./app.js","./infraccion-assistant.js?v=20260904-infra-v2","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js",
   "./buscadores.js?v=20260904-search-v4","./buscador-pro.js?v=20260904-search-v5","./manifest.json",
   "./data/lopsc.json","./data/infracciones.json","./data/infracciones_trafico.json","./data/infracciones_vmp_bicicletas.json","./data/ordenanzas.json","./data/codigo_penal.json",
   "./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/normativa_vmp_bicicletas.json",
