@@ -1,448 +1,194 @@
 /* ============================================================
-   CENTINELA CODE — BUSCADOR GLOBAL
-   V3 — búsqueda semántica ampliada y comercio ambulante
+   CENTINELA CODE — BUSCADOR GLOBAL V4
+   Motor estable + búsqueda semántica + tolerancia a errores
+   + comercio ambulante + infracciones + normativa.
    ============================================================ */
-(function () {
+(function(){
   "use strict";
 
-  const DATA_FILES = [
-    ["Infracciones", "./data/infracciones.json"],
-    ["Tráfico · infracciones", "./data/infracciones_trafico.json"],
-    ["LOPSC", "./data/lopsc.json"],
-    ["Código Penal", "./data/codigo_penal.json"],
-    ["Menores", "./data/normativa_menores.json"],
-    ["Violencia de género", "./data/normativa_violencia_genero.json"],
-    ["Ordenanzas", "./data/ordenanzas.json"],
-    ["Animales", "./data/normativa_animales.json"],
-    ["Tráfico", "./data/normativa_trafico.json"],
-    ["Ley 2/1986", "./data/ley_2_86.json"],
-    ["LECrim", "./data/lecrim.json"],
-    ["Extranjería", "./data/extranjeria.json"],
-    ["Seguridad privada", "./data/seguridad_privada.json"],
-    ["Espectáculos públicos", "./data/espectaculos_publicos.json"],
-    ["Comercio ambulante", "./data/comercio_ambulante.json"],
-    ["Medio ambiente y ruidos", "./data/medio_ambiente_ruidos.json"],
-    ["Reglamento de armas", "./data/reglamento_armas.json"],
-    ["Policías Locales Andalucía", "./data/policias_locales_andalucia.json"],
-    ["Ley 39/2015", "./data/ley_39_2015.json"],
-    ["Ley 7/1985", "./data/ley_7_1985.json"],
-    ["Ley 5/2010 Andalucía", "./data/ley_5_2010_andalucia.json"]
+  const DATA=[
+    ["Infracciones","./data/infracciones.json"],
+    ["Tráfico · infracciones","./data/infracciones_trafico.json"],
+    ["LOPSC","./data/lopsc.json"],
+    ["Código Penal","./data/codigo_penal.json"],
+    ["Menores","./data/normativa_menores.json"],
+    ["Violencia de género","./data/normativa_violencia_genero.json"],
+    ["Ordenanzas","./data/ordenanzas.json"],
+    ["Animales","./data/normativa_animales.json"],
+    ["Tráfico","./data/normativa_trafico.json"],
+    ["Ley 2/1986","./data/ley_2_86.json"],
+    ["LECrim","./data/lecrim.json"],
+    ["Extranjería","./data/extranjeria.json"],
+    ["Seguridad privada","./data/seguridad_privada.json"],
+    ["Espectáculos públicos","./data/espectaculos_publicos.json"],
+    ["Comercio ambulante","./data/comercio_ambulante.json"],
+    ["Medio ambiente y ruidos","./data/medio_ambiente_ruidos.json"],
+    ["Reglamento de armas","./data/reglamento_armas.json"],
+    ["Policías Locales Andalucía","./data/policias_locales_andalucia.json"],
+    ["Ley 39/2015","./data/ley_39_2015.json"],
+    ["Ley 7/1985","./data/ley_7_1985.json"],
+    ["Ley 5/2010 Andalucía","./data/ley_5_2010_andalucia.json"]
   ];
 
-  const STOP = new Set([
-    "a","al","ante","bajo","con","contra","de","del","desde","durante",
-    "el","en","entre","hacia","hasta","la","las","lo","los","para","por",
-    "segun","sin","sobre","un","una","unos","unas","y","o","que"
-  ]);
+  const STOP=new Set(["a","al","ante","bajo","con","contra","de","del","desde","durante","el","en","entre","hacia","hasta","la","las","lo","los","para","por","segun","sin","sobre","un","una","unos","unas","y","o","que"]);
 
-  const SYN = {
-    ruido:["ruidos","sonido","musica","molestias","acustica","decibelios"],
-    alcohol:["alcoholemia","bebida","bebidas","embriaguez","etilometro"],
-    drogas:["estupefacientes","sustancias","narcoticos","psicotropicos"],
-    arma:["armas","navaja","cuchillo","arma blanca","pistola","revolver"],
-    agresion:["agredir","agresiones","golpear","lesiones","violencia","ataque"],
-    desobediencia:["desobedecer","resistencia","obediencia","requerimiento"],
-    seguro:["poliza","aseguramiento","soa","sin seguro"],
-    carnet:["permiso","licencia","conducir","conduccion"],
-    patinete:["vmp","vehiculo movilidad personal","vehiculo de movilidad personal"],
-    animal:["animales","perro","perros","mascota","mascotas"],
-    menor:["menores","niño","niña","adolescente"],
-    comercio:["comercial","comercializacion","comercialización","venta","vender","vendedor","vendedora","mercancia","mercancía","mercaderia","mercadería"],
-    ambulante:["ambulantes","ambulant","venta ambulante","vendedor ambulante","vendedora ambulante","comercio callejero","comercio itinerante","mercadillo","puesto ambulante"],
-    mercadillo:["mercadillos","puesto","puestos","venta ambulante","vendedor ambulante","comercio ambulante"],
-    vendedor:["vendedores","vendedora","vendedoras","comerciante","comerciantes","comercio","venta"],
-    vender:["venta","vende","vendedor","vendedora","comercializar","comercializacion","comercialización","comercio"],
-    venta:["vender","vende","vendedor","vendedora","comercializar","comercializacion","comercialización","comercio"],
-    pescado:["pescados","pescadería","pescaderia","pescadero","pescadera","productos pesqueros","producto pesquero","marisco","mariscos","pez","peces","pesca"],
-    pescados:["pescado","pescadería","pescaderia","pescadero","pescadera","productos pesqueros","marisco","pesca"],
-    marisco:["mariscos","pescado","productos pesqueros","crustaceos","crustáceos","moluscos"],
-    juguete:["juguetes","venta de juguetes","jugueteria","juguetería","producto infantil","productos infantiles"],
-    juguetes:["juguete","venta de juguetes","jugueteria","juguetería","producto infantil","productos infantiles"],
-    alimentacion:["alimentación","alimentario","alimentaria","alimentos","comida","productos alimenticios","pescado","marisco"],
-    alimento:["alimentos","alimentación","alimentario","comida","productos alimenticios","pescado","marisco"],
-    autorizacion:["autorización","autorizaciones","permiso","licencia","habilitación","habilitacion","autorizado","autorizada","no autorizado","sin autorización"],
-    autorizaciones:["autorización","permiso","licencia","habilitación","autorizado","no autorizado"],
-    permiso:["autorización","autorizaciones","licencia","habilitación","autorizado"],
-    licencia:["autorización","permiso","habilitación","autorizado"],
-    horario:["horarios","hora","apertura","cierre","horario permitido","fuera de horario"],
-    horarios:["horario","hora","apertura","cierre","horario permitido","fuera de horario"],
-    sancion:["sanción","sanciones","multa","multas","infracción","infracciones","castigo"],
-    sanciones:["sanción","sancion","multa","multas","infracción","infracciones"],
-    infraccion:["infracción","infracciones","sanción","sanciones","multa","incumplimiento"],
-    infracciones:["infracción","sanción","sanciones","multa","incumplimiento"],
-    factura:["facturas","comprobante","comprobantes","tique","ticket","justificante"],
-    facturas:["factura","comprobante","comprobantes","tique","ticket","justificante"],
-    precio:["precios","importe","coste","costes","tarifa"],
-    precios:["precio","importe","coste","costes","tarifa"],
-    placa:["placa identificativa","identificación","identificacion","distintivo"],
-    identificativa:["identificativo","placa","identificación","identificacion"],
-    decomiso:["decomisar","incautación","incautacion","incautar","aprehensión","aprehension"],
-    incautacion:["incautación","incautar","decomiso","decomisar","aprehensión","aprehension"],
-    talla:["talla mínima","talla inferior","tamaño mínimo","tamaño inferior","pescado pequeño"],
-    veda:["vedado","época de veda","epoca de veda","prohibido","prohibición","prohibicion"],
-    juguetes:["juguete","juguetería","jugueteria","productos infantiles","seguridad de juguetes"]
+  const ALIAS={
+    vendendor:["vendedor","vendedores","vendedora","venta","vender","comerciante","comercio"],
+    vendendora:["vendedora","vendedor","venta","comercio"],
+    juguestes:["juguete","juguetes","jugueteria","productos infantiles"],
+    juguetez:["juguete","juguetes"],
+    pescao:["pescado","pescados","pescadero","productos pesqueros","marisco"],
+    ambulate:["ambulante","ambulantes","venta ambulante","mercadillo"],
+    infracion:["infraccion","infracciones","sancion","multa"],
+    infraccion:["infracciones","sancion","multa"],
+    sancion:["sanciones","infraccion","multa"],
+    autorizacion:["autorizaciones","permiso","licencia","autorizado","sin autorizacion"],
+    factura:["facturas","comprobante","ticket","tique"],
+    horario:["horarios","hora","cierre","apertura"],
+    multa:["sancion","sanciones","infraccion","infracciones"]
   };
 
-  let indiceGlobal = [];
-  let indiceInfracciones = [];
-  let cargado = false;
+  const GROUPS=[
+    ["comercio","comercial","comercio ambulante","venta","vender","vendedor","vendedora","comerciante","mercancia","mercaderia"],
+    ["ambulante","ambulantes","venta ambulante","vendedor ambulante","mercadillo","puesto ambulante","comercio callejero","comercio itinerante"],
+    ["pescado","pescados","pescadero","pescadera","pescaderia","productos pesqueros","pesquero","marisco","peces","pesca"],
+    ["juguete","juguetes","jugueteria","producto infantil","productos infantiles","seguridad de juguetes"],
+    ["autorizacion","autorizaciones","permiso","licencia","habilitacion","autorizado","sin autorizacion"],
+    ["sancion","sanciones","multa","infraccion","infracciones","incumplimiento"],
+    ["factura","facturas","comprobante","comprobantes","ticket","tique"],
+    ["precio","precios","importe","coste","tarifa"],
+    ["horario","horarios","hora","cierre","apertura","fuera de horario"],
+    ["decomiso","decomisar","incautacion","incautar","aprehension"],
+    ["talla","talla minima","talla inferior","tamano minimo","pescado pequeno"],
+    ["veda","vedado","epoca de veda","prohibido","prohibicion"]
+  ];
 
-  const norm = v => String(v == null ? "" : v)
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  const norm=v=>String(v??"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9.]+/g," ").replace(/\s+/g," ").trim();
+  const toks=v=>norm(v).split(" ").filter(Boolean).filter(x=>!STOP.has(x));
 
-  const tokens = q => norm(q)
-    .split(/[^a-z0-9.]+/)
-    .filter(Boolean)
-    .filter(x => !STOP.has(x));
-
-  function esc(v) {
-    return String(v == null ? "" : v).replace(/[&<>\'\"]/g, c => ({
-      "&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#39;", "\"":"&quot;"
-    }[c]));
+  function flat(v,d){
+    if(v==null||d>7)return "";
+    if(typeof v!=="object")return String(v);
+    if(Array.isArray(v))return v.slice(0,120).map(x=>flat(x,d+1)).join(" ");
+    return Object.entries(v).slice(0,150).map(([k,x])=>k+" "+flat(x,d+1)).join(" ");
   }
-
-  function primitive(v) {
-    return v != null && typeof v !== "object" ? String(v) : "";
-  }
-
-  function pick(o, names) {
-    if (!o || typeof o !== "object" || Array.isArray(o)) return "";
-    const entries = Object.entries(o);
-    for (const wanted of names) {
-      const exact = entries.find(([k]) => norm(k) === norm(wanted));
-      if (exact) {
-        const value = primitive(exact[1]);
-        if (value) return value;
-      }
+  function pick(o,names){
+    if(!o||typeof o!=="object"||Array.isArray(o))return "";
+    for(const n of names){
+      const f=Object.entries(o).find(([k])=>norm(k)===norm(n));
+      if(f&&f[1]!=null&&typeof f[1]!=="object")return String(f[1]);
     }
     return "";
   }
+  function sanction(o){
+    if(!o||typeof o!=="object")return "";
+    const f=Object.entries(o).find(([k])=>["sancion","multa"].includes(norm(k)));
+    if(!f)return pick(o,["cuantia","cuantía","importe"]);
+    const v=f[1];
+    if(v&&typeof v==="object"&&!Array.isArray(v)){
+      const min=v.min??v.minimo??v.importe_min,max=v.max??v.maximo??v.importe_max;
+      if(min!=null&&max!=null)return `${min} € – ${max} €`;
+      if(min!=null)return `Desde ${min} €`;
+      if(max!=null)return `Hasta ${max} €`;
+      if(v.texto)return String(v.texto);
+    }
+    return typeof v==="object"?"":String(v);
+  }
+  function make(o,src,path){
+    if(!o||typeof o!=="object"||Array.isArray(o))return null;
+    const id=pick(o,["id"]),code=pick(o,["codigo","código"]),article=pick(o,["articulo","artículo","article","art","precepto","numero"]),apartado=pick(o,["apartado","parrafo","párrafo"]);
+    const title=pick(o,["titulo","título","title","concepto","denominacion","denominación","epigrafe","epígrafe","nombre"]);
+    const desc=pick(o,["conducta","descripcion","descripción","texto","text","contenido","content","tipificacion","tipificación","hechos"]);
+    const severity=pick(o,["gravedad","severity","clasificacion","clasificación"]),sanc=sanction(o);
+    if(!(id||code||article||title||desc))return null;
+    const art=article?String(article)+(apartado&&!String(article).includes("."+apartado)?"."+apartado:""):"";
+    return {source:src,path,id,code,article:art,title,description:desc,severity,sanction:sanc,isInfraction:/infraccion/.test(norm(src))||!!severity||!!sanc||/sancion|multa|conducta|tipificacion/.test(norm(Object.keys(o).join(" "))),search:norm([src,id,code,art,title,desc,severity,sanc,flat(o,0)].join(" "))};
+  }
+  function walk(v,src,path,out,d){
+    if(v==null||d>10)return;
+    if(Array.isArray(v)){v.forEach((x,i)=>walk(x,src,`${path}[${i}]`,out,d+1));return;}
+    if(typeof v!=="object")return;
+    const r=make(v,src,path);if(r)out.push(r);
+    Object.entries(v).forEach(([k,x])=>{if(x&&typeof x==="object")walk(x,src,`${path}.${k}`,out,d+1);});
+  }
 
-  function pickAmount(o) {
-    if (!o || typeof o !== "object") return "";
-    for (const key of ["sancion", "sanción", "multa"]) {
-      const found = Object.entries(o).find(([k]) => norm(k) === norm(key));
-      const val = found && found[1];
-      if (val && typeof val === "object" && !Array.isArray(val)) {
-        const min = val.min ?? val.minimo ?? val.importe_min;
-        const max = val.max ?? val.maximo ?? val.importe_max;
-        const moneda = val.moneda || "€";
-        const fmt = n => typeof n === "number" ? n.toLocaleString("es-ES") : String(n);
-        if (min != null && max != null) return min === max ? fmt(min)+" "+moneda : fmt(min)+" – "+fmt(max)+" "+moneda;
-        if (min != null) return "desde " + fmt(min) + " " + moneda;
-        if (max != null) return "hasta " + fmt(max) + " " + moneda;
+  let INDEX=[],PROMISE=null,mode="all",severity="all";
+  async function load(){
+    if(PROMISE)return PROMISE;
+    PROMISE=Promise.all(DATA.map(async([src,url])=>{
+      try{const r=await fetch(`${url}?searchv=20260904v4`,{cache:"no-store"});if(!r.ok)throw Error(r.status);const j=await r.json(),o=[];walk(j,src,"$",o,0);return o;}
+      catch(e){console.warn("Centinela buscador: no carga",url,e);return [];} 
+    })).then(g=>{INDEX=g.flat();return INDEX;});
+    return PROMISE;
+  }
+  function distance(a,b){
+    if(a===b)return 0;if(Math.abs(a.length-b.length)>2)return 99;
+    let p=Array.from({length:b.length+1},(_,i)=>i);
+    for(let i=1;i<=a.length;i++){const c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(c[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[b.length];
+  }
+  function match(t,text){
+    if(!t)return false;if(text.includes(t))return true;
+    if((ALIAS[t]||[]).some(a=>text.includes(norm(a))))return true;
+    for(const w of text.split(" ")){
+      if(w.length>=5&&t.length>=5){
+        if(distance(t,w)<=(t.length>=8?2:1))return true;
+        if(t.slice(0,5)===w.slice(0,5))return true;
       }
     }
-    return pick(o, ["cuantia","cuantía","importe","importe_min","importe_max"]);
+    return false;
   }
-
-  function flat(v, depth) {
-    if (depth > 6 || v == null) return "";
-    if (typeof v !== "object") return String(v);
-    if (Array.isArray(v)) return v.slice(0, 50).map(x => flat(x, depth + 1)).join(" ");
-    return Object.entries(v).slice(0, 80).map(([k,x]) => k + " " + flat(x, depth + 1)).join(" ");
+  function expanded(ts){
+    const s=new Set(ts);ts.forEach(t=>(ALIAS[t]||[]).forEach(a=>s.add(norm(a))));
+    GROUPS.forEach(g=>{if(g.some(x=>ts.some(t=>match(t,norm(x)))))g.forEach(x=>s.add(norm(x)));});
+    return [...s];
   }
-
-  function looksLikeInfraction(o, src, description, amount) {
-    const keys = Object.keys(o).map(norm).join(" ");
-    return /infracc/.test(norm(src)) ||
-      !!amount ||
-      /sancion|multa|cuantia|importe/.test(keys) ||
-      (/conducta|tipificacion|tipificaci[oó]n/.test(keys) && /articulo|precepto|codigo/.test(keys)) ||
-      (/gravedad/.test(keys) && !!description);
+  function score(r,q){
+    const n=norm(q),ts=toks(q),ex=expanded(ts),text=r.search;if(!ts.length)return 0;let s=0;
+    if(norm(r.article)===n)s+=1200;if(norm(r.code)===n)s+=1100;if(norm(r.title)===n)s+=700;if(text.includes(n))s+=350;
+    ts.forEach(t=>{if(match(t,text))s+=90;if(norm(r.article).includes(t))s+=80;if(norm(r.title).includes(t))s+=60;if(norm(r.description).includes(t))s+=35;if(norm(r.source).includes(t))s+=40;});
+    ex.forEach(t=>{if(text.includes(t))s+=10;if(norm(r.title).includes(t))s+=15;if(norm(r.article).includes(t))s+=20;});
+    if(/comerc|ambul|vendedor|venta|mercadillo|pescad|marisc|juguet|autoriz|sancion|multa/.test(n)&&/comercio ambulante|venta ambulante|vendedor ambulante/.test(text))s+=220;
+    if(/pescad|marisc/.test(n)&&/pescado|pesquer|marisco/.test(text))s+=180;
+    if(/juguet/.test(n)&&/juguet|infantil/.test(text))s+=180;
+    if(/sancion|multa|infraccion/.test(n)&&r.isInfraction)s+=130;
+    return s;
   }
+  const esc=v=>String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 
-  function makeRecord(o, src, path) {
-    if (!o || typeof o !== "object" || Array.isArray(o)) return null;
-
-    const code = pick(o, ["codigo","código"]);
-    const id = pick(o, ["id"]);
-    const article = pick(o, ["articulo","artículo","article","art","precepto"]);
-    const apartado = pick(o, ["apartado","párrafo","parrafo","numero","número"]);
-    const title = pick(o, ["titulo","título","title","denominacion","denominación","epigrafe","epígrafe","nombre","name","concepto"]);
-    const description = pick(o, ["conducta","descripcion","descripción","description","texto","text","contenido","content","tipificacion","tipificación","hechos"]);
-    const severity = pick(o, ["gravedad","severity","clasificacion","clasificación"]);
-    const amount = pickAmount(o);
-
-    const hasIdentity = !!(code || article || id || title || description);
-    if (!hasIdentity) return null;
-
-    const articleDisplay = article
-      ? (apartado && !String(article).includes("." + apartado) ? String(article) + "." + apartado : String(article))
-      : (/^\d+(?:\.\d+)+$/.test(code) ? code : "");
-
-    if (!articleDisplay && !code && !description && (!title || /^(infracciones|normativa|datos|metadata)$/i.test(title))) return null;
-
-    const inf = looksLikeInfraction(o, src, description, amount);
-    const searchable = norm([
-      src, code, id, articleDisplay, title, description, severity, amount, flat(o, 0)
-    ].join(" "));
-
-    return {
-      source: src,
-      path,
-      code: code || "",
-      id: id || "",
-      article: articleDisplay || article || "",
-      title: title || "",
-      description: description || "",
-      severity: severity || "",
-      amount: amount || "",
-      isInfraction: inf,
-      raw: o,
-      search: searchable
-    };
+  function render(rs,q){
+    const box=document.getElementById("consultaResults"),count=document.getElementById("consultaResultCount");if(!box)return;if(count)count.textContent=String(rs.length);
+    if(!q.trim()){box.innerHTML='<div class="empty-state"><div class="empty-icon">🔎</div><h3>Buscar normativa o infracción</h3><p>Prueba «vendedor ambulante», «pescado», «juguetes», «sin autorización» o un artículo.</p></div>';return;}
+    if(!rs.length){box.innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Sin resultados</h3><p>No se ha encontrado coincidencia. El buscador también tolera errores como «vendendor ambulante juguestes».</p></div>';return;}
+    box.innerHTML=rs.slice(0,100).map((r,i)=>`<article class="result-card cc-search-result" data-i="${i}"><div class="result-card-header"><div><span class="result-ley">${esc(r.source)}</span>${r.article?`<span class="result-code">Art. ${esc(r.article)}</span>`:""}<h3>${esc(r.title||"Sin título")}</h3></div>${r.severity?`<span class="severity-badge">${esc(r.severity)}</span>`:""}</div><p class="result-conducta">${esc((r.description||"").slice(0,280))}${(r.description||"").length>280?"…":""}</p><div class="result-meta">${r.sanction?`<span class="result-pill result-pill--sancion"><span class="result-pill-label">Sanción</span> ${esc(r.sanction)}</span>`:""}${r.isInfraction?'<span class="result-pill">Infracción</span>':""}</div><button type="button" class="result-detail-button cc-detail">Ver detalle</button></article>`).join("");
+    box.querySelectorAll(".cc-detail").forEach((b,i)=>b.addEventListener("click",()=>detail(rs[i])));
   }
-
-  function walk(value, src, path, out, depth) {
-    if (depth > 10 || value == null) return;
-    if (Array.isArray(value)) {
-      value.forEach((item, i) => walk(item, src, path + "[" + i + "]", out, depth + 1));
-      return;
+  function detail(r){
+    const modal=document.getElementById("appModal"),body=document.getElementById("modalBody"),title=document.getElementById("modalTitle"),actions=document.getElementById("modalActions");
+    if(!modal||!body){alert(`${r.article||r.code||r.source}\n\n${r.title}\n\n${r.description}\n\n${r.sanction||""}`);return;}
+    if(title)title.textContent=r.article?`Art. ${r.article}`:(r.code||r.source);
+    body.innerHTML=`<div class="detail-content"><p><strong>Normativa:</strong> ${esc(r.source)}</p><p><strong>Artículo:</strong> ${esc(r.article||"-")}</p><p><strong>Concepto:</strong> ${esc(r.title||"-")}</p><p><strong>Gravedad:</strong> ${esc(r.severity||"-")}</p><h4>Conducta / contenido</h4><p>${esc(r.description||"-")}</p>${r.sanction?`<h4>Sanción</h4><p>${esc(r.sanction)}</p>`:""}</div>`;
+    if(actions)actions.innerHTML='<button class="secondary-button" type="button" id="ccCloseDetail">Cerrar</button>';
+    modal.classList.remove("hidden");document.getElementById("ccCloseDetail")?.addEventListener("click",()=>modal.classList.add("hidden"));
+  }
+  async function search(q){
+    q=String(q||"");if(!q.trim()){render([],q);return;}render([],"Buscando…");
+    const idx=await load();let rs=idx;if(mode==="infractions")rs=rs.filter(r=>r.isInfraction);if(severity!=="all")rs=rs.filter(r=>norm(r.severity)===norm(severity));
+    rs=rs.map(r=>({r,s:score(r,q)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s||String(a.r.article).localeCompare(String(b.r.article),"es",{numeric:true})).map(x=>x.r);render(rs,q);
+  }
+  function go(q,m){mode=m||"all";document.querySelector('.nav-item[data-section="consulta"]')?.click();setTimeout(()=>{const i=document.getElementById("consultaSearch");if(i){i.value=q||"";search(i.value);}},80);}
+  function install(){
+    const input=document.getElementById("consultaSearch");
+    if(input){
+      input.addEventListener("input",e=>{e.stopImmediatePropagation();search(input.value);},true);
+      input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.stopImmediatePropagation();search(input.value);}},true);
     }
-    if (typeof value !== "object") return;
-    const record = makeRecord(value, src, path);
-    if (record) out.push(record);
-    Object.entries(value).forEach(([key, child]) => {
-      if (child && typeof child === "object") walk(child, src, path + "." + key, out, depth + 1);
-    });
+    document.querySelectorAll(".filter-chip[data-severity]").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();document.querySelectorAll(".filter-chip[data-severity]").forEach(x=>x.classList.remove("active"));b.classList.add("active");severity=b.dataset.severity||"all";search(input?.value||"");},true));
+    const g=document.getElementById("cc-global-search-input");
+    document.getElementById("cc-global-search-go")?.addEventListener("click",()=>go(g?.value||"","all"));
+    g?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go(g.value,"all");}});
+    document.querySelectorAll("[data-cc-search-mode]").forEach(b=>b.addEventListener("click",()=>go(g?.value||"",b.dataset.ccSearchMode||"all")));
+    load();
   }
-
-  async function cargarIndice() {
-    if (cargado) return;
-    const groups = await Promise.all(DATA_FILES.map(async ([src, url]) => {
-      try {
-        const response = await fetch(url, { cache: "no-cache" });
-        if (!response.ok) throw new Error(String(response.status));
-        const json = await response.json();
-        const records = [];
-        walk(json, src, "$", records, 0);
-        return records;
-      } catch (error) {
-        console.warn("Buscador: no se pudo cargar", url, error);
-        return [];
-      }
-    }));
-    indiceGlobal = groups.flat();
-    indiceInfracciones = indiceGlobal.filter(r => r.isInfraction);
-    cargado = true;
-  }
-
-  function score(r, query) {
-    const q = norm(query);
-    const ts = tokens(query);
-    const article = norm(r.article);
-    const code = norm(r.code);
-    const title = norm(r.title);
-    const description = norm(r.description);
-    const source = norm(r.source);
-    const all = r.search;
-    let score = 0;
-
-    if (article === q) score += 1000;
-    if (code === q) score += 950;
-    if (article.replace(/\s/g, "") === q.replace(/\s/g, "")) score += 850;
-    if (code.replace(/\s/g, "") === q.replace(/\s/g, "")) score += 800;
-    if (article.includes(q)) score += 350;
-    if (code.includes(q)) score += 330;
-    if (title === q) score += 250;
-    if (title.includes(q)) score += 100;
-    if (source === q) score += 220;
-    else if (source.includes(q)) score += 60;
-
-    const law = q.match(/ley\s+(\d+)\s*\/\s*(\d{4})/);
-    if (law) {
-      const lawName = "ley " + law[1] + "/" + law[2];
-      if (source === lawName) score += 500;
-      else if (source.includes(lawName)) score += 300;
-    }
-
-    const numeric = ts.filter(x => /^\d+(?:\.\d+)*$/.test(x));
-    numeric.forEach(x => {
-      if (article === x) score += 700;
-      if (code === x) score += 650;
-      if (article.startsWith(x + ".")) score += 300;
-      if (code.startsWith(x + ".")) score += 280;
-    });
-
-    const expanded = new Set(ts);
-    ts.forEach(x => (SYN[x] || []).forEach(y => expanded.add(norm(y))));
-
-    // Coincidencias por raíz: vendedor/vender/venta, ambulante/ambulantes, etc.
-    const roots = [
-      ["vendedor","vendedora","vendedores","vendedoras","vender","venta","ventas","comerciante","comerciantes","comercio"],
-      ["ambulante","ambulantes","ambulant"],
-      ["pescado","pescados","pescadero","pescadera","pescadería","pescaderia","pesquero","pesqueros"],
-      ["juguete","juguetes","juguetería","jugueteria"],
-      ["autorización","autorizaciones","autorizado","autorizada","autorizar"],
-      ["sanción","sanciones","sancionar","sancion","multa","infracción","infracciones"],
-      ["mercancía","mercancias","mercancia","mercaderia","mercadería"]
-    ];
-    roots.forEach(group => {
-      const hit = group.some(term => ts.some(t => t === norm(term) || norm(term).startsWith(t) || t.startsWith(norm(term))));
-      if (hit) group.forEach(term => expanded.add(norm(term)));
-    });
-
-    expanded.forEach(x => {
-      if (article === x) score += 150;
-      else if (article.includes(x)) score += 55;
-      else if (code.includes(x)) score += 50;
-      else if (title.includes(x)) score += 35;
-      else if (description.includes(x)) score += 15;
-      else if (all.includes(x)) score += 5;
-    });
-
-    const relevant = ts.filter(x => !STOP.has(x));
-    if (relevant.length) {
-      const hits = relevant.filter(x => all.includes(x)).length;
-      score += Math.round((hits / relevant.length) * 90);
-    }
-
-    // Para consultas de comercio ambulante, premiamos los resultados que contienen
-    // simultáneamente el ámbito y la conducta/producto buscado.
-    const comercioQuery = /ambulant|mercadillo|vendedor|venta|comercio|pescad|juguet/.test(q);
-    if (comercioQuery && /comercio ambulante|vendedor ambulante|mercadillo|venta ambulante/.test(all)) score += 120;
-    if (/pescad/.test(q) && /pescad|pesquer|marisco/.test(all)) score += 160;
-    if (/juguet/.test(q) && /juguet/.test(all)) score += 160;
-    if (/autoriz/.test(q) && /autoriz/.test(all)) score += 100;
-    if (/sanc|infracc|multa/.test(q) && /sanc|infracc|multa|grave|leve|muy grave/.test(all)) score += 120;
-
-    return score;
-  }
-
-  function unique(records) {
-    const seen = new Set();
-    return records.filter(r => {
-      const key = norm([r.source, r.article, r.code, r.title, r.description.slice(0, 160)].join("|"));
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-  }
-
-  function excerpt(text, query) {
-    const textClean = String(text || "").replace(/\s+/g, " ").trim();
-    if (!textClean) return "Sin descripción disponible.";
-    const qTokens = tokens(query).filter(x => x.length > 2);
-    const term = qTokens[0] || "";
-    const pos = term ? norm(textClean).indexOf(term) : -1;
-    if (pos > 90) return "…" + textClean.slice(pos - 80, pos + 420) + (textClean.length > pos + 420 ? "…" : "");
-    return textClean.slice(0, 500) + (textClean.length > 500 ? "…" : "");
-  }
-
-  function navigate(section) {
-    if (typeof window.activarSeccion === "function") {
-      window.activarSeccion(section);
-      return true;
-    }
-    const button = document.querySelector('.nav-item[data-section="' + section + '"]');
-    if (!button) return false;
-    button.click();
-    return true;
-  }
-
-  function toast(text) {
-    if (typeof window.mostrarToast === "function") window.mostrarToast(text);
-  }
-
-  function getActaCode(r) {
-    return r.code || r.article || r.id || r.title || "";
-  }
-
-  function useInActa(r) {
-    if (!r || !navigate("actas")) return;
-    setTimeout(() => {
-      const newButton = document.getElementById("newActaButton");
-      if (newButton) newButton.click();
-      setTimeout(() => {
-        const input = document.getElementById("actaInfraccion");
-        const amount = document.getElementById("actaCuantia");
-        const preview = document.getElementById("actaInfraccionPreview");
-        const code = getActaCode(r);
-        if (input) {
-          input.value = code;
-          input.dispatchEvent(new Event("input", { bubbles: true }));
-          input.dispatchEvent(new Event("change", { bubbles: true }));
-        }
-        if (amount && r.amount) {
-          amount.value = r.amount;
-          amount.dispatchEvent(new Event("input", { bubbles: true }));
-        }
-        if (preview) preview.textContent = r.description || r.title || code;
-        toast("Infracción cargada en el acta");
-      }, 150);
-    }, 150);
-  }
-
-  function renderResults(results, query, onlyInfractions) {
-    const zone = document.getElementById("bcResultsZone");
-    if (!zone) return;
-    if (!query.trim()) {
-      zone.innerHTML = '<div class="bc-empty">Escribe una búsqueda para consultar la normativa.</div>';
-      return;
-    }
-    if (!results.length) {
-      zone.innerHTML = '<div class="bc-empty"><strong>Sin resultados</strong><span>No hemos encontrado coincidencias. Prueba con un artículo, palabra clave o código.</span></div>';
-      return;
-    }
-    zone.innerHTML = '<div class="bc-results-head"><strong>' + results.length + ' resultado' + (results.length === 1 ? '' : 's') + '</strong><span>' + (onlyInfractions ? 'Solo infracciones' : 'Toda la normativa') + '</span></div>' + results.slice(0, 80).map((r, i) => {
-      const badge = r.isInfraction ? '<span class="bc-badge inf">Infracción</span>' : '<span class="bc-badge">Normativa</span>';
-      const article = r.article ? '<span class="bc-article">Art. ' + esc(r.article) + '</span>' : '';
-      const amount = r.amount ? '<span class="bc-amount">' + esc(r.amount) + '</span>' : '';
-      const action = r.isInfraction ? '<button type="button" class="bc-use-acta" data-index="' + i + '">Usar en acta</button>' : '';
-      return '<article class="bc-result-card"><div class="bc-result-top"><div>' + article + '<h4>' + esc(r.title || r.description || r.code || 'Resultado') + '</h4></div>' + badge + '</div><div class="bc-source">' + esc(r.source) + '</div><p>' + esc(excerpt(r.description || r.title || r.code, query)) + '</p><div class="bc-result-bottom">' + amount + action + '</div></article>';
-    }).join('');
-    zone.querySelectorAll(".bc-use-acta").forEach(btn => {
-      btn.addEventListener("click", () => useInActa(results[Number(btn.dataset.index)]));
-    });
-  }
-
-  async function search(query, onlyInfractions) {
-    await cargarIndice();
-    const source = onlyInfractions ? indiceInfracciones : indiceGlobal;
-    const q = norm(query);
-    if (!q) return renderResults([], query, onlyInfractions);
-    const results = unique(source.map(r => ({ ...r, _score: score(r, query) }))
-      .filter(r => r._score > 0)
-      .sort((a, b) => b._score - a._score));
-    renderResults(results, query, onlyInfractions);
-  }
-
-  function mount() {
-    const zone = document.getElementById("buscadorGlobalZone") || document.getElementById("consulta");
-    if (!zone || document.getElementById("bcMainInput")) return;
-    zone.innerHTML = '<div class="bc-search-card"><h3>¿Qué necesitas consultar?</h3><p>Busca en toda la normativa o exclusivamente en infracciones sancionables.</p><div class="bc-search-options"><button type="button" class="bc-search-option active" id="bcModeGlobal">📚 Toda la normativa</button><button type="button" class="bc-search-option inf" id="bcModeInf">⚠️ Solo infracciones</button></div><div class="bc-input-wrap"><span>⌕</span><input id="bcMainInput" type="search" autocomplete="off" placeholder="Ej.: vendedor ambulante, pescado, juguetes, art. 13.2…"></div></div>';
-    zone.insertAdjacentHTML("beforeend", '<div id="bcResultsZone" class="bc-results-zone"><div class="bc-empty">Escribe una búsqueda para consultar la normativa.</div></div>');
-    const input = document.getElementById("bcMainInput");
-    const globalBtn = document.getElementById("bcModeGlobal");
-    const infBtn = document.getElementById("bcModeInf");
-    let onlyInfractions = false;
-    const run = () => search(input.value, onlyInfractions);
-    const setMode = infractions => {
-      onlyInfractions = infractions;
-      globalBtn.classList.toggle("active", !infractions);
-      infBtn.classList.toggle("active", infractions);
-      input.placeholder = infractions ? "Ej.: vendedor ambulante sin autorización, pescado, juguetes…" : "Ej.: vendedor ambulante, pescado, juguetes, art. 13.2…";
-      run();
-    };
-    input.addEventListener("input", run);
-    input.addEventListener("keydown", e => {
-      if (e.key === "Enter") run();
-    });
-    globalBtn.addEventListener("click", () => setMode(false));
-    infBtn.addEventListener("click", () => setMode(true));
-  }
-
-  window.CentinelaBuscador = {
-    mount,
-    cargarIndice,
-    search: (query, onlyInfractions = false) => search(query, onlyInfractions)
-  };
-
-  document.addEventListener("DOMContentLoaded", mount);
-  window.addEventListener("load", mount);
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
+  window.CentinelaSearch={search,load,go};
 })();
