@@ -21,77 +21,79 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
+          import re
 
           p = Path('app.js')
           s = p.read_text(encoding='utf-8')
           original = s
 
-          def once(old, new, label):
+          def replace_once(pattern, repl, label, flags=0):
               global s
-              if old not in s:
+              s2, n = re.subn(pattern, repl, s, count=1, flags=flags)
+              if n != 1:
                   raise SystemExit(f'No se encontró el patrón: {label}')
-              s = s.replace(old, new, 1)
+              s = s2
 
-          once('VERSION: "1.5.0"', 'VERSION: "1.6.0"', 'VERSION')
+          replace_once(r'VERSION:\s*"1\.5\.0"', 'VERSION: "1.6.0"', 'VERSION')
 
-          once(
-              'infraccionesTrafico: "./data/infracciones_trafico.json",',
-              'infraccionesTrafico: "./data/infracciones_trafico.json",\n    infraccionesVmpBicicletas: "./data/infracciones_vmp_bicicletas.json",',
+          replace_once(
+              r'(infraccionesTrafico:\s*"\./data/infracciones_trafico\.json",)',
+              r'\1\n    infraccionesVmpBicicletas: "./data/infracciones_vmp_bicicletas.json",',
               'ruta infracciones VMP'
           )
-          once(
-              'trafico: "./data/normativa_trafico.json",',
-              'trafico: "./data/normativa_trafico.json",\n    vmpBicicletas: "./data/normativa_vmp_bicicletas.json",',
+          replace_once(
+              r'(trafico:\s*"\./data/normativa_trafico\.json",)',
+              r'\1\n    vmpBicicletas: "./data/normativa_vmp_bicicletas.json",',
               'ruta normativa VMP'
           )
-          once(
-              'trafico: null,\n  ley392015:',
-              'trafico: null,\n  vmpBicicletas: null,\n  ley392015:',
+          replace_once(
+              r'(trafico:\s*null,)(\s*ley392015:)',
+              r'\1\n  vmpBicicletas: null,\2',
               'estado VMP'
           )
 
-          once(
-              'cargarJSON(CONFIG.RUTAS.infraccionesTrafico),\n    cargarJSON(CONFIG.RUTAS.lopsc),',
-              'cargarJSON(CONFIG.RUTAS.infraccionesTrafico),\n    cargarJSON(CONFIG.RUTAS.infraccionesVmpBicicletas),\n    cargarJSON(CONFIG.RUTAS.lopsc),',
+          replace_once(
+              r'(cargarJSON\(CONFIG\.RUTAS\.infraccionesTrafico\),\s*)cargarJSON\(CONFIG\.RUTAS\.lopsc\),',
+              r'\1cargarJSON(CONFIG.RUTAS.infraccionesVmpBicicletas),\n    cargarJSON(CONFIG.RUTAS.lopsc),',
               'Promise infracciones VMP'
           )
-          once(
-              'cargarJSON(CONFIG.RUTAS.animales),\n    cargarJSON(CONFIG.RUTAS.trafico),\n    cargarJSON(CONFIG.RUTAS.leyFcs),',
-              'cargarJSON(CONFIG.RUTAS.animales),\n    cargarJSON(CONFIG.RUTAS.trafico),\n    cargarJSON(CONFIG.RUTAS.vmpBicicletas),\n    cargarJSON(CONFIG.RUTAS.leyFcs),',
+          replace_once(
+              r'(cargarJSON\(CONFIG\.RUTAS\.trafico\),\s*)cargarJSON\(CONFIG\.RUTAS\.leyFcs\),',
+              r'\1cargarJSON(CONFIG.RUTAS.vmpBicicletas),\n    cargarJSON(CONFIG.RUTAS.leyFcs),',
               'Promise normativa VMP'
           )
 
-          once(
-              'rInfracciones, rInfraccionesTrafico, rLopsc, rCodigoPenal, rMenores,',
+          replace_once(
+              r'rInfracciones,\s*rInfraccionesTrafico,\s*rLopsc,\s*rCodigoPenal,\s*rMenores,',
               'rInfracciones, rInfraccionesTrafico, rInfraccionesVmpBicicletas, rLopsc, rCodigoPenal, rMenores,',
               'destructuración infracciones VMP'
           )
-          once(
-              'rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico,\n    rLeyFcs,',
+          replace_once(
+              r'rViolenciaGenero,\s*rOrdenanzas,\s*rAnimales,\s*rTrafico,\s*\n\s*rLeyFcs,',
               'rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico, rVmpBicicletas,\n    rLeyFcs,',
               'destructuración normativa VMP'
           )
 
-          once(
-              'if (rInfraccionesTrafico.status === "fulfilled") { \n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesTrafico.value)); \n  }',
-              'if (rInfraccionesTrafico.status === "fulfilled") { \n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesTrafico.value)); \n  }\n\n  if (rInfraccionesVmpBicicletas.status === "fulfilled") {\n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesVmpBicicletas.value));\n  }',
+          replace_once(
+              r'(if \(rInfraccionesTrafico\.status === "fulfilled"\) \{\s*estado\.infracciones = estado\.infracciones\.concat\(extraerInfracciones\(rInfraccionesTrafico\.value\)\);\s*\})',
+              r'\1\n\n  if (rInfraccionesVmpBicicletas.status === "fulfilled") {\n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesVmpBicicletas.value));\n  }',
               'carga infracciones VMP'
           )
-          once(
-              'if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value;',
-              'if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value;\n  if (rVmpBicicletas.status === "fulfilled") estado.vmpBicicletas = rVmpBicicletas.value;',
+          replace_once(
+              r'(if \(rTrafico\.status === "fulfilled"\) estado\.trafico = rTrafico\.value;)',
+              r'\1\n  if (rVmpBicicletas.status === "fulfilled") estado.vmpBicicletas = rVmpBicicletas.value;',
               'carga normativa VMP'
           )
-          once(
-              'agregarGrupoLeyes(estado.trafico, "trafico", "ley-trafico");',
-              'agregarGrupoLeyes(estado.trafico, "trafico", "ley-trafico");\n  agregarGrupoLeyes(estado.vmpBicicletas, "vmp-bicicletas", "ley-vmp-bicicletas");',
+          replace_once(
+              r'(agregarGrupoLeyes\(estado\.trafico,\s*"trafico",\s*"ley-trafico"\);)',
+              r'\1\n  agregarGrupoLeyes(estado.vmpBicicletas, "vmp-bicicletas", "ley-vmp-bicicletas");',
               'buscador normativa VMP'
           )
 
           if s == original:
               raise SystemExit('No hubo cambios en app.js')
           p.write_text(s, encoding='utf-8')
-          print('Integración VMP aplicada')
+          print('Integración VMP aplicada correctamente')
 
       - name: Validar JavaScript
         run: node --check app.js
