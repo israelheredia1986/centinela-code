@@ -10,7 +10,7 @@ async function preguntarCentinelaIA(pregunta) {
     const respuesta = await fetch(CENTINELA_IA_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pregunta: pregunta })
+      body: JSON.stringify({ pregunta: pregunta, modo: "web_first" })
     });
     const datos = await respuesta.json();
     if (!respuesta.ok) {
@@ -19,8 +19,6 @@ async function preguntarCentinelaIA(pregunta) {
       if (error?.message) return "Error IA: " + error.message;
       return "No se ha podido consultar Centinela IA.";
     }
-    const contenido = datos?.choices?.[0]?.message?.content;
-    if (typeof contenido === "string" && contenido.trim()) return contenido.trim();
     if (typeof datos?.text === "string" && datos.text.trim()) return datos.text.trim();
     return "La IA no devolvió una respuesta utilizable.";
   } catch (error) {
@@ -29,38 +27,22 @@ async function preguntarCentinelaIA(pregunta) {
   }
 }
 
-// Motor V4: respaldo local del flujo Internet First.
-(function cargarIAV4() {
+// Motor V5: Internet First + repositorio como fallback.
+(function cargarIAV5() {
   function cargar() {
-    if (document.getElementById("centinelaIAV4Script")) return;
+    if (document.getElementById("centinelaIAV5Script")) return;
     const script = document.createElement("script");
-    script.id = "centinelaIAV4Script";
-    script.src = "./centinela-ia-v4.js?v=20260905-internet-first-v2";
+    script.id = "centinelaIAV5Script";
+    script.src = "./centinela-ia-v4.js?v=20260905-internet-first-v5";
     script.async = false;
-    script.onerror = () => console.warn("No se pudo cargar Centinela IA V4.");
+    script.onerror = () => console.warn("No se pudo cargar Centinela IA V5.");
     document.head.appendChild(script);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(cargar, 0), { once: true });
   else setTimeout(cargar, 0);
 })();
 
-// Flujo principal: Internet primero; repositorio solo si Internet no da una respuesta fiable.
-(function cargarIAInternetFirst() {
-  function cargar() {
-    if (document.getElementById("centinelaIAInternetFirstScript")) return;
-    const script = document.createElement("script");
-    script.id = "centinelaIAInternetFirstScript";
-    script.src = "./ia-internet-first.js?v=20260905-internet-first-v2";
-    script.async = false;
-    script.onerror = () => console.warn("No se pudo cargar el flujo Internet First de Centinela IA.");
-    document.head.appendChild(script);
-  }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(cargar, 800), { once: true });
-  else setTimeout(cargar, 800);
-})();
-
-// Limpieza de presentación: elimina emojis, markdown y etiquetas técnicas
-// de las respuestas visibles sin tocar el JSON utilizado por las actas.
+// Limpieza de presentación.
 (function cargarIALimpieza() {
   function cargar() {
     if (document.getElementById("centinelaIALimpiezaScript")) return;
