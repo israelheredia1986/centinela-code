@@ -13,13 +13,39 @@ async function preguntarCentinelaIA(pregunta) {
       body: JSON.stringify({ pregunta: pregunta })
     });
     const datos = await respuesta.json();
-    if (datos.error) return "Error IA: " + datos.error;
-    return datos.choices[0].message.content;
+    if (!respuesta.ok) {
+      const error = datos?.error;
+      if (typeof error === "string") return "Error IA: " + error;
+      if (error?.message) return "Error IA: " + error.message;
+      return "No se ha podido consultar Centinela IA.";
+    }
+    const contenido = datos?.choices?.[0]?.message?.content;
+    if (typeof contenido === "string" && contenido.trim()) return contenido.trim();
+    if (typeof datos?.text === "string" && datos.text.trim()) return datos.text.trim();
+    return "La IA no devolvió una respuesta utilizable.";
   } catch (error) {
     console.error("Error conexión Centinela IA:", error);
-    return "Error conectando con Centinela IA";
+    return "No se ha podido conectar con Centinela IA. Comprueba la conexión e inténtalo de nuevo.";
   }
 }
+
+// Carga automáticamente la capa IA robusta. Así no es necesario
+// modificar manualmente varios archivos para que la interfaz use
+// contexto normativo local y gestione correctamente los errores.
+(function cargarIARobusta() {
+  function cargar() {
+    if (document.getElementById("centinelaIARobustScript")) return;
+    const script = document.createElement("script");
+    script.id = "centinelaIARobustScript";
+    script.src = "./ia-robust.js?v=20260904-ia-v2";
+    script.async = false;
+    script.onerror = () => console.warn("No se pudo cargar la capa IA robusta; se mantiene el motor básico.");
+    document.head.appendChild(script);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => setTimeout(cargar, 0), { once: true });
+  } else setTimeout(cargar, 0);
+})();
 
 // =====================================================
 // CARGA DEL MÓDULO AVANZADO DE MATRÍCULAS
@@ -41,9 +67,6 @@ async function preguntarCentinelaIA(pregunta) {
 
 // =====================================================
 // ICONOS CENTINELA CODE — V4
-// Los iconos se insertan como SVG REAL en el DOM.
-// No usamos emoji, máscaras CSS ni data-uri: así no pueden
-// desaparecer por incompatibilidades del navegador.
 // =====================================================
 (function repararIconosCentinela() {
   const NS = "http://www.w3.org/2000/svg";
@@ -109,9 +132,6 @@ async function preguntarCentinelaIA(pregunta) {
     `, "icon-ajustes");
   }
 
-  // Robot policial ORIGINAL de Centinela Code.
-  // Estética de robot táctico futurista, sin reproducir un personaje
-  // concreto de Robocop, Transformers u otra franquicia.
   function robot() {
     return makeSVG("Centinela IA", `
       <defs>
@@ -164,18 +184,7 @@ async function preguntarCentinelaIA(pregunta) {
     const style = document.createElement("style");
     style.id = "centinela-icon-fix-v4";
     style.textContent = `
-      .quick-action-icon,
-      .nav-icon,
-      .loading-logo{
-        background:none!important;
-        background-image:none!important;
-        -webkit-mask:none!important;
-        mask:none!important;
-        color:inherit!important;
-        font-size:0!important;
-        text-shadow:none!important;
-        overflow:visible!important;
-      }
+      .quick-action-icon,.nav-icon,.loading-logo{background:none!important;background-image:none!important;-webkit-mask:none!important;mask:none!important;color:inherit!important;font-size:0!important;text-shadow:none!important;overflow:visible!important}
       .quick-action-icon{display:flex!important;align-items:center!important;justify-content:center!important;width:122px!important;height:132px!important}
       .nav-icon{display:flex!important;align-items:center!important;justify-content:center!important;width:38px!important;height:38px!important}
       .loading-logo{display:flex!important;align-items:center!important;justify-content:center!important;width:86px!important;height:86px!important}
@@ -183,11 +192,7 @@ async function preguntarCentinelaIA(pregunta) {
       .quick-action-icon .centinela-svg{filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 10px currentColor)!important}
       .nav-icon .centinela-svg{width:36px!important;height:36px!important}
       .nav-item[data-section="ia"] .nav-icon .icon-robot{width:43px!important;height:43px!important;filter:drop-shadow(0 0 7px #31b9ff) drop-shadow(0 0 13px #31b9ff)!important}
-      @media(max-width:520px){
-        .quick-action-icon{width:104px!important;height:116px!important}
-        .nav-icon{width:31px!important;height:31px!important}
-        .nav-item[data-section="ia"] .nav-icon .icon-robot{width:40px!important;height:40px!important}
-      }
+      @media(max-width:520px){.quick-action-icon{width:104px!important;height:116px!important}.nav-icon{width:31px!important;height:31px!important}.nav-item[data-section="ia"] .nav-icon .icon-robot{width:40px!important;height:40px!important}}
     `;
     document.head.appendChild(style);
   }
@@ -195,14 +200,14 @@ async function preguntarCentinelaIA(pregunta) {
   function start() {
     installCSS();
     applyIcons();
-    [300, 1000, 2500].forEach(ms => setTimeout(applyIcons, ms));
+    [300,1000,2500].forEach(ms=>setTimeout(applyIcons,ms));
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once:true });
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded",start,{once:true});
   else start();
 
-  const observer = new MutationObserver(() => {
+  const observer = new MutationObserver(()=>{
     if (!document.querySelector(".nav-icon .centinela-svg") || !document.querySelector(".quick-action-icon .centinela-svg")) applyIcons();
   });
-  observer.observe(document.documentElement, { childList:true, subtree:true });
+  observer.observe(document.documentElement,{childList:true,subtree:true});
 })();
