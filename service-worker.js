@@ -1,14 +1,13 @@
 /* ============================================================
-   CENTINELA CODE — SERVICE WORKER V38
+   CENTINELA CODE — SERVICE WORKER V39
    Constitución Española + corpus normativo + buscadores PRO.
-   V38 mantiene la recuperación de caché y aplica únicamente el
-   cambio de etiqueta solicitado en el estado del sistema.
+   FIX: pestaña Constitución persistente aunque Normativa se reconstruya.
    ============================================================ */
-const CACHE_NAME="centinela-code-v38-recovery-label";
+const CACHE_NAME="centinela-code-v39-constitucion-tab-fix";
 const ARCHIVOS=[
   "./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css",
   "./visual-enhancements.js?v=20260904-search-v2","./app.js","./centinela-infracciones-ui.js?v=20260904-infracciones-v1","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js",
-  "./buscadores.js?v=20260904-search-v4","./buscador-pro.js?v=20260904-search-v5","./bloque1-juridico.js?v=20260904-bloque1-v1","./constitucion-completa.js?v=20260904-constitucion-v2","./manifest.json",
+  "./buscadores.js?v=20260904-search-v4","./buscador-pro.js?v=20260904-search-v5","./bloque1-juridico.js?v=20260904-bloque1-v1","./constitucion-completa.js?v=20260904-constitucion-v2","./constitucion-tab-fix.js?v=20260904-constitucion-tab-fix-v1","./manifest.json",
   "./data/lopsc.json","./data/infracciones.json","./data/contrabando.json","./data/infracciones_trafico.json","./data/infracciones_vmp_bicicletas.json","./data/ordenanzas.json","./data/codigo_penal.json",
   "./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/normativa_vmp_bicicletas.json",
   "./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json",
@@ -47,6 +46,7 @@ async function prepararHtml(response){
     html=replaceScript(html,'centinela-infracciones-ui.js','?v=20260904-infracciones-v1');
     html=replaceScript(html,'bloque1-juridico.js','?v=20260904-bloque1-v1');
     html=replaceScript(html,'constitucion-completa.js','?v=20260904-constitucion-v2');
+    html=replaceScript(html,'constitucion-tab-fix.js','?v=20260904-constitucion-tab-fix-v1');
     html=aplicarEtiquetaSolicitada(html);
     const headers=new Headers(response.headers);
     headers.set('Content-Type','text/html; charset=utf-8');
