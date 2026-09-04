@@ -1,8 +1,8 @@
 // CENTINELA IA — INTERNET FIRST + FALLBACK REPOSITORIO — GRATIS
 // Requiere el secreto GEMINI_API_KEY en Supabase.
-// Usa Gemini 2.5 Flash porque su nivel gratuito permite Google Search grounding.
+// Usa Gemini 2.5 Flash-Lite para mantener el modelo gratuito.
 
-const MODEL = "gemini-2.5-flash";
+const MODEL = "gemini-2.5-flash-lite";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
 const CORS = {
@@ -69,7 +69,7 @@ async function gemini(apiKey: string, prompt: string, internet: boolean) {
     },
   };
 
-  // Gemini 2.5 Flash dispone de Google Search grounding en el nivel gratuito.
+  // Solo se activa Google Search en la fase web_first.
   if (internet) {
     body.tools = [{ google_search: {} }];
   }
