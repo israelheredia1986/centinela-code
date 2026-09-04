@@ -1,13 +1,13 @@
 /* ============================================================
-   CENTINELA CODE — SERVICE WORKER V29
+   CENTINELA CODE — SERVICE WORKER V32
    Buscador PRO + normativa VMP, patinetes y bicicletas eléctricas.
    ============================================================ */
-const CACHE_NAME="centinela-code-v31-infra-assistant";
+const CACHE_NAME="centinela-code-v32-contrabando";
 const ARCHIVOS=[
   "./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css",
-  "./visual-enhancements.js?v=20260904-search-v2","./app.js","./infraccion-assistant.js?v=20260904-infra-v2","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js",
+  "./visual-enhancements.js?v=20260904-search-v2","./app.js","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js",
   "./buscadores.js?v=20260904-search-v4","./buscador-pro.js?v=20260904-search-v5","./manifest.json",
-  "./data/lopsc.json","./data/infracciones.json","./data/infracciones_trafico.json","./data/infracciones_vmp_bicicletas.json","./data/ordenanzas.json","./data/codigo_penal.json",
+  "./data/lopsc.json","./data/infracciones.json","./data/contrabando.json","./data/infracciones_trafico.json","./data/infracciones_vmp_bicicletas.json","./data/ordenanzas.json","./data/codigo_penal.json",
   "./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/normativa_vmp_bicicletas.json",
   "./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json",
   "./data/comercio_ambulante.json","./data/propiedad_industrial_falsificaciones.json","./data/aforo_hosteleria_eventos.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json",
