@@ -35,7 +35,7 @@ async function preguntarCentinelaIA(pregunta) {
     if (document.getElementById("centinelaIAV4Script")) return;
     const script = document.createElement("script");
     script.id = "centinelaIAV4Script";
-    script.src = "./centinela-ia-v4.js?v=20260905-police-v2";
+    script.src = "./centinela-ia-v4.js?v=20260905-police-v3";
     script.async = false;
     script.onerror = () => console.warn("No se pudo cargar Centinela IA V4; se mantiene el motor básico.");
     document.head.appendChild(script);
@@ -51,7 +51,7 @@ async function preguntarCentinelaIA(pregunta) {
     if (document.getElementById("centinelaIALimpiezaScript")) return;
     const script = document.createElement("script");
     script.id = "centinelaIALimpiezaScript";
-    script.src = "./ia-limpieza.js?v=20260905-clean-v1";
+    script.src = "./ia-limpieza.js?v=20260905-clean-v2";
     script.async = false;
     script.onerror = () => console.warn("No se pudo cargar la limpieza de presentación de Centinela IA.");
     document.head.appendChild(script);
@@ -67,7 +67,7 @@ async function preguntarCentinelaIA(pregunta) {
     if (document.getElementById("centinelaIAFormatoPolicialScript")) return;
     const script = document.createElement("script");
     script.id = "centinelaIAFormatoPolicialScript";
-    script.src = "./ia-policia-formato.js?v=20260905-police-format-v2";
+    script.src = "./ia-policia-formato.js?v=20260905-police-format-v3";
     script.async = false;
     script.onerror = () => console.warn("No se pudo cargar el formato policial de Centinela IA.");
     document.head.appendChild(script);
