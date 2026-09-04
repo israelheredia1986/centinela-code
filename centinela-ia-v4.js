@@ -13,19 +13,37 @@
     ["Reglamento de armas","./data/reglamento_armas.json"],["Policías Locales Andalucía","./data/policias_locales_andalucia.json"],
     ["Ley 39/2015","./data/ley_39_2015.json"],["Ley 7/1985","./data/ley_7_1985.json"],["Ley 5/2010 Andalucía","./data/ley_5_2010_andalucia.json"]
   ];
+
+  // Sinónimos operativos. Sirven para que una consulta coloquial del agente
+  // encuentre la materia jurídica correcta aunque el texto normativo use otra palabra.
   const SYN={
-    beber:["bebida","alcohol","consumo","botellon","via publica"],
-    bebiendo:["beber","bebida","alcohol","consumo","via publica"],
-    alcohol:["bebida","beber","consumo","botellon","via publica"],
+    beber:["bebida","alcohol","consumo","botellon","via publica","bebiendo"],
+    bebiendo:["beber","bebida","alcohol","consumo","botellon","via publica"],
+    alcohol:["bebida","beber","consumo","botellon","via publica","embriaguez","ebriedad"],
+    borracho:["alcohol","embriaguez","ebriedad","intoxicado","bebida"],
+    borracha:["alcohol","embriaguez","ebriedad","intoxicada","bebida"],
+    extranjero:["extranjeria","extranjeria","documentacion","documento","estancia","identificacion"],
+    extranjera:["extranjeria","documentacion","documento","estancia","identificacion"],
+    documentar:["documentacion","documento","identificacion","extranjero","extranjeria"],
+    documentacion:["documentar","documento","identificacion","extranjero","extranjeria"],
+    indocumentado:["documentacion","documento","identificacion","extranjero","extranjeria"],
+    indocumentada:["documentacion","documento","identificacion","extranjera","extranjeria"],
+    carnet:["permiso","conduccion","conducir","licencia"],
+    carné:["permiso","conduccion","conducir","licencia"],
+    conducir:["conduccion","permiso","licencia","vehiculo"],
+    niño:["menor","menores","edad"],
+    nino:["menor","menores","edad"],
+    menor:["menores","edad","niño","nino"],
     calle:["via publica","espacio publico","publico"],
     botellon:["alcohol","bebida","via publica","consumo"],
     ruido:["ruidos","musica","molestias","decibelios"],
     arma:["armas","arma blanca","navaja","cuchillo"]
   };
-  const STOP=new Set("a al ante bajo con contra de del desde durante el en entre hacia hasta la las lo los para por segun sin sobre un una unos unas y o que".split(" "));
+  const STOP=new Set("a al ante bajo con contra de del desde durante el en entre hacia hasta la las lo los para por segun sin sobre un una unos unas y o que de mi su del".split(" "));
   let cache=null, breakerUntil=0, progress=null;
   const norm=s=>String(s??"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
   const tok=s=>norm(s).split(/[^a-z0-9.]+/).filter(x=>x.length>1&&!STOP.has(x));
+
   function pick(o,names){if(!o||typeof o!=="object"||Array.isArray(o))return"";for(const n of names){const e=Object.entries(o).find(([k])=>norm(k)===norm(n));if(e&&e[1]!=null&&typeof e[1]!=="object")return String(e[1]);}return"";}
   function flat(v,d=0){if(d>4||v==null)return"";if(typeof v!=="object")return String(v);if(Array.isArray(v))return v.slice(0,30).map(x=>flat(x,d+1)).join(" ");return Object.entries(v).slice(0,60).map(([k,x])=>k+" "+flat(x,d+1)).join(" ");}
   function records(v,src,out=[],d=0){
@@ -51,34 +69,73 @@
     cache=Promise.all(DATA.map(async([src,url])=>{try{const r=await fetch(url+"?ia=v4",{cache:"force-cache"});return r.ok?records(await r.json(),src):[];}catch(_){return[];}})).then(a=>a.flat());
     return cache;
   }
+
   function ranked(q,all){
-    const original=tok(q),expanded=new Set(original);
+    const original=tok(q);
+    const expanded=new Set(original);
     original.forEach(t=>(SYN[t]||[]).forEach(x=>expanded.add(norm(x))));
-    return all.map(r=>{let s=0;original.forEach(t=>{if(norm(r.article)===t)s+=90;if(norm(r.title).includes(t))s+=28;if(norm(r.source).includes(t))s+=20;if(r.text.includes(t))s+=8;});[...expanded].forEach(t=>{if(r.text.includes(t))s+=4;});return{r,s};}).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,12).map(x=>x.r);
+    const phrase=norm(q);
+
+    return all.map(r=>{
+      let score=0;
+      let matched=0;
+      const texto=r.text;
+      original.forEach(t=>{
+        let hit=false;
+        if(norm(r.article)===t){score+=120;hit=true;}
+        if(norm(r.code)===t){score+=90;hit=true;}
+        if(norm(r.title).includes(t)){score+=55;hit=true;}
+        if(norm(r.description).includes(t)){score+=30;hit=true;}
+        if(norm(r.source).includes(t)){score+=45;hit=true;}
+        if(texto.includes(t)){score+=12;hit=true;}
+        if(hit)matched++;
+      });
+      [...expanded].forEach(t=>{
+        if(original.includes(t))return;
+        if(norm(r.title).includes(t))score+=22;
+        else if(norm(r.source).includes(t))score+=18;
+        else if(texto.includes(t))score+=8;
+      });
+
+      // Una coincidencia aislada de una palabra genérica no debe desplazar
+      // una norma que encaja con el conjunto de la consulta.
+      if(original.length>1 && matched===0)score=0;
+      if(original.length>=3 && matched===1)score*=0.35;
+      if(phrase && texto.includes(phrase))score+=180;
+      return {r,s:score,matched};
+    }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,10).map(x=>x.r);
   }
+
   function textOf(d){if(typeof d==="string")return d.trim();return d?.choices?.[0]?.message?.content?.trim()||d?.candidates?.[0]?.content?.parts?.[0]?.text?.trim()||d?.text?.trim()||d?.content?.trim()||"";}
   function errOf(d){if(typeof d==="string")return d;return d?.error?.message||d?.error||d?.message||"Proveedor remoto no disponible";}
   function retryable(status,msg){const m=norm(msg);return [429,500,502,503,504].includes(Number(status))||/high demand|rate limit|quota|overloaded|temporarily unavailable|timeout/.test(m);}
+
   function fallback(q,hits){
     const acciones=hits.map(r=>r.action).filter(Boolean).join(" ");
     const actuacion=acciones||"Comprobar la identidad de los intervinientes y documentar objetivamente los hechos observados. Determinar con precisión la conducta realizada y las circunstancias relevantes. Verificar el artículo, la calificación y la sanción aplicable antes de formular la denuncia. Recoger las pruebas disponibles y dejar constancia de las comprobaciones realizadas. Determinar el órgano competente y tramitar la denuncia conforme al procedimiento aplicable.";
     const fundamento=hits.map(r=>r.foundation).filter(Boolean).join(" ");
     const infracciones=hits.map(r=>({fuente:r.source,articulo:r.article,codigo:r.code,titulo:r.title,descripcion:r.description,gravedad:r.severity,cuantia:r.amount,fundamento:r.foundation,actuacion_policial:r.action}));
     return JSON.stringify({
-      resumen:hits.length?`Se han localizado ${hits.length} coincidencias normativas relacionadas con la consulta. La calificación debe concretarse con los hechos y circunstancias realmente comprobados.`:`No hay coincidencia normativa local suficiente para: ${q}.`,
+      resumen:hits.length?`Se han localizado ${hits.length} referencias normativas relacionadas con la consulta. La respuesta debe concretarse exclusivamente con los hechos y circunstancias realmente comprobados.`:`No hay coincidencia normativa local suficiente para: ${q}.`,
       infracciones,
       articulos:hits.map(r=>r.article).filter(Boolean),
       fundamento,
       actuacion_policial:actuacion,
-      fuente:"Motor normativo local Centinela",
       aviso:"Resultado de contingencia: verificar el precepto, la competencia y la cuantía aplicable antes de formalizar la denuncia."
     });
   }
+
   function promptPolicial(q){
     const texto=String(q||"").trim();
     if(/FORMATO JSON EXACTO|HECHOS DEL AGENTE|HECHOS ORIGINALES/i.test(texto))return texto;
-    return `Eres CENTINELA IA, asistente profesional de apoyo para Policía Local en España. Responde con lenguaje policial claro, objetivo, directo y práctico. No inventes datos, hechos, artículos, sanciones ni competencias. Usa el contexto normativo recibido y diferencia lo acreditado de lo que debe comprobarse.\n\nEstructura la respuesta, cuando proceda, en este orden: Valoración; Infracción y artículo; Norma aplicable; Calificación; Sanción o rango de sanción; Fundamento jurídico; Método de actuación policial. En el Método de actuación policial indica pasos concretos y ordenados para la intervención, comprobaciones, documentación de hechos, denuncia y trámite posterior que correspondan al caso. Si faltan datos, dilo expresamente y señala qué debe comprobar el agente. No devuelvas JSON, código, markdown, emojis ni etiquetas técnicas. No uses la palabra Fuente.\n\nCONSULTA DEL AGENTE:\n${texto}`;
+    return `Eres CENTINELA IA, asistente profesional de apoyo para Policía Local en España. Responde exclusivamente a la consulta del agente y no a consultas anteriores. Lenguaje policial claro, objetivo, directo y práctico. No inventes datos, hechos, artículos, sanciones ni competencias. Usa solo el contexto normativo que realmente guarde relación con la consulta. Descarta expresamente resultados irrelevantes aunque aparezcan en la búsqueda. Diferencia lo acreditado de lo que debe comprobarse.
+
+Estructura, cuando proceda, en este orden: Valoración; Infracción y artículo; Norma aplicable; Calificación; Sanción o rango de sanción; Fundamento jurídico; Método de actuación policial. En el Método de actuación policial indica pasos concretos y ordenados para la intervención, comprobaciones, documentación de hechos, denuncia y trámite posterior que correspondan al caso. Si faltan datos, dilo expresamente y señala qué debe comprobar el agente. No devuelvas JSON, código, markdown, emojis ni etiquetas técnicas. No uses la palabra Fuente.
+
+CONSULTA ACTUAL DEL AGENTE:
+${texto}`;
   }
+
   async function remote(q,ctx){
     if(Date.now()<breakerUntil)throw Error("Proveedor remoto temporalmente saturado");
     let last;
@@ -98,6 +155,7 @@
     }
     breakerUntil=Date.now()+BREAKER;throw last||Error("Proveedor remoto no disponible");
   }
+
   async function ask(q,onProgress){
     q=String(q||"").trim();if(!q)return"Escribe una consulta para Centinela IA.";
     progress=typeof onProgress==="function"?onProgress:null;
@@ -117,6 +175,7 @@
       return JSON.stringify({resumen:"Centinela IA no está disponible temporalmente.",infracciones:[],articulos:[],fundamento:"",actuacion_policial:"Comprueba la conexión y consulta la normativa local manualmente."});
     }finally{progress=null;}
   }
+
   window.preguntarCentinelaIA=ask;
   window.CentinelaIA={preguntar:ask,recargarDatos:()=>{cache=null;return load();},estado:()=>({remoto:Date.now()>=breakerUntil,breakerUntil}),setCallbackProgreso:f=>{progress=typeof f==="function"?f:null}};
   console.info("Centinela IA V4 híbrida activa");
