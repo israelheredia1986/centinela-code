@@ -1,12 +1,12 @@
 /* ============================================================
-   CENTINELA CODE — SERVICE WORKER V35
+   CENTINELA CODE — SERVICE WORKER V36
    Constitución Española + corpus normativo + buscadores PRO.
    ============================================================ */
-const CACHE_NAME="centinela-code-v35-constitucion-integrada";
+const CACHE_NAME="centinela-code-v36-constitucion-tab";
 const ARCHIVOS=[
   "./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css",
   "./visual-enhancements.js?v=20260904-search-v2","./app.js","./centinela-infracciones-ui.js?v=20260904-infracciones-v1","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js",
-  "./buscadores.js?v=20260904-search-v4","./buscador-pro.js?v=20260904-search-v5","./bloque1-juridico.js?v=20260904-bloque1-v1","./constitucion-completa.js?v=20260904-constitucion-v1","./manifest.json",
+  "./buscadores.js?v=20260904-search-v4","./buscador-pro.js?v=20260904-search-v5","./bloque1-juridico.js?v=20260904-bloque1-v1","./constitucion-completa.js?v=20260904-constitucion-v2","./manifest.json",
   "./data/lopsc.json","./data/infracciones.json","./data/contrabando.json","./data/infracciones_trafico.json","./data/infracciones_vmp_bicicletas.json","./data/ordenanzas.json","./data/codigo_penal.json",
   "./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/normativa_vmp_bicicletas.json",
   "./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json",
@@ -38,7 +38,7 @@ async function prepararHtml(response){
     html=replaceScript(html,'buscador-pro.js','?v=20260904-search-v5');
     html=replaceScript(html,'centinela-infracciones-ui.js','?v=20260904-infracciones-v1');
     html=replaceScript(html,'bloque1-juridico.js','?v=20260904-bloque1-v1');
-    html=replaceScript(html,'constitucion-completa.js','?v=20260904-constitucion-v1');
+    html=replaceScript(html,'constitucion-completa.js','?v=20260904-constitucion-v2');
     const headers=new Headers(response.headers);
     headers.set('Content-Type','text/html; charset=utf-8');
     return new Response(html,{status:response.status,statusText:response.statusText,headers});
