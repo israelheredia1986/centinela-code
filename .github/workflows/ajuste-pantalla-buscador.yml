@@ -1,96 +1,56 @@
-name: Ajuste visual buscador Centinela
+name: Reparar Centinela Code
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'index.html'
-      - '.github/workflows/ajuste-pantalla-buscador.yml'
 
 permissions:
   contents: write
 
 jobs:
-  ajustar:
-    if: ${{ !contains(github.event.head_commit.message, '[auto-ajuste-buscador]') }}
+  reparar:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
 
-      - name: Aplicar ajustes internos de interfaz
+      - name: Reparar interfaz
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
+
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
 
-          # Mantener el ajuste existente del buscador global.
-          old = '''<div class="cc-global-search-actions">
-              <button type="button" data-cc-search-mode="all">🔎 Buscar en todo</button>
-              <button type="button" data-cc-search-mode="infractions">⚠ Buscar infracción</button>
-            </div>'''
+          # El archivo fue eliminado y no debe seguir referenciado.
+          for ref in (
+              '<script src="./infraccion-assistant.js?v=20260904-v1"></script>',
+              '<script src="infraccion-assistant.js?v=20260904-v1"></script>',
+              '<script defer src="./infraccion-assistant.js?v=20260904-v1"></script>',
+              '<script defer src="infraccion-assistant.js?v=20260904-v1"></script>',
+          ):
+              s = s.replace(ref, '')
 
-          new = '''<div class="cc-global-search-actions" aria-label="Herramientas de consulta">
-              <button type="button" data-cc-search-mode="all" title="Buscar en toda la base normativa local">⌕ CONSULTA GLOBAL</button>
-              <button type="button" data-cc-search-mode="infractions" title="Filtrar y localizar infracciones sancionables">⚠ IDENTIFICAR INFRACCIÓN</button>
-            </div>'''
-
-          if old in s:
-              s = s.replace(old, new, 1)
-          else:
-              s = s.replace('>🔎 Buscar en todo</button>', '>⌕ CONSULTA GLOBAL</button>', 1)
-              s = s.replace('>⚠ Buscar infracción</button>', '>⚠ IDENTIFICAR INFRACCIÓN</button>', 1)
-
-          # CORRECCIÓN: la aplicación no debe cargar un JS inexistente.
-          s = s.replace('\n<script src="./infraccion-assistant.js?v=20260904-v1"></script>', '')
-          s = s.replace('\n<script src="infraccion-assistant.js?v=20260904-v1"></script>', '')
-          s = s.replace('\n<script defer src="./infraccion-assistant.js?v=20260904-v1"></script>', '')
-          s = s.replace('\n<script defer src="infraccion-assistant.js?v=20260904-v1"></script>', '')
-
-          # CORRECCIÓN SOLICITADA: cambiar la denominación visible.
-          s = s.replace('<strong>Ley Orgánica 4/2015</strong><small>Comprobando artículos disponibles</small>',
-                        '<strong>Normativa aplicable</strong><small>Comprobando referencias disponibles</small>', 1)
-
-          css = r'''
-/* ============================================================
-   CENTINELA — UTILIDADES DE CONSULTA
-   ============================================================ */
-.cc-global-search-actions button{
-  font-weight:800!important;
-  letter-spacing:.35px!important;
-  min-height:38px!important;
-  border-color:rgba(49,185,255,.26)!important;
-  background:linear-gradient(180deg,rgba(49,185,255,.10),rgba(255,255,255,.025))!important;
-}
-.cc-global-search-actions button[data-cc-search-mode="infractions"]{
-  border-color:rgba(255,210,60,.30)!important;
-  background:linear-gradient(180deg,rgba(255,205,55,.10),rgba(255,255,255,.025))!important;
-}
-.cc-global-search-actions button:hover{
-  border-color:rgba(49,185,255,.60)!important;
-  box-shadow:0 0 14px rgba(49,185,255,.14)!important;
-}
-'''
-          marker = '/* ============================================================\n   CENTINELA — UTILIDADES DE CONSULTA'
-          if marker not in s:
-              pos = s.rfind('</style>')
-              if pos < 0:
-                  raise SystemExit('No se encontró </style> en index.html')
-              s = s[:pos] + css + '\n' + s[pos:]
+          # Nombre correcto del bloque de estado.
+          s = s.replace(
+              '<strong>Ley Orgánica 4/2015</strong><small>Comprobando artículos disponibles</small>',
+              '<strong>Normativa aplicable</strong><small>Comprobando referencias disponibles</small>',
+              1,
+          )
 
           p.write_text(s, encoding='utf-8')
           PY
 
-      - name: Publicar cambio
+      - name: Publicar reparación
         shell: bash
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
           if git diff --cached --quiet; then
-            echo 'No hay cambios que publicar.'
-          else
-            git commit -m 'Corregir referencia rota y etiqueta de normativa [auto-ajuste-buscador]'
-            git push
+            echo "No hay cambios pendientes."
+            exit 0
           fi
+          git commit -m "Reparar carga de Centinela y cambiar etiqueta de normativa [auto-repair]"
+          git push
