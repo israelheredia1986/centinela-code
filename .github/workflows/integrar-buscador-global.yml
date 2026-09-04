@@ -1,0 +1,45 @@
+name: Integrar buscador global
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Integrar script en index.html
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '<script src="./global-search.js?v=20260904"></script>'
+          if marker not in s:
+              pos = s.lower().rfind('</body>')
+              if pos == -1:
+                  raise SystemExit('No se encontró </body> en index.html')
+              s = s[:pos] + '  ' + marker + '\n' + s[pos:]
+              p.write_text(s, encoding='utf-8')
+              print('Buscador global integrado en index.html')
+          else:
+              print('El buscador global ya estaba integrado')
+
+      - name: Guardar cambios
+        run: |
+          git config user.name "centinela-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "Sin cambios que guardar"
+          else
+            git commit -m "Integrar buscador global policial"
+            git push
+          fi
