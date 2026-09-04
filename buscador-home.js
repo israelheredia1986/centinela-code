@@ -1,6 +1,6 @@
 /* ============================================================
    CENTINELA CODE — BUSCADOR RÁPIDO DE INICIO
-   V2 — buscador único, grande y a ancho completo
+   V3 — un único buscador en la pantalla principal
    ============================================================ */
 (function(){
   "use strict";
@@ -31,11 +31,58 @@
     document.head.appendChild(style);
   }
 
+  function eliminarBuscadorDuplicado(){
+    const home=document.getElementById("section-home");
+    if(!home) return;
+
+    /*
+       La versión anterior de la portada ya tenía un segundo buscador,
+       normalmente con el placeholder "Buscar normativa, infracciones,
+       artículos...". Se elimina únicamente ese bloque y se conserva
+       el buscador nuevo #centinela-home-search.
+    */
+    home.querySelectorAll('input,textarea').forEach(input=>{
+      if(input.id === "homeQuickSearch") return;
+      const ph=(input.getAttribute("placeholder")||"").toLowerCase();
+      if(!/buscar normativa.*infracciones|buscar normativa.*art[ií]culos|qué necesitas consultar/.test(ph)) return;
+
+      let bloque=input;
+      for(let i=0;i<6 && bloque.parentElement;i++){
+        const padre=bloque.parentElement;
+        const texto=(padre.textContent||"").toLowerCase();
+        if(
+          /consulta r[aá]pida/.test(texto) &&
+          (/buscar/.test(texto) || /consultar/.test(texto)) &&
+          padre !== home &&
+          !padre.id?.includes("centinela-home-search")
+        ){
+          bloque=padre;
+        }else if(i>=2 && (padre.className||"").toString().match(/search|quick|panel/i)){
+          bloque=padre;
+        }else{
+          bloque=padre;
+        }
+      }
+
+      /* Preferimos un bloque cercano al input, nunca toda la portada. */
+      let candidato=input.closest('.home-search, .quick-search, .search-card, .search-panel, .home-panel');
+      if(candidato && candidato.id !== "centinela-home-search") bloque=candidato;
+
+      if(bloque && bloque !== home && bloque.id !== "centinela-home-search"){
+        /* Evita borrar contenedores demasiado grandes que incluyan las tarjetas. */
+        const hijos=(bloque.querySelectorAll?.(".quick-action,.quick-actions").length||0);
+        if(hijos===0) bloque.remove();
+        else input.remove();
+      }
+    });
+  }
+
   function instalar(){
     const home=document.getElementById("section-home");
     const hero=home?.querySelector(".hero-grid");
     if(!home||!hero||document.getElementById("centinela-home-search")) return;
 
+    eliminarBuscadorDuplicado();
     estilos();
     const bloque=document.createElement("section");
     bloque.id="centinela-home-search";
@@ -77,5 +124,13 @@
     button?.addEventListener("click",abrirConsulta);
   }
 
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",instalar,{once:true});else instalar();
+  function arrancar(){
+    instalar();
+    /* Algunos componentes de portada se pintan después de DOMContentLoaded. */
+    setTimeout(eliminarBuscadorDuplicado,300);
+    setTimeout(eliminarBuscadorDuplicado,1000);
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",arrancar,{once:true});
+  else arrancar();
 })();
