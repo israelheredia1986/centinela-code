@@ -1,4 +1,4 @@
-const CACHE_NAME = "centinela-code-v19-ui-v6";
+const CACHE_NAME = "centinela-code-v20-reference-final";
 const ARCHIVOS = ["./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css","./visual-enhancements.js","./app.js","./ia.js","./matriculas.js","./buscadores.js","./manifest.json","./data/lopsc.json","./data/infracciones.json","./data/infracciones_trafico.json","./data/ordenanzas.json","./data/codigo_penal.json","./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json","./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json"];
 
 async function prepararHtml(response){
@@ -18,7 +18,7 @@ async function prepararHtml(response){
       const css='<link rel="stylesheet" href="./style-modern-v3.css?v=20260904-visual-v3">';
       modificado=modificado.includes("</head>")?modificado.replace("</head>",`${css}</head>`):`${css}${modificado}`;
     }
-    const neon='<link rel="stylesheet" href="./style-neon.css?v=20260904-ui-v6">';
+    const neon='<link rel="stylesheet" href="./style-neon.css?v=20260904-reference-final">';
     modificado=modificado.includes("style-neon.css")?modificado.replace(/<link[^>]*style-neon\.css[^>]*>/,neon):modificado.includes("</head>")?modificado.replace("</head>",`${neon}</head>`):`${neon}${modificado}`;
     if(!modificado.includes("visual-enhancements.js")){
       const js='<script defer src="./visual-enhancements.js?v=20260904-visual-v1"></script>';
