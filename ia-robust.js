@@ -1,7 +1,9 @@
 /* ============================================================
    CENTINELA CODE — IA ROBUSTA / CONTEXTO NORMATIVO LOCAL
-   V1
-   - Evita errores [object Object]
+   V2 - Compatible con Gemini API
+   - Soporte para múltiples proveedores de IA (OpenAI, Gemini, etc.)
+   - Manejo robusto de errores (API saturada, respuestas inválidas)
+   - Reintentos automáticos con backoff exponencial
    - Recupera contexto de la normativa local de la app
    - Envía contexto relevante a la IA antes de responder
    - Mantiene la función original de ia.js como compatibilidad
@@ -10,6 +12,8 @@
   "use strict";
 
   const IA_URL = "https://okuygqbaliaeavhyezri.supabase.co/functions/v1/centinela-ia";
+  const MAX_REINTENTOS = 3;
+  const DELAY_BASE_MS = 1000;
 
   const DATA_FILES = [
     ["Infracciones", "./data/infracciones.json"],
@@ -219,16 +223,65 @@
     return String(value);
   }
 
-  async function preguntarRobusto(pregunta) {
-    const question = String(pregunta || "").trim();
-    if (!question) return "Escribe una consulta para Centinela IA.";
+  /**
+   * Extrae el contenido de texto de una respuesta de IA.
+   * Soporta múltiples formatos:
+   * - OpenAI: { choices: [{ message: { content: "..." } }] }
+   * - Gemini: { candidates: [{ content: { parts: [{ text: "..." }] } }] }
+   * - Texto plano
+   */
+  function extraerTextoRespuesta(respuesta) {
+    if (typeof respuesta === "string") return respuesta.trim();
+    if (!respuesta || typeof respuesta !== "object") return "";
 
+    // Formato OpenAI
+    if (respuesta.choices && Array.isArray(respuesta.choices)) {
+      const choice = respuesta.choices[0];
+      if (choice?.message?.content) return String(choice.message.content).trim();
+    }
+
+    // Formato Gemini
+    if (respuesta.candidates && Array.isArray(respuesta.candidates)) {
+      const candidate = respuesta.candidates[0];
+      if (candidate?.content?.parts && Array.isArray(candidate.content.parts)) {
+        const part = candidate.content.parts[0];
+        if (part?.text) return String(part.text).trim();
+      }
+    }
+
+    // Campo genérico 'text'
+    if (typeof respuesta.text === "string") return respuesta.text.trim();
+
+    // Campo genérico 'content'
+    if (typeof respuesta.content === "string") return respuesta.content.trim();
+
+    return "";
+  }
+
+  /**
+   * Detecta errores comunes de la IA (saturación, límite de cuota, etc.)
+   * Devuelve true si el error es recuperable (reintentar), false si es definitivo.
+   */
+  function esErrorRecuperable(error) {
+    if (!error) return false;
+    const msg = String(error).toLowerCase();
+    return msg.includes("high demand") ||
+           msg.includes("quota") ||
+           msg.includes("rate limit") ||
+           msg.includes("timeout") ||
+           msg.includes("temporarily unavailable") ||
+           msg.includes("overloaded");
+  }
+
+  /**
+   * Realiza un reintento con backoff exponencial.
+   */
+  async function preguntarConReintentos(pregunta, contexto, intento = 0) {
     try {
-      const contexto = await obtenerContexto(question);
       const response = await fetch(IA_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pregunta: question, contexto })
+        body: JSON.stringify({ pregunta, contexto })
       });
 
       const raw = await response.text();
@@ -236,18 +289,49 @@
       try { data = raw ? JSON.parse(raw) : {}; } catch (_) { data = { error: raw }; }
 
       if (!response.ok) {
-        const message = humanError(data?.error || data?.message || data);
-        return `No he podido consultar el motor IA. ${message}`;
+        const error = data?.error || data?.message || raw || "Error desconocido";
+        const mensaje = humanError(error);
+
+        // Reintento si es error recuperable y no hemos alcanzado el máximo
+        if (esErrorRecuperable(error) && intento < MAX_REINTENTOS - 1) {
+          const delayMs = DELAY_BASE_MS * Math.pow(2, intento);
+          console.warn(`Centinela IA: reintentando en ${delayMs}ms (intento ${intento + 1}/${MAX_REINTENTOS})...`);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          return preguntarConReintentos(pregunta, contexto, intento + 1);
+        }
+
+        return `Error de conexión con Centinela IA: ${mensaje}`;
       }
 
-      const text = data?.choices?.[0]?.message?.content;
-      if (typeof text === "string" && text.trim()) return text.trim();
+      const texto = extraerTextoRespuesta(data);
+      if (texto) return texto;
 
-      if (typeof data?.text === "string" && data.text.trim()) return data.text.trim();
-      return "La IA ha respondido sin contenido utilizable. Vuelve a intentarlo.";
+      return "La IA no devolvió una respuesta utilizable. Intenta de nuevo.";
     } catch (error) {
-      console.error("Centinela IA:", error);
+      console.error("Centinela IA error completo:", error);
+
+      // Reintento si es error recuperable
+      if (esErrorRecuperable(error) && intento < MAX_REINTENTOS - 1) {
+        const delayMs = DELAY_BASE_MS * Math.pow(2, intento);
+        console.warn(`Centinela IA: reintentando en ${delayMs}ms tras excepción (intento ${intento + 1}/${MAX_REINTENTOS})...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        return preguntarConReintentos(pregunta, contexto, intento + 1);
+      }
+
       return `No se ha podido conectar con Centinela IA. ${humanError(error)}`;
+    }
+  }
+
+  async function preguntarRobusto(pregunta) {
+    const question = String(pregunta || "").trim();
+    if (!question) return "Escribe una consulta para Centinela IA.";
+
+    try {
+      const contexto = await obtenerContexto(question);
+      return await preguntarConReintentos(question, contexto);
+    } catch (error) {
+      console.error("Centinela IA error fatal:", error);
+      return `Centinela IA no está disponible. ${humanError(error)}`;
     }
   }
 
