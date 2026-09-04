@@ -1,94 +1,55 @@
-name: Insertar buscador global Centinela
+name: Reemplazar acciones genéricas por utilidades internas
 on:
   push:
     branches: [ main ]
 permissions:
   contents: write
 jobs:
-  update-ui:
+  actualizar:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Insertar buscador global
+      - name: Actualizar botones de consulta
         shell: python
         run: |
           from pathlib import Path
+          import re
+
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          marker = '<!-- CENTINELA-GLOBAL-SEARCH-V1 -->'
-          if marker in s:
-              print('Buscador ya presente')
-              raise SystemExit(0)
-          html = '''<!-- CENTINELA-GLOBAL-SEARCH-V1 -->
-          <section class="cc-global-search" aria-label="Buscador global">
-            <div class="cc-global-search-head">
-              <span class="cc-global-search-kicker">CONSULTA RÁPIDA</span>
-              <strong>¿Qué necesitas consultar?</strong>
-            </div>
-            <div class="cc-global-search-box">
-              <span class="cc-global-search-icon" aria-hidden="true">⌕</span>
-              <input id="cc-global-search-input" type="search" placeholder="Buscar normativa, infracciones, artículos..." autocomplete="off" enterkeyhint="search" />
-              <button id="cc-global-search-go" type="button" aria-label="Buscar">BUSCAR</button>
-            </div>
-            <div class="cc-global-search-actions">
+
+          old = '''<div class="cc-global-search-actions">
               <button type="button" data-cc-search-mode="all">🔎 Buscar en todo</button>
               <button type="button" data-cc-search-mode="infractions">⚠ Buscar infracción</button>
-            </div>
-          </section>
-          <style id="centinela-global-search-ui">
-            .cc-global-search{margin:9px 0 11px;padding:13px 12px;border-radius:16px;border:1px solid rgba(49,185,255,.42);background:rgba(2,15,29,.82);box-shadow:0 8px 22px rgba(0,0,0,.35)}
-            .cc-global-search-head{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
-            .cc-global-search-kicker{font-size:8px;letter-spacing:1.8px;opacity:.75}
-            .cc-global-search-head strong{font-size:17px;line-height:1.1}
-            .cc-global-search-box{display:flex;align-items:center;gap:7px;min-height:45px;padding:4px 5px 4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.24)}
-            .cc-global-search-icon{font-size:25px;line-height:1;opacity:.9}
-            #cc-global-search-input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:inherit;font:inherit;font-size:12px}
-            #cc-global-search-input::placeholder{opacity:.62}
-            #cc-global-search-go{border:0;border-radius:9px;padding:10px 11px;font-size:8px;font-weight:800;letter-spacing:.5px;background:transparent;color:inherit;cursor:pointer}
-            .cc-global-search-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
-            .cc-global-search-actions button{min-height:34px;border:1px solid rgba(255,255,255,.14);border-radius:9px;background:rgba(255,255,255,.035);color:inherit;font:inherit;font-size:9px;cursor:pointer}
-            .cc-global-search-actions button:active,#cc-global-search-go:active{transform:scale(.98)}
-            @media(max-width:520px){.cc-global-search{margin-top:8px}.cc-global-search-head strong{font-size:16px}.cc-global-search-actions button{font-size:8px}}
-          </style>
-          <script>
-          (() => {
-            const input = document.getElementById('cc-global-search-input');
-            const go = document.getElementById('cc-global-search-go');
-            const run = (mode='all') => {
-              const q = (input?.value || '').trim();
-              const candidates = [...document.querySelectorAll('input,textarea')].filter(el => el !== input && !el.disabled && el.offsetParent !== null);
-              const target = candidates.find(el => /buscar|consulta|normativa|infracci/i.test((el.placeholder||'')+' '+(el.id||'')+' '+(el.name||''))) || candidates[0];
-              const consulta = [...document.querySelectorAll('button,a,[role="button"]')].find(el => /consulta/i.test(el.textContent||''));
-              if (consulta && typeof consulta.click === 'function') consulta.click();
-              setTimeout(() => {
-                if (!target) return;
-                if (mode === 'infractions') {
-                  const filter = [...document.querySelectorAll('button,a,[role="button"]')].find(el => /infracci/i.test(el.textContent||''));
-                  if (filter && typeof filter.click === 'function') filter.click();
-                }
-                if (q) { target.focus(); target.value = q; target.dispatchEvent(new Event('input',{bubbles:true})); target.dispatchEvent(new Event('change',{bubbles:true})); target.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',bubbles:true})); }
-              },120);
-            };
-            go?.addEventListener('click',()=>run('all'));
-            input?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();run('all')}});
-            document.querySelectorAll('[data-cc-search-mode]').forEach(b=>b.addEventListener('click',()=>run(b.dataset.ccSearchMode)));
-          })();
-          </script>
-          <!-- /CENTINELA-GLOBAL-SEARCH-V1 -->'''
-          # Insert before the main quick-actions area, keeping all existing content intact.
-          pos = s.find('<div class="quick-actions"')
-          if pos < 0:
-              pos = s.find('<div class="hero-grid"')
-          if pos < 0:
-              raise SystemExit('No se encontró el punto de inserción seguro')
-          s = s[:pos] + html + '\n' + s[pos:]
+            </div>'''
+
+          new = '''<div class="cc-global-search-actions" aria-label="Herramientas de consulta">
+              <button type="button" data-cc-search-mode="all" title="Buscar en toda la base normativa local">⌕ CONSULTA GLOBAL</button>
+              <button type="button" data-cc-search-mode="infractions" title="Filtrar y localizar infracciones sancionables">⚠ IDENTIFICAR INFRACCIÓN</button>
+            </div>'''
+
+          if old in s:
+              s = s.replace(old, new, 1)
+          else:
+              pattern = r'<div class="cc-global-search-actions"[\\s\\S]*?</div>'
+              if not re.search(pattern, s):
+                  raise SystemExit('No se encontró el bloque de acciones del buscador global.')
+              s = re.sub(pattern, new, s, count=1)
+
           p.write_text(s, encoding='utf-8')
-      - name: Publicar cambio
+      - name: Commit y publicar
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
           git diff --cached --quiet && exit 0
-          git commit -m "UI: añadir buscador global en pantalla principal"
+          git commit -m "UI: convertir botones de búsqueda en utilidades internas"
+          git push
+      - name: Eliminar workflow temporal
+        if: always()
+        run: |
+          rm -f .github/workflows/insert-global-search.yml
+          git add -A
+          git commit -m "Eliminar workflow temporal de actualización UI" || exit 0
           git push
