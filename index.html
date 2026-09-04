@@ -131,6 +131,62 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opac
 <div class="hero-grid"><div class="brand-hero"><div aria-hidden="true" class="brand-hero-icon"></div><div class="brand-hero-text"><h2 class="brand-hero-title">Centinela <span>Code</span></h2><p class="brand-hero-tagline">Police &amp; Normative App</p><span class="status-pill"><span class="status-dot"></span>Sistema operativo</span></div></div>
 <button aria-label="Ver y editar datos del agente en Ajustes" class="agent-card" id="agentCard" type="button"><span class="agent-card-label"><span class="ui-person">●</span> Agente activo <span class="connection-pill"><i></i> Conectado</span></span><strong class="agent-card-name" id="agentName">Agente sin configurar</strong><span class="agent-card-id" id="agentId">Configura tu identificador en Ajustes</span><span class="agent-card-badge">✦ Policía Local</span><span aria-hidden="true" class="agent-card-police"></span></button></div>
 <div class="section-heading section-heading--quick"><span class="heading-mark">ϟ</span><h2>Acceso rápido</h2><span class="heading-line"></span></div>
+<!-- CENTINELA-GLOBAL-SEARCH-V1 -->
+<section class="cc-global-search" aria-label="Buscador global">
+  <div class="cc-global-search-head">
+    <span class="cc-global-search-kicker">CONSULTA RÁPIDA</span>
+    <strong>¿Qué necesitas consultar?</strong>
+  </div>
+  <div class="cc-global-search-box">
+    <span class="cc-global-search-icon" aria-hidden="true">⌕</span>
+    <input id="cc-global-search-input" type="search" placeholder="Buscar normativa, infracciones, artículos..." autocomplete="off" enterkeyhint="search" />
+    <button id="cc-global-search-go" type="button" aria-label="Buscar">BUSCAR</button>
+  </div>
+  <div class="cc-global-search-actions">
+    <button type="button" data-cc-search-mode="all">🔎 Buscar en todo</button>
+    <button type="button" data-cc-search-mode="infractions">⚠ Buscar infracción</button>
+  </div>
+</section>
+<style id="centinela-global-search-ui">
+  .cc-global-search{margin:9px 0 11px;padding:13px 12px;border-radius:16px;border:1px solid rgba(49,185,255,.42);background:rgba(2,15,29,.82);box-shadow:0 8px 22px rgba(0,0,0,.35)}
+  .cc-global-search-head{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
+  .cc-global-search-kicker{font-size:8px;letter-spacing:1.8px;opacity:.75}
+  .cc-global-search-head strong{font-size:17px;line-height:1.1}
+  .cc-global-search-box{display:flex;align-items:center;gap:7px;min-height:45px;padding:4px 5px 4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.24)}
+  .cc-global-search-icon{font-size:25px;line-height:1;opacity:.9}
+  #cc-global-search-input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:inherit;font:inherit;font-size:12px}
+  #cc-global-search-input::placeholder{opacity:.62}
+  #cc-global-search-go{border:0;border-radius:9px;padding:10px 11px;font-size:8px;font-weight:800;letter-spacing:.5px;background:transparent;color:inherit;cursor:pointer}
+  .cc-global-search-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+  .cc-global-search-actions button{min-height:34px;border:1px solid rgba(255,255,255,.14);border-radius:9px;background:rgba(255,255,255,.035);color:inherit;font:inherit;font-size:9px;cursor:pointer}
+  .cc-global-search-actions button:active,#cc-global-search-go:active{transform:scale(.98)}
+  @media(max-width:520px){.cc-global-search{margin-top:8px}.cc-global-search-head strong{font-size:16px}.cc-global-search-actions button{font-size:8px}}
+</style>
+<script>
+(() => {
+  const input = document.getElementById('cc-global-search-input');
+  const go = document.getElementById('cc-global-search-go');
+  const run = (mode='all') => {
+    const q = (input?.value || '').trim();
+    const candidates = [...document.querySelectorAll('input,textarea')].filter(el => el !== input && !el.disabled && el.offsetParent !== null);
+    const target = candidates.find(el => /buscar|consulta|normativa|infracci/i.test((el.placeholder||'')+' '+(el.id||'')+' '+(el.name||''))) || candidates[0];
+    const consulta = [...document.querySelectorAll('button,a,[role="button"]')].find(el => /consulta/i.test(el.textContent||''));
+    if (consulta && typeof consulta.click === 'function') consulta.click();
+    setTimeout(() => {
+      if (!target) return;
+      if (mode === 'infractions') {
+        const filter = [...document.querySelectorAll('button,a,[role="button"]')].find(el => /infracci/i.test(el.textContent||''));
+        if (filter && typeof filter.click === 'function') filter.click();
+      }
+      if (q) { target.focus(); target.value = q; target.dispatchEvent(new Event('input',{bubbles:true})); target.dispatchEvent(new Event('change',{bubbles:true})); target.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',bubbles:true})); }
+    },120);
+  };
+  go?.addEventListener('click',()=>run('all'));
+  input?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();run('all')}});
+  document.querySelectorAll('[data-cc-search-mode]').forEach(b=>b.addEventListener('click',()=>run(b.dataset.ccSearchMode)));
+})();
+</script>
+<!-- /CENTINELA-GLOBAL-SEARCH-V1 -->
 <div class="quick-actions">
 <button class="quick-action quick-action--blue" data-target="consulta" type="button"><span class="quick-action-icon">⌕</span><span class="quick-action-text"><strong>Consulta</strong><small>Buscar infracciones<br/>y normativa</small></span><span class="quick-action-footer">Consulta rápida <span class="quick-action-arrow">→</span></span></button>
 <button class="quick-action quick-action--teal" data-target="actas" type="button"><span class="quick-action-icon">▣</span><span class="quick-action-text"><strong>Actas</strong><small>Crear y gestionar<br/>actas</small></span><span class="quick-action-footer">Nueva acta <span class="quick-action-arrow">→</span></span></button>
