@@ -1,0 +1,39 @@
+name: Sincronizar Constitución Española
+
+on:
+  push:
+    paths:
+      - '.github/workflows/sync_constitucion.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-constitucion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Descargar texto consolidado
+        run: |
+          mkdir -p data scripts
+          curl -L --fail --retry 3 -o data/constitucion_espanola.md https://raw.githubusercontent.com/legalize-dev/legalize-es/main/es/BOE-A-1978-31229.md
+
+      - name: Generar JSON jurídico
+        run: python3 scripts/markdown_constitucion_to_json.py data/constitucion_espanola.md data/constitucion_espanola.json
+
+      - name: Publicar actualización
+        run: |
+          git config user.name "centinela-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/constitucion_espanola.md data/constitucion_espanola.json
+          if git diff --cached --quiet; then
+            echo "Sin cambios"
+            exit 0
+          fi
+          git commit -m "data: actualizar Constitución Española consolidada"
+          git push
