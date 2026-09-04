@@ -35,7 +35,7 @@ async function preguntarCentinelaIA(pregunta) {
     if (document.getElementById("centinelaIAV4Script")) return;
     const script = document.createElement("script");
     script.id = "centinelaIAV4Script";
-    script.src = "./centinela-ia-v4.js?v=20260904-v4";
+    script.src = "./centinela-ia-v4.js?v=20260905-police-v1";
     script.async = false;
     script.onerror = () => console.warn("No se pudo cargar Centinela IA V4; se mantiene el motor básico.");
     document.head.appendChild(script);
@@ -58,6 +58,22 @@ async function preguntarCentinelaIA(pregunta) {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(cargar, 50), { once: true });
   else setTimeout(cargar, 50);
+})();
+
+// Formato policial del chat: transforma JSON técnico en una respuesta
+// clara con valoración, infracción, artículo, sanción y método de actuación.
+(function cargarIAFormatoPolicial() {
+  function cargar() {
+    if (document.getElementById("centinelaIAFormatoPolicialScript")) return;
+    const script = document.createElement("script");
+    script.id = "centinelaIAFormatoPolicialScript";
+    script.src = "./ia-policia-formato.js?v=20260905-police-format-v1";
+    script.async = false;
+    script.onerror = () => console.warn("No se pudo cargar el formato policial de Centinela IA.");
+    document.head.appendChild(script);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(cargar, 100), { once: true });
+  else setTimeout(cargar, 100);
 })();
 
 // =====================================================
