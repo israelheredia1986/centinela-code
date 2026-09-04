@@ -1,4 +1,4 @@
-name: Ajuste pantalla buscador
+name: Ajuste visual buscador Centinela
 
 on:
   push:
@@ -16,126 +16,115 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Ajustar interfaz
+
+      - name: Aplicar ajuste directamente en index.html
+        shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
+
           css = r'''
 /* ============================================================
-   CENTINELA — BUSCADOR + ACTAS + NORMATIVAS
-   El acceso rápido de buscador se oculta SOLO visualmente.
-   La funcionalidad del buscador y todos sus datos permanecen.
+   CENTINELA — AJUSTE HOME BUSCADOR
+   Oculta SOLO la tarjeta rápida de buscador. No elimina la
+   funcionalidad del buscador ni sus datos.
    ============================================================ */
 .quick-actions{
-  display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:10px!important;
-  padding:0 5px!important;
-  margin-top:0!important;
+  padding:0!important;
 }
-.quick-actions .quick-action:first-child{
+.quick-actions .quick-action--blue{
   display:none!important;
-  visibility:hidden!important;
-  pointer-events:none!important;
 }
-.quick-actions .quick-action:nth-child(2),
-.quick-actions .quick-action:nth-child(3){
-  min-width:0!important;
-  min-height:178px!important;
-  height:178px!important;
-  padding:9px 8px 8px!important;
+.quick-actions .quick-action--teal,
+.quick-actions .quick-action--gold{
+  min-height:190px!important;
+  padding:10px 8px 8px!important;
   border-radius:16px!important;
-  overflow:hidden!important;
 }
-.quick-actions .quick-action:nth-child(2) .quick-action-icon,
-.quick-actions .quick-action:nth-child(3) .quick-action-icon{
-  width:64px!important;
-  height:70px!important;
-  margin:0 auto 2px!important;
+.quick-actions .quick-action--teal .quick-action-icon,
+.quick-actions .quick-action--gold .quick-action-icon{
+  width:70px!important;
+  height:78px!important;
+  margin:0 0 3px!important;
 }
-.quick-actions .quick-action:nth-child(2) .quick-action-text,
-.quick-actions .quick-action:nth-child(3) .quick-action-text{
-  min-width:0!important;
-}
-.quick-actions .quick-action:nth-child(2) .quick-action-text strong,
-.quick-actions .quick-action:nth-child(3) .quick-action-text strong{
+.quick-actions .quick-action--teal .quick-action-text strong,
+.quick-actions .quick-action--gold .quick-action-text strong{
   font-size:15px!important;
-  line-height:1.05!important;
 }
-.quick-actions .quick-action:nth-child(2) .quick-action-text small,
-.quick-actions .quick-action:nth-child(3) .quick-action-text small{
-  display:block!important;
+.quick-actions .quick-action--teal .quick-action-text small,
+.quick-actions .quick-action--gold .quick-action-text small{
   font-size:8px!important;
-  line-height:1.2!important;
+  line-height:1.25!important;
   margin-top:3px!important;
 }
-.quick-actions .quick-action:nth-child(2) .quick-action-footer,
-.quick-actions .quick-action:nth-child(3) .quick-action-footer{
+.quick-actions .quick-action--teal .quick-action-footer,
+.quick-actions .quick-action--gold .quick-action-footer{
   padding:5px 7px!important;
   min-height:22px!important;
   font-size:7px!important;
-  line-height:1.1!important;
   border-radius:8px!important;
-  margin-top:4px!important;
 }
-/* Icono de búsqueda: queda encima del título, no como tarjeta independiente. */
 .bc-search-card{
   position:relative!important;
-  padding-top:54px!important;
-  margin-top:2px!important;
+  padding-top:58px!important;
 }
 .bc-search-card::before{
   content:"";
   position:absolute;
-  top:12px;
+  top:14px;
   left:50%;
-  width:25px;
-  height:25px;
-  transform:translateX(-63%);
+  width:27px;
+  height:27px;
+  transform:translateX(-62%);
   border:4px solid #31b9ff;
   border-radius:50%;
-  box-sizing:border-box;
-  box-shadow:0 0 14px rgba(49,185,255,.7),inset 0 0 7px rgba(49,185,255,.14);
+  box-shadow:0 0 14px rgba(49,185,255,.65),inset 0 0 8px rgba(49,185,255,.12);
   pointer-events:none;
 }
 .bc-search-card::after{
   content:"";
   position:absolute;
-  top:34px;
-  left:calc(50% + 8px);
+  top:40px;
+  left:calc(50% + 9px);
   width:14px;
   height:4px;
   transform:rotate(45deg);
   transform-origin:left center;
   border-radius:4px;
   background:#31b9ff;
-  box-shadow:0 0 10px rgba(49,185,255,.7);
+  box-shadow:0 0 10px rgba(49,185,255,.65);
   pointer-events:none;
 }
-@media(max-width:360px){
-  .quick-actions{gap:8px!important;padding:0 2px!important}
-  .quick-actions .quick-action:nth-child(2),
-  .quick-actions .quick-action:nth-child(3){height:166px!important;min-height:166px!important;padding:8px 6px!important}
-  .quick-actions .quick-action:nth-child(2) .quick-action-icon,
-  .quick-actions .quick-action:nth-child(3) .quick-action-icon{width:56px!important;height:62px!important}
-  .quick-actions .quick-action:nth-child(2) .quick-action-text strong,
-  .quick-actions .quick-action:nth-child(3) .quick-action-text strong{font-size:14px!important}
+@media(max-width:480px){
+  .quick-actions{gap:8px!important}
+  .quick-actions .quick-action--teal,
+  .quick-actions .quick-action--gold{min-height:178px!important}
 }
 '''
+
           marker='</style>'
-          if 'CENTINELA — BUSCADOR + ACTAS + NORMATIVAS' not in s:
+          tag='/* ============================================================\n   CENTINELA — AJUSTE HOME BUSCADOR'
+          if tag not in s:
               pos=s.rfind(marker)
               if pos < 0:
-                  raise SystemExit('No se encontró el cierre de style')
-              s=s[:pos] + css + s[pos:]
+                  raise SystemExit('No se encontró </style> en index.html')
+              s=s[:pos] + css + '\n' + s[pos:]
               p.write_text(s, encoding='utf-8')
           PY
-      - name: Publicar ajuste
+
+      - name: Publicar cambio
+        shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git diff --cached --quiet || git commit -m 'Ajustar pantalla del buscador [auto-ajuste-buscador]'
-          git push
+          if git diff --cached --quiet; then
+            echo 'El ajuste ya estaba aplicado.'
+          else
+            git commit -m 'Aplicar ajuste home buscador [auto-ajuste-buscador]'
+            git push
+          fi
