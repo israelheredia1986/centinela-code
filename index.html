@@ -143,9 +143,9 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opac
     <input id="cc-global-search-input" type="search" placeholder="Buscar normativa, infracciones, artículos..." autocomplete="off" enterkeyhint="search" />
     <button id="cc-global-search-go" type="button" aria-label="Buscar">BUSCAR</button>
   </div>
-  <div class="cc-global-search-actions">
-    <button type="button" data-cc-search-mode="all">🔎 Buscar en todo</button>
-    <button type="button" data-cc-search-mode="infractions">⚠ Buscar infracción</button>
+  <div class="cc-global-search-actions" aria-label="Herramientas de consulta">
+    <button type="button" data-cc-search-mode="all" title="Buscar en toda la base normativa local">⌕ CONSULTA GLOBAL</button>
+    <button type="button" data-cc-search-mode="infractions" title="Filtrar y localizar infracciones sancionables">⚠ IDENTIFICAR INFRACCIÓN</button>
   </div>
 </section>
 <style id="centinela-global-search-ui">
