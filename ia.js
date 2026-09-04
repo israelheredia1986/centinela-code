@@ -44,6 +44,22 @@ async function preguntarCentinelaIA(pregunta) {
   else setTimeout(cargar, 0);
 })();
 
+// Limpieza de presentación: elimina emojis, markdown y etiquetas técnicas
+// de las respuestas visibles sin tocar el JSON utilizado por las actas.
+(function cargarIALimpieza() {
+  function cargar() {
+    if (document.getElementById("centinelaIALimpiezaScript")) return;
+    const script = document.createElement("script");
+    script.id = "centinelaIALimpiezaScript";
+    script.src = "./ia-limpieza.js?v=20260905-clean-v1";
+    script.async = false;
+    script.onerror = () => console.warn("No se pudo cargar la limpieza de presentación de Centinela IA.");
+    document.head.appendChild(script);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(cargar, 50), { once: true });
+  else setTimeout(cargar, 50);
+})();
+
 // =====================================================
 // CARGA DEL MÓDULO AVANZADO DE MATRÍCULAS
 // =====================================================
