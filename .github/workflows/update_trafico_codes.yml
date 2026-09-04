@@ -1,0 +1,30 @@
+name: Actualizar reglamentos de tráfico
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/update_trafico_codes.yml'
+      - 'scripts/update_trafico_codes.py'
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Generar articulado completo desde BOE
+        run: python scripts/update_trafico_codes.py
+      - name: Guardar cambios
+        run: |
+          git config user.name 'centinela-code-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/normativa_trafico.json data/rd-1428-2003.json data/rd-2822-1998.json data/rd-818-2009.json
+          if git diff --cached --quiet; then
+            echo 'Sin cambios'
+          else
+            git commit -m 'Actualizar articulado completo de tráfico'
+            git push
+          fi
