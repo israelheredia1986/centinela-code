@@ -1,0 +1,42 @@
+{
+  "version":"1.0.0",
+  "bloque":"1",
+  "titulo":"Infracciones y régimen disciplinario del Bloque 1",
+  "descripcion":"Catálogo inicial de infracciones directamente identificables dentro del corpus del Bloque 1. Se prioriza el régimen disciplinario del TREBEP. Las normas constitucionales, estatutarias y de régimen administrativo general no se presentan como un catálogo de infracciones autónomas cuando no lo son.",
+  "ultimaRevision":"2026-09-04",
+  "fuentePrincipal":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719",
+  "infracciones":[
+    {"id":"trebep-95-2-a","norma":"RDL 5/2015 TREBEP","articulo":"95.2.a","gravedad":"Muy grave","titulo":"Incumplimiento del deber de respeto a la Constitución y a los Estatutos de Autonomía","descripcion":"Incumplimiento del deber de respeto a la Constitución Española y a los respectivos Estatutos de Autonomía en el ejercicio de la función pública.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-b","norma":"RDL 5/2015 TREBEP","articulo":"95.2.b","gravedad":"Muy grave","titulo":"Discriminación y acoso","descripcion":"Actuaciones discriminatorias por las causas legalmente previstas y acoso por razón de sexo, origen racial o étnico, religión o convicciones, discapacidad, edad, orientación sexual, expresión de género, características sexuales, así como acoso moral y sexual.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-c","norma":"RDL 5/2015 TREBEP","articulo":"95.2.c","gravedad":"Muy grave","titulo":"Abandono del servicio","descripcion":"Abandono del servicio o negativa voluntaria a hacerse cargo de las tareas o funciones encomendadas.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-d","norma":"RDL 5/2015 TREBEP","articulo":"95.2.d","gravedad":"Muy grave","titulo":"Acuerdos manifiestamente ilegales con perjuicio grave","descripcion":"Adopción de acuerdos manifiestamente ilegales que causen perjuicio grave a la Administración o a los ciudadanos.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-e","norma":"RDL 5/2015 TREBEP","articulo":"95.2.e","gravedad":"Muy grave","titulo":"Utilización indebida de documentación o información","descripcion":"Publicación o utilización indebida de documentación o información conocida por razón del cargo o función.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-f","norma":"RDL 5/2015 TREBEP","articulo":"95.2.f","gravedad":"Muy grave","titulo":"Negligencia en la custodia de secretos oficiales","descripcion":"Negligencia en la custodia de secretos oficiales que provoque su publicación, difusión o conocimiento indebido.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-g","norma":"RDL 5/2015 TREBEP","articulo":"95.2.g","gravedad":"Muy grave","titulo":"Incumplimiento notorio de funciones esenciales","descripcion":"Notorio incumplimiento de las funciones esenciales inherentes al puesto de trabajo o de las funciones encomendadas.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-h","norma":"RDL 5/2015 TREBEP","articulo":"95.2.h","gravedad":"Muy grave","titulo":"Violación de la imparcialidad en procesos electorales","descripcion":"Utilización de facultades atribuidas para influir en procesos electorales de cualquier naturaleza y ámbito.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-i","norma":"RDL 5/2015 TREBEP","articulo":"95.2.i","gravedad":"Muy grave","titulo":"Desobediencia abierta a órdenes o instrucciones superiores","descripcion":"Desobediencia abierta a las órdenes o instrucciones de un superior, salvo que constituyan infracción manifiesta del ordenamiento jurídico.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-j","norma":"RDL 5/2015 TREBEP","articulo":"95.2.j","gravedad":"Muy grave","titulo":"Obtención de beneficio indebido por prevalencia del cargo","descripcion":"Prevalencia de la condición de empleado público para obtener un beneficio indebido para sí o para otro.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-k","norma":"RDL 5/2015 TREBEP","articulo":"95.2.k","gravedad":"Muy grave","titulo":"Obstaculización de libertades públicas y derechos sindicales","descripcion":"Obstaculización del ejercicio de las libertades públicas y de los derechos sindicales.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-l","norma":"RDL 5/2015 TREBEP","articulo":"95.2.l","gravedad":"Muy grave","titulo":"Coacción del derecho de huelga","descripcion":"Realización de actos encaminados a coartar el libre ejercicio del derecho de huelga.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-m","norma":"RDL 5/2015 TREBEP","articulo":"95.2.m","gravedad":"Muy grave","titulo":"Incumplimiento de servicios esenciales durante huelga","descripcion":"Incumplimiento de la obligación de atender los servicios esenciales en caso de huelga.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-n","norma":"RDL 5/2015 TREBEP","articulo":"95.2.n","gravedad":"Muy grave","titulo":"Incumplimiento de incompatibilidades","descripcion":"Incumplimiento de las normas sobre incompatibilidades cuando dé lugar a una situación de incompatibilidad.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-n2","norma":"RDL 5/2015 TREBEP","articulo":"95.2.ñ","gravedad":"Muy grave","titulo":"Incomparecencia injustificada ante comisiones de investigación","descripcion":"Incomparecencia injustificada en las Comisiones de Investigación de las Cortes Generales y de las asambleas legislativas autonómicas.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-o","norma":"RDL 5/2015 TREBEP","articulo":"95.2.o","gravedad":"Muy grave","titulo":"Acoso laboral","descripcion":"Conductas constitutivas de acoso laboral.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"},
+    {"id":"trebep-95-2-p","norma":"RDL 5/2015 TREBEP","articulo":"95.2.p","gravedad":"Muy grave","titulo":"Otras faltas muy graves previstas por ley","descripcion":"También pueden tener consideración de muy graves las conductas tipificadas como tales por ley estatal, autonómica o convenio colectivo cuando corresponda.","sancionesRelacionadas":"Art. 96 TREBEP","prescripcion":"3 años","temas":[13],"fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719"}
+  ],
+  "regimenSanciones":{
+    "articulo":"96",
+    "fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719",
+    "tipos":["separación del servicio","despido disciplinario","suspensión firme de funciones o empleo y sueldo","traslado forzoso","demérito","apercibimiento","otras establecidas por ley"]
+  },
+  "prescripcion":{
+    "articulo":"97",
+    "fuente":"https://www.boe.es/buscar/act.php?id=BOE-A-2015-11719",
+    "muyGraves":"3 años",
+    "graves":"2 años",
+    "leves":"6 meses",
+    "sancionesMuyGraves":"3 años",
+    "sancionesGraves":"2 años",
+    "sancionesLeves":"1 año"
+  }
+}
