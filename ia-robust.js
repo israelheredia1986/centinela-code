@@ -1,9 +1,10 @@
 /* ============================================================
    CENTINELA CODE — IA ROBUSTA / CONTEXTO NORMATIVO LOCAL
-   V2 - Compatible con Gemini API
+   V3 - Reintentos Agresivos + UI Feedback
    - Soporte para múltiples proveedores de IA (OpenAI, Gemini, etc.)
    - Manejo robusto de errores (API saturada, respuestas inválidas)
-   - Reintentos automáticos con backoff exponencial
+   - Reintentos agresivos: hasta 5 intentos con backoff exponencial
+   - Notificaciones visuales de reintento al usuario
    - Recupera contexto de la normativa local de la app
    - Envía contexto relevante a la IA antes de responder
    - Mantiene la función original de ia.js como compatibilidad
@@ -12,8 +13,9 @@
   "use strict";
 
   const IA_URL = "https://okuygqbaliaeavhyezri.supabase.co/functions/v1/centinela-ia";
-  const MAX_REINTENTOS = 3;
-  const DELAY_BASE_MS = 1000;
+  const MAX_REINTENTOS = 5;
+  const DELAY_BASE_MS = 2000; // Inicio en 2 segundos
+  const DELAY_MAX_MS = 15000; // Máximo 15 segundos entre reintentos
 
   const DATA_FILES = [
     ["Infracciones", "./data/infracciones.json"],
@@ -70,6 +72,7 @@
   };
 
   let datosCachePromise = null;
+  let callbackProgreso = null; // Para notificar al usuario
 
   const norm = value => String(value == null ? "" : value)
     .toLowerCase()
@@ -270,18 +273,32 @@
            msg.includes("rate limit") ||
            msg.includes("timeout") ||
            msg.includes("temporarily unavailable") ||
-           msg.includes("overloaded");
+           msg.includes("overloaded") ||
+           msg.includes("error 429") ||
+           msg.includes("error 503") ||
+           msg.includes("error 500");
   }
 
   /**
    * Realiza un reintento con backoff exponencial.
+   * Notifica al usuario sobre el progreso.
    */
   async function preguntarConReintentos(pregunta, contexto, intento = 0) {
     try {
+      // Notifica al usuario que está intentando
+      if (callbackProgreso) {
+        if (intento === 0) {
+          callbackProgreso(`📡 Conectando con Centinela IA...`);
+        } else {
+          callbackProgreso(`🔄 Reintentando... (intento ${intento}/${MAX_REINTENTOS})`);
+        }
+      }
+
       const response = await fetch(IA_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pregunta, contexto })
+        body: JSON.stringify({ pregunta, contexto }),
+        signal: AbortSignal.timeout(30000) // Timeout de 30 segundos
       });
 
       const raw = await response.text();
@@ -294,43 +311,81 @@
 
         // Reintento si es error recuperable y no hemos alcanzado el máximo
         if (esErrorRecuperable(error) && intento < MAX_REINTENTOS - 1) {
-          const delayMs = DELAY_BASE_MS * Math.pow(2, intento);
-          console.warn(`Centinela IA: reintentando en ${delayMs}ms (intento ${intento + 1}/${MAX_REINTENTOS})...`);
+          const delayMs = Math.min(DELAY_BASE_MS * Math.pow(2, intento), DELAY_MAX_MS);
+          const segundos = Math.round(delayMs / 1000);
+          
+          console.warn(`⏳ Centinela IA: reintentando en ${segundos}s (intento ${intento + 1}/${MAX_REINTENTOS})`);
+          
+          if (callbackProgreso) {
+            callbackProgreso(`⏳ Esperando ${segundos}s antes de reintentar...`);
+          }
+          
           await new Promise(resolve => setTimeout(resolve, delayMs));
           return preguntarConReintentos(pregunta, contexto, intento + 1);
         }
 
-        return `Error de conexión con Centinela IA: ${mensaje}`;
+        return `No he podido consultar Centinela IA (intento ${intento + 1}/${MAX_REINTENTOS}). ${mensaje}`;
       }
 
       const texto = extraerTextoRespuesta(data);
-      if (texto) return texto;
+      if (texto) {
+        if (callbackProgreso) callbackProgreso(null); // Limpia el estado
+        return texto;
+      }
 
-      return "La IA no devolvió una respuesta utilizable. Intenta de nuevo.";
-    } catch (error) {
-      console.error("Centinela IA error completo:", error);
-
-      // Reintento si es error recuperable
-      if (esErrorRecuperable(error) && intento < MAX_REINTENTOS - 1) {
-        const delayMs = DELAY_BASE_MS * Math.pow(2, intento);
-        console.warn(`Centinela IA: reintentando en ${delayMs}ms tras excepción (intento ${intento + 1}/${MAX_REINTENTOS})...`);
+      // Si la respuesta está vacía pero no hay error HTTP, reintentar
+      if (intento < MAX_REINTENTOS - 1) {
+        const delayMs = Math.min(DELAY_BASE_MS * Math.pow(2, intento), DELAY_MAX_MS);
+        const segundos = Math.round(delayMs / 1000);
+        
+        console.warn(`⚠️ Respuesta vacía, reintentando en ${segundos}s...`);
+        
+        if (callbackProgreso) {
+          callbackProgreso(`⚠️ Respuesta vacía. Reintentando en ${segundos}s...`);
+        }
+        
         await new Promise(resolve => setTimeout(resolve, delayMs));
         return preguntarConReintentos(pregunta, contexto, intento + 1);
       }
 
-      return `No se ha podido conectar con Centinela IA. ${humanError(error)}`;
+      return "La IA no devolvió una respuesta utilizable después de varios intentos.";
+    } catch (error) {
+      console.error("Centinela IA error:", error);
+
+      // Reintento si es error recuperable
+      if (esErrorRecuperable(error) && intento < MAX_REINTENTOS - 1) {
+        const delayMs = Math.min(DELAY_BASE_MS * Math.pow(2, intento), DELAY_MAX_MS);
+        const segundos = Math.round(delayMs / 1000);
+        
+        console.warn(`🔄 Error temporal, reintentando en ${segundos}s (intento ${intento + 1}/${MAX_REINTENTOS})...`);
+        
+        if (callbackProgreso) {
+          callbackProgreso(`🔄 Reintentando en ${segundos}s...`);
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        return preguntarConReintentos(pregunta, contexto, intento + 1);
+      }
+
+      return `No se ha podido conectar con Centinela IA después de ${MAX_REINTENTOS} intentos. ${humanError(error)}`;
     }
   }
 
-  async function preguntarRobusto(pregunta) {
+  async function preguntarRobusto(pregunta, onProgreso = null) {
     const question = String(pregunta || "").trim();
     if (!question) return "Escribe una consulta para Centinela IA.";
 
+    // Guarda el callback de progreso
+    callbackProgreso = onProgreso;
+
     try {
       const contexto = await obtenerContexto(question);
-      return await preguntarConReintentos(question, contexto);
+      const resultado = await preguntarConReintentos(question, contexto);
+      callbackProgreso = null; // Limpia
+      return resultado;
     } catch (error) {
       console.error("Centinela IA error fatal:", error);
+      callbackProgreso = null;
       return `Centinela IA no está disponible. ${humanError(error)}`;
     }
   }
@@ -340,7 +395,8 @@
   window.CentinelaIA = {
     preguntar: preguntarRobusto,
     contexto: obtenerContexto,
-    recargarDatos: () => { datosCachePromise = null; return cargarDatos(); }
+    recargarDatos: () => { datosCachePromise = null; return cargarDatos(); },
+    setCallbackProgreso: (cb) => { callbackProgreso = cb; }
   };
 
   // ============================================================
