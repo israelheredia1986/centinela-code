@@ -1,6 +1,6 @@
 /* ============================================================
    CENTINELA CODE — BUSCADOR GLOBAL
-   V2 — resultados estructurados, sin volcado del JSON
+   V3 — búsqueda semántica ampliada y comercio ambulante
    ============================================================ */
 (function () {
   "use strict";
@@ -20,6 +20,7 @@
     ["Extranjería", "./data/extranjeria.json"],
     ["Seguridad privada", "./data/seguridad_privada.json"],
     ["Espectáculos públicos", "./data/espectaculos_publicos.json"],
+    ["Comercio ambulante", "./data/comercio_ambulante.json"],
     ["Medio ambiente y ruidos", "./data/medio_ambiente_ruidos.json"],
     ["Reglamento de armas", "./data/reglamento_armas.json"],
     ["Policías Locales Andalucía", "./data/policias_locales_andalucia.json"],
@@ -36,7 +37,7 @@
 
   const SYN = {
     ruido:["ruidos","sonido","musica","molestias","acustica","decibelios"],
-    alcohol:["alcoholemia","bebida","embriaguez","etilometro"],
+    alcohol:["alcoholemia","bebida","bebidas","embriaguez","etilometro"],
     drogas:["estupefacientes","sustancias","narcoticos","psicotropicos"],
     arma:["armas","navaja","cuchillo","arma blanca","pistola","revolver"],
     agresion:["agredir","agresiones","golpear","lesiones","violencia","ataque"],
@@ -45,7 +46,41 @@
     carnet:["permiso","licencia","conducir","conduccion"],
     patinete:["vmp","vehiculo movilidad personal","vehiculo de movilidad personal"],
     animal:["animales","perro","perros","mascota","mascotas"],
-    menor:["menores","niño","niña","adolescente"]
+    menor:["menores","niño","niña","adolescente"],
+    comercio:["comercial","comercializacion","comercialización","venta","vender","vendedor","vendedora","mercancia","mercancía","mercaderia","mercadería"],
+    ambulante:["ambulantes","ambulant","venta ambulante","vendedor ambulante","vendedora ambulante","comercio callejero","comercio itinerante","mercadillo","puesto ambulante"],
+    mercadillo:["mercadillos","puesto","puestos","venta ambulante","vendedor ambulante","comercio ambulante"],
+    vendedor:["vendedores","vendedora","vendedoras","comerciante","comerciantes","comercio","venta"],
+    vender:["venta","vende","vendedor","vendedora","comercializar","comercializacion","comercialización","comercio"],
+    venta:["vender","vende","vendedor","vendedora","comercializar","comercializacion","comercialización","comercio"],
+    pescado:["pescados","pescadería","pescaderia","pescadero","pescadera","productos pesqueros","producto pesquero","marisco","mariscos","pez","peces","pesca"],
+    pescados:["pescado","pescadería","pescaderia","pescadero","pescadera","productos pesqueros","marisco","pesca"],
+    marisco:["mariscos","pescado","productos pesqueros","crustaceos","crustáceos","moluscos"],
+    juguete:["juguetes","venta de juguetes","jugueteria","juguetería","producto infantil","productos infantiles"],
+    juguetes:["juguete","venta de juguetes","jugueteria","juguetería","producto infantil","productos infantiles"],
+    alimentacion:["alimentación","alimentario","alimentaria","alimentos","comida","productos alimenticios","pescado","marisco"],
+    alimento:["alimentos","alimentación","alimentario","comida","productos alimenticios","pescado","marisco"],
+    autorizacion:["autorización","autorizaciones","permiso","licencia","habilitación","habilitacion","autorizado","autorizada","no autorizado","sin autorización"],
+    autorizaciones:["autorización","permiso","licencia","habilitación","autorizado","no autorizado"],
+    permiso:["autorización","autorizaciones","licencia","habilitación","autorizado"],
+    licencia:["autorización","permiso","habilitación","autorizado"],
+    horario:["horarios","hora","apertura","cierre","horario permitido","fuera de horario"],
+    horarios:["horario","hora","apertura","cierre","horario permitido","fuera de horario"],
+    sancion:["sanción","sanciones","multa","multas","infracción","infracciones","castigo"],
+    sanciones:["sanción","sancion","multa","multas","infracción","infracciones"],
+    infraccion:["infracción","infracciones","sanción","sanciones","multa","incumplimiento"],
+    infracciones:["infracción","sanción","sanciones","multa","incumplimiento"],
+    factura:["facturas","comprobante","comprobantes","tique","ticket","justificante"],
+    facturas:["factura","comprobante","comprobantes","tique","ticket","justificante"],
+    precio:["precios","importe","coste","costes","tarifa"],
+    precios:["precio","importe","coste","costes","tarifa"],
+    placa:["placa identificativa","identificación","identificacion","distintivo"],
+    identificativa:["identificativo","placa","identificación","identificacion"],
+    decomiso:["decomisar","incautación","incautacion","incautar","aprehensión","aprehension"],
+    incautacion:["incautación","incautar","decomiso","decomisar","aprehensión","aprehension"],
+    talla:["talla mínima","talla inferior","tamaño mínimo","tamaño inferior","pescado pequeño"],
+    veda:["vedado","época de veda","epoca de veda","prohibido","prohibición","prohibicion"],
+    juguetes:["juguete","juguetería","jugueteria","productos infantiles","seguridad de juguetes"]
   };
 
   let indiceGlobal = [];
@@ -114,7 +149,6 @@
 
   function looksLikeInfraction(o, src, description, amount) {
     const keys = Object.keys(o).map(norm).join(" ");
-    const values = norm(flat(o, 0));
     return /infracc/.test(norm(src)) ||
       !!amount ||
       /sancion|multa|cuantia|importe/.test(keys) ||
@@ -129,7 +163,7 @@
     const id = pick(o, ["id"]);
     const article = pick(o, ["articulo","artículo","article","art","precepto"]);
     const apartado = pick(o, ["apartado","párrafo","parrafo","numero","número"]);
-    const title = pick(o, ["titulo","título","title","denominacion","denominación","epigrafe","epígrafe","nombre","name"]);
+    const title = pick(o, ["titulo","título","title","denominacion","denominación","epigrafe","epígrafe","nombre","name","concepto"]);
     const description = pick(o, ["conducta","descripcion","descripción","description","texto","text","contenido","content","tipificacion","tipificación","hechos"]);
     const severity = pick(o, ["gravedad","severity","clasificacion","clasificación"]);
     const amount = pickAmount(o);
@@ -208,6 +242,7 @@
     const source = norm(r.source);
     const all = r.search;
     let score = 0;
+
     if (article === q) score += 1000;
     if (code === q) score += 950;
     if (article.replace(/\s/g, "") === q.replace(/\s/g, "")) score += 850;
@@ -218,12 +253,14 @@
     if (title.includes(q)) score += 100;
     if (source === q) score += 220;
     else if (source.includes(q)) score += 60;
+
     const law = q.match(/ley\s+(\d+)\s*\/\s*(\d{4})/);
     if (law) {
       const lawName = "ley " + law[1] + "/" + law[2];
       if (source === lawName) score += 500;
       else if (source.includes(lawName)) score += 300;
     }
+
     const numeric = ts.filter(x => /^\d+(?:\.\d+)*$/.test(x));
     numeric.forEach(x => {
       if (article === x) score += 700;
@@ -231,21 +268,49 @@
       if (article.startsWith(x + ".")) score += 300;
       if (code.startsWith(x + ".")) score += 280;
     });
+
     const expanded = new Set(ts);
     ts.forEach(x => (SYN[x] || []).forEach(y => expanded.add(norm(y))));
+
+    // Coincidencias por raíz: vendedor/vender/venta, ambulante/ambulantes, etc.
+    const roots = [
+      ["vendedor","vendedora","vendedores","vendedoras","vender","venta","ventas","comerciante","comerciantes","comercio"],
+      ["ambulante","ambulantes","ambulant"],
+      ["pescado","pescados","pescadero","pescadera","pescadería","pescaderia","pesquero","pesqueros"],
+      ["juguete","juguetes","juguetería","jugueteria"],
+      ["autorización","autorizaciones","autorizado","autorizada","autorizar"],
+      ["sanción","sanciones","sancionar","sancion","multa","infracción","infracciones"],
+      ["mercancía","mercancias","mercancia","mercaderia","mercadería"]
+    ];
+    roots.forEach(group => {
+      const hit = group.some(term => ts.some(t => t === norm(term) || norm(term).startsWith(t) || t.startsWith(norm(term))));
+      if (hit) group.forEach(term => expanded.add(norm(term)));
+    });
+
     expanded.forEach(x => {
       if (article === x) score += 150;
       else if (article.includes(x)) score += 55;
       else if (code.includes(x)) score += 50;
       else if (title.includes(x)) score += 35;
-      else if (description.includes(x)) score += 10;
-      else if (all.includes(x)) score += 3;
+      else if (description.includes(x)) score += 15;
+      else if (all.includes(x)) score += 5;
     });
+
     const relevant = ts.filter(x => !STOP.has(x));
     if (relevant.length) {
       const hits = relevant.filter(x => all.includes(x)).length;
       score += Math.round((hits / relevant.length) * 90);
     }
+
+    // Para consultas de comercio ambulante, premiamos los resultados que contienen
+    // simultáneamente el ámbito y la conducta/producto buscado.
+    const comercioQuery = /ambulant|mercadillo|vendedor|venta|comercio|pescad|juguet/.test(q);
+    if (comercioQuery && /comercio ambulante|vendedor ambulante|mercadillo|venta ambulante/.test(all)) score += 120;
+    if (/pescad/.test(q) && /pescad|pesquer|marisco/.test(all)) score += 160;
+    if (/juguet/.test(q) && /juguet/.test(all)) score += 160;
+    if (/autoriz/.test(q) && /autoriz/.test(all)) score += 100;
+    if (/sanc|infracc|multa/.test(q) && /sanc|infracc|multa|grave|leve|muy grave/.test(all)) score += 120;
+
     return score;
   }
 
@@ -350,7 +415,7 @@
   function mount() {
     const zone = document.getElementById("buscadorGlobalZone") || document.getElementById("consulta");
     if (!zone || document.getElementById("bcMainInput")) return;
-    zone.innerHTML = '<div class="bc-search-card"><h3>¿Qué necesitas consultar?</h3><p>Busca en toda la normativa o exclusivamente en infracciones sancionables.</p><div class="bc-search-options"><button type="button" class="bc-search-option active" id="bcModeGlobal">📚 Toda la normativa</button><button type="button" class="bc-search-option inf" id="bcModeInf">⚠️ Solo infracciones</button></div><div class="bc-input-wrap"><span>⌕</span><input id="bcMainInput" type="search" autocomplete="off" placeholder="Ej.: 117 ley 7/1985, desobediencia, art. 36.16…"></div></div>';
+    zone.innerHTML = '<div class="bc-search-card"><h3>¿Qué necesitas consultar?</h3><p>Busca en toda la normativa o exclusivamente en infracciones sancionables.</p><div class="bc-search-options"><button type="button" class="bc-search-option active" id="bcModeGlobal">📚 Toda la normativa</button><button type="button" class="bc-search-option inf" id="bcModeInf">⚠️ Solo infracciones</button></div><div class="bc-input-wrap"><span>⌕</span><input id="bcMainInput" type="search" autocomplete="off" placeholder="Ej.: vendedor ambulante, pescado, juguetes, art. 13.2…"></div></div>';
     zone.insertAdjacentHTML("beforeend", '<div id="bcResultsZone" class="bc-results-zone"><div class="bc-empty">Escribe una búsqueda para consultar la normativa.</div></div>');
     const input = document.getElementById("bcMainInput");
     const globalBtn = document.getElementById("bcModeGlobal");
@@ -361,7 +426,7 @@
       onlyInfractions = infractions;
       globalBtn.classList.toggle("active", !infractions);
       infBtn.classList.toggle("active", infractions);
-      input.placeholder = infractions ? "Ej.: alcohol, arma, ruido, seguro…" : "Ej.: 117 ley 7/1985, desobediencia, art. 36.16…";
+      input.placeholder = infractions ? "Ej.: vendedor ambulante sin autorización, pescado, juguetes…" : "Ej.: vendedor ambulante, pescado, juguetes, art. 13.2…";
       run();
     };
     input.addEventListener("input", run);
