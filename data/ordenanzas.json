@@ -551,20 +551,84 @@
       "aplicacion_policial": true,
       "prioridad_policial": "alta",
       "palabras_clave": [
-        "residuos",
-        "basura",
-        "limpieza",
-        "contenedor",
-        "vertido",
         "abandono de residuos",
+        "acera",
+        "arrojar",
+        "basura",
+        "calle",
+        "calzada",
+        "contenedor",
+        "ensuciado",
+        "ensuciamiento",
+        "ensuciar",
+        "higiene urbana",
+        "limpieza",
+        "papelera",
+        "residuos",
         "suciedad",
+        "tirar",
+        "vertido",
+        "via publica",
         "vía pública"
       ],
-      "articulos": [],
+      "articulos": [
+        {
+          "numero": "56.1",
+          "titulo": "La higiene en el ámbito personal — prohibición de arrojar residuos en la vía pública",
+          "tipo": "infraccion",
+          "policial": true,
+          "contenido_verificado": true,
+          "gravedad": "Leve",
+          "resumen": "Queda prohibido arrojar en la vía pública toda clase de productos sólidos o líquidos; deben utilizarse las papeleras o recipientes establecidos.",
+          "palabras_clave": [
+            "ensuciar",
+            "ensuciar la calle",
+            "arrojar",
+            "tirar",
+            "residuos",
+            "basura",
+            "suciedad",
+            "limpieza",
+            "vía pública",
+            "calle",
+            "acera",
+            "calzada",
+            "papelera"
+          ],
+          "sancion": {
+            "max": 300,
+            "moneda": "EUR"
+          },
+          "base_sancion": "Artículo 60.1.c y artículo 62.1.a de la Ordenanza."
+        },
+        {
+          "numero": "60.1.c",
+          "titulo": "Infracciones leves — incumplimiento de la Ordenanza no tipificado como grave o muy grave",
+          "tipo": "sancionador",
+          "policial": true,
+          "contenido_verificado": true,
+          "gravedad": "Leve",
+          "resumen": "El incumplimiento de los preceptos de la Ordenanza que no constituya falta grave o muy grave se clasifica como infracción leve.",
+          "sancion": {
+            "max": 300,
+            "moneda": "EUR"
+          }
+        },
+        {
+          "numero": "62.1.a",
+          "titulo": "Sanciones para infracciones leves",
+          "tipo": "sancionador",
+          "policial": true,
+          "contenido_verificado": true,
+          "gravedad": "Leve",
+          "resumen": "Las infracciones leves se sancionan con multa de hasta 300 euros y apercibimiento."
+        }
+      ],
       "fuente": {
         "tipo": "portal_transparencia",
         "url": "https://transparencia.sanroque.es/es/portal-de-transparencia/normativa-municipal/ordenanzas/generales?page=0%2C2"
-      }
+      },
+      "nota_busqueda": "Artículo 56.1 localizado en la Ordenanza de Gestión de los Residuos Sólidos Urbanos y Limpieza Viaria; su calificación como leve y el límite sancionador derivan de los artículos 60.1.c y 62.1.a."
     },
     {
       "id": "sr-escombros",

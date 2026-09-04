@@ -45,7 +45,13 @@
     autorizacion:["autorizaciones","permiso","licencia","autorizado","sin autorizacion"],
     factura:["facturas","comprobante","ticket","tique"],
     horario:["horarios","hora","cierre","apertura"],
-    multa:["sancion","sanciones","infraccion","infracciones"]
+    multa:["sancion","sanciones","infraccion","infracciones"],
+    ensuciar:["ensuciado","ensuciamiento","suciedad","limpieza","residuos","basura","vertido","arrojar","tirar","via publica","calle","acera","calzada","papelera"],
+    ensuciado:["ensuciar","ensuciamiento","suciedad","limpieza","residuos","basura","vertido","via publica","calle"],
+    suciedad:["ensuciar","ensuciado","limpieza","residuos","basura","via publica","calle"],
+    calle:["via publica","acera","calzada","limpieza","suciedad","residuos"],
+    tirar:["arrojar","depositar","residuos","basura","suciedad","via publica"],
+    arrojar:["tirar","depositar","residuos","basura","suciedad","via publica"]
   };
 
   const GROUPS=[
@@ -151,6 +157,10 @@
     if(/pescad|marisc/.test(n)&&/pescado|pesquer|marisco/.test(text))s+=180;
     if(/juguet/.test(n)&&/juguet|infantil/.test(text))s+=180;
     if(/sancion|multa|infraccion/.test(n)&&r.isInfraction)s+=130;
+    if(/ensuciar|ensuciado|suciedad|limpieza|residuo|residuos|basura|arrojar|tirar|calle|via publica|acera|calzada/.test(n)){
+      if(/limpieza|residuo|residuos|basura|suciedad|higiene urbana|via publica|calle|acera|calzada|arrojar|ensuciar|tirar/.test(text))s+=260;
+      if(/ordenanza/.test(norm(r.source)))s+=80;
+    }
     return s;
   }
   const esc=v=>String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
