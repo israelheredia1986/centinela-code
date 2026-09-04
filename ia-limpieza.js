@@ -1,16 +1,9 @@
-/* ============================================================
-   CENTINELA IA — LIMPIEZA DE PRESENTACIÓN
-   Elimina markdown, emojis y etiquetas técnicas de la respuesta
-   visible del chat sin alterar respuestas JSON usadas por las actas.
-   ============================================================ */
 (function () {
   "use strict";
 
   const limpiarTexto = (valor) => {
     let texto = String(valor ?? "").replace(/\r\n?/g, "\n").trim();
 
-    // Las respuestas JSON son consumidas por las funciones de actas.
-    // No las modificamos para no romper el parseo.
     const t = texto.trim();
     if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) {
       try {
@@ -19,14 +12,9 @@
       } catch (_) {}
     }
 
-    // Quitar emojis e iconos decorativos.
     texto = texto.replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu, "");
-
-    // Quitar etiquetas técnicas que no deben aparecer al agente.
     texto = texto.replace(/^\s*(?:FUENTE|Fuente|fuente)\s*:?\s*/gmi, "");
     texto = texto.replace(/^\s*(?:AVISO|Aviso)\s*:\s*/gmi, "Aviso: ");
-
-    // Limpiar markdown frecuente generado por el modelo.
     texto = texto.replace(/^\s{0,3}#{1,6}\s*/gm, "");
     texto = texto.replace(/\*\*([^*\n]+)\*\*/g, "$1");
     texto = texto.replace(/__([^_\n]+)__/g, "$1");
@@ -35,8 +23,6 @@
     texto = texto.replace(/^\s*[-*]\s+/gm, "• ");
     texto = texto.replace(/^\s*`{1,3}\s*/gm, "");
     texto = texto.replace(/\s*`{1,3}\s*$/gm, "");
-
-    // Evitar separadores markdown y exceso de líneas vacías.
     texto = texto.replace(/^\s*[-_=]{3,}\s*$/gm, "");
     texto = texto.replace(/\n{3,}/g, "\n\n");
     texto = texto.replace(/[ \t]+\n/g, "\n");
@@ -55,19 +41,70 @@
     if (!burbuja || !burbuja.classList?.contains("chat-bubble")) return;
     if (!burbuja.classList.contains("ai")) return;
 
-    const walker = document.createTreeWalker(
-      burbuja,
-      NodeFilter.SHOW_TEXT,
-    );
-
+    const walker = document.createTreeWalker(burbuja, NodeFilter.SHOW_TEXT);
     const nodos = [];
     let nodo;
     while ((nodo = walker.nextNode())) nodos.push(nodo);
     nodos.forEach(limpiarNodoTexto);
   }
 
+  function instalarNavegacionInferior() {
+    if (document.getElementById("centinela-nav-fix")) return;
+
+    const style = document.createElement("style");
+    style.id = "centinela-nav-fix";
+    style.textContent = `
+      /* CENTINELA — restauración de iconos de la barra inferior */
+      .bottom-navigation .nav-item .nav-icon{
+        width:auto!important;
+        height:auto!important;
+        min-width:30px!important;
+        min-height:30px!important;
+        display:flex!important;
+        align-items:center!important;
+        justify-content:center!important;
+        position:relative!important;
+        font-family:Arial,"Segoe UI Emoji",sans-serif!important;
+        font-size:30px!important;
+        line-height:1!important;
+        color:currentColor!important;
+        text-shadow:0 0 10px currentColor!important;
+        background:none!important;
+        -webkit-mask:none!important;
+        mask:none!important;
+        filter:none!important;
+      }
+      .bottom-navigation .nav-item .nav-icon:before{
+        content:none!important;
+        display:none!important;
+        -webkit-mask:none!important;
+        mask:none!important;
+        background:none!important;
+      }
+      .bottom-navigation .nav-item[data-section="ia"] .nav-icon{
+        font-size:56px!important;
+        min-width:48px!important;
+        min-height:48px!important;
+        line-height:.85!important;
+        text-shadow:0 0 16px currentColor,0 0 28px rgba(49,185,255,.55)!important;
+        transform:scale(1.05)!important;
+      }
+      .bottom-navigation .nav-item[data-section="ia"] .nav-label{
+        font-weight:900!important;
+        color:currentColor!important;
+        text-shadow:0 0 8px currentColor!important;
+      }
+      @media (max-width:520px){
+        .bottom-navigation .nav-item .nav-icon{font-size:27px!important}
+        .bottom-navigation .nav-item[data-section="ia"] .nav-icon{font-size:52px!important}
+      }
+    `;
+    (document.head || document.documentElement).appendChild(style);
+  }
+
   function instalarLimpiezaDOM() {
     document.querySelectorAll(".chat-bubble.ai").forEach(limpiarBurbuja);
+    instalarNavegacionInferior();
 
     if (window.CentinelaIALimpiezaObserver) return;
 
@@ -95,18 +132,19 @@
   }
 
   function instalar() {
-    if (typeof window.preguntarCentinelaIA !== "function") return false;
+    instalarNavegacionInferior();
+
+    if (typeof window.preguntarCentinelaIA !== "function") {
+      instalarLimpiezaDOM();
+      return false;
+    }
 
     if (!window.preguntarCentinelaIALimpia) {
       const original = window.preguntarCentinelaIA;
 
       window.preguntarCentinelaIA = async function (pregunta, onProgress) {
         const respuesta = await original.call(this, pregunta, onProgress);
-
-        if (typeof respuesta === "string") {
-          return limpiarTexto(respuesta);
-        }
-
+        if (typeof respuesta === "string") return limpiarTexto(respuesta);
         return respuesta;
       };
 
@@ -115,15 +153,16 @@
 
     instalarLimpiezaDOM();
     window.CentinelaIALimpia = { limpiar: limpiarTexto };
-    console.info("Centinela IA: presentación limpia activa");
+    console.info("Centinela IA: presentación limpia + navegación restaurada");
     return true;
   }
 
-  if (instalar()) return;
+  instalar();
 
   let intentos = 0;
   const timer = setInterval(() => {
     intentos += 1;
+    instalarNavegacionInferior();
     if (instalar() || intentos >= 100) clearInterval(timer);
   }, 100);
 })();
