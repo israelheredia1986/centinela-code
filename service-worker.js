@@ -1,10 +1,10 @@
 /* ============================================================
-   CENTINELA CODE — SERVICE WORKER V37
+   CENTINELA CODE — SERVICE WORKER V38
    Constitución Española + corpus normativo + buscadores PRO.
-   V37 fuerza la renovación completa de la caché para evitar que
-   una versión antigua del PWA siga bloqueando la carga.
+   V38 mantiene la recuperación de caché y aplica únicamente el
+   cambio de etiqueta solicitado en el estado del sistema.
    ============================================================ */
-const CACHE_NAME="centinela-code-v37-recovery";
+const CACHE_NAME="centinela-code-v38-recovery-label";
 const ARCHIVOS=[
   "./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css",
   "./visual-enhancements.js?v=20260904-search-v2","./app.js","./centinela-infracciones-ui.js?v=20260904-infracciones-v1","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js",
@@ -15,6 +15,12 @@ const ARCHIVOS=[
   "./data/comercio_ambulante.json","./data/propiedad_industrial_falsificaciones.json","./data/aforo_hosteleria_eventos.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json",
   "./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json","./data/bloque1_juridico.json","./data/infracciones_bloque1.json"
 ];
+
+function aplicarEtiquetaSolicitada(html){
+  const script=`<script>(function(){function f(){try{var e=document.getElementById('homeNormativaStatus');if(!e)return false;var r=e.closest('.status-row');if(!r)return false;var t=r.querySelector('strong:not(.status-value)');if(t)t.textContent='Normativa aplicable';var v=String(e.textContent||'').trim().match(/^(\\d+)\\s+artículos?$/i);if(v)e.textContent=v[1]+' referencias';return true;}catch(_){return false;}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){f();setTimeout(f,500);},{once:true});}else{f();setTimeout(f,500);}})();</script>`;
+  if(html.includes('homeNormativaStatus') && html.includes('</body>')) return html.replace('</body>',script+'</body>');
+  return html;
+}
 
 async function prepararHtml(response){
   if(!response||!response.ok)return response;
@@ -41,6 +47,7 @@ async function prepararHtml(response){
     html=replaceScript(html,'centinela-infracciones-ui.js','?v=20260904-infracciones-v1');
     html=replaceScript(html,'bloque1-juridico.js','?v=20260904-bloque1-v1');
     html=replaceScript(html,'constitucion-completa.js','?v=20260904-constitucion-v2');
+    html=aplicarEtiquetaSolicitada(html);
     const headers=new Headers(response.headers);
     headers.set('Content-Type','text/html; charset=utf-8');
     return new Response(html,{status:response.status,statusText:response.statusText,headers});
