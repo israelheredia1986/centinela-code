@@ -1,5 +1,5 @@
-const CACHE_NAME = "centinela-code-v25-ia-final";
-const ARCHIVOS = ["./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css","./visual-enhancements.js?v=20260904-search-v2","./app.js","./ia.js?v=20260904-ia-v3","./ia-robust.js?v=20260904-ia-v2","./matriculas.js","./buscadores.js?v=20260904-search-v5","./manifest.json","./data/lopsc.json","./data/infracciones.json","./data/infracciones_trafico.json","./data/ordenanzas.json","./data/codigo_penal.json","./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json","./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json"];
+const CACHE_NAME = "centinela-code-v26-comercio-ambulante";
+const ARCHIVOS = ["./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css","./visual-enhancements.js?v=20260904-search-v2","./app.js","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js","./buscadores.js?v=20260904-comercio-v1","./manifest.json","./data/lopsc.json","./data/infracciones.json","./data/infracciones_trafico.json","./data/ordenanzas.json","./data/codigo_penal.json","./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json","./data/comercio_ambulante.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json","./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json"];
 
 async function prepararHtml(response){
   if(!response||!response.ok)return response;
@@ -21,17 +21,23 @@ async function prepararHtml(response){
     const neon='<link rel="stylesheet" href="./style-neon.css?v=20260904-reference-final">';
     modificado=modificado.includes("style-neon.css")?modificado.replace(/<link[^>]*style-neon\\.css[^>]*>/,neon):modificado.includes("</head>")?modificado.replace("</head>",`${neon}</head>`):`${neon}${modificado}`;
     const js='<script defer src="./visual-enhancements.js?v=20260904-search-v2"></script>';
-    if(!modificado.includes("visual-enhancements.js"))modificado=modificado.includes("</body>")?modificado.replace("</body>",`${js}</body>`):`${modificado}${js}`;
-    else modificado=modificado.replace(/<script[^>]*visual-enhancements\\.js[^>]*><\\/script>/,js);
-    const js2='<script defer src="./buscadores.js?v=20260904-search-v5"></script>';
-    if(!modificado.includes("buscadores.js"))modificado=modificado.includes("</body>")?modificado.replace("</body>",`${js2}</body>`):`${modificado}${js2}`;
-    else modificado=modificado.replace(/<script[^>]*buscadores\\.js[^>]*><\\/script>/,js2);
-    const js3='<script defer src="./ia.js?v=20260904-ia-v3"></script>';
-    if(!modificado.includes("ia.js"))modificado=modificado.includes("</body>")?modificado.replace("</body>",`${js3}</body>`):`${modificado}${js3}`;
-    else modificado=modificado.replace(/<script[^>]*ia\\.js[^>]*><\\/script>/,js3);
-    const js4='<script defer src="./ia-robust.js?v=20260904-ia-v2"></script>';
-    if(!modificado.includes("ia-robust.js"))modificado=modificado.includes("</body>")?modificado.replace("</body>",`${js4}</body>`):`${modificado}${js4}`;
-    else modificado=modificado.replace(/<script[^>]*ia-robust\\.js[^>]*><\\/script>/,js4);
+    if(!modificado.includes("visual-enhancements.js")){
+      modificado=modificado.includes("</body>")?modificado.replace("</body>",`${js}</body>`):`${modificado}${js}`;
+    }else{
+      modificado=modificado.replace(/<script[^>]*visual-enhancements\\.js[^>]*><\\/script>/,js);
+    }
+    const js2='<script defer src="./buscadores.js?v=20260904-comercio-v1"></script>';
+    if(!modificado.includes("buscadores.js")){
+      modificado=modificado.includes("</body>")?modificado.replace("</body>",`${js2}</body>`):`${modificado}${js2}`;
+    }else{
+      modificado=modificado.replace(/<script[^>]*buscadores\\.js[^>]*><\\/script>/,js2);
+    }
+    const js3='<script defer src="./ia-robust.js?v=20260904-ia-v1"></script>';
+    if(!modificado.includes("ia-robust.js")){
+      modificado=modificado.includes("</body>")?modificado.replace("</body>",`${js3}</body>`):`${modificado}${js3}`;
+    }else{
+      modificado=modificado.replace(/<script[^>]*ia-robust\\.js[^>]*><\\/script>/,js3);
+    }
     const headers=new Headers(response.headers);headers.set("Content-Type","text/html; charset=utf-8");
     return new Response(modificado,{status:response.status,statusText:response.statusText,headers});
   }catch(_){return response}
