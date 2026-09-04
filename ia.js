@@ -35,7 +35,7 @@ async function preguntarCentinelaIA(pregunta) {
     if (document.getElementById("centinelaIAV4Script")) return;
     const script = document.createElement("script");
     script.id = "centinelaIAV4Script";
-    script.src = "./centinela-ia-v4.js?v=20260905-police-v3";
+    script.src = "./centinela-ia-v4.js?v=20260905-relevance-v4";
     script.async = false;
     script.onerror = () => console.warn("No se pudo cargar Centinela IA V4; se mantiene el motor básico.");
     document.head.appendChild(script);
