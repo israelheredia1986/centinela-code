@@ -9,21 +9,24 @@ permissions:
 
 jobs:
   reparar:
+    if: ${{ !contains(github.event.head_commit.message, '[auto-repair]') }}
     runs-on: ubuntu-latest
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Reparar interfaz
+      - name: Reparar interfaz y buscadores
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import json
 
+          # ------------------------------------------------------------
+          # 1) Mantener limpia la referencia al JS eliminado y la etiqueta.
+          # ------------------------------------------------------------
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-
-          # El archivo fue eliminado y no debe seguir referenciado.
           for ref in (
               '<script src="./infraccion-assistant.js?v=20260904-v1"></script>',
               '<script src="infraccion-assistant.js?v=20260904-v1"></script>',
@@ -31,15 +34,88 @@ jobs:
               '<script defer src="infraccion-assistant.js?v=20260904-v1"></script>',
           ):
               s = s.replace(ref, '')
-
-          # Nombre correcto del bloque de estado.
           s = s.replace(
               '<strong>Ley Orgánica 4/2015</strong><small>Comprobando artículos disponibles</small>',
               '<strong>Normativa aplicable</strong><small>Comprobando referencias disponibles</small>',
               1,
           )
-
           p.write_text(s, encoding='utf-8')
+
+          # ------------------------------------------------------------
+          # 2) Mejorar el buscador semántico:
+          #    “ensuciar la calle” debe conducir a limpieza/residuos/vía pública.
+          # ------------------------------------------------------------
+          p = Path('buscadores-core.js')
+          s = p.read_text(encoding='utf-8')
+
+          old = '''    multa:["sancion","sanciones","infraccion","infracciones"]\n  };'''
+          new = '''    multa:["sancion","sanciones","infraccion","infracciones"],\n    ensuciar:["ensuciado","ensuciamiento","suciedad","limpieza","residuos","basura","vertido","arrojar","tirar","via publica","calle","acera","calzada","papelera"],\n    ensuciado:["ensuciar","ensuciamiento","suciedad","limpieza","residuos","basura","vertido","via publica","calle"],\n    suciedad:["ensuciar","ensuciado","limpieza","residuos","basura","via publica","calle"],\n    calle:["via publica","acera","calzada","limpieza","suciedad","residuos"],\n    tirar:["arrojar","depositar","residuos","basura","suciedad","via publica"],\n    arrojar:["tirar","depositar","residuos","basura","suciedad","via publica"]\n  };'''
+          if old not in s:
+              raise SystemExit('No se encontró el bloque ALIAS esperado en buscadores-core.js')
+          s = s.replace(old, new, 1)
+
+          old2 = '''    if(/sancion|multa|infraccion/.test(n)&&r.isInfraction)s+=130;\n    return s;'''
+          new2 = '''    if(/sancion|multa|infraccion/.test(n)&&r.isInfraction)s+=130;\n    if(/ensuciar|ensuciado|suciedad|limpieza|residuo|residuos|basura|arrojar|tirar|calle|via publica|acera|calzada/.test(n)){\n      if(/limpieza|residuo|residuos|basura|suciedad|higiene urbana|via publica|calle|acera|calzada|arrojar|ensuciar|tirar/.test(text))s+=260;\n      if(/ordenanza/.test(norm(r.source)))s+=80;\n    }\n    return s;'''
+          if old2 not in s:
+              raise SystemExit('No se encontró el bloque score esperado en buscadores-core.js')
+          s = s.replace(old2, new2, 1)
+          p.write_text(s, encoding='utf-8')
+
+          # ------------------------------------------------------------
+          # 3) Incorporar el artículo municipal verificable que permite
+          #    resolver “ensuciar la calle” con artículo + sanción.
+          # ------------------------------------------------------------
+          p = Path('data/ordenanzas.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          target = next((o for o in data.get('ordenanzas', []) if o.get('id') == 'sr-residuos'), None)
+          if target is None:
+              raise SystemExit('No se encontró sr-residuos en data/ordenanzas.json')
+
+          keywords = set(target.get('palabras_clave') or [])
+          keywords.update({
+              'ensuciar','ensuciado','ensuciamiento','suciedad','limpieza','residuos',
+              'basura','arrojar','tirar','calle','vía pública','via publica','acera','calzada',
+              'papelera','higiene urbana'
+          })
+          target['palabras_clave'] = sorted(keywords)
+
+          articulos = [a for a in (target.get('articulos') or []) if a.get('numero') not in {'56','60','62'}]
+          articulos.extend([
+              {
+                  'numero': '56.1',
+                  'titulo': 'La higiene en el ámbito personal — prohibición de arrojar residuos en la vía pública',
+                  'tipo': 'infraccion',
+                  'policial': True,
+                  'contenido_verificado': True,
+                  'gravedad': 'Leve',
+                  'resumen': 'Queda prohibido arrojar en la vía pública toda clase de productos sólidos o líquidos; deben utilizarse las papeleras o recipientes establecidos.',
+                  'palabras_clave': ['ensuciar','ensuciar la calle','arrojar','tirar','residuos','basura','suciedad','limpieza','vía pública','calle','acera','calzada','papelera'],
+                  'sancion': {'max': 300, 'moneda': 'EUR'},
+                  'base_sancion': 'Artículo 60.1.c y artículo 62.1.a de la Ordenanza.'
+              },
+              {
+                  'numero': '60.1.c',
+                  'titulo': 'Infracciones leves — incumplimiento de la Ordenanza no tipificado como grave o muy grave',
+                  'tipo': 'sancionador',
+                  'policial': True,
+                  'contenido_verificado': True,
+                  'gravedad': 'Leve',
+                  'resumen': 'El incumplimiento de los preceptos de la Ordenanza que no constituya falta grave o muy grave se clasifica como infracción leve.',
+                  'sancion': {'max': 300, 'moneda': 'EUR'}
+              },
+              {
+                  'numero': '62.1.a',
+                  'titulo': 'Sanciones para infracciones leves',
+                  'tipo': 'sancionador',
+                  'policial': True,
+                  'contenido_verificado': True,
+                  'gravedad': 'Leve',
+                  'resumen': 'Las infracciones leves se sancionan con multa de hasta 300 euros y apercibimiento.'
+              }
+          ])
+          target['articulos'] = articulos
+          target['nota_busqueda'] = 'Artículo 56.1 localizado en la Ordenanza de Gestión de los Residuos Sólidos Urbanos y Limpieza Viaria; su calificación como leve y el límite sancionador derivan de los artículos 60.1.c y 62.1.a.'
+          p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           PY
 
       - name: Publicar reparación
@@ -47,10 +123,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
+          git add index.html buscadores-core.js data/ordenanzas.json .github/workflows/ajuste-pantalla-buscador.yml
           if git diff --cached --quiet; then
             echo "No hay cambios pendientes."
             exit 0
           fi
-          git commit -m "Reparar carga de Centinela y cambiar etiqueta de normativa [auto-repair]"
+          git commit -m "Mejorar búsqueda de limpieza y vía pública [auto-repair]"
           git push
