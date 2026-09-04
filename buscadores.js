@@ -1,6 +1,6 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V13 — búsqueda única y exclusivamente local
+   V14 — búsqueda única, local y sin navegación externa
    ============================================================ */
 (function(){
   "use strict";
@@ -9,8 +9,11 @@
     return new Promise((resolve,reject)=>{
       if(document.querySelector(`script[data-centinela-src="${src}"]`)){resolve();return;}
       const s=document.createElement("script");
-      s.src=src;s.async=false;s.dataset.centinelaSrc=src;
-      s.onload=resolve;s.onerror=()=>reject(new Error(`No se pudo cargar ${src}`));
+      s.src=src;
+      s.async=false;
+      s.dataset.centinelaSrc=src;
+      s.onload=resolve;
+      s.onerror=()=>reject(new Error(`No se pudo cargar ${src}`));
       document.head.appendChild(s);
     });
   }
@@ -18,7 +21,7 @@
     try{
       await cargar(`${base}buscador-home.js?v=20260904v3`);
       await cargar(`${base}buscadores-core.js?v=20260904v10`);
-      await cargar(`${base}buscador-local-only.js?v=20260904v1`);
+      await cargar(`${base}buscador-local-only.js?v=20260904v2`);
       await cargar(`${base}buscador-consecuencias.js?v=20260904v5`);
       await cargar(`${base}buscador-consecuencias-ui.js?v=20260904v3`);
     }catch(e){console.error("Centinela Code — sistema de búsqueda:",e);}
