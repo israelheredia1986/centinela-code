@@ -1,0 +1,65 @@
+[
+  {
+    "id":"PI-001",
+    "articulo":"274.1",
+    "titulo":"Falsificación de marcas: fabricación, producción o importación",
+    "conducta":"Con fines industriales o comerciales, sin consentimiento del titular de un derecho de propiedad industrial registrado y con conocimiento del registro, fabricar, producir o importar productos que incorporen un signo distintivo idéntico o confundible con la marca registrada.",
+    "gravedad":"Delito",
+    "sancion":"Prisión de 1 a 4 años y multa de 12 a 24 meses.",
+    "keywords":["falsificacion","falsificaciones","marca falsa","ropa falsa","reloj falso","perfume falso","bolso falso","zapatillas falsas","objetos falsificados","top manta","mantero","venta ilegal"]
+  },
+  {
+    "id":"PI-002",
+    "articulo":"274.2",
+    "titulo":"Comercialización al por menor de productos con marcas falsificadas",
+    "conducta":"Ofrecer, distribuir o comercializar al por menor, con fines industriales o comerciales y sin consentimiento del titular, productos que incorporen un signo distintivo idéntico o confundible con una marca registrada.",
+    "gravedad":"Delito",
+    "sancion":"Prisión de 6 meses a 3 años.",
+    "keywords":["venta al por menor","vender falsificaciones","falsificaciones","ropa","relojes","perfumes","bolsos","gafas","zapatillas","camisetas","objetos","marcas"]
+  },
+  {
+    "id":"PI-003",
+    "articulo":"274.3",
+    "titulo":"Top manta: venta ambulante u ocasional de productos falsificados",
+    "conducta":"La venta ambulante u ocasional de productos con signos distintivos idénticos o confundibles con marcas registradas, en las condiciones previstas por el artículo 274 del Código Penal.",
+    "gravedad":"Delito",
+    "sancion":"Prisión de 6 meses a 2 años. En determinados supuestos de reducida cuantía y sin agravantes, el órgano judicial puede aplicar las alternativas previstas legalmente.",
+    "keywords":["top manta","mantero","top-manta","venta ambulante falsificaciones","vendedor ambulante falsificado","vendedor de falsificaciones","mantas","calle","mercadillo","ropa falsificada","relojes falsificados","perfumes falsificados"]
+  },
+  {
+    "id":"PI-004",
+    "articulo":"276",
+    "titulo":"Especial gravedad en delitos contra la propiedad industrial",
+    "conducta":"La pena se agrava cuando concurre especial trascendencia económica del beneficio o especial gravedad por el valor de los objetos o los perjuicios ocasionados, entre otros supuestos legalmente previstos.",
+    "gravedad":"Delito agravado",
+    "sancion":"Prisión de 2 a 6 años, multa de 18 a 36 meses e inhabilitación especial de 2 a 5 años, cuando concurra alguna de las circunstancias del artículo 276.",
+    "keywords":["especial gravedad","beneficio económico","organización","red de falsificaciones","falsificaciones masivas"]
+  },
+  {
+    "id":"PI-005",
+    "articulo":"34 Ley 17/2001",
+    "titulo":"Derecho exclusivo del titular de la marca",
+    "conducta":"El registro de una marca confiere a su titular un derecho exclusivo y permite prohibir determinados usos no autorizados en el tráfico económico, incluida la oferta, comercialización, almacenamiento, importación o exportación en los supuestos legalmente previstos.",
+    "gravedad":"Normativa de marcas",
+    "sancion":"Puede dar lugar a acciones civiles y penales y a medidas para retirar los productos del tráfico económico.",
+    "keywords":["marca registrada","derecho de marca","signo distintivo","producto falsificado","falsificacion","comercializacion"]
+  },
+  {
+    "id":"PI-006",
+    "articulo":"40-41 Ley 17/2001",
+    "titulo":"Acciones frente a la violación de una marca",
+    "conducta":"El titular de una marca registrada puede ejercitar acciones civiles o penales y solicitar, entre otras medidas, la cesación, indemnización y retirada del tráfico económico de productos que vulneren su derecho.",
+    "gravedad":"Normativa de marcas",
+    "sancion":"Acciones y medidas judiciales conforme a la legislación de marcas.",
+    "keywords":["retirada productos","embargo","destruccion","falsificaciones","marca","productos falsos"]
+  },
+  {
+    "id":"PI-007",
+    "articulo":"Referencia operativa",
+    "titulo":"Productos típicos del top manta y falsificaciones",
+    "conducta":"El buscador debe asociar top manta y falsificaciones con ropa, camisetas, pantalones, sudaderas, zapatillas, bolsos, carteras, cinturones, gafas, relojes, joyas, bisutería, perfumes, colonias, accesorios, objetos y otros productos que incorporen signos distintivos no autorizados.",
+    "gravedad":"Consulta relacionada",
+    "sancion":"La calificación jurídica concreta depende de los hechos, la titularidad de la marca, el conocimiento y las circunstancias del caso.",
+    "keywords":["top manta","ropa falsificada","ropa de marca falsa","reloj falso","relojes falsos","perfume falso","perfumes falsos","colonia falsa","bolso falso","bolsos falsos","cartera falsa","gafas falsas","zapatillas falsas","camiseta falsa","objetos falsificados","falsos","imitaciones"]
+  }
+]
