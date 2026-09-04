@@ -1,6 +1,6 @@
 /* ============================================================
-   CENTINELA CODE — AJUSTE VISUAL DEL BUSCADOR PRINCIPAL
-   Lupa y tipografía más grandes y visibles.
+   CENTINELA CODE — AJUSTE VISUAL DEL BUSCADOR PRINCIPAL XL
+   Lupa y tipografía MUCHO más grandes y visibles.
    ============================================================ */
 (function(){
   "use strict";
@@ -10,54 +10,86 @@
     const s=document.createElement("style");
     s.id=STYLE_ID;
     s.textContent=`
-      /* Título del buscador: más grande y protagonista */
       .cc-home-search-title{
-        gap:12px!important;
-        margin:0 4px 10px!important;
-        font-size:19px!important;
-        line-height:1.25!important;
-        letter-spacing:.2px!important;
+        gap:15px!important;
+        margin:0 6px 15px!important;
+        font-size:24px!important;
+        line-height:1.2!important;
+        letter-spacing:.1px!important;
       }
       .cc-home-search-title .cc-mark{
-        width:42px!important;
-        height:42px!important;
-        min-width:42px!important;
-        border-radius:13px!important;
-        font-size:27px!important;
+        width:58px!important;
+        height:58px!important;
+        min-width:58px!important;
+        border-radius:17px!important;
+        font-size:38px!important;
         font-weight:900!important;
-        box-shadow:0 0 22px rgba(25,191,255,.42)!important;
+        box-shadow:0 0 30px rgba(25,191,255,.62)!important;
       }
-      /* Texto que se escribe: más grande y cómodo */
+      .cc-home-search-box{
+        gap:12px!important;
+        padding:12px!important;
+        min-height:72px!important;
+        border-radius:20px!important;
+      }
       .cc-home-search-box input{
-        padding:14px 15px!important;
-        min-height:50px!important;
-        font-size:17px!important;
-        font-weight:700!important;
+        padding:16px 18px!important;
+        min-height:60px!important;
+        font-size:21px!important;
+        font-weight:750!important;
         line-height:1.25!important;
+        border-radius:15px!important;
       }
       .cc-home-search-box input::placeholder{
-        font-size:16px!important;
+        font-size:20px!important;
         font-weight:600!important;
       }
-      /* Botón también gana presencia */
       .cc-home-search-button{
-        min-width:104px!important;
-        font-size:14px!important;
+        min-width:125px!important;
+        min-height:60px!important;
+        padding:0 20px!important;
+        border-radius:15px!important;
+        font-size:16px!important;
         font-weight:900!important;
       }
       @media(max-width:430px){
-        .cc-home-search-title{font-size:18px!important}
-        .cc-home-search-title .cc-mark{width:40px!important;height:40px!important;min-width:40px!important;font-size:25px!important}
-        .cc-home-search-box input{font-size:16px!important;min-height:48px!important}
-        .cc-home-search-box input::placeholder{font-size:15px!important}
-        .cc-home-search-button{min-width:86px!important;font-size:13px!important}
+        .cc-home-search-title{
+          font-size:21px!important;
+          gap:12px!important;
+          margin-bottom:13px!important;
+        }
+        .cc-home-search-title .cc-mark{
+          width:52px!important;
+          height:52px!important;
+          min-width:52px!important;
+          border-radius:16px!important;
+          font-size:34px!important;
+        }
+        .cc-home-search-box{
+          padding:10px!important;
+          gap:8px!important;
+          min-height:66px!important;
+        }
+        .cc-home-search-box input{
+          font-size:18px!important;
+          min-height:54px!important;
+          padding:14px 15px!important;
+        }
+        .cc-home-search-box input::placeholder{font-size:17px!important}
+        .cc-home-search-button{
+          min-width:96px!important;
+          min-height:54px!important;
+          padding:0 12px!important;
+          font-size:14px!important;
+        }
       }
     `;
     document.head.appendChild(s);
   }
   function boot(){
     apply();
-    if(!document.getElementById("cc-home-search-shell"))setTimeout(apply,500);
+    setTimeout(apply,500);
+    setTimeout(apply,1200);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
