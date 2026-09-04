@@ -1,0 +1,146 @@
+[
+  {
+    "id":"AF-001",
+    "articulo":"6 Decreto 155/2018",
+    "titulo":"Aforo máximo de establecimientos públicos",
+    "conducta":"En los establecimientos públicos debe respetarse el aforo máximo de público permitido para los espectáculos públicos o actividades recreativas que alberguen.",
+    "gravedad":"Obligación de seguridad",
+    "sancion":"El incumplimiento puede generar responsabilidad administrativa conforme a la Ley 13/1999 y su normativa de desarrollo.",
+    "keywords":["aforo","personas","aforo maximo","exceso aforo","sobreaforo","local lleno","restaurante lleno","salon lleno"]
+  },
+  {
+    "id":"AF-002",
+    "articulo":"6.2 Decreto 155/2018",
+    "titulo":"Cálculo del aforo y seguridad de evacuación",
+    "conducta":"El aforo se calcula conforme al Código Técnico de la Edificación o norma básica que lo sustituya, en materia de evacuación de ocupantes y seguridad en caso de incendio, sin perjuicio de normativa específica aplicable.",
+    "gravedad":"Normativa técnica",
+    "sancion":"Debe comprobarse el aforo autorizado y, cuando proceda, la documentación técnica aplicable.",
+    "keywords":["calculo aforo","evacuacion","seguridad incendio","cte","personas por metro cuadrado"]
+  },
+  {
+    "id":"AF-003",
+    "articulo":"8 Decreto 155/2018",
+    "titulo":"El aforo debe constar en las autorizaciones",
+    "conducta":"Las autorizaciones deben indicar, entre otros extremos, el aforo máximo permitido cuando resulte aplicable.",
+    "gravedad":"Obligación administrativa",
+    "sancion":"Comprobar licencia, declaración responsable o autorización y el aforo autorizado.",
+    "keywords":["licencia","aforo autorizado","declaracion responsable","permiso","aforo local","capacidad local"]
+  },
+  {
+    "id":"AF-004",
+    "articulo":"III.2.7.a Decreto 155/2018",
+    "titulo":"Restaurantes, bares y cafeterías: establecimientos de hostelería",
+    "conducta":"Los restaurantes, autoservicios, bares, cafeterías y bares-quiosco se encuadran como establecimientos de hostelería sin música, conforme al catálogo andaluz, sin perjuicio de otras categorías cuando proceda.",
+    "gravedad":"Clasificación del establecimiento",
+    "sancion":"La actividad debe ajustarse a la autorización y a las condiciones del establecimiento.",
+    "keywords":["restaurante","bar","cafeteria","hosteleria","comida","local hosteleria","aforo restaurante","aforo bar"]
+  },
+  {
+    "id":"AF-005",
+    "articulo":"III.2.8.c Decreto 155/2018",
+    "titulo":"Salones de celebraciones y bodas",
+    "conducta":"Los salones de celebraciones son establecimientos de ocio y esparcimiento destinados a actos sociales privados para todas las edades, donde la consumición de comidas y bebidas es elemento fundamental de la celebración.",
+    "gravedad":"Clasificación del establecimiento",
+    "sancion":"La actividad debe ajustarse a las condiciones de apertura, autorización y aforo del establecimiento.",
+    "keywords":["boda","bodas","banquete","salon de bodas","salon celebraciones","celebracion","cumpleanos","comunion","bautizo","evento privado","fiesta privada","banquetes"]
+  },
+  {
+    "id":"AF-006",
+    "articulo":"19.8 Ley 13/1999",
+    "titulo":"Exceso de aforo con disminución de la seguridad",
+    "conducta":"La admisión de público en número superior al determinado como aforo del establecimiento, cuando se vean disminuidas las condiciones de seguridad exigibles para las personas o bienes, está tipificada como infracción muy grave.",
+    "gravedad":"Muy grave",
+    "sancion":"Régimen sancionador de la Ley 13/1999; puede incluir multa y sanciones accesorias según la calificación y circunstancias.",
+    "keywords":["exceso aforo","aforo superior","mas personas","sobrepasar aforo","aforo restaurante","aforo boda","aforo salon celebraciones","muy grave"]
+  },
+  {
+    "id":"AF-007",
+    "articulo":"19 Ley 13/1999",
+    "titulo":"Funcionamiento sin autorización y otras infracciones muy graves",
+    "conducta":"La Ley 13/1999 contempla como muy graves determinados supuestos de apertura o funcionamiento sin licencias o autorizaciones, actividad distinta de la autorizada con grave riesgo, incumplimiento grave de evacuación y exceso de aforo con disminución de la seguridad.",
+    "gravedad":"Muy grave",
+    "sancion":"Puede llevar aparejadas multas y sanciones accesorias conforme a la Ley 13/1999 y su normativa de desarrollo.",
+    "keywords":["sin licencia","sin autorizacion","local sin licencia","evento sin permiso","boda sin licencia","salon sin autorizacion","aforo","evacuacion"]
+  },
+  {
+    "id":"AF-008",
+    "articulo":"17 Decreto 155/2018",
+    "titulo":"Horarios de cierre: hostelería y salones de celebraciones",
+    "conducta":"El régimen general establece horarios máximos de cierre para establecimientos públicos. Como referencia, hostelería sin música y con música: 02:00; establecimientos especiales de hostelería con música: 03:00; establecimientos de esparcimiento y salones de celebraciones: 06:00. En viernes, sábado y vísperas de festivo existe ampliación de una hora en los supuestos previstos.",
+    "gravedad":"Normativa de horarios",
+    "sancion":"El incumplimiento puede constituir infracción administrativa conforme a la normativa de espectáculos públicos.",
+    "keywords":["horario","cierre","cerrar tarde","fuera de horario","restaurante horario","bar horario","boda horario","salon celebraciones horario","hora cierre"]
+  },
+  {
+    "id":"AF-009",
+    "articulo":"Artículo 7 Decreto 155/2018",
+    "titulo":"Apertura de establecimientos y control municipal",
+    "conducta":"La apertura de establecimientos públicos fijos destinados a espectáculos y actividades recreativas permanentes o de temporada se somete con carácter general a declaración responsable ante el Ayuntamiento, mientras determinados establecimientos eventuales requieren autorización municipal.",
+    "gravedad":"Control municipal",
+    "sancion":"Comprobar el título habilitante y las condiciones de apertura antes de desarrollar la actividad.",
+    "keywords":["apertura","declaracion responsable","ayuntamiento","autorizacion municipal","evento","carpa","salon","restaurante"]
+  },
+  {
+    "id":"AF-010",
+    "articulo":"III.2.8.c Decreto 155/2018",
+    "titulo":"Catering en salones de celebraciones",
+    "conducta":"Cuando un salón de celebraciones no elabore las comidas en sus propias cocinas, el servicio debe realizarse por empresas sanitaria y legalmente habilitadas para la actividad de catering.",
+    "gravedad":"Requisito de actividad",
+    "sancion":"Debe comprobarse la habilitación sanitaria y legal del servicio de catering cuando proceda.",
+    "keywords":["catering","boda catering","banquete","comida boda","salon celebraciones","habilitacion sanitaria"]
+  },
+  {
+    "id":"AF-011",
+    "articulo":"20.1 Decreto 155/2018",
+    "titulo":"Cierre de establecimientos y desalojo",
+    "conducta":"A partir de la hora de cierre debe cesar el espectáculo o actividad, no se sirven nuevas consumiciones ni se permite la entrada de más personas; deben facilitarse las condiciones de desalojo y el establecimiento debe quedar totalmente vacío de público en el plazo establecido.",
+    "gravedad":"Obligación de cierre",
+    "sancion":"El incumplimiento puede dar lugar a actuaciones inspectoras y sancionadoras.",
+    "keywords":["desalojo","desalojar","hora cierre","personas dentro","clientes dentro","seguir sirviendo","entrada despues cierre","cierre local"]
+  },
+  {
+    "id":"AF-012",
+    "articulo":"Plan de Inspección 2024 · CTE DB SI 3",
+    "titulo":"Coeficientes orientativos para calcular ocupación",
+    "conducta":"La documentación inspectora de la Junta recoge, para cálculo aproximado cuando no consta el aforo, coeficientes del CTE: bares, cafeterías y restaurantes 1 m²/persona en zonas de público de pie y 1,5 m²/persona en zonas de público sentado; vestíbulos y similares 2 m²/persona y zonas de servicio 10 m²/persona.",
+    "gravedad":"Criterio técnico de inspección",
+    "sancion":"Es un criterio de cálculo aproximado; debe prevalecer el aforo autorizado y la documentación técnica aplicable.",
+    "keywords":["1 metro cuadrado persona","1,5 m2","aforo restaurante calculo","aforo bar calculo","ocupacion restaurante","ocupacion personas"]
+  },
+  {
+    "id":"AF-013",
+    "articulo":"Plan de Inspección 2024 · CTE DB SI 3",
+    "titulo":"Aforo aproximado en espectáculos y actividades recreativas",
+    "conducta":"Para zonas de espectadores de pie se recoge 0,25 m²/persona y para espectadores sentados 0,50 m²/persona cuando no estén definidos el número y situación de asientos; vestíbulos y dependencias similares 2 m²/persona y zonas de servicio 10 m²/persona.",
+    "gravedad":"Criterio técnico de inspección",
+    "sancion":"Criterio aproximado para comprobación del aforo; no sustituye el aforo autorizado ni el proyecto técnico.",
+    "keywords":["aforo espectáculo","aforo evento","personas de pie","personas sentadas","0,25","0,50","ocupacion evento"]
+  },
+  {
+    "id":"AF-014",
+    "articulo":"2 Ley 13/1999",
+    "titulo":"Autorización de espectáculos y actividades recreativas",
+    "conducta":"La celebración o práctica de espectáculos públicos o actividades recreativas sujetas a la Ley 13/1999 requiere las licencias y autorizaciones administrativas correspondientes, con las excepciones legalmente previstas.",
+    "gravedad":"Obligación administrativa",
+    "sancion":"La celebración sin las pertinentes autorizaciones puede dar lugar a suspensión y a las sanciones procedentes.",
+    "keywords":["evento","fiesta","boda","espectaculo","actividad recreativa","autorizacion","licencia","permiso"]
+  },
+  {
+    "id":"AF-015",
+    "articulo":"20.3 Ley 13/1999",
+    "titulo":"Incumplimiento de condiciones de seguridad",
+    "conducta":"El régimen sancionador contempla infracciones relacionadas con el cumplimiento defectuoso o parcial de las condiciones de seguridad exigibles a establecimientos y actividades.",
+    "gravedad":"Grave según el supuesto",
+    "sancion":"La sanción concreta depende de la tipificación y circunstancias del hecho.",
+    "keywords":["seguridad","salida emergencia","evacuacion","local","restaurante","boda","evento","aforo"]
+  },
+  {
+    "id":"AF-016",
+    "articulo":"17 Decreto 155/2018",
+    "titulo":"Actividades y horarios de hostelería y ocio",
+    "conducta":"El catálogo diferencia establecimientos de hostelería, establecimientos especiales de hostelería con música, establecimientos de esparcimiento y salones de celebraciones, con condiciones y horarios específicos.",
+    "gravedad":"Normativa sectorial",
+    "sancion":"Comprobar la categoría autorizada antes de valorar horario o actividad.",
+    "keywords":["pub","discoteca","bar musica","restaurante","salon bodas","salon celebraciones","hosteleria","ocio","esparcimiento"]
+  }
+]
