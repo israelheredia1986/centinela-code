@@ -1,5 +1,5 @@
-const CACHE_NAME = "centinela-code-v23-search-normativa";
-const ARCHIVOS = ["./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css","./visual-enhancements.js?v=20260904-search-v2","./app.js","./ia.js","./matriculas.js","./buscadores.js?v=20260904-search-v5","./manifest.json","./data/lopsc.json","./data/infracciones.json","./data/infracciones_trafico.json","./data/ordenanzas.json","./data/codigo_penal.json","./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json","./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json"];
+const CACHE_NAME = "centinela-code-v24-ia-robusta";
+const ARCHIVOS = ["./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css","./visual-enhancements.js?v=20260904-search-v2","./app.js","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js","./buscadores.js?v=20260904-search-v5","./manifest.json","./data/lopsc.json","./data/infracciones.json","./data/infracciones_trafico.json","./data/ordenanzas.json","./data/codigo_penal.json","./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json","./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json"];
 
 async function prepararHtml(response){
   if(!response||!response.ok)return response;
@@ -31,6 +31,12 @@ async function prepararHtml(response){
       modificado=modificado.includes("</body>")?modificado.replace("</body>",`${js2}</body>`):`${modificado}${js2}`;
     }else{
       modificado=modificado.replace(/<script[^>]*buscadores\\.js[^>]*><\\/script>/,js2);
+    }
+    const js3='<script defer src="./ia-robust.js?v=20260904-ia-v1"></script>';
+    if(!modificado.includes("ia-robust.js")){
+      modificado=modificado.includes("</body>")?modificado.replace("</body>",`${js3}</body>`):`${modificado}${js3}`;
+    }else{
+      modificado=modificado.replace(/<script[^>]*ia-robust\\.js[^>]*><\\/script>/,js3);
     }
     const headers=new Headers(response.headers);headers.set("Content-Type","text/html; charset=utf-8");
     return new Response(modificado,{status:response.status,statusText:response.statusText,headers});
