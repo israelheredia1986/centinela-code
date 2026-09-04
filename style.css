@@ -489,3 +489,7 @@ fija arriba para alojar el botón de Ajustes)
 .header-action { width: 40px; height: 40px; flex-shrink: 0; border-radius: 12px; border: 1px solid #1c507b; background: rgba(21,151,255,.08); color: #dce8f7; font-size: 18px; display: grid; place-items: center; cursor: pointer; transition: background .15s, transform .15s; }
 .header-action:hover { background: rgba(21,151,255,.18); transform: translateY(-1px); }
 @media (max-width: 560px) { .header-brand .brand-text { display: none; } }
+
+
+/* CENTINELA: MATRÍCULA OCULTA TEMPORALMENTE */
+.matriculas-card,.matricula-card,.matricula-tab,.tab-matricula,.nav-matricula,#matricula,#matriculas,#tab-matricula,#tab-matriculas,[data-section*="matric" i],[data-target*="matric" i],[aria-label*="matric" i],.nav-item[id*="matric" i],button[onclick*="matric" i]{display:none!important;}
