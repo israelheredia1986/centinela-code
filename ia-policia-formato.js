@@ -6,20 +6,31 @@
    ============================================================ */
 (function () {
   "use strict";
+
   const MARCA = "data-centinela-police-formatted";
+  const TIMERS = new WeakMap();
+
   function texto(valor) {
     if (valor === null || valor === undefined) return "";
     if (typeof valor === "object") return Array.isArray(valor) ? valor.map(texto).filter(Boolean).join("; ") : "";
     return String(valor).trim();
   }
-  function esc(valor) { return texto(valor).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-  function normalizarClave(valor) { return String(valor||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,""); }
+
+  function esc(valor) {
+    return texto(valor).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function normalizarClave(valor) {
+    return String(valor||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
+  }
+
   function valorClave(obj, claves) {
     if (!obj || typeof obj !== "object") return "";
     const buscadas=claves.map(normalizarClave);
     for(const [clave,valor] of Object.entries(obj)) if(buscadas.includes(normalizarClave(clave))) return valor;
     return "";
   }
+
   function listaInfracciones(datos) {
     const lista=valorClave(datos,["infracciones","infracciones_detectadas","resultados"]);
     if(Array.isArray(lista)) return lista;
@@ -27,9 +38,11 @@
     const una=valorClave(datos,["infraccion"]);
     return una||valorClave(datos,["articulo","codigo"])?[datos]:[];
   }
+
   function limpiarMarkdown(valor) {
     return texto(valor).replace(/^\s*#{1,6}\s*/gm,"").replace(/\*\*([^*\n]+)\*\*/g,"$1").replace(/__([^_\n]+)__/g,"$1").replace(/\*([^*\n]+)\*/g,"$1").replace(/_([^_\n]+)_/g,"$1").replace(/^\s*[-*]\s+/gm,"- ").replace(/`/g,"").replace(/\n{3,}/g,"\n\n").trim();
   }
+
   function formatearInfraccion(item,indice) {
     const articulo=valorClave(item,["articulo","precepto"]), apartado=valorClave(item,["apartado"]), codigo=valorClave(item,["codigo","id"]), norma=valorClave(item,["fuente","norma","ley","legislacion"]), titulo=valorClave(item,["titulo","infraccion","denominacion","concepto"]), descripcion=valorClave(item,["descripcion","descripcion_juridica","conducta","texto"]), gravedad=valorClave(item,["gravedad","calificacion"]), cuantia=valorClave(item,["cuantia","sancion","multa","importe"]), fundamento=valorClave(item,["fundamento","fundamento_juridico","base_legal"]);
     let sancion=cuantia;
@@ -47,6 +60,7 @@
     if(fundamento)partes.push(`<div class="centinela-police-line"><strong>Fundamento:</strong> ${esc(limpiarMarkdown(fundamento))}</div>`);
     return `<div class="centinela-police-offence"><div class="centinela-police-subtitle">${indice>0?`Infracción ${indice+1}`:"Calificación propuesta"}</div>${partes.join("")}</div>`;
   }
+
   function formatearJSON(datos) {
     const resumen=valorClave(datos,["resumen","respuesta","analisis","analisis_juridico"]),fundamentoGlobal=valorClave(datos,["fundamento","fundamento_juridico","base_legal"]),actuacion=valorClave(datos,["actuacion_policial","actuacion","metodo_actuacion_policial","procedimiento"]),verificaciones=valorClave(datos,["verificaciones","comprobaciones","comprobar"]),autoridad=valorClave(datos,["autoridad_sancionadora","autoridad"]),gravedad=valorClave(datos,["gravedad","calificacion"]),cuantia=valorClave(datos,["cuantia","sancion","multa","importe"]),articulo=valorClave(datos,["articulo","precepto"]),norma=valorClave(datos,["norma","ley","fuente"]),infraccion=valorClave(datos,["infraccion","titulo","concepto"]),lista=listaInfracciones(datos);
     const bloques=[];
@@ -59,6 +73,7 @@
     if(verificaciones){const pasos=Array.isArray(verificaciones)?verificaciones:[verificaciones];bloques.push(`<section class="centinela-police-section"><div class="centinela-police-title">Comprobaciones antes de denunciar</div><div class="centinela-police-steps">${pasos.map((paso,i)=>`<div><strong>${i+1}.</strong> ${esc(limpiarMarkdown(paso).replace(/^[-•]\s*/,""))}</div>`).join("")}</div></section>`);}
     return bloques.length?`<div class="centinela-police-response">${bloques.join("")}</div>`:"";
   }
+
   function parsearRespuesta(valor) {
     const bruto=texto(valor);if(!bruto)return"";
     const candidatos=[bruto,bruto.replace(/^```(?:json)?\s*/i,"").replace(/```$/i,"").trim()];
@@ -67,6 +82,7 @@
     for(const candidato of candidatos){try{const datos=JSON.parse(candidato);if(datos&&typeof datos==="object")return formatearJSON(datos);}catch(_){} }
     return "";
   }
+
   function aplicarEstilos(){
     if(document.getElementById("centinela-police-format-style"))return;
     const style=document.createElement("style");style.id="centinela-police-format-style";style.textContent=`
@@ -80,14 +96,66 @@
       .chat-bubble.ai .centinela-police-offence:last-child{border-bottom:0}
     `;document.head.appendChild(style);
   }
+
   function formatearBurbuja(burbuja){
-    if(!burbuja||!burbuja.classList?.contains("chat-bubble")||!burbuja.classList.contains("ai")||burbuja.getAttribute(MARCA)==="1")return;
-    const actual=burbuja.textContent||"";if(!actual.trim())return;const html=parsearRespuesta(actual);if(!html)return;burbuja.setAttribute(MARCA,"1");burbuja.innerHTML=html;
+    if(!burbuja||!burbuja.classList?.contains("chat-bubble")||!burbuja.classList.contains("ai")||burbuja.getAttribute(MARCA)==="1")return false;
+    const actual=burbuja.textContent||"";if(!actual.trim())return false;
+    const html=parsearRespuesta(actual);if(!html)return false;
+    burbuja.setAttribute(MARCA,"1");
+    if(TIMERS.has(burbuja))clearTimeout(TIMERS.get(burbuja));
+    burbuja.innerHTML=html;
+    return true;
   }
+
+  function programar(burbuja, demora=220){
+    if(!burbuja||burbuja.getAttribute(MARCA)==="1")return;
+    if(TIMERS.has(burbuja))clearTimeout(TIMERS.get(burbuja));
+    TIMERS.set(burbuja,setTimeout(()=>{
+      TIMERS.delete(burbuja);
+      formatearBurbuja(burbuja);
+    },demora));
+  }
+
+  function buscarBurbuja(nodo){
+    if(!nodo)return null;
+    if(nodo.nodeType===Node.ELEMENT_NODE){
+      if(nodo.matches?.(".chat-bubble.ai"))return nodo;
+      return nodo.closest?.(".chat-bubble.ai")||nodo.querySelector?.(".chat-bubble.ai")||null;
+    }
+    return nodo.parentElement?.closest?.(".chat-bubble.ai")||null;
+  }
+
   function instalar(){
-    aplicarEstilos();document.querySelectorAll(".chat-bubble.ai").forEach(formatearBurbuja);if(window.CentinelaPoliceFormatObserver)return;
-    const observer=new MutationObserver(muts=>muts.forEach(m=>{if(m.type!=="childList")return;m.addedNodes.forEach(n=>{if(n.nodeType!==Node.ELEMENT_NODE)return;if(n.matches?.(".chat-bubble.ai"))formatearBurbuja(n);n.querySelectorAll?.(".chat-bubble.ai").forEach(formatearBurbuja);});}));
-    if(document.body)observer.observe(document.body,{childList:true,subtree:true});window.CentinelaPoliceFormatObserver=observer;
+    aplicarEstilos();
+    document.querySelectorAll(".chat-bubble.ai").forEach(b=>programar(b,80));
+    if(window.CentinelaPoliceFormatObserver)return;
+
+    const observer=new MutationObserver(muts=>{
+      muts.forEach(m=>{
+        let burbuja=null;
+        if(m.type==="characterData") burbuja=buscarBurbuja(m.target);
+        if(m.type==="childList"){
+          burbuja=buscarBurbuja(m.target);
+          m.addedNodes.forEach(n=>{
+            const b=buscarBurbuja(n);
+            if(b)programar(b,260);
+          });
+        }
+        if(burbuja)programar(burbuja,260);
+      });
+    });
+
+    if(document.body)observer.observe(document.body,{childList:true,subtree:true,characterData:true});
+    window.CentinelaPoliceFormatObserver=observer;
+
+    // Revisión corta adicional para respuestas que el motor inserta por etapas.
+    let vueltas=0;
+    const revisar=setInterval(()=>{
+      vueltas++;
+      document.querySelectorAll(".chat-bubble.ai:not([data-centinela-police-formatted])").forEach(b=>programar(b,60));
+      if(vueltas>=30)clearInterval(revisar);
+    },250);
   }
+
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",instalar,{once:true});else instalar();
 })();
