@@ -190,17 +190,19 @@ function inyectarBotonLogout() {
 // CONFIGURACIÓN Y ESTADO DE LA APLICACIÓN
 // ============================================================
 const CONFIG = { 
-  VERSION: "1.5.0", 
+  VERSION: "1.6.0", 
   RUTAS: { 
     infracciones: "./data/infracciones.json", 
-    infraccionesTrafico: "./data/infracciones_trafico.json", 
+    infraccionesTrafico: "./data/infracciones_trafico.json",
+    infraccionesVmpBicicletas: "./data/infracciones_vmp_bicicletas.json", 
     lopsc: "./data/lopsc.json", 
     codigoPenal: "./data/codigo_penal.json", 
     menores: "./data/normativa_menores.json", 
     violenciaGenero: "./data/normativa_violencia_genero.json", 
     ordenanzas: "./data/ordenanzas.json", 
     animales: "./data/normativa_animales.json", 
-    trafico: "./data/normativa_trafico.json", 
+    trafico: "./data/normativa_trafico.json",
+    vmpBicicletas: "./data/normativa_vmp_bicicletas.json", 
     leyFcs: "./data/ley_2_86.json", 
     lecrim: "./data/lecrim.json", 
     extranjeria: "./data/extranjeria.json", 
@@ -225,6 +227,7 @@ const estado = {
   ordenanzas: null, 
   animales: null, 
   trafico: null,
+  vmpBicicletas: null,
   ley392015: null,
   ley71985: null,
   ley52010Andalucia: null,
@@ -693,6 +696,7 @@ async function cargarDatos() {
   const resultados = await Promise.allSettled([ 
     cargarJSON(CONFIG.RUTAS.infracciones), 
     cargarJSON(CONFIG.RUTAS.infraccionesTrafico), 
+    cargarJSON(CONFIG.RUTAS.infraccionesVmpBicicletas),
     cargarJSON(CONFIG.RUTAS.lopsc), 
     cargarJSON(CONFIG.RUTAS.codigoPenal), 
     cargarJSON(CONFIG.RUTAS.menores), 
@@ -700,6 +704,7 @@ async function cargarDatos() {
     cargarJSON(CONFIG.RUTAS.ordenanzas), 
     cargarJSON(CONFIG.RUTAS.animales), 
     cargarJSON(CONFIG.RUTAS.trafico), 
+    cargarJSON(CONFIG.RUTAS.vmpBicicletas),
     cargarJSON(CONFIG.RUTAS.leyFcs), 
     cargarJSON(CONFIG.RUTAS.lecrim), 
     cargarJSON(CONFIG.RUTAS.extranjeria), 
@@ -714,8 +719,8 @@ async function cargarDatos() {
   ]); 
 
   const [ 
-    rInfracciones, rInfraccionesTrafico, rLopsc, rCodigoPenal, rMenores, 
-    rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico, 
+    rInfracciones, rInfraccionesTrafico, rInfraccionesVmpBicicletas, rLopsc, rCodigoPenal, rMenores, 
+    rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico, rVmpBicicletas,
     rLeyFcs, rLecrim, rExtranjeria, rSeguridadPrivada, 
     rEspectaculos, rMedioAmbiente, rReglamentoArmas, rPoliciasLocales,
     rLey392015, rLey71985, rLey52010Andalucia
@@ -729,6 +734,10 @@ async function cargarDatos() {
 
   if (rInfraccionesTrafico.status === "fulfilled") { 
     estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesTrafico.value)); 
+  }
+
+  if (rInfraccionesVmpBicicletas.status === "fulfilled") {
+    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesVmpBicicletas.value));
   } 
 
   if (rLopsc.status === "fulfilled") estado.lopsc = rLopsc.value; 
@@ -737,7 +746,8 @@ async function cargarDatos() {
   if (rViolenciaGenero.status === "fulfilled") estado.violenciaGenero = rViolenciaGenero.value; 
   if (rOrdenanzas.status === "fulfilled") estado.ordenanzas = rOrdenanzas.value; 
   if (rAnimales.status === "fulfilled") estado.animales = rAnimales.value; 
-  if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value; 
+  if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value;
+  if (rVmpBicicletas.status === "fulfilled") estado.vmpBicicletas = rVmpBicicletas.value; 
   if (rLey392015.status === "fulfilled") estado.ley392015 = normalizarLeyAdministrativa(rLey392015.value, "Ley 39/2015, de 1 de octubre", "Ley 39/2015");
   if (rLey71985.status === "fulfilled") estado.ley71985 = normalizarLeyAdministrativa(rLey71985.value, "Ley 7/1985, de 2 de abril", "Ley 7/1985");
   if (rLey52010Andalucia.status === "fulfilled") estado.ley52010Andalucia = normalizarLeyAdministrativa(rLey52010Andalucia.value, "Ley 5/2010, de 11 de junio, de Autonomía Local de Andalucía", "Ley 5/2010 Andalucía");
@@ -898,7 +908,8 @@ function obtenerArticulosNormativa() {
   agregarLeySimple(estado.codigoPenal, "codigo-penal"); 
   agregarGrupoLeyes(estado.menores, "menores", "ley-menor"); 
   agregarGrupoLeyes(estado.animales, "animales", "ley-animal"); 
-  agregarGrupoLeyes(estado.trafico, "trafico", "ley-trafico"); 
+  agregarGrupoLeyes(estado.trafico, "trafico", "ley-trafico");
+  agregarGrupoLeyes(estado.vmpBicicletas, "vmp-bicicletas", "ley-vmp-bicicletas"); 
   agregarGrupoLeyes(estado.violenciaGenero, "violencia-genero", "ley-violencia-genero"); 
 
   obtenerLeyesProcedimientoAdministrativo().forEach((leyItem) => {
