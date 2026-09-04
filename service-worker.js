@@ -1,13 +1,19 @@
-const CACHE_NAME = "centinela-code-v13-searchfix";
-const ARCHIVOS = ["./","./index.html","./style.css","./app.js","./ia.js","./matriculas.js","./buscadores.js","./manifest.json","./data/lopsc.json","./data/infracciones.json","./data/infracciones_trafico.json","./data/ordenanzas.json","./data/codigo_penal.json","./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json","./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json"];
+const CACHE_NAME = "centinela-code-v14-visual";
+const ARCHIVOS = ["./","./index.html","./style.css","./style-modern.css","./app.js","./ia.js","./matriculas.js","./buscadores.js","./manifest.json","./data/lopsc.json","./data/infracciones.json","./data/infracciones_trafico.json","./data/ordenanzas.json","./data/codigo_penal.json","./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json","./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json"];
 
 async function prepararHtml(response){
   if(!response||!response.ok)return response;
   try{
     const html=await response.text();
-    if(html.includes("buscadores.js"))return new Response(html,{status:response.status,statusText:response.statusText,headers:response.headers});
-    const inyeccion='<script defer src="./buscadores.js?v=20260904-search-v4"></script>';
-    const modificado=html.includes("</body>")?html.replace("</body>",`${inyeccion}</body>`):`${html}${inyeccion}`;
+    let modificado=html;
+    if(!modificado.includes("style-modern.css")){
+      const inyeccionCss='<link rel="stylesheet" href="./style-modern.css?v=20260904-visual-v1">';
+      modificado=modificado.includes("</head>")?modificado.replace("</head>",`${inyeccionCss}</head>`):`${inyeccionCss}${modificado}`;
+    }
+    if(!modificado.includes("buscadores.js")){
+      const inyeccionJs='<script defer src="./buscadores.js?v=20260904-search-v4"></script>';
+      modificado=modificado.includes("</body>")?modificado.replace("</body>",`${inyeccionJs}</body>`):`${modificado}${inyeccionJs}`;
+    }
     const headers=new Headers(response.headers);
     headers.set("Content-Type","text/html; charset=utf-8");
     return new Response(modificado,{status:response.status,statusText:response.statusText,headers});
