@@ -1,0 +1,252 @@
+{
+  "version": "1.0.0",
+  "ultimaActualizacion": "2026-09-04",
+  "titulo": "Contrabando, infracciones administrativas y productos sujetos a impuestos especiales",
+  "descripcion": "Módulo de consulta policial basado principalmente en la Ley Orgánica 12/1995, de Represión del Contrabando, y en la Ley 38/1992, de Impuestos Especiales. Incluye tabaco, alcohol, cigarrillos electrónicos, productos de nicotina, hidrocarburos y mercancías en general.",
+  "fuentes": [
+    {
+      "norma": "Ley Orgánica 12/1995, de 12 de diciembre, de Represión del Contrabando",
+      "boe": "BOE-A-1995-26836",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1995-26836",
+      "ultimaActualizacionPublicada": "2022-12-23"
+    },
+    {
+      "norma": "Real Decreto 1649/1998, de 24 de julio",
+      "boe": "BOE-A-1998-21017",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1998-21017"
+    },
+    {
+      "norma": "Ley 38/1992, de 28 de diciembre, de Impuestos Especiales",
+      "boe": "BOE-A-1992-28741",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1992-28741",
+      "ultimaActualizacionConsultada": "2025-01-23"
+    }
+  ],
+  "productos": [
+    {
+      "id": "tabaco",
+      "nombre": "Labores del tabaco",
+      "sinonimos": ["tabaco", "cigarrillos", "cigarros", "cigarritos", "picadura", "tabaco de liar", "labores de tabaco", "tabaco sin precinta", "tabaco sin marcas fiscales"]
+    },
+    {
+      "id": "alcohol",
+      "nombre": "Bebidas alcohólicas y alcohol",
+      "sinonimos": ["alcohol", "bebidas alcohólicas", "cerveza", "vino", "bebidas fermentadas", "productos intermedios", "bebidas derivadas", "whisky", "ron", "ginebra", "brandy", "alcohol etílico"]
+    },
+    {
+      "id": "nicotina",
+      "nombre": "Líquidos para cigarrillos electrónicos y otros productos relacionados con el tabaco",
+      "sinonimos": ["vape", "vaper", "líquido cigarrillo electrónico", "nicotina", "bolsas de nicotina", "cigarrillo electrónico"]
+    },
+    {
+      "id": "hidrocarburos",
+      "nombre": "Productos sujetos al Impuesto sobre Hidrocarburos",
+      "sinonimos": ["gasóleo", "gasolina", "hidrocarburos", "combustible", "carburante"]
+    },
+    {
+      "id": "general",
+      "nombre": "Mercancías en general",
+      "sinonimos": ["mercancías", "mercancia", "contrabando", "aduana", "importación ilegal", "exportación ilegal", "mercancía oculta", "mercancía no declarada"]
+    }
+  ],
+  "referencias_normativas": [
+    {
+      "id": "CONTR-LO12-ART1",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "1",
+      "titulo": "Definiciones",
+      "resumen": "Define, entre otros conceptos, mercancía, recinto aduanero, autoridad aduanera, importación, introducción, exportación y expedición."
+    },
+    {
+      "id": "CONTR-LO12-ART2-1",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "2.1",
+      "titulo": "Delito de contrabando por mercancías de lícito comercio",
+      "resumen": "Con carácter general, delito cuando el valor de los bienes, mercancías, géneros o efectos alcanza 150.000 euros y concurre alguna de las conductas tipificadas, como importación o exportación sin presentación aduanera, tenencia o circulación de mercancías no comunitarias sin acreditar su lícita importación o determinadas infracciones de tránsito y política comercial."
+    },
+    {
+      "id": "CONTR-LO12-ART2-2",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "2.2",
+      "titulo": "Delito de contrabando de géneros estancados, prohibidos y otros bienes especialmente regulados",
+      "resumen": "Con carácter general, delito cuando el valor alcanza 50.000 euros en los supuestos del artículo 2.2, incluidos géneros estancados o prohibidos y determinados bienes sujetos a controles específicos."
+    },
+    {
+      "id": "CONTR-LO12-ART2-3-TABACO",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "2.3.b",
+      "titulo": "Delito de contrabando de labores de tabaco",
+      "resumen": "Las labores de tabaco constituyen delito de contrabando cuando su valor sea igual o superior a 15.000 euros."
+    },
+    {
+      "id": "CONTR-LO12-ART2-3-ESPECIAL",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "2.3.a",
+      "titulo": "Delito con independencia del valor en bienes especialmente protegidos o mediante organización",
+      "resumen": "Determinadas conductas constituyen delito con independencia del valor cuando concurren los supuestos especiales legalmente previstos, como determinadas drogas, armas, explosivos, bienes cuya tenencia sea delito u organización."
+    },
+    {
+      "id": "CONTR-LO12-ART2-4",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "2.4",
+      "titulo": "Acumulación de operaciones",
+      "resumen": "Varias acciones u omisiones ejecutadas conforme a un plan preconcebido o aprovechando idéntica ocasión pueden computarse acumuladamente para alcanzar los umbrales legales de delito."
+    },
+    {
+      "id": "CONTR-LO12-ART3",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "3",
+      "titulo": "Penas por delito de contrabando",
+      "resumen": "Prisión de uno a cinco años y multa del tanto al séxtuplo del valor de los bienes, mercancías, géneros o efectos, con reglas específicas de mitad inferior/superior, grado superior e imprudencia conforme al artículo."
+    },
+    {
+      "id": "CONTR-LO12-ART5",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "5",
+      "titulo": "Comiso",
+      "resumen": "El comiso alcanza los bienes, efectos e instrumentos del contrabando en los términos legales y puede extenderse a ganancias y determinados patrimonios en supuestos de organización o grupo criminal."
+    },
+    {
+      "id": "CONTR-LO12-ART10",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "10",
+      "titulo": "Valoración de bienes",
+      "resumen": "Las reglas de valoración dependen de la naturaleza de los bienes; para géneros estancados se atiende al precio máximo de venta al público y existen reglas específicas para importación/exportación y para el resto de bienes."
+    },
+    {
+      "id": "CONTR-LO12-ART11",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "11",
+      "titulo": "Infracciones administrativas de contrabando",
+      "resumen": "Las conductas tipificadas en los apartados 1 y 2 del artículo 2, cuando no constituyen delito, son infracciones administrativas. Se clasifican en leves, graves y muy graves según el valor y la clase de mercancía. También contempla rotura de precintos y resistencia, negativa u obstrucción."
+    },
+    {
+      "id": "CONTR-LO12-ART12",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "12",
+      "titulo": "Sanciones administrativas de contrabando",
+      "resumen": "Establece multas proporcionales al valor de las mercancías. Para los supuestos del artículo 2.2 existen porcentajes específicos y, para labores de tabaco, porcentajes agravados, además de cierre o suspensión de actividad en los casos previstos."
+    },
+    {
+      "id": "CONTR-LO12-ART12BIS",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "12 bis",
+      "titulo": "Graduación de las sanciones",
+      "resumen": "Considera reiteración, resistencia/obstrucción, medios fraudulentos, personas interpuestas, simplificación aduanera y naturaleza de los bienes, aplicándose simultáneamente según la regulación legal."
+    },
+    {
+      "id": "CONTR-LO12-ART13",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "13",
+      "titulo": "Competencia, procedimiento y recursos",
+      "resumen": "La competencia para conocer de las infracciones corresponde a los órganos de la Administración aduanera de la AEAT, con los recursos previstos legalmente."
+    },
+    {
+      "id": "CONTR-LO12-ART14",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "14",
+      "titulo": "Aprehensión cautelar y medidas complementarias",
+      "resumen": "Antes de iniciar el procedimiento sancionador, las autoridades y fuerzas competentes deben proceder a la aprehensión cautelar de los bienes, efectos e instrumentos que puedan resultar decomisados."
+    },
+    {
+      "id": "CONTR-LO12-ART14BIS",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "14 bis",
+      "titulo": "No concurrencia de sanciones",
+      "resumen": "Si los hechos pudieran constituir delito de contrabando se remiten a la jurisdicción competente o al Ministerio Fiscal y se suspende el procedimiento administrativo; las sanciones administrativas son compatibles con la exigencia de deuda tributaria y aduanera e intereses."
+    },
+    {
+      "id": "CONTR-LO12-ART15",
+      "ley": "Ley Orgánica 12/1995",
+      "articulo": "15",
+      "titulo": "Prescripción",
+      "resumen": "Las infracciones administrativas de contrabando prescriben a los cuatro años desde su comisión y las sanciones a los cuatro años desde la firmeza de la resolución sancionadora."
+    },
+    {
+      "id": "CONTR-L38-ART19",
+      "ley": "Ley 38/1992, de Impuestos Especiales",
+      "articulo": "19",
+      "titulo": "Infracciones y sanciones de los impuestos especiales de fabricación",
+      "resumen": "Incluye infracciones graves, entre ellas fabricación o importación irregular y determinadas circulación o tenencia con fines comerciales de productos sin acreditar el pago, régimen suspensivo o exención. Las sanciones generales indicadas por el artículo incluyen multa proporcional del 100 % de las cuotas en los supuestos contemplados, con mínimo de 1.200 euros, y un régimen específico para otros incumplimientos."
+    },
+    {
+      "id": "CONTR-L38-TABACO-MARCAS",
+      "ley": "Ley 38/1992, de Impuestos Especiales",
+      "articulo": "19 y concordantes",
+      "titulo": "Tenencia comercial de tabaco y bebidas sin marcas fiscales",
+      "resumen": "La tenencia con fines comerciales de bebidas alcohólicas o labores del tabaco que no ostenten las marcas fiscales exigibles, o las ostenten incumpliendo los requisitos reglamentarios, tiene régimen sancionador específico, con multas por cantidad y mínimos legalmente establecidos."
+    },
+    {
+      "id": "CONTR-L38-COMERCIAL",
+      "ley": "Ley 38/1992, de Impuestos Especiales",
+      "articulo": "4.9",
+      "titulo": "Presunción de finalidad comercial por cantidades",
+      "resumen": "A efectos tributarios, salvo prueba en contrario, se presume finalidad comercial cuando se superan determinadas cantidades: 800 cigarrillos, 400 cigarritos, 200 cigarros, 1 kg de otras labores; 10 l de bebidas derivadas, 20 l de productos intermedios, 90 l de vinos/bebidas fermentadas y 110 l de cerveza; además de umbrales específicos para líquidos de cigarrillos electrónicos y otros productos de nicotina."
+    }
+  ],
+  "regimen_sancionador": {
+    "infraccion_administrativa_general": {
+      "norma": "Ley Orgánica 12/1995",
+      "articulo": "12.1",
+      "leve": {"porcentajeMin": 100, "porcentajeMax": 150, "multaMin": 500},
+      "grave": {"porcentajeMin": 150, "porcentajeMax": 250, "multaMin": 500},
+      "muyGrave": {"porcentajeMin": 250, "porcentajeMax": 350, "multaMin": 500},
+      "nota": "Porcentajes sobre el valor de los bienes, mercancías, géneros o efectos."
+    },
+    "articulo_2_2": {
+      "norma": "Ley Orgánica 12/1995",
+      "articulo": "12.2",
+      "leve": {"porcentajeMin": 200, "porcentajeMax": 225, "multaMin": 1000},
+      "grave": {"porcentajeMin": 225, "porcentajeMax": 275, "multaMin": 1000},
+      "muyGrave": {"porcentajeMin": 275, "porcentajeMax": 350, "multaMin": 1000},
+      "nota": "Para labores de tabaco los porcentajes son más elevados: leve 200-300 %, grave 300-450 %, muy grave 450-600 %, con multa mínima de 2.000 €."
+    },
+    "tabaco": {
+      "norma": "Ley Orgánica 12/1995",
+      "articulo": "12.2",
+      "leve": {"porcentajeMin": 200, "porcentajeMax": 300, "multaMin": 2000},
+      "grave": {"porcentajeMin": 300, "porcentajeMax": 450, "multaMin": 2000},
+      "muyGrave": {"porcentajeMin": 450, "porcentajeMax": 600, "multaMin": 2000},
+      "cierre": {
+        "leve": "7 días a 6 meses",
+        "grave": "6 meses y 1 día a 12 meses",
+        "muyGrave": "12 meses y 1 día a 24 meses",
+        "reiteracionMuyGrave": "Puede llegar a cierre definitivo conforme a la ley."
+      }
+    },
+    "rotura_precintos": {
+      "norma": "Ley Orgánica 12/1995",
+      "articulo": "11.3 y 12.3",
+      "calificacion": "Muy Grave",
+      "multa": "El doble del importe de la sanción pecuniaria acordada en el expediente en el que se decretó el cierre o suspensión, más la sanción adicional de cierre o extensión temporal prevista legalmente."
+    },
+    "resistencia_obstruccion": {
+      "norma": "Ley Orgánica 12/1995",
+      "articulo": "11.4 y 12.4",
+      "leve": 1000,
+      "grave": 3000,
+      "grave_coacciones_art11_4_e": 5000,
+      "unidad": "EUR"
+    },
+    "delito": {
+      "norma": "Ley Orgánica 12/1995",
+      "articulo": "3",
+      "pena": "Prisión de 1 a 5 años y multa del tanto al séxtuplo del valor de los bienes, mercancías, géneros o efectos, con las reglas de agravación y atenuación previstas en el artículo."
+    }
+  },
+  "umbrales_delito": {
+    "general_art2_1": {"valorMin": 150000, "unidad": "EUR"},
+    "art2_2": {"valorMin": 50000, "unidad": "EUR"},
+    "tabaco": {"valorMin": 15000, "unidad": "EUR"},
+    "nota": "La existencia de delito también puede venir determinada por los supuestos especiales del artículo 2.3, con independencia del valor, y por acumulación en los términos del artículo 2.4."
+  },
+  "actuacion_policial": [
+    "Comprobar naturaleza y cantidad de la mercancía.",
+    "Documentar marca, modelo, lote, precintas o marcas fiscales cuando sean relevantes.",
+    "Determinar si existe documentación aduanera o justificante de pago/régimen suspensivo.",
+    "Valorar los bienes conforme a las reglas legales; para géneros estancados se atiende al precio máximo de venta al público.",
+    "Proceder a la aprehensión cautelar cuando legalmente corresponda y documentar los bienes, efectos e instrumentos relacionados.",
+    "Valorar especialmente el umbral económico y si existen circunstancias del artículo 2.3 o acumulación de operaciones.",
+    "Si los hechos pudieran ser delito de contrabando, remitir a la autoridad competente y evitar duplicidad sancionadora administrativa por los mismos hechos."
+  ]
+}
