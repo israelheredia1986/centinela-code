@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Aplicar ajuste de utilidades internas
+      - name: Aplicar ajustes internos de interfaz
         shell: bash
         run: |
           python3 - <<'PY'
@@ -25,6 +25,7 @@ jobs:
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
 
+          # Mantener el ajuste existente del buscador global.
           old = '''<div class="cc-global-search-actions">
               <button type="button" data-cc-search-mode="all">🔎 Buscar en todo</button>
               <button type="button" data-cc-search-mode="infractions">⚠ Buscar infracción</button>
@@ -41,11 +42,19 @@ jobs:
               s = s.replace('>🔎 Buscar en todo</button>', '>⌕ CONSULTA GLOBAL</button>', 1)
               s = s.replace('>⚠ Buscar infracción</button>', '>⚠ IDENTIFICAR INFRACCIÓN</button>', 1)
 
+          # CORRECCIÓN: la aplicación no debe cargar un JS inexistente.
+          s = s.replace('\n<script src="./infraccion-assistant.js?v=20260904-v1"></script>', '')
+          s = s.replace('\n<script src="infraccion-assistant.js?v=20260904-v1"></script>', '')
+          s = s.replace('\n<script defer src="./infraccion-assistant.js?v=20260904-v1"></script>', '')
+          s = s.replace('\n<script defer src="infraccion-assistant.js?v=20260904-v1"></script>', '')
+
+          # CORRECCIÓN SOLICITADA: cambiar la denominación visible.
+          s = s.replace('<strong>Ley Orgánica 4/2015</strong><small>Comprobando artículos disponibles</small>',
+                        '<strong>Normativa aplicable</strong><small>Comprobando referencias disponibles</small>', 1)
+
           css = r'''
 /* ============================================================
    CENTINELA — UTILIDADES DE CONSULTA
-   Los antiguos accesos genéricos pasan a ser herramientas
-   internas: consulta global e identificación de infracciones.
    ============================================================ */
 .cc-global-search-actions button{
   font-weight:800!important;
@@ -80,8 +89,8 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then
-            echo 'El ajuste ya estaba aplicado.'
+            echo 'No hay cambios que publicar.'
           else
-            git commit -m 'Convertir búsqueda genérica en utilidades internas [auto-ajuste-buscador]'
+            git commit -m 'Corregir referencia rota y etiqueta de normativa [auto-ajuste-buscador]'
             git push
           fi
