@@ -29,19 +29,34 @@ async function preguntarCentinelaIA(pregunta) {
   }
 }
 
-// Motor híbrido V4: IA remota + fallback normativo local.
+// Motor V4: respaldo local del flujo Internet First.
 (function cargarIAV4() {
   function cargar() {
     if (document.getElementById("centinelaIAV4Script")) return;
     const script = document.createElement("script");
     script.id = "centinelaIAV4Script";
-    script.src = "./centinela-ia-v4.js?v=20260905-relevance-v4";
+    script.src = "./centinela-ia-v4.js?v=20260905-internet-first-v2";
     script.async = false;
-    script.onerror = () => console.warn("No se pudo cargar Centinela IA V4; se mantiene el motor básico.");
+    script.onerror = () => console.warn("No se pudo cargar Centinela IA V4.");
     document.head.appendChild(script);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(cargar, 0), { once: true });
   else setTimeout(cargar, 0);
+})();
+
+// Flujo principal: Internet primero; repositorio solo si Internet no da una respuesta fiable.
+(function cargarIAInternetFirst() {
+  function cargar() {
+    if (document.getElementById("centinelaIAInternetFirstScript")) return;
+    const script = document.createElement("script");
+    script.id = "centinelaIAInternetFirstScript";
+    script.src = "./ia-internet-first.js?v=20260905-internet-first-v2";
+    script.async = false;
+    script.onerror = () => console.warn("No se pudo cargar el flujo Internet First de Centinela IA.");
+    document.head.appendChild(script);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(cargar, 800), { once: true });
+  else setTimeout(cargar, 800);
 })();
 
 // Limpieza de presentación: elimina emojis, markdown y etiquetas técnicas
@@ -51,7 +66,7 @@ async function preguntarCentinelaIA(pregunta) {
     if (document.getElementById("centinelaIALimpiezaScript")) return;
     const script = document.createElement("script");
     script.id = "centinelaIALimpiezaScript";
-    script.src = "./ia-limpieza.js?v=20260905-clean-v2";
+    script.src = "./ia-limpieza.js?v=20260905-clean-v4";
     script.async = false;
     script.onerror = () => console.warn("No se pudo cargar la limpieza de presentación de Centinela IA.");
     document.head.appendChild(script);
@@ -60,14 +75,13 @@ async function preguntarCentinelaIA(pregunta) {
   else setTimeout(cargar, 50);
 })();
 
-// Formato policial del chat: transforma JSON técnico en una respuesta
-// clara con valoración, infracción, artículo, sanción y método de actuación.
+// Formato policial del chat.
 (function cargarIAFormatoPolicial() {
   function cargar() {
     if (document.getElementById("centinelaIAFormatoPolicialScript")) return;
     const script = document.createElement("script");
     script.id = "centinelaIAFormatoPolicialScript";
-    script.src = "./ia-policia-formato.js?v=20260905-police-format-v3";
+    script.src = "./ia-policia-formato.js?v=20260905-police-format-v5";
     script.async = false;
     script.onerror = () => console.warn("No se pudo cargar el formato policial de Centinela IA.");
     document.head.appendChild(script);
