@@ -1,46 +1,42 @@
-// CENTINELA IA — INTERNET FIRST + FALLBACK REPOSITORIO — GRATIS
+// CENTINELA IA — INTERNET FIRST + FALLBACK REPOSITORIO
+// Modelo: Gemini 3.5 Flash-Lite
 // Requiere el secreto GEMINI_API_KEY en Supabase.
-// Usa Gemini 2.5 Flash-Lite para mantener el modelo gratuito.
+//
+// IMPORTANTE:
+// Gemini 3.5 Flash-Lite se utiliza aquí para generación de texto.
+// La búsqueda web NO se activa desde Gemini 3.x en esta función.
+// Si el frontend aporta contexto web verificable, puede enviarlo mediante
+// web_context. Si no existe contexto web suficiente, se puede usar el
+// fallback del repositorio mediante repository_fallback.
 
-const MODEL = "gemini-2.5-flash-lite";
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+const MODEL = "gemini-3.5-flash-lite";
+
+const GEMINI_URL =
+  `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-function response(body: unknown, status = 200) {
+function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...CORS, "Content-Type": "application/json; charset=utf-8" },
+    headers: {
+      ...CORS,
+      "Content-Type": "application/json; charset=utf-8",
+    },
   });
 }
 
-function textOf(data: any): string {
-  return data?.candidates?.[0]?.content?.parts
-    ?.map((p: any) => p?.text || "")
-    .join("")
-    .trim() || "";
-}
-
-function groundingSources(data: any) {
-  const chunks = data?.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-  const seen = new Set<string>();
-
-  return chunks
-    .map((c: any) => c?.web)
-    .filter((w: any) => w?.uri)
-    .filter((w: any) => {
-      if (seen.has(w.uri)) return false;
-      seen.add(w.uri);
-      return true;
-    })
-    .map((w: any) => ({
-      title: w.title || "Referencia web",
-      uri: w.uri,
-    }));
+function extractText(data: any): string {
+  return (
+    data?.candidates?.[0]?.content?.parts
+      ?.map((part: any) => part?.text || "")
+      .join("") || ""
+  ).trim();
 }
 
 function cleanText(text: string): string {
@@ -56,34 +52,34 @@ function cleanText(text: string): string {
     .trim();
 }
 
-async function gemini(apiKey: string, prompt: string, internet: boolean) {
-  const body: any = {
-    contents: [{
-      role: "user",
-      parts: [{ text: prompt }],
-    }],
+async function callGemini(apiKey: string, prompt: string) {
+  const requestBody = {
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: prompt,
+          },
+        ],
+      },
+    ],
     generationConfig: {
-      temperature: 0.15,
-      topP: 0.9,
       maxOutputTokens: 4500,
     },
   };
 
-  // Solo se activa Google Search en la fase web_first.
-  if (internet) {
-    body.tools = [{ google_search: {} }];
-  }
-
-  const r = await fetch(GEMINI_URL, {
+  const response = await fetch(GEMINI_URL, {
     method: "POST",
     headers: {
       "x-goog-api-key": apiKey,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(requestBody),
   });
 
-  const raw = await r.text();
+  const raw = await response.text();
+
   let data: any;
 
   try {
@@ -93,10 +89,10 @@ async function gemini(apiKey: string, prompt: string, internet: boolean) {
   }
 
   return {
-    ok: r.ok,
+    ok: response.ok,
+    status: response.status,
     data,
-    text: textOf(data),
-    sources: groundingSources(data),
+    text: extractText(data),
   };
 }
 
@@ -107,11 +103,12 @@ Responde exclusivamente a la consulta ACTUAL del agente.
 
 Habla como un profesional policial: claro, preciso, objetivo, directo y operativo.
 
-No inventes artículos, infracciones, sanciones, competencias, cuantías ni hechos.
+No inventes artículos, leyes, infracciones, sanciones, cuantías, competencias, procedimientos ni hechos.
 
-Distingue siempre los hechos acreditados de los extremos que deben comprobarse.
+Distingue siempre entre hechos conocidos, hechos que deben comprobarse y valoración jurídica.
 
-Cuando sea posible, estructura la respuesta con:
+Cuando exista base jurídica suficiente, estructura la respuesta con:
+
 Valoración policial
 Infracción y artículo
 Norma aplicable
@@ -121,33 +118,49 @@ Fundamento jurídico
 Método de actuación policial
 Comprobaciones antes de denunciar
 
+Si existen varias normas potencialmente aplicables, explica cuál corresponde mejor a los hechos y por qué.
+
+Si la conducta no constituye infracción con los datos disponibles, dilo claramente.
+
+No atribuyas automáticamente una infracción porque exista una conducta irregular.
+
+No inventes una norma para completar una respuesta.
+
 No devuelvas JSON.
 No devuelvas código.
 No uses emojis.
-No uses la palabra "Fuente" como encabezado.
 No uses Markdown.
+No uses la palabra "Fuente" como encabezado.
 `;
 
 export default {
   async fetch(req: Request) {
     if (req.method === "OPTIONS") {
-      return new Response("ok", { headers: CORS });
+      return new Response("ok", {
+        headers: CORS,
+      });
     }
 
     if (req.method !== "POST") {
-      return response({
-        ok: false,
-        error: "Método no permitido",
-      }, 405);
+      return jsonResponse(
+        {
+          ok: false,
+          error: "Método no permitido.",
+        },
+        405,
+      );
     }
 
     const apiKey = Deno.env.get("GEMINI_API_KEY");
 
     if (!apiKey) {
-      return response({
-        ok: false,
-        error: "Falta el secreto GEMINI_API_KEY en Supabase.",
-      }, 500);
+      return jsonResponse(
+        {
+          ok: false,
+          error: "Falta el secreto GEMINI_API_KEY en Supabase.",
+        },
+        500,
+      );
     }
 
     let body: any;
@@ -155,135 +168,219 @@ export default {
     try {
       body = await req.json();
     } catch {
-      return response({
-        ok: false,
-        error: "JSON de entrada no válido.",
-      }, 400);
+      return jsonResponse(
+        {
+          ok: false,
+          error: "El JSON enviado a CENTINELA no es válido.",
+        },
+        400,
+      );
     }
 
     const pregunta = String(body?.pregunta || "").trim();
     const modo = String(body?.modo || "web_first").trim();
     const contexto = String(body?.contexto || "").trim();
+    const webContext = String(body?.web_context || "").trim();
 
     if (!pregunta) {
-      return response({
-        ok: false,
-        error: "Falta la pregunta.",
-      }, 400);
+      return jsonResponse(
+        {
+          ok: false,
+          error: "Falta la pregunta.",
+        },
+        400,
+      );
     }
 
     // ============================================================
-    // PRIMERA VÍA: INTERNET
+    // FASE 1 — WEB CONTEXT
     // ============================================================
+    // Gemini 3.5 Flash-Lite no realiza aquí Google Search.
+    // El frontend puede proporcionar resultados web en web_context.
+    // Solo se consideran suficientes si contienen información verificable.
+
     if (modo === "web_first") {
-      const prompt = `${POLICE_RULES}
-
-INSTRUCCIÓN PRIORITARIA:
-DEBES BUSCAR EN INTERNET CON GOOGLE SEARCH ANTES DE RESPONDER.
-
-Prioriza fuentes oficiales españolas y jurídicas:
-- BOE
-- DGT
-- ministerios
-- Junta de Andalucía
-- boletines oficiales
-- organismos públicos
-- normativa autonómica y local oficial
-- jurisprudencia oficial cuando corresponda
-
-Comprueba que la norma esté vigente y que el artículo citado corresponda exactamente a la conducta descrita.
-
-No confundas artículos de distintas leyes.
-
-Si la búsqueda no proporciona información suficiente o verificable para responder con seguridad, responde exactamente:
-WEB_SIN_RESPUESTA
-
-Si encuentras información suficiente y verificable, responde normalmente.
-
-CONSULTA ACTUAL DEL AGENTE:
-${pregunta}`;
-
-      const result = await gemini(apiKey, prompt, true);
-
-      if (!result.ok) {
-        return response({
-          ok: false,
-          web_found: false,
-          reason: "WEB_ERROR",
-          error: result.data?.error?.message || "Error consultando Internet.",
-        }, 502);
-      }
-
-      const text = cleanText(result.text);
-      const sources = result.sources;
-
-      if (
-        !text ||
-        text === "WEB_SIN_RESPUESTA" ||
-        sources.length === 0
-      ) {
-        return response({
+      if (!webContext) {
+        return jsonResponse({
           ok: true,
           mode: "web_first",
           web_found: false,
+          repository_required: true,
           text: "",
           sources: [],
-          reason: "No se ha localizado una respuesta web suficientemente fiable.",
+          reason:
+            "No se ha proporcionado contexto web verificable para esta consulta.",
         });
       }
 
-      return response({
-        ok: true,
-        mode: "web_first",
-        web_found: true,
-        text,
-        sources,
-      });
+      const prompt = `
+${POLICE_RULES}
+
+FASE WEB
+
+Se te proporciona información obtenida previamente de Internet.
+
+Utiliza únicamente la información web que sea relevante y verificable.
+
+Prioriza BOE, DGT, ministerios, Junta de Andalucía, boletines oficiales, ayuntamientos y otros organismos públicos.
+
+Comprueba que la norma, artículo y datos aportados sean coherentes con la consulta.
+
+Si el contexto web no contiene información suficiente para responder con seguridad, responde exactamente:
+WEB_SIN_RESPUESTA
+
+No inventes información que no aparezca en el contexto web.
+
+CONSULTA ACTUAL DEL AGENTE:
+${pregunta}
+
+CONTEXTO WEB:
+${webContext}
+`;
+
+      try {
+        const result = await callGemini(apiKey, prompt);
+
+        if (!result.ok) {
+          return jsonResponse(
+            {
+              ok: false,
+              mode: "web_first",
+              web_found: false,
+              reason: "WEB_MODEL_ERROR",
+              error:
+                result.data?.error?.message ||
+                "Error consultando Gemini.",
+              status: result.status,
+            },
+            502,
+          );
+        }
+
+        const text = cleanText(result.text);
+
+        if (!text || text === "WEB_SIN_RESPUESTA") {
+          return jsonResponse({
+            ok: true,
+            mode: "web_first",
+            web_found: false,
+            repository_required: true,
+            text: "",
+            sources: [],
+            reason:
+              "El contexto web no contiene información suficiente para responder con seguridad.",
+          });
+        }
+
+        return jsonResponse({
+          ok: true,
+          mode: "web_first",
+          web_found: true,
+          repository_required: false,
+          text,
+          sources: [],
+        });
+      } catch (error) {
+        return jsonResponse(
+          {
+            ok: false,
+            mode: "web_first",
+            web_found: false,
+            reason: "WEB_EXCEPTION",
+            error:
+              error instanceof Error
+                ? error.message
+                : "Error inesperado consultando Gemini.",
+          },
+          502,
+        );
+      }
     }
 
     // ============================================================
-    // SEGUNDA VÍA: REPOSITORIO
+    // FASE 2 — REPOSITORIO
     // ============================================================
+
     if (modo === "repository_fallback") {
-      const prompt = `${POLICE_RULES}
+      const prompt = `
+${POLICE_RULES}
 
-No busques en Internet en esta fase.
+FASE REPOSITORIO NORMATIVO
 
-Usa exclusivamente el CONTEXTO NORMATIVO DEL REPOSITORIO que se facilita debajo.
+No realices ninguna búsqueda en Internet en esta fase.
 
-Si el contexto no contiene base suficiente para contestar, dilo claramente y no inventes.
+Utiliza exclusivamente el contexto normativo del repositorio que aparece debajo.
+
+Ignora cualquier contenido que no tenga relación directa con la consulta actual.
+
+Si el contexto no contiene base suficiente, dilo claramente y no inventes.
 
 CONSULTA ACTUAL DEL AGENTE:
 ${pregunta}
 
 CONTEXTO NORMATIVO DEL REPOSITORIO:
-${contexto || "(Sin coincidencias suficientes.)"}`;
+${contexto || "(No se han encontrado coincidencias suficientes.)"}
+`;
 
-      const result = await gemini(apiKey, prompt, false);
+      try {
+        const result = await callGemini(apiKey, prompt);
 
-      if (!result.ok) {
-        return response({
-          ok: false,
+        if (!result.ok) {
+          return jsonResponse(
+            {
+              ok: false,
+              mode: "repository_fallback",
+              web_found: false,
+              repository_found: false,
+              error:
+                result.data?.error?.message ||
+                "Error consultando Gemini para el repositorio.",
+              status: result.status,
+            },
+            502,
+          );
+        }
+
+        const text = cleanText(result.text);
+
+        return jsonResponse({
+          ok: true,
+          mode: "repository_fallback",
           web_found: false,
-          repository_found: false,
-          error: result.data?.error?.message || "Error consultando el repositorio.",
-        }, 502);
+          repository_found: !!text,
+          text:
+            text ||
+            "No se ha encontrado información suficiente en el repositorio.",
+          sources: [],
+        });
+      } catch (error) {
+        return jsonResponse(
+          {
+            ok: false,
+            mode: "repository_fallback",
+            web_found: false,
+            repository_found: false,
+            error:
+              error instanceof Error
+                ? error.message
+                : "Error inesperado consultando Gemini.",
+          },
+          502,
+        );
       }
-
-      const text = cleanText(result.text);
-
-      return response({
-        ok: true,
-        mode: "repository_fallback",
-        web_found: false,
-        repository_found: !!text,
-        text: text || "No se ha encontrado información suficiente en el repositorio.",
-      });
     }
 
-    return response({
-      ok: false,
-      error: "Modo de consulta no válido.",
-    }, 400);
+    // ============================================================
+    // MODO NO VÁLIDO
+    // ============================================================
+
+    return jsonResponse(
+      {
+        ok: false,
+        error:
+          "Modo de consulta no válido. Utiliza web_first o repository_fallback.",
+      },
+      400,
+    );
   },
 };
