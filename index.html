@@ -145,7 +145,7 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opac
   </div>
   <div class="cc-global-search-actions" aria-label="Herramientas de consulta">
     <button type="button" data-cc-search-mode="all" title="Buscar en toda la base normativa local">⌕ CONSULTA GLOBAL</button>
-    <button type="button" data-cc-search-mode="infractions" title="Filtrar y localizar infracciones sancionables">⚠ IDENTIFICAR INFRACCIÓN</button>
+    <button type="button" data-cc-infraccion-assistant="true" title="Identificar una posible infracción a partir de la conducta observada">⚠ IDENTIFICAR INFRACCIÓN</button>
   </div>
 </section>
 <style id="centinela-global-search-ui">
@@ -254,5 +254,6 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opac
 <script src="ia.js"></script>
 <script defer src="app.js?v=20260903-matriculas"></script>
 <script defer src="buscadores.js?v=20260904-viewer-clean"></script>
+<script src="./infraccion-assistant.js?v=20260904-v1"></script>
 </body>
 </html>
