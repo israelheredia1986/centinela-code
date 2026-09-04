@@ -21,117 +21,77 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
-          import re
 
           p = Path('app.js')
           s = p.read_text(encoding='utf-8')
           original = s
 
-          s = s.replace('VERSION: "1.5.0"', 'VERSION: "1.6.0"', 1)
+          def once(old, new, label):
+              global s
+              if old not in s:
+                  raise SystemExit(f'No se encontró el patrón: {label}')
+              s = s.replace(old, new, 1)
 
-          s = s.replace(
+          once('VERSION: "1.5.0"', 'VERSION: "1.6.0"', 'VERSION')
+
+          once(
               'infraccionesTrafico: "./data/infracciones_trafico.json",',
               'infraccionesTrafico: "./data/infracciones_trafico.json",\n    infraccionesVmpBicicletas: "./data/infracciones_vmp_bicicletas.json",',
-              1
+              'ruta infracciones VMP'
           )
-          s = s.replace(
+          once(
               'trafico: "./data/normativa_trafico.json",',
               'trafico: "./data/normativa_trafico.json",\n    vmpBicicletas: "./data/normativa_vmp_bicicletas.json",',
-              1
+              'ruta normativa VMP'
           )
-
-          s = s.replace(
+          once(
               'trafico: null,\n  ley392015:',
               'trafico: null,\n  vmpBicicletas: null,\n  ley392015:',
-              1
+              'estado VMP'
           )
 
-          s = s.replace(
+          once(
               'cargarJSON(CONFIG.RUTAS.infraccionesTrafico),\n    cargarJSON(CONFIG.RUTAS.lopsc),',
               'cargarJSON(CONFIG.RUTAS.infraccionesTrafico),\n    cargarJSON(CONFIG.RUTAS.infraccionesVmpBicicletas),\n    cargarJSON(CONFIG.RUTAS.lopsc),',
-              1
+              'Promise infracciones VMP'
+          )
+          once(
+              'cargarJSON(CONFIG.RUTAS.animales),\n    cargarJSON(CONFIG.RUTAS.trafico),\n    cargarJSON(CONFIG.RUTAS.leyFcs),',
+              'cargarJSON(CONFIG.RUTAS.animales),\n    cargarJSON(CONFIG.RUTAS.trafico),\n    cargarJSON(CONFIG.RUTAS.vmpBicicletas),\n    cargarJSON(CONFIG.RUTAS.leyFcs),',
+              'Promise normativa VMP'
           )
 
-          s = s.replace(
+          once(
               'rInfracciones, rInfraccionesTrafico, rLopsc, rCodigoPenal, rMenores,',
               'rInfracciones, rInfraccionesTrafico, rInfraccionesVmpBicicletas, rLopsc, rCodigoPenal, rMenores,',
-              1
+              'destructuración infracciones VMP'
           )
-
-          s = s.replace(
-              'rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico,\n    rLeyFcs,',
-              'rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico, rInfraccionesVmpBicicletas,\n    rLeyFcs,',
-              1
-          )
-
-          # La sustitución anterior conserva el orden real del Promise.allSettled.
-          # Reajustamos la destructuración para que la nueva respuesta quede justo detrás de rInfraccionesTrafico.
-          s = s.replace(
-              'rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico, rInfraccionesVmpBicicletas,\n    rLeyFcs,',
-              'rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico,\n    rLeyFcs,',
-              1
-          )
-          s = s.replace(
-              'rInfracciones, rInfraccionesTrafico, rInfraccionesVmpBicicletas, rLopsc, rCodigoPenal, rMenores,',
-              'rInfracciones, rInfraccionesTrafico, rInfraccionesVmpBicicletas, rLopsc, rCodigoPenal, rMenores,',
-              1
-          )
-
-          # Insertar la nueva respuesta en la destructuración exactamente después de rInfraccionesTrafico.
-          # Si la línea ya no existe en el formato esperado, fallamos para evitar una integración silenciosamente incorrecta.
-          marker = 'rInfracciones, rInfraccionesTrafico, rLopsc, rCodigoPenal, rMenores,'
-          if marker in s:
-              s = s.replace(marker, 'rInfracciones, rInfraccionesTrafico, rInfraccionesVmpBicicletas, rLopsc, rCodigoPenal, rMenores,', 1)
-          elif 'rInfraccionesVmpBicicletas' not in s:
-              raise SystemExit('No se pudo localizar la destructuración de cargarDatos()')
-
-          s = s.replace(
-              'if (rInfraccionesTrafico.status === "fulfilled") { \n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesTrafico.value)); \n  }',
-              'if (rInfraccionesTrafico.status === "fulfilled") { \n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesTrafico.value)); \n  }\n\n  if (rInfraccionesVmpBicicletas.status === "fulfilled") {\n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesVmpBicicletas.value));\n  }',
-              1
-          )
-
-          s = s.replace(
-              'if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value;',
-              'if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value;\n  if (rInfraccionesVmpBicicletas.status === "fulfilled") {\n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesVmpBicicletas.value));\n  }\n  if (rVmpBicicletas && rVmpBicicletas.status === "fulfilled") estado.vmpBicicletas = rVmpBicicletas.value;',
-              1
-          )
-
-          # La versión anterior introduce la carga de infracciones dos veces si el bloque anterior existe.
-          # Eliminamos el segundo bloque duplicado, conservando el que está junto a rInfraccionesTrafico.
-          dup = '''\n  if (rInfraccionesVmpBicicletas.status === "fulfilled") {\n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesVmpBicicletas.value));\n  }\n  if (rVmpBicicletas && rVmpBicicletas.status === "fulfilled") estado.vmpBicicletas = rVmpBicicletas.value;'''
-          s = s.replace(dup, '\n  if (rVmpBicicletas && rVmpBicicletas.status === "fulfilled") estado.vmpBicicletas = rVmpBicicletas.value;', 1)
-
-          # Carga de normativa VMP como un grupo adicional dentro de Tráfico.
-          s = s.replace(
-              'cargarJSON(CONFIG.RUTAS.animales),\n    cargarJSON(CONFIG.RUTAS.trafico),',
-              'cargarJSON(CONFIG.RUTAS.animales),\n    cargarJSON(CONFIG.RUTAS.trafico),\n    cargarJSON(CONFIG.RUTAS.vmpBicicletas),',
-              1
-          )
-
-          # Añadir rVmpBicicletas en la destructuración si falta.
-          s = s.replace(
+          once(
               'rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico,\n    rLeyFcs,',
               'rViolenciaGenero, rOrdenanzas, rAnimales, rTrafico, rVmpBicicletas,\n    rLeyFcs,',
-              1
+              'destructuración normativa VMP'
           )
 
-          s = s.replace(
+          once(
+              'if (rInfraccionesTrafico.status === "fulfilled") { \n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesTrafico.value)); \n  }',
+              'if (rInfraccionesTrafico.status === "fulfilled") { \n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesTrafico.value)); \n  }\n\n  if (rInfraccionesVmpBicicletas.status === "fulfilled") {\n    estado.infracciones = estado.infracciones.concat(extraerInfracciones(rInfraccionesVmpBicicletas.value));\n  }',
+              'carga infracciones VMP'
+          )
+          once(
+              'if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value;',
+              'if (rTrafico.status === "fulfilled") estado.trafico = rTrafico.value;\n  if (rVmpBicicletas.status === "fulfilled") estado.vmpBicicletas = rVmpBicicletas.value;',
+              'carga normativa VMP'
+          )
+          once(
               'agregarGrupoLeyes(estado.trafico, "trafico", "ley-trafico");',
               'agregarGrupoLeyes(estado.trafico, "trafico", "ley-trafico");\n  agregarGrupoLeyes(estado.vmpBicicletas, "vmp-bicicletas", "ley-vmp-bicicletas");',
-              1
+              'buscador normativa VMP'
           )
 
-          # Sinónimos para búsqueda policial de micromovilidad.
-          syn_marker = '\n}; \n\nfunction tokenizarTexto(valor) {'
-          syn_add = '''\n  "vmp": ["patinete", "patinete electrico", "patinete eléctrico", "vehiculo de movilidad personal", "vehículo de movilidad personal", "scooter electrico", "scooter eléctrico"],\n  "patinete": ["vmp", "patinete electrico", "patinete eléctrico", "scooter", "vehiculo de movilidad personal", "vehículo de movilidad personal"],\n  "patinete electrico": ["patinete", "patinete eléctrico", "vmp", "scooter eléctrico", "vehiculo de movilidad personal"],\n  "bicicleta electrica": ["bicicleta eléctrica", "e-bike", "ebike", "epac", "pedaleo asistido", "250w", "250 w"],\n  "bicicleta eléctrica": ["bicicleta electrica", "e-bike", "ebike", "epac", "pedaleo asistido", "250w", "250 w"],\n  "epac": ["bicicleta electrica", "bicicleta eléctrica", "e-bike", "pedaleo asistido", "250w", "250 w"],\n  "pedaleo asistido": ["epac", "bicicleta electrica", "bicicleta eléctrica", "250w", "250 w", "25 km/h"],\n  "acelerador": ["patinete", "vmp", "bicicleta electrica", "bicicleta eléctrica", "deslimitado", "motor"],\n  "deslimitado": ["deslimitacion", "deslimitación", "patinete", "vmp", "velocidad", "25 km/h"],\n  "deslimitacion": ["deslimitado", "deslimitación", "patinete", "vmp", "velocidad"],\n  "casco vmp": ["casco", "patinete", "vmp", "proteccion", "protección"],\n  "seguro vmp": ["seguro", "responsabilidad civil", "vpl", "patinete", "vmp"],\n  "registro vmp": ["registro", "dgt", "etiqueta", "identificacion", "identificación", "patinete", "vmp"]'''
-          if syn_marker in s and '"vmp": ["patinete"' not in s:
-              s = s.replace(syn_marker, syn_add + syn_marker, 1)
-
           if s == original:
-              raise SystemExit('El parche no produjo ningún cambio en app.js')
+              raise SystemExit('No hubo cambios en app.js')
           p.write_text(s, encoding='utf-8')
-          print('app.js integrado')
+          print('Integración VMP aplicada')
 
       - name: Validar JavaScript
         run: node --check app.js
