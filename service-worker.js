@@ -1,5 +1,5 @@
-const CACHE_NAME = "centinela-code-v16-final-visual";
-const ARCHIVOS = ["./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./visual-enhancements.js","./app.js","./ia.js","./matriculas.js","./buscadores.js","./manifest.json","./data/lopsc.json","./data/infracciones.json","./data/infracciones_trafico.json","./data/ordenanzas.json","./data/codigo_penal.json","./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json","./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json"];
+const CACHE_NAME = "centinela-code-v17-visual-complete";
+const ARCHIVOS = ["./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./visual-enhancements.js","./app.js","./ia.js","./matriculas.js","./buscadores.js","./manifest.json","./data/lopsc.json","./data/infracciones.json","./data/infracciones_trafico.json","./data/ordenanzas.json","./data/codigo_penal.json","./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json","./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json"];
 
 async function prepararHtml(response){
   if(!response||!response.ok)return response;
@@ -13,6 +13,10 @@ async function prepararHtml(response){
     if(!modificado.includes("style-modern-v2.css")){
       const inyeccionCss2='<link rel="stylesheet" href="./style-modern-v2.css?v=20260904-visual-v2">';
       modificado=modificado.includes("</head>")?modificado.replace("</head>",`${inyeccionCss2}</head>`):`${inyeccionCss2}${modificado}`;
+    }
+    if(!modificado.includes("style-modern-v3.css")){
+      const inyeccionCss3='<link rel="stylesheet" href="./style-modern-v3.css?v=20260904-visual-v3">';
+      modificado=modificado.includes("</head>")?modificado.replace("</head>",`${inyeccionCss3}</head>`):`${inyeccionCss3}${modificado}`;
     }
     if(!modificado.includes("visual-enhancements.js")){
       const inyeccionVisual='<script defer src="./visual-enhancements.js?v=20260904-visual-v1"></script>';
