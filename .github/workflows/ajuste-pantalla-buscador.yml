@@ -1,0 +1,114 @@
+name: Ajuste pantalla buscador
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - '.github/workflows/ajuste-pantalla-buscador.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  ajustar:
+    if: ${{ !contains(github.event.head_commit.message, '[auto-ajuste-buscador]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ajustar interfaz
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          css = r'''
+/* ============================================================
+   AJUSTE VISUAL — BUSCADOR + TARJETAS PRINCIPALES
+   El buscador rápido se oculta SOLO visualmente; su funcionalidad
+   y navegación permanecen intactas.
+   ============================================================ */
+.quick-actions{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+  padding:0 5px!important;
+}
+.quick-actions .quick-action:first-child{
+  display:none!important;
+}
+.quick-actions .quick-action:nth-child(2),
+.quick-actions .quick-action:nth-child(3){
+  min-height:190px!important;
+  padding:10px 8px 8px!important;
+  border-radius:16px!important;
+}
+.quick-actions .quick-action:nth-child(2) .quick-action-icon,
+.quick-actions .quick-action:nth-child(3) .quick-action-icon{
+  width:70px!important;
+  height:78px!important;
+  margin:0 0 3px!important;
+}
+.quick-actions .quick-action:nth-child(2) .quick-action-text strong,
+.quick-actions .quick-action:nth-child(3) .quick-action-text strong{
+  font-size:15px!important;
+}
+.quick-actions .quick-action:nth-child(2) .quick-action-text small,
+.quick-actions .quick-action:nth-child(3) .quick-action-text small{
+  font-size:8px!important;
+  line-height:1.25!important;
+  margin-top:3px!important;
+}
+.quick-actions .quick-action:nth-child(2) .quick-action-footer,
+.quick-actions .quick-action:nth-child(3) .quick-action-footer{
+  padding:5px 7px!important;
+  min-height:22px!important;
+  font-size:7px!important;
+  border-radius:8px!important;
+}
+.bc-search-card{
+  position:relative!important;
+  padding-top:58px!important;
+}
+.bc-search-card::before{
+  content:"";
+  position:absolute;
+  top:15px;
+  left:50%;
+  width:27px;
+  height:27px;
+  transform:translateX(-62%);
+  border:4px solid #31b9ff;
+  border-radius:50%;
+  box-shadow:0 0 14px rgba(49,185,255,.65),inset 0 0 8px rgba(49,185,255,.12);
+  pointer-events:none;
+}
+.bc-search-card::after{
+  content:"";
+  position:absolute;
+  top:41px;
+  left:calc(50% + 9px);
+  width:14px;
+  height:4px;
+  transform:rotate(45deg);
+  transform-origin:left center;
+  border-radius:4px;
+  background:#31b9ff;
+  box-shadow:0 0 10px rgba(49,185,255,.65);
+  pointer-events:none;
+}
+'''
+          marker='</style>'
+          if 'AJUSTE VISUAL — BUSCADOR + TARJETAS PRINCIPALES' not in s:
+              pos=s.rfind(marker)
+              if pos < 0:
+                  raise SystemExit('No se encontró el cierre de style')
+              s=s[:pos] + css + s[pos:]
+              p.write_text(s, encoding='utf-8')
+          PY
+      - name: Publicar ajuste
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'Ajustar pantalla del buscador [auto-ajuste-buscador]'
+          git push
