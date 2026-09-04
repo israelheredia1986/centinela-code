@@ -24,7 +24,7 @@
 
   let selected=null, query='';
   function getData(){
-    const e=window.estado||{}; let arr=Array.isArray(e.infracciones)?e.infracciones:[];
+    const e=(typeof estado!=='undefined'?estado:(window.estado||{})); let arr=Array.isArray(e.infracciones)?e.infracciones:[];
     const extras=[e.infraccionesVmpBicicletas,e.infraccionesTrafico];
     extras.forEach(x=>{if(Array.isArray(x))arr=arr.concat(x)});
     return arr;
