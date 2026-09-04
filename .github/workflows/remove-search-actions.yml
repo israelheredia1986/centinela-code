@@ -1,0 +1,44 @@
+name: Remove redundant search action cards
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/remove-search-actions.yml'
+permissions:
+  contents: write
+jobs:
+  remove:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove buttons and obsolete assistant
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=re.sub(r'\s*<div[^>]*class=["\'][^"\']*cc-global-search-actions[^"\']*["\'][^>]*>.*?</div>', '', s, flags=re.S|re.I)
+          s=re.sub(r'\s*<button[^>]*(?:data-cc-search-mode=["\']all["\']|data-cc-search-mode=["\']infractions["\']|data-cc-infraccion-assistant=["\']true["\'])[^>]*>.*?</button>', '', s, flags=re.S|re.I)
+          p.write_text(s,encoding='utf-8')
+          PY
+          rm -f infraccion-assistant.js
+      - name: Refresh service worker
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('service-worker.js')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('centinela-code-v30','centinela-code-v31').replace('centinela-code-v29','centinela-code-v31')
+          s=s.replace("'./infraccion-assistant.js',",'').replace('"./infraccion-assistant.js",','')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit and remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'UI: remove redundant global and infringement buttons' || exit 0
+          git rm .github/workflows/remove-search-actions.yml
+          git commit -m 'chore: remove cleanup workflow'
+          git push
