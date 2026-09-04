@@ -1,17 +1,19 @@
 /* ============================================================
-   CENTINELA CODE — SERVICE WORKER V33
-   Buscador PRO + normativa VMP, patinetes y bicicletas eléctricas.
+   CENTINELA CODE — SERVICE WORKER V34
+   Buscador PRO + Bloque 1 jurídico + normativa VMP,
+   patinetes y bicicletas eléctricas.
    ============================================================ */
-const CACHE_NAME="centinela-code-v33-resultados-pro";
+const CACHE_NAME="centinela-code-v34-bloque1";
 const ARCHIVOS=[
   "./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css",
   "./visual-enhancements.js?v=20260904-search-v2","./app.js","./centinela-infracciones-ui.js?v=20260904-infracciones-v1","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js",
-  "./buscadores.js?v=20260904-search-v4","./buscador-pro.js?v=20260904-search-v5","./manifest.json",
+  "./buscadores.js?v=20260904-search-v4","./buscador-pro.js?v=20260904-search-v5","./bloque1-juridico.js?v=20260904-bloque1-v1","./manifest.json",
   "./data/lopsc.json","./data/infracciones.json","./data/contrabando.json","./data/infracciones_trafico.json","./data/infracciones_vmp_bicicletas.json","./data/ordenanzas.json","./data/codigo_penal.json",
   "./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/normativa_vmp_bicicletas.json",
   "./data/ley_2_86.json","./data/lecrim.json","./data/extranjeria.json","./data/seguridad_privada.json","./data/espectaculos_publicos.json",
   "./data/comercio_ambulante.json","./data/propiedad_industrial_falsificaciones.json","./data/aforo_hosteleria_eventos.json","./data/medio_ambiente_ruidos.json","./data/reglamento_armas.json","./data/policias_locales_andalucia.json",
-  "./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json"
+  "./data/ley_39_2015.json","./data/ley_7_1985.json","./data/ley_5_2010_andalucia.json",
+  "./data/bloque1_juridico.json","./data/infracciones_bloque1.json"
 ];
 
 async function prepararHtml(response){
@@ -37,6 +39,7 @@ async function prepararHtml(response){
     html=replaceScript(html,'ia-robust.js','?v=20260904-ia-v1');
     html=replaceScript(html,'buscador-pro.js','?v=20260904-search-v5');
     html=replaceScript(html,'centinela-infracciones-ui.js','?v=20260904-infracciones-v1');
+    html=replaceScript(html,'bloque1-juridico.js','?v=20260904-bloque1-v1');
     const headers=new Headers(response.headers);
     headers.set('Content-Type','text/html; charset=utf-8');
     return new Response(html,{status:response.status,statusText:response.statusText,headers});
