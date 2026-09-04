@@ -1,0 +1,45 @@
+name: Ajustar buscador global
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  ajustar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ajustar únicamente textos del buscador global
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('buscadores.js')
+          s = p.read_text(encoding='utf-8')
+          cambios = {
+              '<h3>🔎 Buscador de Centinela</h3>': '<h3>¿Qué necesitas consultar?</h3>',
+              '<p>Busca en toda la normativa o exclusivamente en infracciones sancionables.</p>': '<p>Busca rápidamente en toda la normativa o solo en infracciones.</p>',
+              '📚 Toda la normativa': 'Buscar en todo',
+              '⚠️ Solo infracciones': 'Buscar infracción',
+              'Ej.: 117 ley 7/1985, desobediencia, art. 36.16…': 'Buscar normativa, infracciones, artículos...',
+              'Ej.: alcohol, arma, ruido, seguro…': 'Buscar infracción, conducta, artículo o código...'
+          }
+          original = s
+          for a,b in cambios.items():
+              s = s.replace(a,b)
+          if s == original:
+              raise SystemExit('No se encontró el bloque esperado; no se modifica el archivo.')
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit y push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add buscadores.js
+          git commit -m "Mejorar textos del buscador global" || exit 0
+          git push
+      - name: Eliminar workflow temporal
+        if: always()
+        run: |
+          rm -f .github/workflows/ajustar-buscador-global.yml
+          git add -A
+          git commit -m "Eliminar workflow temporal del buscador" || exit 0
+          git push
