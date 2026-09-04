@@ -27,6 +27,51 @@ async function preguntarCentinelaIA(pregunta) {
   }
 }
 
+// Restauración del icono de Normativa del dashboard.
+(function restaurarIconoNormativa() {
+  function aplicar() {
+    if (document.getElementById("centinelaNormativaIconFix")) return;
+    const style = document.createElement("style");
+    style.id = "centinelaNormativaIconFix";
+    style.textContent = `
+      .nav-item[data-section="normativa"] .nav-icon {
+        position: relative !important;
+        font-size: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 34px !important;
+        height: 34px !important;
+        color: var(--ref-blue, #31b9ff) !important;
+      }
+      .nav-item[data-section="normativa"] .nav-icon:before {
+        content: "§" !important;
+        display: block !important;
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        background: none !important;
+        -webkit-mask-image: none !important;
+        mask-image: none !important;
+        -webkit-mask: none !important;
+        mask: none !important;
+        color: inherit !important;
+        font-family: Arial, sans-serif !important;
+        font-size: 30px !important;
+        line-height: 1 !important;
+        font-weight: 700 !important;
+        text-shadow: 0 0 12px currentColor !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", aplicar, { once: true });
+  } else {
+    aplicar();
+  }
+})();
+
 // Motor V5: Internet First + repositorio como fallback.
 (function cargarIAV5() {
   function cargar() {
