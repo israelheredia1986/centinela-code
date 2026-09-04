@@ -1,6 +1,6 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V10 — motor de consulta + consecuencias + UI + Constitución
+   V11 — buscador rápido de Inicio + motor de Consulta + consecuencias + Constitución
    ============================================================ */
 (function(){
   "use strict";
@@ -21,8 +21,8 @@
 
   async function boot(){
     try{
-      // El buscador de Inicio se ha eliminado de la interfaz.
-      // Se conserva el motor de búsqueda de la sección Consulta.
+      // Buscador grande de Inicio: reutiliza la Consulta existente.
+      await cargar(`${base}buscador-home.js?v=20260904v1`);
       await cargar(`${base}buscadores-core.js?v=20260904v10`);
       await cargar(`${base}buscador-consecuencias.js?v=20260904v5`);
       await cargar(`${base}buscador-consecuencias-ui.js?v=20260904v3`);
