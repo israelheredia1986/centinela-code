@@ -2,7 +2,7 @@
    CENTINELA CODE — SERVICE WORKER V29
    Buscador PRO + normativa VMP, patinetes y bicicletas eléctricas.
    ============================================================ */
-const CACHE_NAME="centinela-code-v30-infra-assistant";
+const CACHE_NAME="centinela-code-v31-infra-assistant";
 const ARCHIVOS=[
   "./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css",
   "./visual-enhancements.js?v=20260904-search-v2","./app.js","./infraccion-assistant.js?v=20260904-infra-v2","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js",
