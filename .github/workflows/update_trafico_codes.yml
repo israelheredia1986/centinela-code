@@ -28,3 +28,4 @@ jobs:
             git commit -m 'Actualizar articulado completo de tráfico'
             git push
           fi
+# Disparador de actualización de los tres reglamentos de tráfico.
