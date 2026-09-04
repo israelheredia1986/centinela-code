@@ -1,0 +1,64 @@
+/* Centinela Code — detalles visuales adicionales */
+
+.cc-global-search-card{
+  position:relative;
+  margin:0 0 18px;
+  padding:16px;
+  border:1px solid rgba(47,167,255,.28);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(11,29,46,.98),rgba(6,15,25,.98));
+  box-shadow:0 14px 34px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.025);
+  overflow:hidden;
+}
+.cc-global-search-card:before{
+  content:"";
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 0 0,rgba(47,167,255,.12),transparent 36%);
+}
+.cc-global-search-head{
+  position:relative;display:flex;align-items:center;gap:12px;margin-bottom:12px;
+}
+.cc-global-search-icon{
+  width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;
+  border:1px solid rgba(102,194,255,.35);border-radius:12px;
+  background:#0a2033;color:#66c2ff;font-size:23px;
+}
+.cc-global-search-head strong{display:block;color:#f4f7fb;font-size:15px;letter-spacing:.2px}
+.cc-global-search-head span{display:block;margin-top:3px;color:#91a5b9;font-size:11px;line-height:1.4}
+.cc-global-search-form{position:relative;display:grid;grid-template-columns:1fr auto;gap:8px}
+.cc-global-search-form input{
+  min-width:0;min-height:48px;padding:0 13px;border:1px solid rgba(103,154,204,.22);border-radius:11px;
+  background:#07121f;color:#f4f7fb;font-size:14px;outline:none;
+}
+.cc-global-search-form input:focus{border-color:rgba(47,167,255,.55);box-shadow:0 0 0 3px rgba(47,167,255,.07)}
+.cc-global-search-form button{
+  min-width:80px;border:1px solid #238ed6;border-radius:11px;padding:0 15px;
+  background:#0d6fb9;color:#fff;font-size:12px;font-weight:800;
+}
+.cc-global-search-form button:hover{background:#1183d2;transform:translateY(-1px)}
+.cc-global-search-hints{position:relative;display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.cc-global-search-hints button{
+  min-height:30px;padding:5px 9px;border:1px solid rgba(103,154,204,.18);border-radius:999px;
+  background:#081624;color:#9db0c3;font-size:10px;font-weight:700;
+}
+.cc-global-search-hints button:hover{border-color:rgba(47,167,255,.38);color:#dce8f4;background:#0b2033}
+
+/* Unifica botones de icono sueltos para evitar mezcla de emojis */
+.icon-button,.input-action-button,.clear-search{
+  font-family:"Segoe UI Symbol","Noto Sans Symbols 2",system-ui,sans-serif!important;
+}
+.input-action-button{font-size:0!important;color:transparent!important}
+#btnUbicacionActa:before{content:"⌖";font-size:19px;color:#66c2ff}
+#btnDictadoHechos:before,#btnDictadoObservaciones:before{content:"◉";font-size:16px;color:#66c2ff}
+.clear-search{font-size:0!important;color:transparent!important}
+.clear-search:before{content:"×";font-size:22px;color:#9aafc1}
+.empty-icon{font-size:0!important;color:transparent!important}
+#section-consulta .empty-icon:before{content:"⌕";font-size:28px;color:#66c2ff}
+#section-actas .empty-icon:before{content:"▤";font-size:26px;color:#66c2ff}
+#section-normativa .empty-icon:before{content:"§";font-size:27px;color:#66c2ff}
+
+@media(max-width:520px){
+  .cc-global-search-card{padding:13px;margin-bottom:13px}
+  .cc-global-search-form{grid-template-columns:1fr}
+  .cc-global-search-form button{min-height:42px}
+}
