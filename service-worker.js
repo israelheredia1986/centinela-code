@@ -1,8 +1,10 @@
 /* ============================================================
-   CENTINELA CODE — SERVICE WORKER V36
+   CENTINELA CODE — SERVICE WORKER V37
    Constitución Española + corpus normativo + buscadores PRO.
+   V37 fuerza la renovación completa de la caché para evitar que
+   una versión antigua del PWA siga bloqueando la carga.
    ============================================================ */
-const CACHE_NAME="centinela-code-v36-constitucion-tab";
+const CACHE_NAME="centinela-code-v37-recovery";
 const ARCHIVOS=[
   "./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css",
   "./visual-enhancements.js?v=20260904-search-v2","./app.js","./centinela-infracciones-ui.js?v=20260904-infracciones-v1","./ia.js","./ia-robust.js?v=20260904-ia-v1","./matriculas.js",
