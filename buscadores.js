@@ -1,6 +1,6 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V6 — motor global + consecuencias penales/administrativas
+   V7 — motor global + consecuencias penales/administrativas + UI
    ============================================================ */
 (function(){
   "use strict";
@@ -13,10 +13,11 @@
   }
   async function boot(){
     try{
-      await cargar(`${base}buscadores-core.js?v=20260904v6`);
-      await cargar(`${base}buscador-consecuencias.js?v=20260904v2`);
-      await cargar(`${base}buscador-home.js?v=20260904v2`);
-      await cargar(`${base}buscador-home-fix.js?v=20260904v2`);
+      await cargar(`${base}buscadores-core.js?v=20260904v7`);
+      await cargar(`${base}buscador-consecuencias.js?v=20260904v3`);
+      await cargar(`${base}buscador-home.js?v=20260904v3`);
+      await cargar(`${base}buscador-home-fix.js?v=20260904v3`);
+      await cargar(`${base}buscador-consecuencias-ui.js?v=20260904v1`);
     }catch(e){console.error("Centinela Code — sistema de búsqueda:",e);}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
