@@ -1,0 +1,128 @@
+{
+  "version": "1.0.0",
+  "categoria": "vmp_bicicletas",
+  "nombreCategoria": "VMP, patinetes y bicicletas eléctricas",
+  "descripcion": "Módulo específico de micromovilidad para consulta policial: VMP/patinetes eléctricos, bicicletas de pedales con pedaleo asistido (EPAC/e-bike), requisitos técnicos, circulación, seguridad, registro, seguro y régimen sancionador. Incluye la normativa vigente a 4 de septiembre de 2026 y la reforma del Real Decreto 518/2026 con entrada en vigor el 1 de octubre de 2026.",
+  "fechaCorte": "2026-09-04",
+  "leyes": [
+    {
+      "id": "rd-970-2020-vmp",
+      "ambito": "Estatal",
+      "ley": "Real Decreto 970/2020, de 10 de noviembre",
+      "abreviatura": "RD 970/2020 — VMP y medidas urbanas de tráfico",
+      "boe": "BOE-A-2020-13969",
+      "entradaVigor": "02/01/2021",
+      "estado": "vigente",
+      "enlaceOficial": "https://www.boe.es/buscar/act.php?id=BOE-A-2020-13969",
+      "resumen": "Introduce en la normativa estatal la definición de VMP y su régimen básico de circulación, diferenciándolos de las bicicletas de pedales con pedaleo asistido y de los vehículos incluidos en el Reglamento (UE) 168/2013.",
+      "articulos": [
+        {"numero":"Definición VMP — Anexo II RGV","titulo":"Concepto de vehículo de movilidad personal","texto":"Vehículo de una o más ruedas dotado de una única plaza y propulsado exclusivamente por motores eléctricos que pueden proporcionar una velocidad máxima por diseño comprendida entre 6 y 25 km/h. Solo puede estar equipado con asiento o sillín si dispone de sistema de autoequilibrado. Se excluyen, entre otros, los vehículos sin autoequilibrado y con sillín, los de competición, los destinados a personas con movilidad reducida, los que superen las tensiones reglamentarias y los incluidos en el ámbito del Reglamento (UE) 168/2013."},
+        {"numero":"22 bis RGV","titulo":"Certificado de circulación e identificación del VMP","texto":"Los VMP quedan exceptuados de autorización administrativa para circular, pero requieren certificado de circulación que garantice el cumplimiento de los requisitos técnicos y su identificación."},
+        {"numero":"121.5 RGC","titulo":"Prohibición de circular por aceras y zonas peatonales","texto":"Los vehículos no pueden circular por las aceras ni por las zonas peatonales, con las excepciones específicas previstas reglamentariamente. La regulación municipal puede desarrollar las condiciones de circulación de VMP dentro de sus competencias."},
+        {"numero":"38.4 RGC","titulo":"VMP en vías interurbanas, autopistas y autovías","texto":"Con carácter general, los VMP tienen prohibida la circulación por autopistas y autovías, travesías y vías interurbanas, con las excepciones que establezca la regulación aplicable para vías ciclistas y otros espacios segregados en los términos previstos por la normativa vigente y municipal."},
+        {"numero":"18.2 RGC","titulo":"Teléfono móvil, auriculares y dispositivos","texto":"Está prohibido conducir utilizando dispositivos de telefonía móvil y otros sistemas de comunicación, así como cascos de audio o auriculares conectados a aparatos receptores o reproductores de sonido u otros dispositivos que disminuyan la atención permanente a la conducción."},
+        {"numero":"21-25 RGC","titulo":"Alcohol, drogas, pruebas e inmovilización","texto":"Los conductores de vehículos y bicicletas están sometidos a las normas de detección de alcohol y drogas cuando proceda. La conducción de VMP bajo los efectos del alcohol o con presencia de drogas puede generar infracción administrativa, inmovilización y, cuando concurran los requisitos penales, delito contra la seguridad vial."}
+      ]
+    },
+    {
+      "id": "manual-vmp-2022",
+      "ambito": "Estatal",
+      "ley": "Resolución de 12 de enero de 2022, de la Dirección General de Tráfico",
+      "abreviatura": "Manual de características de los VMP",
+      "boe": "BOE-A-2022-987",
+      "entradaVigor": "21/01/2022",
+      "estado": "vigente",
+      "enlaceOficial": "https://www.dgt.es/nuestros-servicios/tu-vehiculo/vehiculos-de-movilidad-personal-vmp/",
+      "resumen": "Establece los requisitos técnicos, clasificación, ensayos, identificación y certificación de los VMP para garantizar su seguridad y trazabilidad.",
+      "articulos": [
+        {"numero":"1","titulo":"Ámbito del Manual","texto":"Regula las características técnicas que deben cumplir los VMP para poder circular por las vías y la obligación de certificación de los modelos sujetos al Manual."},
+        {"numero":"2","titulo":"VMP de transporte personal","texto":"Los VMP de transporte personal son vehículos de una sola plaza, exclusivamente eléctricos, con velocidad máxima por diseño entre 6 y 25 km/h, sujetos a los límites y requisitos técnicos del Manual."},
+        {"numero":"3","titulo":"Requisitos de seguridad","texto":"El Manual establece requisitos sobre sistema de frenado, alumbrado, catadióptricos, avisador acústico, ruedas, resistencia, compatibilidad electromagnética, batería, superficie antideslizante y otros elementos de seguridad."},
+        {"numero":"4","titulo":"Certificado VMP","texto":"El fabricante o representante autorizado debe disponer de certificado de circulación para la marca, modelo y versión concreta cuando resulte exigible, garantizando el cumplimiento de los requisitos técnicos."},
+        {"numero":"Transitorio","titulo":"VMP comercializados antes y desde el 22 de enero de 2024","texto":"Los VMP comercializados a partir del 22 de enero de 2024 deben estar certificados. Los comercializados hasta el 21 de enero de 2024 pueden acogerse al régimen transitorio y circular hasta el 22 de enero de 2027 en los términos establecidos por la normativa."}
+      ]
+    },
+    {
+      "id": "rd-52-2026-vpl",
+      "ambito": "Estatal",
+      "ley": "Real Decreto 52/2026, de 28 de enero",
+      "abreviatura": "RD 52/2026 — Registro de Vehículos Personales Ligeros",
+      "boe": "BOE-A-2026-2140",
+      "entradaVigor": "30/01/2026",
+      "estado": "vigente",
+      "enlaceOficial": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-2140",
+      "resumen": "Regula el Registro de Vehículos Personales Ligeros, adapta el Reglamento General de Vehículos y desarrolla la certificación, identificación y requisitos técnicos de los VMP.",
+      "articulos": [
+        {"numero":"2 RGV","titulo":"Registro Nacional de Vehículos","texto":"Todos los vehículos que cuenten con certificado de circulación deben figurar inscritos en el Registro Nacional de Vehículos. El Registro de Vehículos Personales Ligeros queda integrado como sección del Registro Nacional de Vehículos."},
+        {"numero":"22 bis RGV","titulo":"Requisitos para circular con un VMP","texto":"Para poder circular, los VMP deben disponer de certificado de circulación, estar inscritos en el Registro Nacional de Vehículos en la sección correspondiente y disponer y exhibir la etiqueta identificativa y placa de marcaje previstas reglamentariamente."},
+        {"numero":"Anexo II RGV","titulo":"Vehículo personal ligero","texto":"A efectos del seguro obligatorio, el vehículo personal ligero es un VMP con velocidad máxima de fabricación entre 6 y 25 km/h si pesa menos de 25 kg, o entre 6 y 14 km/h si pesa más de 25 kg. Se excluyen los ciclos y bicicletas de pedales con pedaleo asistido."},
+        {"numero":"Anexo XX RGV","titulo":"Registro de Vehículos Personales Ligeros","texto":"La inscripción incluye datos del titular, domicilio, certificado de circulación, características técnicas, fabricante, marca, modelo, laboratorio de certificación, número de identificación y datos del seguro obligatorio."},
+        {"numero":"Anexo XXI RGV","titulo":"Características técnicas de los VMP","texto":"Los VMP deben cumplir los requisitos técnicos establecidos en el Anexo XXI. Para VMP personales se establece velocidad máxima entre 6 y 25 km/h, potencia nominal máxima de 1.000 W sin autoequilibrado y 2.500 W con autoequilibrado, masa en orden de marcha inferior a 50 kg, longitud máxima 2.000 mm, altura máxima 1.400 mm y anchura máxima 750 mm."},
+        {"numero":"Anexo XXI — Frenado","titulo":"Sistema de frenado","texto":"Todos los VMP deben disponer de dos frenos independientes, aunque puedan accionarse desde el mismo actuador. Deben permitir desacelerar y detener el vehículo y actuar cuando alcanza su velocidad máxima."},
+        {"numero":"Transitoria primera","titulo":"VMP no certificados hasta el 22 de enero de 2027","texto":"Los VMP no certificados comercializados antes del 22 de enero de 2024 pueden continuar circulando hasta el 22 de enero de 2027 dentro del régimen transitorio. Su identificación es temporal y dejarán de poder circular desde esa fecha."}
+      ]
+    },
+    {
+      "id": "ley-5-2025-seguro-vpl",
+      "ambito": "Estatal",
+      "ley": "Ley 5/2025, de 24 de julio",
+      "abreviatura": "Ley 5/2025 — Seguro obligatorio de VPL",
+      "boe": "BOE-A-2025-15424",
+      "entradaVigor": "02/01/2026 según el régimen previsto",
+      "estado": "vigente",
+      "enlaceOficial": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2025-15424",
+      "resumen": "Crea el seguro obligatorio de responsabilidad civil para los vehículos personales ligeros y establece su conexión con el certificado, registro e identificación del vehículo.",
+      "articulos": [
+        {"numero":"Disposición adicional primera.1","titulo":"Seguro obligatorio de responsabilidad civil","texto":"Todo propietario de un vehículo personal ligero que cumpla los requisitos legales para circular debe suscribir y mantener en vigor un seguro obligatorio de responsabilidad civil en los términos previstos por la ley."},
+        {"numero":"Disposición adicional primera.2","titulo":"Definición de vehículo personal ligero","texto":"Se consideran vehículos personales ligeros, a efectos del seguro obligatorio, los vehículos de una o más ruedas, una única plaza y motor exclusivamente eléctrico con velocidad máxima de fabricación de 6 a 25 km/h si pesan menos de 25 kg, o de 6 a 14 km/h si pesan más de 25 kg, con las exclusiones legales."},
+        {"numero":"Disposición adicional primera.3.c","titulo":"Bicicletas eléctricas excluidas del seguro de VPL","texto":"Quedan excluidos los ciclos y bicicletas de pedales con pedaleo asistido equipados con motor auxiliar de potencia nominal continua máxima de 250 W, cuya asistencia disminuya progresivamente y se interrumpa antes de 25 km/h o cuando el ciclista deje de pedalear."},
+        {"numero":"Disposición adicional primera.5","titulo":"Hecho de la circulación","texto":"A efectos de responsabilidad civil y seguro obligatorio se considera hecho de la circulación la utilización del vehículo personal ligero conforme a su función como medio de transporte en el momento del accidente, con independencia de sus características o de que esté parado o en movimiento."}
+      ]
+    },
+    {
+      "id": "rd-518-2026-vulnerables",
+      "ambito": "Estatal",
+      "ley": "Real Decreto 518/2026, de 24 de junio",
+      "abreviatura": "RD 518/2026 — Usuarios vulnerables y nuevas normas VMP/bicicletas",
+      "boe": "BOE-A-2026-13889",
+      "entradaVigor": "01/10/2026",
+      "estado": "publicado — pendiente de entrada en vigor",
+      "enlaceOficial": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-13889",
+      "resumen": "Reforma el Reglamento General de Circulación y crea un nuevo Título VI con normas urbanas específicas. Para VMP fija edad mínima de 15 años, casco obligatorio, alumbrado y nuevas reglas de circulación. Para bicicletas refuerza las reglas de circulación urbana y el casco profesional.",
+      "articulos": [
+        {"numero":"118.3 RGC","titulo":"Casco obligatorio para VMP","texto":"Los conductores de VMP están obligados a utilizar adecuadamente abrochado casco de protección homologado o certificado. La obligación entra en el marco de la reforma con efectos desde el 1 de octubre de 2026."},
+        {"numero":"118.3 RGC — visibilidad","titulo":"Elementos luminosos o reflectantes en VMP","texto":"Los conductores de VMP que circulen entre el ocaso y la salida del sol o en condiciones meteorológicas o ambientales que disminuyan sensiblemente la visibilidad deberán utilizar al menos un elemento luminoso o reflectante visible a 150 metros."},
+        {"numero":"155.1 RGC","titulo":"Regulación municipal de VMP","texto":"La autoridad municipal regulará las vías y zonas por donde podrán circular los VMP, patines y monopatines y las condiciones de circulación dentro de sus competencias."},
+        {"numero":"155.2 RGC","titulo":"Reglas aplicables a VMP autorizados","texto":"En las vías donde el Ayuntamiento autorice la circulación de VMP, sus conductores se regirán por las reglas previstas para bicicletas en los apartados correspondientes del artículo 153, además de las reglas específicas del artículo 155."},
+        {"numero":"155.3 RGC","titulo":"Edad mínima de 15 años","texto":"No podrán conducir vehículos de movilidad personal los menores de quince años."},
+        {"numero":"155.4 RGC","titulo":"Señalización de maniobras con el brazo","texto":"Los conductores de VMP deberán utilizar siempre el brazo para advertir al resto de usuarios acerca de las maniobras que vayan a efectuar, conforme al artículo 109."},
+        {"numero":"155.5 RGC","titulo":"Alumbrado siempre encendido","texto":"Los VMP deberán llevar siempre encendido el alumbrado. La exigencia del alumbrado durante el día se aplicará a partir del 1 de octubre de 2027 por la disposición transitoria tercera."},
+        {"numero":"152.1 RGC","titulo":"Acera y coexistencia en zonas peatonales","texto":"Las aceras quedan reservadas a peatones y está prohibida en ellas la circulación de vehículos. En otras zonas peatonales, la autoridad municipal podrá autorizar mediante ordenanza la coexistencia de peatones con ciclistas y usuarios de VMP, siempre con prioridad peatonal."},
+        {"numero":"153.1 RGC","titulo":"Bicicletas: calzada y carril bici","texto":"En ausencia de carril o vía específica, las bicicletas circularán por la calzada. Si existe carril bici o vía específica, su uso será preferente y la autoridad competente podrá hacerlo obligatorio mediante la señal R-407a."},
+        {"numero":"153.2 RGC","titulo":"Bicicletas y aceras","texto":"Los ciclistas no podrán circular por las aceras, salvo la excepción municipal para menores de doce años prevista legalmente. En otras zonas peatonales podrá autorizarse su circulación con prioridad y seguridad para peatones."},
+        {"numero":"153.3 RGC","titulo":"Bicicletas: centro del carril","texto":"Los ciclistas circularán preferentemente por el centro del carril cuando su seguridad y la de los demás usuarios lo permitan."},
+        {"numero":"153.4 RGC","titulo":"Distancia de seguridad con bicicletas","texto":"Los conductores de vehículos a motor deberán dejar una separación mínima de cinco metros con los ciclistas que les precedan en el mismo carril y extremar las precauciones en los adelantamientos."},
+        {"numero":"154 RGC","titulo":"Transporte de personas y carga en bicicletas","texto":"Se regula el transporte de carga y pasajeros en bicicletas y ciclos. El conductor mayor de edad puede transportar carga y pasajeros cumpliendo los requisitos técnicos. Se contempla el transporte de menores de hasta 22 kg en asientos adicionales y el uso de remolques conforme a las especificaciones reglamentarias."},
+        {"numero":"85.4 RGC","titulo":"Adelantamiento de ciclistas y VMP","texto":"Al adelantar a ciclistas y VMP se debe guardar una anchura de seguridad mínima de 1,5 metros. Si hay más de un carril por sentido, es obligatorio el cambio completo de carril. Fuera de poblado, quien adelanta debe reducir la velocidad al menos 20 km/h respecto al límite de la vía."},
+        {"numero":"38.4 RGC — nueva redacción","titulo":"VMP fuera de poblado y vías segregadas","texto":"La reforma prohíbe circular con VMP por autopistas, autovías, travesías, vías interurbanas y túneles urbanos, salvo vías ciclistas, carriles bici, carriles bici protegidos, pistas bici, sendas ciclables y vías donde esté prohibida la circulación de vehículos de motor, siempre que no exista prohibición mediante señalización."},
+        {"numero":"Entrada en vigor","titulo":"1 de octubre de 2026 y transición del alumbrado","texto":"El Real Decreto 518/2026 entra en vigor el 1 de octubre de 2026. La obligación de alumbrado durante el día para VMP se exige desde el 1 de octubre de 2027."}
+      ]
+    },
+    {
+      "id": "epac-bicicleta-electrica",
+      "ambito": "Estatal / Unión Europea",
+      "ley": "Reglamento (UE) 168/2013 y normativa española de tráfico",
+      "abreviatura": "EPAC — bicicleta de pedales con pedaleo asistido",
+      "boe": "",
+      "entradaVigor": "vigente",
+      "estado": "vigente",
+      "enlaceOficial": "https://www.boe.es/buscar/act.php?id=BOE-A-2013-4144",
+      "resumen": "Una bicicleta eléctrica convencional de pedaleo asistido no es un VMP si cumple la definición EPAC. La diferencia es esencial para la actuación policial, especialmente en materia de autorización, seguro, registro y régimen sancionador.",
+      "articulos": [
+        {"numero":"Definición EPAC","titulo":"Bicicleta de pedales con pedaleo asistido","texto":"Bicicleta equipada con motor eléctrico auxiliar de potencia nominal continua máxima de 250 W, cuya potencia disminuye progresivamente y finalmente se interrumpe antes de alcanzar 25 km/h o cuando el ciclista deja de pedalear."},
+        {"numero":"Criterio policial","titulo":"Diferencia entre EPAC y VMP","texto":"Una bicicleta eléctrica que cumple íntegramente la definición EPAC no debe tratarse como VMP. Si incorpora acelerador independiente, asistencia que continúa sin pedalear, potencia superior a 250 W o características que la sitúan fuera de la definición EPAC, debe comprobarse su clasificación y posible inclusión en categorías de vehículos a motor del Reglamento (UE) 168/2013 o normativa aplicable."},
+        {"numero":"Control técnico","titulo":"Comprobaciones recomendadas","texto":"Ante una e-bike sospechosa, comprobar potencia nominal continua, forma de asistencia, velocidad de corte de la asistencia, existencia de acelerador independiente, placa o identificación, documentación técnica y modificaciones visibles. La clasificación jurídica no debe basarse únicamente en la apariencia exterior."}
+      ]
+    }
+  ]
+}
