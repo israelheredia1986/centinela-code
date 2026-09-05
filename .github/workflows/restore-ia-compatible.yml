@@ -1,0 +1,109 @@
+name: Restaurar motor IA compatible
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Restaurar ranking compatible y protocolo de fallback
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('ia.js')
+          s = p.read_text(encoding='utf-8')
+
+          new_rank = r'''  function rank(question, records) {
+    const original = tokens(question);
+    const meaningful = original.filter(token => !GENERIC.has(token) && !/^\\d+(\\.\\d+)?$/.test(token));
+    const phrase = normalize(question);
+    if (!meaningful.length) return [];
+
+    const ranked = records.map(record => {
+      const title = normalize(record.title);
+      const article = normalize(record.article);
+      const description = normalize(record.description);
+      const foundation = normalize(record.foundation);
+      const action = normalize(record.action);
+      const text = normalize(record.search);
+      let score = 0;
+      let strongHits = 0;
+      let totalHits = 0;
+      let specificHit = false;
+
+      for (const token of meaningful) {
+        let tokenStrong = false;
+        let tokenHit = false;
+        const forms = expandToken(token);
+        for (const form of forms) {
+          if (article === form) { score += 120; tokenStrong = true; tokenHit = true; specificHit = true; }
+          else if (article.includes(form)) { score += 55; tokenStrong = true; tokenHit = true; specificHit = true; }
+          if (title.includes(form)) { score += 65; tokenStrong = true; tokenHit = true; specificHit = true; }
+          if (description.includes(form)) { score += 34; tokenStrong = true; tokenHit = true; }
+          if (foundation.includes(form)) { score += 22; tokenStrong = true; tokenHit = true; }
+          if (action.includes(form)) { score += 22; tokenStrong = true; tokenHit = true; }
+          if (text.includes(form)) { score += 6; tokenHit = true; }
+        }
+        if (tokenHit) totalHits += 1;
+        if (tokenStrong) strongHits += 1;
+      }
+
+      if (phrase.length >= 12 && text.includes(phrase)) score += 160;
+      if (strongHits === 0 || totalHits === 0 || score < 28) return null;
+
+      // Una coincidencia temática fuerte basta para recuperar el comportamiento
+      // anterior, mientras se siguen excluyendo consultas sin materia jurídica.
+      if (meaningful.length >= 4 && strongHits === 1 && !specificHit) score *= 0.55;
+      const coverage = strongHits / Math.max(1, meaningful.length);
+      score += coverage * 35;
+      return { record, score, strongHits, totalHits };
+    }).filter(Boolean);
+
+    ranked.sort((a, b) => b.score - a.score || b.strongHits - a.strongHits || b.totalHits - a.totalHits);
+    return ranked.slice(0, 12).map(item => item.record);
+  }
+'''
+
+          pattern = re.compile(r'  function rank\(question, records\) \{.*?\n  \}\n\n  async function buildLocalContext', re.S)
+          s2, n = pattern.subn(new_rank + '\n  async function buildLocalContext', s, count=1)
+          if n != 1:
+              raise SystemExit('No se encontró exactamente la función rank actual')
+
+          s2 = s2.replace(
+              'if (!hits.length) return {context:"NO HAY COINCIDENCIAS NORMATIVAS SUFICIENTEMENTE RELEVANTES EN EL REPOSITORIO LOCAL. No inventar una norma a partir de palabras aisladas.",hits:[]};',
+              'if (!hits.length) return {context:"No se ha encontrado una coincidencia suficiente en el repositorio normativo local.",hits:[]};'
+          )
+          p.write_text(s2, encoding='utf-8')
+          PY
+
+      - name: Validar sintaxis
+        run: node --check ia.js
+
+      - name: Comprobar cambio
+        run: |
+          grep -q 'Una coincidencia temática fuerte basta' ia.js
+          grep -q 'No se ha encontrado una coincidencia suficiente' ia.js
+
+      - name: Commit y eliminar workflow temporal
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/restore-ia-compatible.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ia.js .github/workflows/restore-ia-compatible.yml
+          git commit -m 'Restaura comportamiento compatible del motor IA' || exit 0
+          git push
