@@ -1,0 +1,4 @@
+project_id = "okuygqbaliaeavhyezri"
+
+[functions.centinela-ia]
+verify_jwt = true

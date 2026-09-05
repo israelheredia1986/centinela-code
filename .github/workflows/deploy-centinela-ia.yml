@@ -5,17 +5,31 @@ on:
   push:
     paths:
       - 'supabase/functions/centinela-ia/**'
+      - 'supabase/config.toml'
       - '.github/workflows/deploy-centinela-ia.yml'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
+      - name: Instalar Deno
+        uses: denoland/setup-deno@v2
+
+      - name: Validar Edge Function
+        run: deno check supabase/functions/centinela-ia/index.ts
+
       - name: Instalar Supabase CLI
         uses: supabase/setup-cli@v1
+
+      - name: Comprobar configuración
+        run: |
+          test -f supabase/config.toml
+          grep -q 'verify_jwt = true' supabase/config.toml
 
       - name: Desplegar Edge Function centinela-ia
         env:
