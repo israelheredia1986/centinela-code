@@ -5,7 +5,7 @@
 const CACHE_NAME="centinela-code-v43-ia-hardening";
 const ARCHIVOS=[
   "./","./index.html","./style.css","./style-modern.css","./style-modern-v2.css","./style-modern-v3.css","./style-neon.css",
-  "./visual-enhancements.js?v=20260904-search-v2","./app.js","./ia.js?v=20260905-ia-client-v2","./matriculas.js",
+  "./visual-enhancements.js?v=20260904-search-v2","./app.js","./ia.js","./ia.js?v=20260905-ia-client-v2","./matriculas.js",
   "./buscadores.js?v=20260904-constitucion-v9","./buscador-pro.js?v=20260904-search-v5","./bloque1-juridico.js?v=20260904-bloque1-v1","./constitucion-completa.js?v=20260904-constitucion-v4","./constitucion-tab-fix.js?v=20260904-constitucion-tab-fix-v2","./manifest.json",
   "./data/lopsc.json","./data/infracciones.json","./data/contrabando.json","./data/infracciones_trafico.json","./data/infracciones_vmp_bicicletas.json","./data/ordenanzas.json","./data/codigo_penal.json",
   "./data/normativa_menores.json","./data/normativa_violencia_genero.json","./data/normativa_animales.json","./data/normativa_trafico.json","./data/normativa_vmp_bicicletas.json",
