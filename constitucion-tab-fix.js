@@ -106,6 +106,110 @@
     document.getElementById(CARD_ID)?.focus();
   }
 
+  /* ============================================================
+     REPARACIÓN DE LA CONSTITUCIÓN
+     El módulo original puede quedar sin datos cuando falla el
+     parseo. Esta capa mantiene la interfaz intacta y recupera los
+     169 artículos, búsqueda, Mostrar/Ocultar todo y botón BOE.
+     ============================================================ */
+  const REPAIR_API='https://api.github.com/repos/legalize-dev/legalize-es/contents/es/BOE-A-1978-31229.md';
+  const REPAIR_RAW='https://raw.githubusercontent.com/legalize-dev/legalize-es/main/es/BOE-A-1978-31229.md';
+  const REPAIR_CACHE='centinela-constitucion-repair-v2026-09-05';
+  let repairState={data:null,query:'',allOpen:false,bound:false};
+
+  const repairEsc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  const repairNorm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+
+  function repairParseMarkdown(md){
+    const lines=String(md||'').replace(/^\uFEFF/,'').replace(/\r/g,'').split('\n');
+    const idx=[];
+    for(let i=0;i<lines.length;i++){
+      const m=lines[i].trim().match(/^#{2,6}\s*Art[ií]culo\s+(\d+)\b/i);
+      if(m)idx.push({line:i,num:Number(m[1])});
+    }
+    const articles=[];
+    for(let i=0;i<idx.length;i++){
+      let end=i+1<idx.length?idx[i+1].line:lines.length;
+      let block=lines.slice(idx[i].line+1,end);
+      while(block.length&&!block[0].trim())block.shift();
+      while(block.length&&!block[block.length-1].trim())block.pop();
+      block=block.map(x=>x.replace(/^>\s*<small>/i,'').replace(/<\/small>$/i,'').replace(/^>\s*/,'').trimEnd());
+      articles.push({numero:idx[i].num,titulo:'Artículo '+idx[i].num,texto:block.join('\n').trim()});
+    }
+    return {articulos:articles,totalArticulos:articles.length};
+  }
+
+  async function repairFetchMarkdown(){
+    try{
+      const r=await fetch(REPAIR_API,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});
+      if(r.ok){
+        const j=await r.json();
+        if(j.content){
+          const bin=atob(String(j.content).replace(/\s/g,''));
+          const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
+          return new TextDecoder('utf-8').decode(bytes);
+        }
+      }
+    }catch(e){}
+    const r=await fetch(REPAIR_RAW+'?v=20260905-repair',{cache:'no-store'});
+    if(!r.ok)throw new Error('No se pudo cargar el texto constitucional');
+    return r.text();
+  }
+
+  function repairRender(){
+    const root=document.getElementById(PANEL_ID);
+    if(!root||!repairState.data)return;
+    const q=repairNorm(repairState.query);
+    const arts=repairState.data.articulos.filter(a=>!q||repairNorm(`articulo ${a.numero} ${a.texto}`).includes(q));
+    const results=root.querySelector('.ce-results');
+    if(results){
+      results.innerHTML=arts.length?arts.map(a=>`<details class="ce-article" ${repairState.allOpen?'open':''}><summary class="ce-summary"><span class="ce-art-no">ART. ${repairEsc(a.numero)}</span><span class="ce-art-title">${repairEsc(a.titulo)}</span><span class="ce-chevron">›</span></summary><div class="ce-body"><div class="ce-body-text">${repairEsc(a.texto)}</div><div class="ce-source-note">Texto consolidado de consulta. Ver fuente oficial BOE para efectos jurídicos.</div></div></details>`).join(''):`<div class="ce-empty">No hay artículos que coincidan con «${repairEsc(repairState.query)}».</div>`;
+    }
+    const count=root.querySelector('.ce-count'); if(count)count.textContent=String(arts.length);
+    const total=root.querySelector('.ce-total'); if(total)total.textContent=String(repairState.data.totalArticulos);
+    const status=root.querySelector('.ce-status'); if(status)status.textContent=repairState.data.totalArticulos>=169?'169 artículos cargados correctamente':'Datos constitucionales cargados';
+    const ql=root.querySelector('.ce-query'); if(ql)ql.textContent=repairState.query?` · búsqueda: ${repairEsc(repairState.query)}`:'';
+    const btn=root.querySelector('.ce-clear'); if(btn)btn.textContent=repairState.allOpen?'Ocultar todo':'Mostrar todo';
+  }
+
+  function repairBind(){
+    const root=document.getElementById(PANEL_ID);
+    if(!root||repairState.bound)return false;
+    const search=root.querySelector('.ce-search');
+    const all=root.querySelector('.ce-clear');
+    const boe=root.querySelector('.ce-open-boe');
+    if(search)search.addEventListener('input',e=>{repairState.query=e.target.value.trim();repairState.allOpen=false;repairRender();});
+    if(all)all.addEventListener('click',()=>{repairState.allOpen=!repairState.allOpen;repairRender();});
+    if(boe)boe.addEventListener('click',()=>window.open('https://www.boe.es/buscar/act.php?id=BOE-A-1978-31229','_blank','noopener'));
+    repairState.bound=true;
+    return true;
+  }
+
+  async function repairLoad(){
+    const root=document.getElementById(PANEL_ID);
+    if(!root)return setTimeout(repairLoad,350);
+    repairBind();
+    try{
+      const cached=localStorage.getItem(REPAIR_CACHE);
+      if(cached){
+        const d=JSON.parse(cached);
+        if(d?.articulos?.length>=169){repairState.data=d;repairRender();}
+      }
+    }catch(e){}
+    if(repairState.data?.totalArticulos>=169)return;
+    try{
+      const d=repairParseMarkdown(await repairFetchMarkdown());
+      if(d.articulos.length<169)throw new Error('Se detectaron '+d.articulos.length+' artículos');
+      repairState.data=d;
+      try{localStorage.setItem(REPAIR_CACHE,JSON.stringify(d));}catch(e){}
+      repairRender();
+    }catch(e){
+      const status=root.querySelector('.ce-status');
+      if(status)status.textContent='No se pudo cargar la Constitución. Reintentando…';
+      setTimeout(repairLoad,2000);
+    }
+  }
+
   function boot(){
     installStyles();
     removeOld();
@@ -116,6 +220,7 @@
     observer.observe(document.body,{childList:true,subtree:true});
     setTimeout(addCard,500);
     setTimeout(addCard,1500);
+    setTimeout(repairLoad,700);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
