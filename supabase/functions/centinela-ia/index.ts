@@ -77,11 +77,10 @@ function corsHeaders(origin: string | null): Headers {
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Vary": "Origin",
-    "Cache-Control": "no-store"
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff"
   });
-  if (origin && ALLOWED_ORIGINS.has(origin)) {
-    headers.set("Access-Control-Allow-Origin", origin);
-  }
+  if (origin && ALLOWED_ORIGINS.has(origin)) headers.set("Access-Control-Allow-Origin", origin);
   return headers;
 }
 
@@ -161,33 +160,21 @@ async function callGemini(apiKey: string, prompt: string, useSearch: boolean) {
     }
   };
 
-  if (useSearch) {
-    body.tools = [{ googleSearch: {} }];
-  }
+  if (useSearch) body.tools = [{ googleSearch: {} }];
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 40_000);
   try {
     const response = await fetch(GEMINI_URL, {
       method: "POST",
-      headers: {
-        "x-goog-api-key": apiKey,
-        "Content-Type": "application/json"
-      },
+      headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
       body: JSON.stringify(body),
       signal: controller.signal
     });
-
     const raw = await response.text();
     let data: any;
     try { data = JSON.parse(raw); } catch (_) { data = { raw }; }
-    return {
-      ok: response.ok,
-      status: response.status,
-      data,
-      text: extractText(data),
-      grounding: extractGrounding(data)
-    };
+    return { ok: response.ok, status: response.status, data, text: extractText(data), grounding: extractGrounding(data) };
   } finally {
     clearTimeout(timer);
   }
@@ -200,56 +187,52 @@ function validInput(value: unknown, max: number): string {
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
 
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders(origin) });
-  }
-
-  if (req.method !== "POST") {
-    return jsonResponse({ ok: false, error: "Método no permitido." }, 405, origin);
-  }
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  if (req.method !== "POST") return jsonResponse({ ok: false, error: "Método no permitido." }, 405, origin);
 
   const authorization = req.headers.get("authorization");
   const userId = decodeJwtSubject(authorization);
-  if (!userId) {
-    return jsonResponse({ ok: false, error: "No autenticado. Inicia sesión para utilizar Centinela IA." }, 401, origin);
-  }
+  if (!userId) return jsonResponse({ ok: false, error: "No autenticado. Inicia sesión para utilizar Centinela IA." }, 401, origin);
 
   if (isRateLimited(`user:${userId}`)) {
     return jsonResponse({ ok: false, error: "Has alcanzado temporalmente el límite de consultas. Espera un momento e inténtalo de nuevo." }, 429, origin);
   }
 
   const apiKey = Deno.env.get("GEMINI_API_KEY");
-  if (!apiKey) {
-    return jsonResponse({ ok: false, error: "Falta el secreto GEMINI_API_KEY en Supabase." }, 500, origin);
-  }
+  if (!apiKey) return jsonResponse({ ok: false, error: "Falta el secreto GEMINI_API_KEY en Supabase." }, 500, origin);
 
   let body: any;
-  try {
-    body = await req.json();
-  } catch (_) {
-    return jsonResponse({ ok: false, error: "El JSON enviado a CENTINELA no es válido." }, 400, origin);
-  }
+  try { body = await req.json(); }
+  catch (_) { return jsonResponse({ ok: false, error: "El JSON enviado a CENTINELA no es válido." }, 400, origin); }
 
   const pregunta = validInput(body?.pregunta, 8_000);
   const modo = validInput(body?.modo || "web_first", 64);
   const contexto = validInput(body?.contexto, 50_000);
   const webContext = validInput(body?.web_context, 50_000);
 
-  if (!pregunta) {
-    return jsonResponse({ ok: false, error: "Falta la pregunta." }, 400, origin);
-  }
+  if (!pregunta) return jsonResponse({ ok: false, error: "Falta la pregunta." }, 400, origin);
 
   try {
     if (modo === "web_first") {
-      const prompt = `${POLICE_RULES}\n\nFASE INTERNET FIRST\n\nRealiza la consulta utilizando la herramienta de Búsqueda de Google habilitada.\nPrioriza resultados oficiales y vigentes. No uses memoria como sustituto de la búsqueda.\nSi los resultados no permiten responder con seguridad, indícalo expresamente.\n\nCONSULTA DEL AGENTE:\n${pregunta}\n${webContext ? `\nCONTEXTO WEB ADICIONAL:\n${webContext}` : ""}`;
+      const prompt = `${POLICE_RULES}\n\nFASE INTERNET FIRST\n\nRealiza la consulta utilizando la herramienta de Búsqueda de Google habilitada.\nPrioriza resultados oficiales y vigentes. No uses memoria como sustituto de la búsqueda.\nSolo considera esta fase válida si la respuesta queda realmente fundamentada en fuentes web.\nSi no hay fuentes recuperadas o los resultados no permiten responder con seguridad, indícalo.\n\nCONSULTA DEL AGENTE:\n${pregunta}\n${webContext ? `\nCONTEXTO WEB ADICIONAL:\n${webContext}` : ""}`;
       const result = await callGemini(apiKey, prompt, true);
       if (!result.ok) {
         return jsonResponse({ ok: false, mode: "web_first", web_found: false, error: result.data?.error?.message || "Error consultando Gemini con Búsqueda de Google.", status: result.status }, 502, origin);
       }
 
       const text = cleanText(result.text);
-      if (!text) {
-        return jsonResponse({ ok: true, mode: "web_first", web_found: false, repository_required: true, text: "", sources: result.grounding.sources, search_queries: result.grounding.queries, reason: "La búsqueda web no produjo una respuesta utilizable." }, 200, origin);
+      const grounded = result.grounding.sources.length > 0;
+      if (!text || !grounded) {
+        return jsonResponse({
+          ok: true,
+          mode: "web_first",
+          web_found: false,
+          repository_required: true,
+          text: "",
+          sources: result.grounding.sources,
+          search_queries: result.grounding.queries,
+          reason: grounded ? "La búsqueda web no produjo una respuesta utilizable." : "La respuesta no quedó fundamentada con fuentes web recuperadas."
+        }, 200, origin);
       }
 
       return jsonResponse({ ok: true, mode: "web_first", web_found: true, repository_required: false, text, sources: result.grounding.sources, search_queries: result.grounding.queries }, 200, origin);
