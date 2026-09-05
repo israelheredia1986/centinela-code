@@ -5,37 +5,41 @@
   let ordinanceData=null, arranging=false;
   const norm=s=>String(s??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
   const groups=[
-    ['SEGURIDAD CIUDADANA',['lopsc','ley organica 4/2015']],
-    ['TRÁFICO Y MOVILIDAD',['trafico','vmp','bicicleta','circulacion']],
-    ['VIOLENCIA DE GÉNERO',['violencia de genero','violencia género']],
-    ['MENORES',['menores','menor']],
-    ['DERECHO PENAL',['codigo penal','código penal']],
-    ['PROCEDIMIENTO POLICIAL',['lecrim','ley de enjuiciamiento criminal','2/1986']],
-    ['EXTRANJERÍA',['extranjeria','extranjería']],
-    ['SEGURIDAD PRIVADA',['seguridad privada']],
-    ['ESPECTÁCULOS Y ACTIVIDADES',['espectaculos','espectáculos','155/2018']],
-    ['ANIMALES',['animales']],
-    ['ARMAS',['reglamento de armas','armas']],
-    ['MEDIO AMBIENTE Y RUIDOS',['medio ambiente','ruidos']],
-    ['ADMINISTRACIÓN Y RÉGIMEN LOCAL',['39/2015','7/1985','5/2010','policias locales','policías locales']],
-    ['OTRA NORMATIVA',[]],
-    ['ORDENANZAS DE SAN ROQUE',[]]
+    ['SEGURIDAD CIUDADANA','🛡️',['lopsc','ley organica 4/2015']],
+    ['TRÁFICO Y MOVILIDAD','🚗',['trafico','vmp','bicicleta','circulacion']],
+    ['VIOLENCIA DE GÉNERO','💜',['violencia de genero','violencia género']],
+    ['MENORES','👨‍👩‍👧',['menores','menor']],
+    ['DERECHO PENAL','⚖️',['codigo penal','código penal']],
+    ['PROCEDIMIENTO POLICIAL','📋',['lecrim','ley de enjuiciamiento criminal','2/1986']],
+    ['EXTRANJERÍA','🌍',['extranjeria','extranjería']],
+    ['SEGURIDAD PRIVADA','🔐',['seguridad privada']],
+    ['ESPECTÁCULOS Y ACTIVIDADES','🎪',['espectaculos','espectáculos','155/2018']],
+    ['ANIMALES','🐾',['animales']],
+    ['ARMAS','🔫',['reglamento de armas','armas']],
+    ['MEDIO AMBIENTE Y RUIDOS','🌿',['medio ambiente','ruidos']],
+    ['ADMINISTRACIÓN Y RÉGIMEN LOCAL','🏛️',['39/2015','7/1985','5/2010','policias locales','policías locales']],
+    ['OTRA NORMATIVA','📚',[]],
+    ['ORDENANZAS DE SAN ROQUE','📍',[]]
   ];
-  const categoryOf=name=>{const n=norm(name);for(let i=0;i<groups.length-2;i++)if(groups[i][1].some(k=>n.includes(k)))return i;return groups.length-2;};
+  const categoryOf=name=>{const n=norm(name);for(let i=0;i<groups.length-2;i++)if(groups[i][2].some(k=>n.includes(k)))return i;return groups.length-2;};
   function list(){return document.getElementById('normativaList')||document.querySelector('#section-normativa .normativa-list');}
-  function addStyles(){if(document.getElementById('cc-normativa-estructura-style'))return;const s=document.createElement('style');s.id='cc-normativa-estructura-style';s.textContent=`#section-normativa .normativa-list{display:block!important;padding-bottom:28px!important}.cc-norm-group{display:flex;align-items:center;gap:9px;margin:18px 3px 9px;padding:0 3px;color:#dff5ff;font-size:10px;font-weight:900;letter-spacing:.8px;text-transform:uppercase}.cc-norm-group:first-child{margin-top:4px}.cc-norm-group:before{content:"";width:4px;height:18px;border-radius:4px;background:#31b9ff;box-shadow:0 0 10px rgba(49,185,255,.65)}.cc-norm-group:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba(49,185,255,.35),transparent)}.cc-norm-group span{white-space:nowrap}.cc-norm-group small{color:#7190a3;font-size:8px;font-weight:700;letter-spacing:0}.cc-norm-ordinanzas{margin-top:30px!important}.cc-norm-ordinanzas:before{background:#ffd34a;box-shadow:0 0 10px rgba(255,211,74,.55)}.cc-law-card{margin-bottom:10px!important;min-height:94px!important;display:grid!important;grid-template-columns:38px minmax(0,1fr) 48px!important;align-items:center!important;gap:8px!important;padding:12px!important;border-radius:16px!important}.cc-law-card .normativa-icon{font-size:25px!important}.cc-law-card .normativa-info h3{font-size:12px!important;line-height:1.2!important}.cc-law-card .normativa-info p{font-size:8px!important}.cc-law-card .normativa-open{font-size:9px!important}.cc-law-card.cc-ordenanza{border-color:rgba(255,211,74,.28)!important}.cc-law-card.cc-ordenanza .normativa-icon{filter:drop-shadow(0 0 7px rgba(255,211,74,.3))}`;document.head.appendChild(s);}
-  async function loadOrdinances(api){
-    try{if(!ordinanceData){const r=await fetch(ORDENANZAS+'?v=20260905-ordenanzas-2',{cache:'no-store'});if(!r.ok)throw Error(r.status);ordinanceData=await r.json();}const laws=api.laws();(ordinanceData.ordenanzas||[]).forEach(o=>{const name='Ordenanza San Roque — '+(o.nombre_corto||o.nombre||o.id);if(!laws.some(l=>norm(l.name)===norm(name)))laws.push({name,abbr:o.codigo||'Ordenanza municipal',source:'ordenanzas.json · San Roque',boe:'',url:o?.fuente?.url||'',articles:Array.isArray(o.articulos)?o.articulos:[],sources:new Set(['ordenanzas.json · San Roque']),raw:o});});}catch(e){console.warn('Centinela: no se pudieron cargar las ordenanzas',e);}
-  }
+  function addStyles(){if(document.getElementById('cc-normativa-estructura-style'))return;const s=document.createElement('style');s.id='cc-normativa-estructura-style';s.textContent=`#section-normativa .normativa-list{display:block!important;padding-bottom:28px!important}.cc-norm-group{display:flex;align-items:center;gap:9px;margin:18px 3px 9px;padding:0 5px;color:#dff5ff;font-size:10px;font-weight:900;letter-spacing:.8px;text-transform:uppercase}.cc-norm-group:first-child{margin-top:4px}.cc-norm-group .cc-group-icon{font-size:18px;line-height:1;flex:0 0 25px;text-align:center}.cc-norm-group:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba(49,185,255,.35),transparent)}.cc-norm-group span.cc-group-title{white-space:nowrap}.cc-norm-ordinanzas{margin-top:30px!important}.cc-norm-ordinanzas:after{background:linear-gradient(90deg,rgba(255,211,74,.38),transparent)}.cc-law-card{margin-bottom:10px!important;min-height:94px!important;display:grid!important;grid-template-columns:38px minmax(0,1fr) 48px!important;align-items:center!important;gap:8px!important;padding:12px!important;border-radius:16px!important}.cc-law-card .normativa-icon{font-size:25px!important}.cc-law-card .normativa-info h3{font-size:12px!important;line-height:1.2!important}.cc-law-card .normativa-info p{font-size:8px!important}.cc-law-card .normativa-open{font-size:9px!important}.cc-law-card.cc-ordenanza{border-color:rgba(255,211,74,.28)!important}.cc-law-card.cc-ordenanza .normativa-icon{filter:drop-shadow(0 0 7px rgba(255,211,74,.3))}`;document.head.appendChild(s);}
+  async function loadOrdinances(api){try{if(!ordinanceData){const r=await fetch(ORDENANZAS+'?v=20260905-ordenanzas-3',{cache:'no-store'});if(!r.ok)throw Error(r.status);ordinanceData=await r.json();}const laws=api.laws();(ordinanceData.ordenanzas||[]).forEach(o=>{const name='Ordenanza San Roque — '+(o.nombre_corto||o.nombre||o.id);if(!laws.some(l=>norm(l.name)===norm(name)))laws.push({name,abbr:o.codigo||'Ordenanza municipal',source:'ordenanzas.json · San Roque',boe:'',url:o?.fuente?.url||'',articles:Array.isArray(o.articulos)?o.articulos:[],sources:new Set(['ordenanzas.json · San Roque']),raw:o});});}catch(e){console.warn('Centinela: no se pudieron cargar las ordenanzas',e);}}
   function arrange(){
     if(arranging)return;const l=list();if(!l)return;const cards=[...l.querySelectorAll('.cc-law-card')];if(!cards.length)return;arranging=true;
     const constitution=document.getElementById('centinela-normativa-constitucion-card'),buckets=Array.from({length:groups.length},()=>[]);
     cards.forEach(c=>{const name=c.dataset.law||c.querySelector('h3')?.textContent||'';const i=name.startsWith('Ordenanza San Roque')?groups.length-1:categoryOf(name);if(i===groups.length-1)c.classList.add('cc-ordenanza');buckets[i].push(c);});
     const frag=document.createDocumentFragment();if(constitution)frag.appendChild(constitution);
-    buckets.forEach((bucket,i)=>{if(!bucket.length)return;const h=document.createElement('div');h.className='cc-norm-group'+(i===groups.length-1?' cc-norm-ordinanzas':'');h.innerHTML='<span>'+groups[i][0]+'</span><small>'+bucket.length+'</small>';frag.appendChild(h);bucket.sort((a,b)=>(a.querySelector('h3')?.textContent||'').localeCompare(b.querySelector('h3')?.textContent||'','es'));bucket.forEach(c=>frag.appendChild(c));});
-    l.replaceChildren(frag);requestAnimationFrame(()=>{arranging=false;});
+    buckets.forEach((bucket,i)=>{if(!bucket.length)return;const h=document.createElement('div');h.className='cc-norm-group'+(i===groups.length-1?' cc-norm-ordinanzas':'');h.innerHTML='<span class="cc-group-icon">'+groups[i][1]+'</span><span class="cc-group-title">'+groups[i][0]+'</span>';frag.appendChild(h);bucket.sort((a,b)=>(a.querySelector('h3')?.textContent||'').localeCompare(b.querySelector('h3')?.textContent||'','es'));bucket.forEach(c=>frag.appendChild(c));});
+    // Se reemplaza una sola vez y el script ya no observa el DOM: evita el bucle que provocaba el parpadeo.
+    l.replaceChildren(frag);arranging=false;
   }
-  function repaint(){const s=document.getElementById('normativaSearch');if(s)s.dispatchEvent(new Event('input',{bubbles:true}));else arrange();}
-  async function boot(){addStyles();const api=window.__centinelaNormativaUnificada;if(!api)return setTimeout(boot,250);await loadOrdinances(api);if(!api.__centinelaEstructuraPatched){const original=api.reload;api.reload=async function(){const r=await original();await loadOrdinances(api);repaint();return r;};api.__centinelaEstructuraPatched=true;}const target=list()||document.getElementById('section-normativa');const observer=new MutationObserver(()=>{if(!arranging)requestAnimationFrame(arrange);});if(target)observer.observe(target,{childList:true,subtree:true});repaint();setTimeout(arrange,200);setTimeout(arrange,800);}
+  function repaint(){setTimeout(arrange,30);}
+  async function boot(){
+    addStyles();const api=window.__centinelaNormativaUnificada;if(!api)return setTimeout(boot,250);await loadOrdinances(api);
+    if(!api.__centinelaEstructuraPatched){const original=api.reload;api.reload=async function(){const r=await original();await loadOrdinances(api);repaint();return r;};api.__centinelaEstructuraPatched=true;}
+    const search=document.getElementById('normativaSearch');if(search&&!search.__ccStructureBound){search.addEventListener('input',repaint);search.__ccStructureBound=true;}
+    repaint();setTimeout(arrange,400);
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
