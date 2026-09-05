@@ -28,7 +28,7 @@ jobs:
 
           new_rank = r'''  function rank(question, records) {
     const original = tokens(question);
-    const meaningful = original.filter(token => !GENERIC.has(token) && !/^\\d+(\\.\\d+)?$/.test(token));
+    const meaningful = original.filter(token => !GENERIC.has(token) && !/^\d+(\.\d+)?$/.test(token));
     const phrase = normalize(question);
     if (!meaningful.length) return [];
 
