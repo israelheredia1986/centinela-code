@@ -24,6 +24,7 @@
       await cargar(`${base}buscador-local-only.js?v=20260904v2`);
       await cargar(`${base}buscador-consecuencias.js?v=20260904v5`);
       await cargar(`${base}buscador-consecuencias-ui.js?v=20260904v3`);
+      await cargar(`${base}trafico-sanciones-codificados.js?v=20260905v1`);
     }catch(e){console.error("Centinela Code — sistema de búsqueda:",e);}
     try{
       await cargar(`${base}constitucion-completa.js?v=20260904-constitucion-v3`);
