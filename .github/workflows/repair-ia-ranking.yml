@@ -1,0 +1,55 @@
+name: Ajustar relevancia IA
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evitar bucle de commits automáticos
+        if: github.actor == 'github-actions[bot]'
+        run: exit 0
+
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Relajar ranking sin perder filtro temático
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('ia.js')
+          s = p.read_text(encoding='utf-8')
+          old1 = '      if (strongHits === 1 && meaningful.length >= 3) return null;\n'
+          old2 = '      if (strongHits < Math.min(2, meaningful.length) && meaningful.length >= 4) return null;\n'
+          if old1 not in s or old2 not in s:
+              raise SystemExit('No se encontraron las dos restricciones de relevancia esperadas')
+          s = s.replace(old1, '').replace(old2, '')
+          marker = '      if (strongHits === 0 || totalHits === 0 || score < 28) return null;\n'
+          if marker not in s:
+              marker = '      if (meaningful.length >= 2 && strongHits === 0) return null;\n'
+          if marker not in s:
+              raise SystemExit('No se encontró el filtro mínimo de relevancia')
+          p.write_text(s, encoding='utf-8')
+          print('Ranking IA restaurado a modo compatible: una coincidencia temática fuerte puede activar el contexto.')
+          PY
+
+      - name: Validar sintaxis JavaScript
+        run: node --check ia.js
+
+      - name: Commit y retirar workflow temporal
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/repair-ia-ranking.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ia.js .github/workflows/repair-ia-ranking.yml
+          git commit -m 'Restaura relevancia compatible del motor IA' || exit 0
+          git push
