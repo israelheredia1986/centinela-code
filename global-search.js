@@ -2,44 +2,14 @@
 (function(){
   "use strict";
   document.querySelectorAll('.cc-global-search,#centinela-global-search-ui').forEach(el=>el.remove());
-
-  function loadScript(id,src){
-    if(document.getElementById(id)) return;
-    const script=document.createElement('script');
-    script.id=id; script.src=src; script.async=true;
-    document.body.appendChild(script);
-  }
-
-  // Apoyo operativo visible. Los apuntes SPPL ya NO se muestran como pestaña.
+  function loadScript(id,src){if(document.getElementById(id)) return;const script=document.createElement('script');script.id=id;script.src=src;script.async=true;document.body.appendChild(script);}
   loadScript('centinelaActuacionesOperativasScript','./actuaciones-operativas.js?v=20260905f');
-  // Contexto jurídico integral para la IA, invisible para el usuario.
-  loadScript('centinelaIAContextoIntegralScript','./ia-contexto-integral.js?v=20260905f');
-
-  // Evita que los módulos antiguos de Normativa vuelvan a pintar duplicados mientras
-  // se carga el catálogo unificado.
+  loadScript('centinelaIAContextoIntegralScript','./ia-context-integral.js?v=20260905f');
   const normSection=document.getElementById('section-normativa');
-  if(normSection&&!document.getElementById('ccNormativaLawPanel')){
-    const p=document.createElement('div');
-    p.id='ccNormativaLawPanel';
-    p.style.display='none';
-    normSection.appendChild(p);
-  }
-  // Normativa: una sola ficha por ley, fusionando fuentes repetidas y mostrando todo el articulado disponible.
+  if(normSection&&!document.getElementById('ccNormativaLawPanel')){const p=document.createElement('div');p.id='ccNormativaLawPanel';p.style.display='none';normSection.appendChild(p);}
   loadScript('centinelaNormativaUnificadaScript','./normativa-unificada.js?v=20260905f');
-  // Compatibilidad con el buscador del app.js antiguo.
   loadScript('centinelaNormativaCompatScript','./normativa-compat.js?v=20260905f');
-  // Para leyes cuyo corpus local sea parcial, ofrece dentro de la ficha el texto consolidado oficial.
   loadScript('centinelaNormativaOficialScript','./normativa-oficial.js?v=20260905g');
-
-  const st=document.createElement('style');
-  st.id='cc-dashboard-three-actions-final';
-  st.textContent=`
-    #section-home .quick-actions{grid-template-columns:repeat(3,minmax(0,1fr)) !important;display:grid !important;width:100% !important;gap:12px !important;padding:0 !important;}
-    #section-home .quick-actions .quick-action{display:flex !important;width:100% !important;min-width:0 !important;}
-    #section-home .quick-actions #ccOperQuickAction{display:flex !important;visibility:visible !important;}
-    #section-home .quick-actions .quick-action[data-cc-search-hidden="true"]:not(#ccOperQuickAction){display:none !important;}
-    @media(max-width:700px){#section-home .quick-actions{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:9px !important;}}
-    @media(max-width:560px){#section-home .quick-actions{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}
-  `;
-  document.head.appendChild(st);
+  loadScript('centinelaEspectaculosFusionScript','./normativa-espectaculos-fusion.js?v=20260905a');
+  const st=document.createElement('style');st.id='cc-dashboard-three-actions-final';st.textContent=`#section-home .quick-actions{grid-template-columns:repeat(3,minmax(0,1fr)) !important;display:grid !important;width:100% !important;gap:12px !important;padding:0 !important;}#section-home .quick-actions .quick-action{display:flex !important;width:100% !important;min-width:0 !important;}#section-home .quick-actions #ccOperQuickAction{display:flex !important;visibility:visible !important;}#section-home .quick-actions .quick-action[data-cc-search-hidden="true"]:not(#ccOperQuickAction){display:none !important;}@media(max-width:700px){#section-home .quick-actions{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:9px !important;}}@media(max-width:560px){#section-home .quick-actions{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}`;document.head.appendChild(st);
 })();
