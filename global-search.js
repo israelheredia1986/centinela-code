@@ -1,4 +1,4 @@
-/* CENTINELA CODE — compatibilidad + carga de módulos operativos. */
+/* CENTINELA CODE — carga de módulos operativos y refresco de versión. */
 (function(){
   "use strict";
   document.querySelectorAll('.cc-global-search,#centinela-global-search-ui').forEach(el=>el.remove());
@@ -10,11 +10,9 @@
     document.body.appendChild(script);
   }
 
-  loadScript('centinelaActuacionesOperativasScript','./actuaciones-operativas.js?v=20260905');
-  loadScript('centinelaApuntesLargosScript','./apuntes-largos.js?v=20260905');
+  loadScript('centinelaActuacionesOperativasScript','./actuaciones-operativas.js?v=20260905c');
+  loadScript('centinelaApuntesLargosScript','./apuntes-largos.js?v=20260905c');
 
-  /* El antiguo visual-enhancements forzaba 2 columnas y ocultaba la tarjeta azul.
-     Estas reglas finales mantienen las tres tarjetas del dashboard. */
   const st=document.createElement('style');
   st.id='cc-dashboard-three-actions-final';
   st.textContent=`
