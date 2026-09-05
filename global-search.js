@@ -1,4 +1,4 @@
-/* CENTINELA CODE — carga de módulos operativos + memoria jurídica IA. */
+/* CENTINELA CODE — carga de módulos operativos + memoria jurídica IA + normativa unificada. */
 (function(){
   "use strict";
   document.querySelectorAll('.cc-global-search,#centinela-global-search-ui').forEach(el=>el.remove());
@@ -11,9 +11,11 @@
   }
 
   // Apoyo operativo visible. Los apuntes SPPL ya NO se muestran como pestaña.
-  loadScript('centinelaActuacionesOperativasScript','./actuaciones-operativas.js?v=20260905e');
+  loadScript('centinelaActuacionesOperativasScript','./actuaciones-operativas.js?v=20260905f');
   // Contexto jurídico integral para la IA, invisible para el usuario.
-  loadScript('centinelaIAContextoIntegralScript','./ia-context-integral.js?v=20260905e');
+  loadScript('centinelaIAContextoIntegralScript','./ia-context-integral.js?v=20260905f');
+  // Normativa: una sola ficha por ley, fusionando fuentes repetidas y mostrando todo el articulado disponible.
+  loadScript('centinelaNormativaUnificadaScript','./normativa-unificada.js?v=20260905f');
 
   const st=document.createElement('style');
   st.id='cc-dashboard-three-actions-final';
