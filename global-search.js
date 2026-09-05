@@ -14,6 +14,16 @@
   loadScript('centinelaActuacionesOperativasScript','./actuaciones-operativas.js?v=20260905f');
   // Contexto jurídico integral para la IA, invisible para el usuario.
   loadScript('centinelaIAContextoIntegralScript','./ia-context-integral.js?v=20260905f');
+
+  // Evita que los módulos antiguos de Normativa vuelvan a pintar duplicados mientras
+  // se carga el catálogo unificado.
+  const normSection=document.getElementById('section-normativa');
+  if(normSection&&!document.getElementById('ccNormativaLawPanel')){
+    const p=document.createElement('div');
+    p.id='ccNormativaLawPanel';
+    p.style.display='none';
+    normSection.appendChild(p);
+  }
   // Normativa: una sola ficha por ley, fusionando fuentes repetidas y mostrando todo el articulado disponible.
   loadScript('centinelaNormativaUnificadaScript','./normativa-unificada.js?v=20260905f');
 
