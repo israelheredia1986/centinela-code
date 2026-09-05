@@ -14,10 +14,15 @@
     const r=await fetch(src.url+"?v=20260905",{cache:"no-store"});
     if(!r.ok) throw Error("No se pudo cargar "+src.url);
     if(!src.gzip) return r.text();
-    const b64=(await r.text()).replace(/\s+/g,""); const bin=atob(b64),bytes=new Uint8Array(bin.length);
+    let b64=(await r.text()).replace(/\s+/g,"").replace(/-/g,"+").replace(/_/g,"/").replace(/[^A-Za-z0-9+/=]/g,"");
+    while(b64.length%4) b64+="=";
+    let bin;
+    try{bin=atob(b64);}catch(e){throw Error("El bloque comprimido de apuntes está dañado o incompleto.");}
+    const bytes=new Uint8Array(bin.length);
     for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
     if(typeof DecompressionStream!=="function") throw Error("El navegador no permite descomprimir el bloque de apuntes.");
-    return await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+    try{return await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"))).text();}
+    catch(e){throw Error("El bloque comprimido de apuntes no se puede descomprimir.");}
   }
   async function load(){
     if(cache)return cache;
