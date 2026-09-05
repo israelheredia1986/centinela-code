@@ -131,8 +131,6 @@
       }
 
       if (meaningful.length >= 2 && strongHits === 0) return null;
-      if (strongHits === 1 && meaningful.length >= 3) return null;
-      if (strongHits < Math.min(2, meaningful.length) && meaningful.length >= 4) return null;
       if (phrase.length >= 12 && text.includes(phrase)) score += 160;
       if (score < 28 || totalHits === 0) return null;
 
