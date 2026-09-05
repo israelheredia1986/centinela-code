@@ -1,10 +1,6 @@
 /* ============================================================
    CENTINELA CODE — CLIENTE IA ÚNICO
-   - Una sola fuente de verdad para preguntarCentinelaIA.
-   - Envía JWT Supabase en cada petición.
-   - Internet First mediante Gemini + Google Search en Edge Function.
-   - Fallback normativo local solo cuando web no es fiable/no disponible.
-   - Contexto local cargado bajo demanda.
+   Relevancia estricta + Internet First + fallback normativo.
    ============================================================ */
 (function () {
   "use strict";
@@ -50,9 +46,17 @@
   ];
 
   const STOP = new Set([
-    "a","al","ante","bajo","con","contra","de","del","desde","durante",
-    "el","en","entre","hacia","hasta","la","las","lo","los","para","por",
-    "segun","sin","sobre","un","una","unos","unas","y","o","que","mi","su"
+    "a","al","ante","bajo","con","contra","de","del","desde","durante","el","en","entre",
+    "hacia","hasta","la","las","lo","los","para","por","segun","sin","sobre","un","una",
+    "unos","unas","y","o","que","mi","su","se"
+  ]);
+
+  // Palabras que aportan contexto pero NO deben validar por sí solas una coincidencia.
+  const GENERIC = new Set([
+    "ano","anos","edad","persona","personas","hombre","mujer","nino","nina","ninos","ninas",
+    "menor","menores","mayor","mayores","joven","jovenes","adulto","adultos","via","viaje",
+    "vehiculo","vehiculos","publico","publica","lugar","lugares","hecho","hechos","caso","casos",
+    "policia","policial","agente","agentes","calle","espacio","espacios","dia","dias","noche","noches"
   ]);
 
   const SYNONYMS = {
@@ -60,13 +64,18 @@
     amenaza:["amenazas","amenazar","intimidacion","intimidar","coaccion"],
     coaccion:["coacciones","obligar","impedir","forzar"],
     seguro:["asegurar","poliza","soa","sin seguro","seguro obligatorio","carencia"],
-    carnet:["permiso","licencia","permiso de conducir","conduccion","conducir"],
-    permiso:["carnet","licencia","autorizacion","habilitacion"],
+    carnet:["permiso","licencia","permiso de conducir","conduccion","conducir","conduciendo"],
+    permiso:["carnet","licencia","autorizacion","habilitacion","conducir","conduccion"],
     borracho:["alcoholemia","embriaguez","alcohol","etilometro","positivo"],
     alcohol:["alcoholemia","borracho","embriaguez","etilometro","tasa de alcohol"],
     drogado:["drogas","estupefaciente","narcotico","psicotropico","positivo"],
-    drogas:["estupefaciente","narcotico","psicotropico","drogado","positivo"],
-    menor:["menores","nino","nina","niño","niña","adolescente","infantil"],
+    drogas:["droga","estupefaciente","estupefacientes","narcotico","psicotropico","drogado","positivo","consumo"],
+    cannabis:["hachis","hachís","marihuana","maria","cannabis","estupefaciente","drogas","droga","porros","porro","consumo"],
+    hachis:["cannabis","hachís","marihuana","estupefaciente","droga","drogas","porro","porros","consumo"],
+    fumar:["fumando","fumado","humo","tabaco","hachis","cannabis","marihuana"],
+    fumando:["fumar","fumado","humo","hachis","cannabis","marihuana"],
+    consumo:["consumir","consumiendo","droga","drogas","estupefaciente","cannabis","hachis","marihuana"],
+    menor:["menores","adolescente","adolescentes","infantil"],
     pelea:["rina","riña","altercado","reyerta","pugna"],
     mendigar:["mendicidad","mendigo","limosna","pedir dinero"],
     pintada:["grafiti","graffiti","pintadas","vandalismo"],
@@ -80,8 +89,7 @@
     ruido:["ruidos","musica","música","molestias","decibelios","acustica","acústica"],
     arma:["armas","navaja","cuchillo","arma blanca","pistola","revolver"],
     desobediencia:["desobedecer","resistencia","requerimiento"],
-    establecimiento:["establecimientos","local","locales","bar","pub","discoteca","hosteleria","hostelería"],
-    conducir:["conduccion","permiso","licencia","vehiculo","vehículo"]
+    establecimiento:["establecimientos","local","locales","bar","pub","discoteca","hosteleria","hostelería"]
   };
 
   let localDataPromise = null;
@@ -143,7 +151,7 @@
     const amount = pick(value, ["cuantia","cuantía","importe","multa","sancion","sanción"]);
     const foundation = pick(value, ["fundamento","fundamento_juridico","fundamento jurídico","base_legal","base legal"]);
     const action = pick(value, ["actuacion_policial","actuación policial","actuacion","actuación","procedimiento"]);
-    const search = normalize([source, article, code, title, description, severity, amount, foundation, action, flatten(value)].join(" "));
+    const search = normalize([article, code, title, description, severity, amount, foundation, action].join(" "));
 
     if (article || code || title || description || foundation || action) {
       out.push({ source, article, code, title, description, severity, amount, foundation, action, search, path });
@@ -160,57 +168,92 @@
     localDataPromise = Promise.allSettled(DATA_FILES.map(async ([source, url]) => {
       const response = await fetch(url, { cache: "force-cache" });
       if (!response.ok) throw new Error(`${source}: HTTP ${response.status}`);
-      const json = await response.json();
-      return recordsFrom(json, source);
+      return recordsFrom(await response.json(), source);
     })).then(results => results.flatMap(result => result.status === "fulfilled" ? result.value : []));
     return localDataPromise;
   }
 
+  function queryForms(token) {
+    const forms = new Set([token]);
+    (SYNONYMS[token] || []).forEach(word => forms.add(normalize(word)));
+    // Reducciones muy conservadoras para flexiones frecuentes en español.
+    if (token.endsWith("ando") && token.length > 5) forms.add(token.slice(0, -4));
+    if (token.endsWith("iendo") && token.length > 6) forms.add(token.slice(0, -5));
+    if (token.endsWith("es") && token.length > 4) forms.add(token.slice(0, -2));
+    if (token.endsWith("s") && token.length > 4) forms.add(token.slice(0, -1));
+    return [...forms];
+  }
+
   function rank(question, records) {
     const original = tokens(question);
-    const expanded = new Set(original);
-    original.forEach(token => (SYNONYMS[token] || []).forEach(word => expanded.add(normalize(word))));
+    const meaningful = original.filter(token => !GENERIC.has(token) && !/^\d+(\.\d+)?$/.test(token));
     const phrase = normalize(question);
+    const queryForms = new Set(meaningful.flatMap(queryForms));
 
-    return records.map(record => {
-      let score = 0;
-      let originalHits = 0;
-      const article = normalize(record.article);
+    if (!meaningful.length) return [];
+
+    const ranked = records.map(record => {
       const title = normalize(record.title);
-      const source = normalize(record.source);
-      const text = record.search;
+      const article = normalize(record.article);
+      const description = normalize(record.description);
+      const foundation = normalize(record.foundation);
+      const action = normalize(record.action);
+      const text = normalize(record.search);
+      let score = 0;
+      let strongHits = 0;
+      let totalHits = 0;
 
-      original.forEach(token => {
-        let hit = false;
-        if (article === token) { score += 120; hit = true; }
-        if (article.includes(token)) { score += 45; hit = true; }
-        if (title.includes(token)) { score += 55; hit = true; }
-        if (record.description && normalize(record.description).includes(token)) { score += 30; hit = true; }
-        if (source.includes(token)) score += 18;
-        if (text.includes(token)) { score += 7; hit = true; }
-        if (hit) originalHits += 1;
-      });
+      for (const token of meaningful) {
+        const forms = queryForms(token);
+        let tokenStrong = false;
+        let tokenHit = false;
 
-      for (const token of expanded) {
-        if (original.includes(token)) continue;
-        if (title.includes(token)) score += 20;
-        else if (article.includes(token)) score += 15;
-        else if (text.includes(token)) score += 4;
+        for (const form of forms) {
+          if (article === form) { score += 110; tokenStrong = true; tokenHit = true; }
+          else if (article.includes(form)) { score += 55; tokenStrong = true; tokenHit = true; }
+          if (title.includes(form)) { score += 65; tokenStrong = true; tokenHit = true; }
+          if (description.includes(form)) { score += 34; tokenStrong = true; tokenHit = true; }
+          if (foundation.includes(form)) { score += 22; tokenStrong = true; tokenHit = true; }
+          if (action.includes(form)) { score += 22; tokenStrong = true; tokenHit = true; }
+        }
+
+        if (tokenHit) totalHits += 1;
+        if (tokenStrong) strongHits += 1;
       }
 
-      if (phrase.length >= 8 && text.includes(phrase)) score += 180;
-      if (original.length >= 2 && originalHits === 0) score = 0;
-      if (original.length >= 4 && originalHits < 2) score *= 0.45;
-      if (original.length >= 3 && originalHits === 1) score *= 0.65;
-      return { record, score };
-    }).filter(item => item.score > 0).sort((a, b) => b.score - a.score).slice(0, 16).map(item => item.record);
+      if (meaningful.length >= 2 && strongHits === 0) return null;
+      if (strongHits === 1 && meaningful.length >= 3) return null;
+      if (strongHits < Math.min(2, meaningful.length) && meaningful.length >= 4) return null;
+
+      if (phrase.length >= 12 && text.includes(phrase)) score += 160;
+
+      // Solo alusión genérica al contexto nunca aporta suficiente puntuación.
+      if (score < 28 || totalHits === 0) return null;
+
+      const coverage = strongHits / Math.max(1, meaningful.length);
+      score += coverage * 45;
+      return { record, score, strongHits, totalHits };
+    }).filter(Boolean);
+
+    ranked.sort((a, b) => {
+      if (b.strongHits !== a.strongHits) return b.strongHits - a.strongHits;
+      if (b.totalHits !== a.totalHits) return b.totalHits - a.totalHits;
+      return b.score - a.score;
+    });
+
+    return ranked.slice(0, 8).map(item => item.record);
   }
 
   async function buildLocalContext(question) {
     try {
       const records = await loadLocalData();
       const hits = rank(question, records);
-      if (!hits.length) return { context: "No se ha encontrado una coincidencia suficiente en el repositorio normativo local.", hits: [] };
+      if (!hits.length) {
+        return {
+          context: "NO HAY COINCIDENCIAS NORMATIVAS SUFICIENTEMENTE RELEVANTES EN EL REPOSITORIO LOCAL. No inventar una norma a partir de palabras aisladas.",
+          hits: []
+        };
+      }
 
       const context = hits.map((record, index) => {
         const header = `${index + 1}. NORMA: ${record.source}${record.article ? ` | ARTÍCULO: ${record.article}` : ""}${record.code ? ` | CÓDIGO: ${record.code}` : ""}${record.title ? ` | TÍTULO: ${record.title}` : ""}`;
@@ -227,12 +270,8 @@
       return { context, hits };
     } catch (error) {
       console.warn("No se pudo preparar el contexto normativo local", error);
-      return { context: "No se ha podido cargar el repositorio normativo local.", hits: [] };
+      return { context: "NO SE HA PODIDO CARGAR EL REPOSITORIO NORMATIVO LOCAL.", hits: [] };
     }
-  }
-
-  function getSupabaseClient() {
-    return window.CENTINELA_SUPABASE_CLIENT || window.supabaseClient || window.supabase || null;
   }
 
   async function getAccessToken() {
@@ -255,22 +294,23 @@
 
   function parseResponse(raw) {
     if (typeof raw === "string") return { text: raw.trim(), sources: [] };
-    const text = typeof raw?.text === "string" ? raw.text.trim() : "";
-    const sources = Array.isArray(raw?.sources) ? raw.sources : [];
-    return { text, sources };
+    return {
+      text: typeof raw?.text === "string" ? raw.text.trim() : "",
+      sources: Array.isArray(raw?.sources) ? raw.sources : []
+    };
   }
 
   function appendSources(text, sources) {
     if (!Array.isArray(sources) || !sources.length) return text;
     const unique = [];
     const seen = new Set();
-    sources.forEach(source => {
+    for (const source of sources) {
       const uri = String(source?.uri || "").trim();
-      const title = String(source?.title || source?.uri || "Referencia web").trim();
-      if (!uri || seen.has(uri)) return;
+      const title = String(source?.title || uri || "Referencia web").trim();
+      if (!uri || seen.has(uri)) continue;
       seen.add(uri);
       unique.push({ uri, title });
-    });
+    }
     if (!unique.length) return text;
     return `${text}\n\nReferencias consultadas:\n${unique.slice(0, 8).map((source, index) => `${index + 1}. ${source.title} — ${source.uri}`).join("\n")}`;
   }
@@ -281,39 +321,35 @@
 
   async function callServer(pregunta, modo, contexto = "") {
     const token = await getAccessToken();
-    if (!token) {
-      return { ok: false, status: 401, error: "Sesión no disponible. Inicia sesión de nuevo." };
-    }
+    if (!token) return { ok: false, status: 401, error: "Sesión no disponible. Inicia sesión de nuevo." };
 
     let lastError = null;
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
-      if (attempt) {
-        await new Promise(resolve => setTimeout(resolve, RETRY_BASE_MS * attempt));
-      }
-
+      if (attempt) await new Promise(resolve => setTimeout(resolve, RETRY_BASE_MS * attempt));
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
       try {
         const response = await fetch(IA_URL, {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${token}`,
-            "apikey": SUPABASE_ANON,
+            Authorization: `Bearer ${token}`,
+            apikey: SUPABASE_ANON,
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            Accept: "application/json"
           },
-          body: JSON.stringify({ pregunta: String(pregunta).slice(0, 8000), modo, contexto: String(contexto || "").slice(0, 50000) }),
+          body: JSON.stringify({
+            pregunta: String(pregunta).slice(0, 8000),
+            modo,
+            contexto: String(contexto || "").slice(0, 50000)
+          }),
           signal: controller.signal
         });
-
         const raw = await response.text();
         clearTimeout(timer);
         let data;
         try { data = JSON.parse(raw); } catch (_) { data = { text: raw }; }
-
         if (response.ok) return { ok: true, data };
-        const errorMessage = data?.error?.message || data?.error || data?.message || `Error HTTP ${response.status}`;
-        lastError = new Error(String(errorMessage));
+        lastError = new Error(String(data?.error?.message || data?.error || data?.message || `Error HTTP ${response.status}`));
         if (!isRetryable(response.status)) break;
       } catch (error) {
         clearTimeout(timer);
@@ -321,8 +357,7 @@
         if (attempt >= MAX_RETRIES) break;
       }
     }
-
-    return { ok: false, status: lastError?.status || 0, error: lastError?.message || "No se ha podido consultar Centinela IA." };
+    return { ok: false, status: 0, error: lastError?.message || "No se ha podido consultar Centinela IA." };
   }
 
   async function preguntarCentinelaIA(pregunta, onProgress) {
@@ -343,19 +378,24 @@
 
       cleanProgress("No hay una respuesta web suficientemente fiable. Consultando el repositorio normativo...");
       const local = await buildLocalContext(question);
-      const repoResult = await callServer(question, "repository_fallback", local.context);
-      if (repoResult.ok) {
-        const parsed = parseResponse(repoResult.data);
-        if (parsed.text) {
-          cleanProgress("Respuesta normativa obtenida.");
-          return parsed.text;
+
+      // Evitamos enviar a Gemini una lista vacía o irrelevante: sin contexto fiable,
+      // Gemini debe reconocer la falta de base en lugar de inventar una infracción.
+      if (local.hits.length) {
+        const repoResult = await callServer(question, "repository_fallback", local.context);
+        if (repoResult.ok) {
+          const parsed = parseResponse(repoResult.data);
+          if (parsed.text) {
+            cleanProgress("Respuesta normativa obtenida.");
+            return parsed.text;
+          }
         }
       }
 
       if (local.hits.length) {
         cleanProgress("IA remota no disponible. Usando el motor normativo local.");
         return JSON.stringify({
-          resumen: `Se han localizado ${local.hits.length} referencias normativas relacionadas.`,
+          resumen: `Se han localizado ${local.hits.length} referencias normativas directamente relacionadas con los términos principales de la consulta.`,
           infracciones: local.hits.map(record => ({
             fuente: record.source,
             articulo: record.article,
@@ -374,7 +414,7 @@
         });
       }
 
-      return "No se ha encontrado información suficiente. Comprueba los hechos y consulta la normativa oficial antes de actuar.";
+      return "No se ha encontrado una referencia normativa suficientemente relacionada con los hechos descritos. No procede atribuir una infracción concreta solo por la coincidencia de palabras. Deben comprobarse los hechos (sustancia, edad, lugar, conducta, posesión/consumo, intervención de terceros y demás circunstancias) y consultar la normativa oficial aplicable antes de denunciar.";
     } catch (error) {
       console.error("Centinela IA:", error);
       return "No se ha podido completar la consulta. Comprueba la conexión y verifica la normativa oficial antes de actuar.";
@@ -388,8 +428,8 @@
     preguntar: preguntarCentinelaIA,
     recargarDatos: () => { localDataPromise = null; return loadLocalData(); },
     obtenerContexto: buildLocalContext,
-    estado: () => ({ clienteSupabase: Boolean(getSupabaseClient()), contextoLocalCargado: Boolean(localDataPromise) })
+    estado: () => ({ contextoLocalCargado: Boolean(localDataPromise) })
   };
 
-  console.info("Centinela IA: cliente único activo — Internet First + repositorio fallback");
+  console.info("Centinela IA: cliente único activo — relevancia estricta + Internet First + fallback");
 })();
