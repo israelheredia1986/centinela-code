@@ -26,6 +26,8 @@
   }
   // Normativa: una sola ficha por ley, fusionando fuentes repetidas y mostrando todo el articulado disponible.
   loadScript('centinelaNormativaUnificadaScript','./normativa-unificada.js?v=20260905f');
+  // Compatibilidad con el buscador del app.js antiguo.
+  loadScript('centinelaNormativaCompatScript','./normativa-compat.js?v=20260905f');
 
   const st=document.createElement('style');
   st.id='cc-dashboard-three-actions-final';
