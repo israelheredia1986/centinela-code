@@ -1,113 +1,13 @@
 [
-  {
-    "id": "ESP-001",
-    "articulo": "Art. Marco (Aforo)",
-    "normativa": "Ley de Espectáculos Públicos",
-    "concepto": "Exceso de aforo permitido",
-    "descripcion": "Superar el aforo máximo autorizado en establecimientos públicos o locales de ocio cuando constituya un riesgo grave para la seguridad de las personas.",
-    "gravedad": "Muy Grave",
-    "sancion": "Multa conforme al régimen sancionador aplicable y posible clausura del local.",
-    "palabras_clave": ["aforo", "exceso de aforo", "sobreaforo", "local de ocio", "establecimiento público", "capacidad"]
-  },
-  {
-    "id": "ESP-002",
-    "articulo": "Art. Marco (Horarios)",
-    "normativa": "Ley de Espectáculos Públicos",
-    "concepto": "Incumplimiento del horario de cierre",
-    "descripcion": "Mantener abierto el local, permitir la entrada de público o continuar vendiendo consumiciones fuera del horario oficial de cierre fijado por la normativa aplicable. Incumplir, exceder o sobrepasar el horario permitido de apertura o cierre del establecimiento.",
-    "gravedad": "Grave",
-    "sancion": "Multa conforme al régimen sancionador aplicable.",
-    "fundamento": "Ley 13/1999, de 15 de diciembre, artículo 20.19: incumplimiento de los horarios permitidos de apertura y cierre de establecimientos públicos destinados a espectáculos públicos o actividades recreativas.",
-    "palabras_clave": ["incumplir horario", "incumplimiento horario", "horario cierre", "cierre horario", "cerrar tarde", "cierre tardío", "fuera de horario", "abierto fuera de horario", "exceso horario", "exceder horario", "sobrepasar horario", "horario permitido", "horario de apertura", "horario de cierre", "establecimiento abierto", "local abierto", "bar abierto", "pub abierto", "discoteca abierta", "hostelería", "ocio", "esparcimiento", "establecimiento público"]
-  },
-  {
-    "id": "ESP-003",
-    "articulo": "Art. Marco (Menores)",
-    "normativa": "Ley de Espectáculos Públicos",
-    "concepto": "Venta o suministro de alcohol a menores",
-    "descripcion": "Vender, proporcionar o permitir el consumo de bebidas alcohólicas a menores de 18 años dentro del establecimiento o sus instalaciones.",
-    "gravedad": "Grave / Muy Grave",
-    "sancion": "Multa y medidas accesorias conforme a la normativa aplicable.",
-    "palabras_clave": ["alcohol", "bebidas alcohólicas", "menores", "venta alcohol", "suministro alcohol"]
-  },
-  {
-    "id": "ESP-004",
-    "articulo": "Art. 20.19",
-    "normativa": "Ley 13/1999 de Espectáculos Públicos y Actividades Recreativas de Andalucía",
-    "concepto": "Incumplimiento de horarios de apertura y cierre",
-    "descripcion": "Es infracción grave el incumplimiento de los horarios permitidos de apertura y cierre de establecimientos públicos destinados a espectáculos públicos o actividades recreativas. Incluye mantener abierto el establecimiento después de la hora autorizada, abrir antes de la hora permitida o incumplir el horario reglamentario aplicable.",
-    "gravedad": "Grave",
-    "sancion": "De 300,51 € a 30.050,61 € según el artículo 22.1.b) de la Ley 13/1999, sin perjuicio de las reglas de actualización, graduación y demás normativa aplicable.",
-    "palabras_clave": ["incumplimiento", "incumplir", "horario", "horarios", "apertura", "cierre", "cerrar tarde", "abrir antes", "abierto", "fuera de horario", "exceso de horario", "establecimiento", "local", "bar", "pub", "discoteca", "sala de fiestas", "hostelería", "ocio", "espectáculos", "actividad recreativa"]
-  },
-  {
-    "id": "ESP-005",
-    "articulo": "Art. 17",
-    "normativa": "Decreto 155/2018 de Andalucía",
-    "concepto": "Régimen general de horarios máximos de cierre",
-    "descripcion": "Establece los horarios máximos de cierre de los establecimientos públicos en Andalucía según su actividad. Entre otros, hostelería sin música y con música hasta las 02:00 horas, establecimientos especiales de hostelería con música hasta las 03:00 y establecimientos de esparcimiento y salones de celebraciones hasta las 06:00, con la ampliación prevista para viernes, sábados y vísperas de festivo.",
-    "gravedad": "Norma reguladora",
-    "sancion": "El incumplimiento del horario se tipifica y sanciona conforme a la Ley 13/1999 y normativa sancionadora aplicable.",
-    "palabras_clave": ["horario máximo", "hora de cierre", "cierre", "cerrar", "02:00", "03:00", "06:00", "viernes", "sábado", "víspera de festivo", "hostelería", "pub", "bar con música", "bar sin música", "ocio", "esparcimiento", "salón de celebraciones"]
-  },
-  {
-    "id": "ESP-006",
-    "articulo": "Art. 18",
-    "normativa": "Decreto 155/2018 de Andalucía",
-    "concepto": "Régimen general de horarios de apertura",
-    "descripcion": "Los establecimientos públicos no se podrán abrir al público antes de las 06:00 horas, salvo las excepciones previstas. Los establecimientos especiales de hostelería con música y los establecimientos de ocio y esparcimiento no se podrán abrir al público antes de las 12:00 horas.",
-    "gravedad": "Norma reguladora",
-    "sancion": "El incumplimiento puede constituir infracción conforme a la Ley 13/1999.",
-    "palabras_clave": ["horario apertura", "abrir antes", "apertura", "06:00", "12:00", "establecimiento", "hostelería", "ocio", "esparcimiento"]
-  },
-  {
-    "id": "ESP-007",
-    "articulo": "Art. 21",
-    "normativa": "Decreto 155/2018 de Andalucía",
-    "concepto": "Desalojo después de la hora de cierre",
-    "descripcion": "A partir de la hora de cierre establecida debe cesar el espectáculo o actividad, dejar de servirse consumiciones, no permitir nuevas entradas y facilitar el desalojo. El establecimiento debe quedar totalmente vacío de público media hora después del horario permitido.",
-    "gravedad": "Norma reguladora",
-    "sancion": "El incumplimiento se somete al régimen sancionador de la Ley 13/1999 y normativa aplicable.",
-    "palabras_clave": ["desalojo", "desalojar", "hora de cierre", "después del cierre", "seguir abierto", "seguir sirviendo", "consumiciones", "entrada de público", "público dentro", "local lleno", "establecimiento abierto"]
-  },
-  {
-    "id": "ESP-008",
-    "articulo": "Art. 22",
-    "normativa": "Decreto 155/2018 de Andalucía",
-    "concepto": "Horarios de terrazas y veladores",
-    "descripcion": "Regula los horarios de terrazas y veladores de establecimientos de hostelería y ocio. El límite para la expedición de bebidas y comidas en estos espacios no puede exceder de las 02:00 horas y deben quedar totalmente desalojados y recogidos como máximo en media hora desde ese límite, sin perjuicio de la regulación municipal aplicable.",
-    "gravedad": "Norma reguladora",
-    "sancion": "El incumplimiento se somete al régimen sancionador de la normativa aplicable.",
-    "palabras_clave": ["terraza", "velador", "terrazas", "horario terraza", "cierre terraza", "02:00", "bebidas", "comidas", "desalojo terraza", "hostelería"]
-  },
-  {
-    "id": "ESP-009",
-    "articulo": "Art. 23",
-    "normativa": "Decreto 155/2018 de Andalucía",
-    "concepto": "Ampliación municipal de horarios de cierre",
-    "descripcion": "Los Ayuntamientos pueden ampliar con carácter excepcional u ocasional los horarios generales de cierre durante actividades festivas populares o tradicionales, Semana Santa y Navidad, dentro de los requisitos y límites establecidos por la norma.",
-    "gravedad": "Norma reguladora",
-    "sancion": "La aplicación de un horario ampliado requiere ajustarse al régimen municipal y autonómico aplicable.",
-    "palabras_clave": ["ampliación horario", "ampliar cierre", "horario especial", "Navidad", "Semana Santa", "fiestas", "horario municipal", "Ayuntamiento"]
-  },
-  {
-    "id": "ESP-010",
-    "articulo": "Art. 24",
-    "normativa": "Decreto 155/2018 de Andalucía",
-    "concepto": "Restricción municipal de horarios",
-    "descripcion": "Los Ayuntamientos pueden adoptar medidas restrictivas de los márgenes horarios generales de apertura y cierre en zonas acústicas especiales para alcanzar y mantener los objetivos de calidad acústica.",
-    "gravedad": "Norma reguladora",
-    "sancion": "Aplicación de las medidas y del régimen sancionador que corresponda.",
-    "palabras_clave": ["restricción horario", "restringir horario", "zona acústica", "ruido", "horario municipal", "cierre", "apertura"]
-  },
-  {
-    "id": "ESP-011",
-    "articulo": "Art. 29",
-    "normativa": "Decreto 155/2018 de Andalucía",
-    "concepto": "Información del horario de apertura y cierre",
-    "descripcion": "La información expuesta sobre el horario de apertura y cierre del establecimiento público debe ser exacta y fehaciente. Se prohíben carteles o expresiones que informen de forma inexacta sobre el horario de cierre.",
-    "gravedad": "Norma reguladora",
-    "sancion": "El incumplimiento queda sujeto al régimen sancionador aplicable.",
-    "palabras_clave": ["cartel horario", "cartel cierre", "información horario", "horario expuesto", "horario visible", "horario falso", "horario inexacto", "abierto hasta cierre"]
-  }
+  {"id":"ESP-001","articulo":"Art. 19","normativa":"Ley 13/1999 de Espectáculos Públicos y Actividades Recreativas de Andalucía","concepto":"Exceso de aforo permitido","descripcion":"Superar el aforo máximo autorizado cuando pueda afectar a la seguridad de las personas.","gravedad":"Muy Grave","sancion":"Régimen sancionador previsto en la Ley 13/1999.","palabras_clave":["aforo","sobreaforo","capacidad"]},
+  {"id":"ESP-002","articulo":"Art. 20.19","normativa":"Ley 13/1999 de Espectáculos Públicos y Actividades Recreativas de Andalucía","concepto":"Incumplimiento de horarios","descripcion":"Incumplir los horarios de apertura y cierre establecidos para los establecimientos públicos.","gravedad":"Grave","sancion":"Régimen sancionador previsto en la Ley 13/1999.","palabras_clave":["horario","cierre","apertura"]},
+  {"id":"ESP-003","articulo":"Art. 20","normativa":"Ley 13/1999 de Espectáculos Públicos y Actividades Recreativas de Andalucía","concepto":"Venta de alcohol a menores","descripcion":"Permitir o facilitar el consumo de bebidas alcohólicas a menores cuando esté prohibido por la normativa aplicable.","gravedad":"Grave","sancion":"Régimen sancionador aplicable.","palabras_clave":["alcohol","menores"]},
+  {"id":"ESP-004","articulo":"Art. 20.19","normativa":"Ley 13/1999 de Espectáculos Públicos y Actividades Recreativas de Andalucía","concepto":"Incumplimiento de horarios de apertura y cierre","descripcion":"Mantener abierto un establecimiento fuera del horario autorizado constituye infracción conforme a la Ley 13/1999.","gravedad":"Grave","sancion":"Multa conforme a la normativa aplicable.","palabras_clave":["horario","cierre"]},
+  {"id":"ESP-005","articulo":"Art. 17","normativa":"Decreto 155/2018 de Andalucía","concepto":"Horarios máximos de cierre","descripcion":"Establece los horarios máximos de cierre de los establecimientos públicos según su clasificación.","gravedad":"Norma reguladora","sancion":"Su incumplimiento se sanciona conforme a la Ley 13/1999.","palabras_clave":["cierre","horario máximo"]},
+  {"id":"ESP-006","articulo":"Art. 18","normativa":"Decreto 155/2018 de Andalucía","concepto":"Horarios de apertura","descripcion":"Regula los horarios mínimos de apertura al público de los establecimientos incluidos en su ámbito de aplicación.","gravedad":"Norma reguladora","sancion":"Régimen sancionador aplicable.","palabras_clave":["apertura","horario"]},
+  {"id":"ESP-007","articulo":"Art. 21","normativa":"Decreto 155/2018 de Andalucía","concepto":"Desalojo tras el cierre","descripcion":"Tras la hora de cierre debe cesar la actividad y realizarse el desalojo del público conforme a la normativa.","gravedad":"Norma reguladora","sancion":"Régimen sancionador aplicable.","palabras_clave":["desalojo","cierre"]},
+  {"id":"ESP-008","articulo":"Art. 22","normativa":"Decreto 155/2018 de Andalucía","concepto":"Terrazas y veladores","descripcion":"Regula los horarios aplicables a terrazas y veladores vinculados a establecimientos públicos.","gravedad":"Norma reguladora","sancion":"Régimen sancionador aplicable.","palabras_clave":["terraza","velador"]},
+  {"id":"ESP-009","articulo":"Art. 23","normativa":"Decreto 155/2018 de Andalucía","concepto":"Ampliación excepcional de horarios","descripcion":"Permite ampliaciones excepcionales de horarios en los supuestos previstos por la norma.","gravedad":"Norma reguladora","sancion":"Conforme a autorización y normativa aplicable.","palabras_clave":["ampliación","horario especial"]},
+  {"id":"ESP-010","articulo":"Art. 24","normativa":"Decreto 155/2018 de Andalucía","concepto":"Restricción municipal de horarios","descripcion":"Permite establecer limitaciones horarias municipales en los casos previstos legalmente.","gravedad":"Norma reguladora","sancion":"Conforme a normativa aplicable.","palabras_clave":["restricción","horario municipal"]},
+  {"id":"ESP-011","articulo":"Art. 29","normativa":"Decreto 155/2018 de Andalucía","concepto":"Información del horario","descripcion":"Regula la información que debe facilitarse sobre los horarios de apertura y cierre del establecimiento.","gravedad":"Norma reguladora","sancion":"Régimen sancionador aplicable.","palabras_clave":["cartel horario","información"]}
 ]
