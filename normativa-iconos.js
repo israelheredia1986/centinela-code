@@ -1,4 +1,4 @@
-/* CENTINELA — iconos temáticos para tarjetas de Normativa. */
+/* CENTINELA — iconos temáticos para tarjetas de Normativa, sin observadores ni refrescos periódicos. */
 (function(){
   'use strict';
   const norm=s=>String(s??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
@@ -19,14 +19,20 @@
     [['ordenanza san roque'],'📍']
   ];
   function iconFor(name){const n=norm(name);for(const [keys,icon] of icons)if(keys.some(k=>n.includes(norm(k))))return icon;return '📘';}
-  function paint(){document.querySelectorAll('#section-normativa .cc-law-card').forEach(card=>{const name=card.dataset.law||card.querySelector('h3')?.textContent||'';const icon=card.querySelector('.normativa-icon');if(icon){icon.textContent=iconFor(name);icon.setAttribute('aria-hidden','true');icon.classList.add('cc-norm-theme-icon');}});}
+  function paint(){
+    document.querySelectorAll('#section-normativa .cc-law-card').forEach(card=>{
+      const name=card.dataset.law||card.querySelector('h3')?.textContent||'';
+      const icon=card.querySelector('.normativa-icon');
+      if(icon){const next=iconFor(name);if(icon.textContent!==next)icon.textContent=next;icon.setAttribute('aria-hidden','true');icon.classList.add('cc-norm-theme-icon');}
+    });
+  }
   function boot(){
-    if(document.getElementById('cc-norm-icon-style'))return;
-    const s=document.createElement('style');s.id='cc-norm-icon-style';s.textContent=`.cc-norm-theme-icon{font-size:28px!important;width:38px;min-width:38px;text-align:center;line-height:1;filter:drop-shadow(0 0 6px rgba(49,185,255,.28));}.cc-law-card.cc-ordenanza .cc-norm-theme-icon{filter:drop-shadow(0 0 7px rgba(255,211,74,.45));}`;document.head.appendChild(s);
+    if(document.getElementById('cc-norm-icon-style')){paint();return;}
+    const s=document.createElement('style');s.id='cc-norm-icon-style';s.textContent='.cc-norm-theme-icon{font-size:28px!important;width:38px;min-width:38px;text-align:center;line-height:1;filter:drop-shadow(0 0 6px rgba(49,185,255,.28));}.cc-law-card.cc-ordenanza .cc-norm-theme-icon{filter:drop-shadow(0 0 7px rgba(255,211,74,.45));}';document.head.appendChild(s);
+    // El catálogo ya crea las tarjetas; pintamos una vez y no volvemos a observar el DOM.
     paint();
-    const target=document.getElementById('section-normativa')||document.body;
-    new MutationObserver(()=>requestAnimationFrame(paint)).observe(target,{childList:true,subtree:true});
-    setInterval(paint,1200);
+    requestAnimationFrame(paint);
+    setTimeout(paint,250);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
