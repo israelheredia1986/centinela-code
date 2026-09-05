@@ -1,0 +1,109 @@
+/* CENTINELA — Normativa unificada
+   Corrige duplicados y conserva TODO el articulado disponible en las bases locales.
+   No inventa artículos: fusiona fuentes repetidas y conserva el objeto más completo.
+*/
+(function(){
+  'use strict';
+  const VERSION='20260905-normativa-unificada-1';
+  const FILES=[
+    ['LOPSC','./data/lopsc.json'],
+    ['Código Penal','./data/codigo_penal.json'],
+    ['Menores','./data/normativa_menores.json'],
+    ['Violencia de género','./data/normativa_violencia_genero.json'],
+    ['Animales','./data/normativa_animales.json'],
+    ['Tráfico','./data/normativa_trafico.json'],
+    ['VMP y bicicletas','./data/normativa_vmp_bicicletas.json'],
+    ['Ley 2/1986','./data/ley_2_86.json'],
+    ['LECrim','./data/lecrim.json'],
+    ['Extranjería','./data/extranjeria.json'],
+    ['Seguridad privada','./data/seguridad_privada.json'],
+    ['Espectáculos públicos','./data/espectaculos_publicos.json'],
+    ['Medio ambiente y ruidos','./data/medio_ambiente_ruidos.json'],
+    ['Reglamento de armas','./data/reglamento_armas.json'],
+    ['Policías Locales Andalucía','./data/policias_locales_andalucia.json'],
+    ['Ley 39/2015','./data/ley_39_2015.json'],
+    ['Ley 7/1985','./data/ley_7_1985.json'],
+    ['Ley 5/2010 Andalucía','./data/ley_5_2010_andalucia.json']
+  ];
+  let laws=[]; let ready=false; let selected=null; let query=''; let timer=null;
+  const norm=s=>String(s??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+  const esc=s=>String(s??'').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  const val=(o,names)=>{if(!o||typeof o!=='object'||Array.isArray(o))return '';for(const n of names){const k=Object.keys(o).find(x=>norm(x)===norm(n));if(k&&o[k]!=null&&typeof o[k]!=='object')return String(o[k]);}return '';};
+  function articleNumber(a){return String(a?.numero??a?.articulo??a?.number??a?.id??'').trim();}
+  function articleText(a){
+    if(a==null)return '';
+    if(typeof a==='string')return a;
+    const v=a.texto??a.contenido??a.text??a.descripcion??a.body??a.resumen??'';
+    if(Array.isArray(v))return v.join('\n');
+    return String(v||'');
+  }
+  function articleKey(a){return norm(articleNumber(a))||norm(articleText(a)).slice(0,180);}
+  function lawName(o,fallback){return val(o,['ley','nombreLey','nombre','denominacion','denominación','titulo','title'])||val(o,['abreviatura','codigo','codigoLey'])||fallback;}
+  function isLaw(o){return !!(o&&typeof o==='object'&&!Array.isArray(o)&&(Array.isArray(o.articulos)||Array.isArray(o.leyes))&&(lawName(o,'')))}
+  function collect(data,source,out=[],parent=''){
+    if(!data||typeof data!=='object')return out;
+    if(Array.isArray(data)){data.forEach(x=>collect(x,source,out,parent));return out;}
+    const name=lawName(data,parent||source);
+    if(Array.isArray(data.leyes)){
+      data.leyes.forEach(l=>{if(l&&typeof l==='object') collectLaw(l,source,out,name);});
+    }
+    if(Array.isArray(data.articulos)&&lawName(data,'')) collectLaw(data,source,out,name);
+    for(const [k,v] of Object.entries(data)){
+      if(k==='leyes'||k==='articulos')continue;
+      if(v&&typeof v==='object')collect(v,source,out,name||parent);
+    }
+    return out;
+  }
+  function collectLaw(o,source,out,parent){
+    const name=lawName(o,parent||source); if(!name)return;
+    out.push({name,source,boe:val(o,['boe','referencia','boeId']),abbr:val(o,['abreviatura','siglas']),url:val(o,['enlaceOficial','url','fuente']),articles:Array.isArray(o.articulos)?o.articulos.slice():[],raw:o});
+    if(Array.isArray(o.leyes))o.leyes.forEach(l=>collectLaw(l,source,out,name));
+  }
+  function merge(records){
+    const map=new Map();
+    for(const r of records){
+      const key=norm(r.boe)||norm(r.name).replace(/\b(de|del|la|las|los|el|y)\b/g,'').replace(/[^a-z0-9]+/g,'');
+      if(!key)continue;
+      let law=map.get(key);
+      if(!law){law={...r,articles:[],sources:new Set(),articleMap:new Map()};map.set(key,law);}
+      law.sources.add(r.source);
+      if(!law.url&&r.url)law.url=r.url;
+      if(!law.boe&&r.boe)law.boe=r.boe;
+      if(!law.abbr&&r.abbr)law.abbr=r.abbr;
+      for(const a of r.articles){
+        if(!a||typeof a!=='object')continue;
+        const k=articleKey(a); if(!k)continue;
+        const old=law.articleMap.get(k);
+        if(!old||JSON.stringify(a).length>JSON.stringify(old).length)law.articleMap.set(k,a);
+      }
+    }
+    return [...map.values()].map(l=>{l.articles=[...l.articleMap.values()].sort((a,b)=>{const na=parseFloat(articleNumber(a)),nb=parseFloat(articleNumber(b));return Number.isFinite(na)&&Number.isFinite(nb)?na-nb:String(articleNumber(a)).localeCompare(String(articleNumber(b)),'es',{numeric:true});});delete l.articleMap;return l;}).sort((a,b)=>a.name.localeCompare(b.name,'es'));
+  }
+  async function load(){
+    const rs=await Promise.allSettled(FILES.map(async([source,url])=>{const r=await fetch(url+'?v='+VERSION,{cache:'no-store'});if(!r.ok)throw Error(r.status);return collect(await r.json(),source);}));
+    const all=rs.flatMap(x=>x.status==='fulfilled'?x.value:[]); laws=merge(all); ready=true; render();
+  }
+  function styles(){if(document.getElementById('centinela-normativa-unificada-style'))return;const s=document.createElement('style');s.id='centinela-normativa-unificada-style';s.textContent=`
+    #section-normativa .normativa-list{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;}
+    #section-normativa .normativa-card{width:100%!important;align-self:start!important;}
+    .cc-law-count{display:inline-block;margin-top:6px;color:#72cfff;font-size:9px;font-weight:800;}
+    .cc-law-source{display:block;margin-top:3px;color:#7895a9;font-size:8px;}
+    .cc-law-panel{margin-top:12px;background:rgba(3,18,31,.96);border:1px solid rgba(49,185,255,.25);border-radius:16px;overflow:hidden;}
+    .cc-law-head{padding:14px;border-bottom:1px solid rgba(49,185,255,.16);}
+    .cc-law-back{border:1px solid rgba(49,185,255,.3);background:rgba(4,26,43,.9);color:#bfeaff;border-radius:10px;padding:8px 11px;font-size:9px;font-weight:900;margin-bottom:10px;}
+    .cc-law-head h3{font-size:16px;margin:0;color:#f1f8ff}.cc-law-head p{font-size:9px;color:#8daabd;margin:5px 0 0}
+    .cc-law-search{margin:10px 0 0;display:flex;align-items:center;background:#031321;border:1px solid rgba(49,185,255,.24);border-radius:10px;padding:0 10px}.cc-law-search input{width:100%;height:40px;border:0!important;background:transparent!important;color:#fff!important;font-size:11px!important;outline:none!important}
+    .cc-law-body{padding:10px;display:grid;gap:8px;max-height:68vh;overflow:auto}.cc-art{border:1px solid rgba(49,185,255,.14);border-radius:11px;background:rgba(4,22,37,.78);padding:10px}.cc-art-head{display:flex;gap:8px;align-items:flex-start}.cc-art-no{color:#31b9ff;font-size:9px;font-weight:900;white-space:nowrap}.cc-art-title{color:#edf7ff;font-size:10px;font-weight:800}.cc-art-text{white-space:pre-wrap;color:#c7d8e4;font-size:10px;line-height:1.55;margin-top:8px}.cc-art-extra{white-space:pre-wrap;color:#8ea7b7;font-size:8px;line-height:1.45;margin-top:7px;border-top:1px solid rgba(255,255,255,.06);padding-top:7px}.cc-law-empty{padding:25px;text-align:center;color:#8ca5b5;font-size:10px}.cc-law-status{font-size:8px;color:#7fa0b4;margin-top:6px}
+  `;document.head.appendChild(s);}
+  function list(){return document.getElementById('normativaList')||document.querySelector('#section-normativa .normativa-list');}
+  function baseCards(){const l=list();if(!l)return null;const constitution=document.getElementById('centinela-normativa-constitucion-card');l.innerHTML='';if(constitution)l.appendChild(constitution);return l;}
+  function render(){const l=baseCards();if(!l)return;const q=norm(query);const visible=laws.filter(x=>!q||norm(x.name).includes(q)||norm(x.abbr).includes(q)||x.articles.some(a=>norm(JSON.stringify(a)).includes(q)));
+    for(const law of visible){const card=document.createElement('div');card.className='normativa-card cc-law-card';card.dataset.law=law.name;const count=law.articles.length;card.innerHTML=`<div class="normativa-icon">📘</div><div class="normativa-info"><h3>${esc(law.name)}</h3><p>${esc(law.abbr||law.source)}</p><span class="cc-law-count">${count?count+' artículos cargados':'Sin articulado en esta base'}</span><small class="cc-law-source">${esc([...law.sources].join(' · '))}</small></div><button type="button" class="normativa-open">Ver</button>`;card.querySelector('button').onclick=()=>openLaw(law);l.appendChild(card);}
+  }
+  function openLaw(law){selected=law;query='';const l=list();if(l)l.style.display='none';const search=document.querySelector('#section-normativa .search-box');if(search)search.style.display='none';let panel=document.getElementById('ccNormativaLawPanel');if(!panel){panel=document.createElement('div');panel.id='ccNormativaLawPanel';panel.className='cc-law-panel';document.getElementById('section-normativa')?.appendChild(panel);}panel.style.display='block';drawLaw();panel.scrollIntoView({behavior:'smooth',block:'start'});}
+  function drawLaw(){const p=document.getElementById('ccNormativaLawPanel');if(!p||!selected)return;const q=norm(query);const arts=selected.articles.filter(a=>!q||norm(`${articleNumber(a)} ${JSON.stringify(a)}`).includes(q));p.innerHTML=`<div class="cc-law-head"><button class="cc-law-back" type="button">← Volver a Normativa</button><h3>${esc(selected.name)}</h3><p>${selected.articles.length} artículos cargados · ${esc(selected.boe||selected.abbr||selected.source||'Base local')}</p><div class="cc-law-search"><input id="ccLawSearchInput" type="search" placeholder="Buscar dentro del articulado…" value="${esc(query)}"></div></div><div class="cc-law-body">${arts.length?arts.map(articleCard).join(''):'<div class="cc-law-empty">No hay artículos que coincidan con la búsqueda.</div>'}</div>`;p.querySelector('.cc-law-back').onclick=closeLaw;p.querySelector('#ccLawSearchInput').oninput=e=>{query=e.target.value;drawLaw();setTimeout(()=>{const i=document.getElementById('ccLawSearchInput');i?.focus();i?.setSelectionRange(i.value.length,i.value.length);},0);};}
+  function articleCard(a){const known=['numero','articulo','number','id','titulo','title','texto','text','contenido','descripcion','resumen'];const extras=Object.entries(a||{}).filter(([k])=>!known.includes(k)&&a[k]!=null&&a[k]!==''&&!(Array.isArray(a[k])&&a[k].length===0));return `<article class="cc-art"><div class="cc-art-head"><span class="cc-art-no">ART. ${esc(articleNumber(a)||'—')}</span><span class="cc-art-title">${esc(val(a,['titulo','title'])||'')}</span></div><div class="cc-art-text">${esc(articleText(a)||'')}</div>${extras.length?`<div class="cc-art-extra">${esc(extras.map(([k,v])=>`${k}: ${typeof v==='object'?JSON.stringify(v,null,2):v}`).join('\n'))}</div>`:''}</article>`;}
+  function closeLaw(){selected=null;query='';const p=document.getElementById('ccNormativaLawPanel');if(p)p.style.display='none';const l=list();if(l)l.style.display='grid';const search=document.querySelector('#section-normativa .search-box');if(search)search.style.display='';render();}
+  function boot(){styles();const s=document.getElementById('normativaSearch');if(s)s.addEventListener('input',e=>{query=e.target.value;render();});const old=window.renderizarNormativa;window.__centinelaNormativaUnificada={reload:load,laws:()=>laws};load();const observer=new MutationObserver(()=>{if(!selected&&!document.getElementById('ccNormativaLawPanel')?.style.display)render();});observer.observe(document.getElementById('section-normativa')||document.body,{childList:true,subtree:true});}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
