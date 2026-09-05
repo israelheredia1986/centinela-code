@@ -13,7 +13,7 @@
   // Apoyo operativo visible. Los apuntes SPPL ya NO se muestran como pestaña.
   loadScript('centinelaActuacionesOperativasScript','./actuaciones-operativas.js?v=20260905f');
   // Contexto jurídico integral para la IA, invisible para el usuario.
-  loadScript('centinelaIAContextoIntegralScript','./ia-context-integral.js?v=20260905f');
+  loadScript('centinelaIAContextoIntegralScript','./ia-contexto-integral.js?v=20260905f');
 
   // Evita que los módulos antiguos de Normativa vuelvan a pintar duplicados mientras
   // se carga el catálogo unificado.
@@ -28,6 +28,8 @@
   loadScript('centinelaNormativaUnificadaScript','./normativa-unificada.js?v=20260905f');
   // Compatibilidad con el buscador del app.js antiguo.
   loadScript('centinelaNormativaCompatScript','./normativa-compat.js?v=20260905f');
+  // Para leyes cuyo corpus local sea parcial, ofrece dentro de la ficha el texto consolidado oficial.
+  loadScript('centinelaNormativaOficialScript','./normativa-oficial.js?v=20260905g');
 
   const st=document.createElement('style');
   st.id='cc-dashboard-three-actions-final';
