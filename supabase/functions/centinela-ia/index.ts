@@ -8,6 +8,8 @@ const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MO
 
 const ALLOWED_ORIGINS = new Set([
   "https://israelheredia1986.github.io",
+  "https://centinela-code.netlify.app",
+  "https://deploy-preview-9--centinela-code.netlify.app",
   "http://localhost:3000",
   "http://localhost:5173",
   "http://127.0.0.1:3000",
