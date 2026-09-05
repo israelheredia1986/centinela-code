@@ -1,0 +1,42 @@
+name: Validar Centinela Code
+
+on:
+  push:
+    branches: [main, 'fix/**']
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validar sintaxis JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(git ls-files -z -- '*.js')
+
+      - name: Validar JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            python -m json.tool "$file" >/dev/null
+          done < <(git ls-files -z -- '*.json')
+
+      - name: Instalar Deno
+        uses: denoland/setup-deno@v2
+
+      - name: Validar Edge Function Supabase
+        run: deno check supabase/functions/centinela-ia/index.ts
