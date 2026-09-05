@@ -17,18 +17,23 @@
       #${CARD_ID} .normativa-icon{font-size:0!important;color:#55bdff!important;display:grid!important;place-items:center!important;}
       #${CARD_ID} .normativa-icon:before{content:'§';font-size:34px;font-weight:900;line-height:1;text-shadow:0 0 14px currentColor;}
 
-      /* Todas las normas deben conservar el mismo tamaño visual.
-         La tarjeta de Constitución no debe estirarse para ocupar varias filas. */
+      /* Todas las normas se muestran en una sola columna, una debajo de otra,
+         evitando el desencuadre/masonry de la vista de Normativa. */
       #section-normativa .normativa-list{
+        display:grid!important;
+        grid-template-columns:1fr!important;
         align-items:start!important;
         grid-auto-rows:auto!important;
+        gap:12px!important;
       }
       #section-normativa .normativa-list > .normativa-card{
         align-self:start!important;
+        grid-column:1!important;
+        width:100%!important;
       }
       #${CARD_ID}{
         grid-row:auto!important;
-        grid-column:auto!important;
+        grid-column:1!important;
         align-self:start!important;
         height:190px!important;
         min-height:190px!important;
