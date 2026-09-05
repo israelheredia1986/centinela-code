@@ -16,10 +16,37 @@
       #${CARD_ID}{cursor:pointer;}
       #${CARD_ID} .normativa-icon{font-size:0!important;color:#55bdff!important;display:grid!important;place-items:center!important;}
       #${CARD_ID} .normativa-icon:before{content:'§';font-size:34px;font-weight:900;line-height:1;text-shadow:0 0 14px currentColor;}
+
+      /* Todas las normas deben conservar el mismo tamaño visual.
+         La tarjeta de Constitución no debe estirarse para ocupar varias filas. */
+      #section-normativa .normativa-list{
+        align-items:start!important;
+        grid-auto-rows:auto!important;
+      }
+      #section-normativa .normativa-list > .normativa-card{
+        align-self:start!important;
+      }
+      #${CARD_ID}{
+        grid-row:auto!important;
+        grid-column:auto!important;
+        align-self:start!important;
+        height:190px!important;
+        min-height:190px!important;
+        max-height:190px!important;
+        box-sizing:border-box!important;
+        overflow:hidden!important;
+      }
+
       #${PANEL_ID}.centinela-hidden{display:none!important;}
       .centinela-constitution-back{display:flex;align-items:center;gap:8px;margin:0 0 12px;padding:10px 13px;border:1px solid #245f8d;border-radius:12px;background:#061a2b;color:#d9efff;font-size:10px;font-weight:900;cursor:pointer;}
       #section-normativa .page-title:before{content:'§';display:grid;place-items:center;width:46px;height:46px;flex:0 0 46px;margin-right:12px;border:1px solid #238ed0;border-radius:13px;background:linear-gradient(145deg,#0b4770,#06223a);color:#5bc4ff;font-size:30px;font-weight:900;text-shadow:0 0 14px #1597ff;box-shadow:0 0 20px rgba(21,151,255,.2),inset 0 0 18px rgba(0,150,255,.12);}
       #section-normativa .page-title{display:flex!important;align-items:center!important;}
+      @media (max-width:768px){
+        #${CARD_ID}{height:180px!important;min-height:180px!important;max-height:180px!important;}
+      }
+      @media (max-width:520px){
+        #${CARD_ID}{height:170px!important;min-height:170px!important;max-height:170px!important;}
+      }
     `;
     document.head.appendChild(s);
   }
