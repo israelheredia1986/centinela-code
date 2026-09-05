@@ -1,4 +1,4 @@
-/* CENTINELA CODE — carga de módulos operativos y refresco de versión. */
+/* CENTINELA CODE — carga de módulos operativos, apuntes e IA con contexto integral. */
 (function(){
   "use strict";
   document.querySelectorAll('.cc-global-search,#centinela-global-search-ui').forEach(el=>el.remove());
@@ -10,8 +10,9 @@
     document.body.appendChild(script);
   }
 
-  loadScript('centinelaActuacionesOperativasScript','./actuaciones-operativas.js?v=20260905c');
-  loadScript('centinelaApuntesLargosScript','./apuntes-largos.js?v=20260905c');
+  loadScript('centinelaActuacionesOperativasScript','./actuaciones-operativas.js?v=20260905d');
+  loadScript('centinelaApuntesLargosScript','./apuntes-largos.js?v=20260905d');
+  loadScript('centinelaIAContextoIntegralScript','./ia-context-integral.js?v=20260905d');
 
   const st=document.createElement('style');
   st.id='cc-dashboard-three-actions-final';
