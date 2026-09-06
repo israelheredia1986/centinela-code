@@ -38,7 +38,7 @@
       await cargar(`${base}decreto-155-2018-oficial.js?v=20260906v1`);
     }catch(e){console.error("Centinela Code — Espectáculos públicos:",e)}
     try{
-      await cargar(`${base}normativa-click-fix.js?v=20260906v1`);
+      await cargar(`${base}normativa-click-fix.js?v=20260906v2`);
     }catch(e){console.error("Centinela Code — reparación de clics de Normativa:",e)}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});
