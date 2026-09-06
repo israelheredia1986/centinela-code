@@ -1,4 +1,4 @@
-/* CENTINELA — iconos temáticos para tarjetas de Normativa, sin observadores ni refrescos periódicos. */
+/* CENTINELA — iconos temáticos para tarjetas de Normativa. */
 (function(){
   'use strict';
   const norm=s=>String(s??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
@@ -11,28 +11,15 @@
     [['lecrim','enjuiciamiento criminal','2/1986'],'📋'],
     [['extranjeria','extranjería'],'🌍'],
     [['seguridad privada'],'🔐'],
-    [['espectaculos','espectáculos','155/2018'],'🎪'],
+    [['espectaculos','espectáculos','155/2018','251/2023','251/23'],'🎪'],
     [['animales'],'🐾'],
     [['reglamento de armas','armas'],'🔫'],
     [['medio ambiente','ruidos'],'🌿'],
     [['39/2015','7/1985','5/2010','policias locales','policías locales'],'🏛️'],
     [['ordenanza san roque'],'📍']
   ];
-  function iconFor(name){const n=norm(name);for(const [keys,icon] of icons)if(keys.some(k=>n.includes(norm(k))))return icon;return '📘';}
-  function paint(){
-    document.querySelectorAll('#section-normativa .cc-law-card').forEach(card=>{
-      const name=card.dataset.law||card.querySelector('h3')?.textContent||'';
-      const icon=card.querySelector('.normativa-icon');
-      if(icon){const next=iconFor(name);if(icon.textContent!==next)icon.textContent=next;icon.setAttribute('aria-hidden','true');icon.classList.add('cc-norm-theme-icon');}
-    });
-  }
-  function boot(){
-    if(document.getElementById('cc-norm-icon-style')){paint();return;}
-    const s=document.createElement('style');s.id='cc-norm-icon-style';s.textContent='.cc-norm-theme-icon{font-size:28px!important;width:38px;min-width:38px;text-align:center;line-height:1;filter:drop-shadow(0 0 6px rgba(49,185,255,.28));}.cc-law-card.cc-ordenanza .cc-norm-theme-icon{filter:drop-shadow(0 0 7px rgba(255,211,74,.45));}';document.head.appendChild(s);
-    // El catálogo ya crea las tarjetas; pintamos una vez y no volvemos a observar el DOM.
-    paint();
-    requestAnimationFrame(paint);
-    setTimeout(paint,250);
-  }
+  function iconFor(name){const n=norm(name);for(const [keys,icon] of icons)if(keys.some(k=>n.includes(norm(k))))return icon;return '📘'}
+  function paint(){document.querySelectorAll('#section-normativa .cc-law-card').forEach(card=>{const name=card.dataset.law||card.querySelector('h3')?.textContent||'';const icon=card.querySelector('.normativa-icon');if(icon){const next=iconFor(name);if(icon.textContent!==next)icon.textContent=next;icon.setAttribute('aria-hidden','true');icon.classList.add('cc-norm-theme-icon')}})}
+  function boot(){if(!document.getElementById('cc-norm-icon-style')){const s=document.createElement('style');s.id='cc-norm-icon-style';s.textContent='.cc-norm-theme-icon{font-size:28px!important;width:38px;min-width:38px;text-align:center;line-height:1;filter:drop-shadow(0 0 6px rgba(49,185,255,.28))}.cc-law-card.cc-ordenanza .cc-norm-theme-icon{filter:drop-shadow(0 0 7px rgba(255,211,74,.45))}';document.head.appendChild(s)}paint();requestAnimationFrame(paint);setTimeout(paint,250)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
