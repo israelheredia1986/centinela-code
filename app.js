@@ -355,15 +355,66 @@ function tokenizarConsulta(valor) {
   return significativos.length ? significativos : tokens; 
 } 
 
+const CACHE_REGEX_TOKEN = new Map();
+function regexToken(token) {
+  let re = CACHE_REGEX_TOKEN.get(token);
+  if (!re) {
+    const escapado = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // El token debe empezar en un límite de palabra: así "obra" encuentra
+    // "obra"/"obras"/"obrero" pero no coincide dentro de "colabora" o "labora".
+    re = new RegExp("(^|[^a-z0-9])" + escapado, "i");
+    CACHE_REGEX_TOKEN.set(token, re);
+  }
+  return re;
+}
+
+function contieneToken(contenidoNormalizado, token) {
+  return regexToken(token).test(contenidoNormalizado);
+}
+
 function coincideConsulta(contenidoNormalizado, tokens) { 
   if (!tokens.length) return false; 
   return tokens.every((token) => { 
-    if (contenidoNormalizado.includes(token)) return true; 
+    if (contieneToken(contenidoNormalizado, token)) return true; 
     const sinonimos = SINONIMOS_BUSQUEDA[token]; 
     if (!sinonimos) return false; 
-    return sinonimos.some((alternativa) => contenidoNormalizado.includes(alternativa)); 
+    return sinonimos.some((alternativa) => contieneToken(contenidoNormalizado, alternativa)); 
   }); 
 } 
+
+// Puntúa una coincidencia según si las palabras buscadas aparecen en los
+// campos que de verdad identifican el contenido (título, ley, conducta...)
+// o solo aparecen, de forma casual, en medio de un texto largo. Antes,
+// una ley larga que mencionara las 3 palabras sueltas en párrafos distintos
+// puntuaba igual que una coincidencia exacta, y podía salir la primera.
+function puntuarCoincidencia(camposPrincipales, camposSecundarios, tokens) {
+  const principal = normalizarTexto(camposPrincipales.filter(Boolean).join(" "));
+  const secundario = normalizarTexto(camposSecundarios.filter(Boolean).join(" "));
+  let puntos = 0;
+  tokens.forEach((token) => {
+    if (contieneToken(principal, token)) puntos += 10;
+    else if (contieneToken(secundario, token)) puntos += 1;
+  });
+  return puntos;
+}
+
+function puntuarInfraccion(infraccion, tokens) {
+  const palabras = Array.isArray(infraccion.palabrasClave) ? infraccion.palabrasClave : [];
+  const responsables = Array.isArray(infraccion.responsables) ? infraccion.responsables : [];
+  return puntuarCoincidencia(
+    [infraccion.titulo, infraccion.conducta, infraccion.codigo, infraccion.articulo, ...palabras],
+    [infraccion.ley, infraccion.apartado, infraccion.gravedad, ...responsables],
+    tokens
+  );
+}
+
+function puntuarArticulo(articulo, tokens) {
+  return puntuarCoincidencia(
+    [articulo.ley, articulo.leyCompleta, articulo.numero, articulo.titulo],
+    [articulo.texto],
+    tokens
+  );
+}
 
 function escaparHTML(valor) { 
   return String(valor ?? "") 
@@ -961,14 +1012,14 @@ function actualizarBusqueda() {
     ].join(" "); 
 
     return coincideConsulta(normalizarTexto(contenido), tokens); 
-  }).map((infraccion) => ({ ...infraccion, tipoResultado: "infraccion" })); 
+  }).map((infraccion) => ({ ...infraccion, tipoResultado: "infraccion", _score: puntuarInfraccion(infraccion, tokens) })); 
 
   let resultadosArticulos = []; 
   if (tokens.length && gravedad === "all") { 
     resultadosArticulos = obtenerArticulosNormativa().filter((articulo) => { 
       const contenido = [articulo.ley, articulo.leyCompleta, articulo.numero, articulo.titulo, articulo.texto].join(" "); 
       return coincideConsulta(normalizarTexto(contenido), tokens); 
-    }).map((articulo) => ({ ...articulo, tipoResultado: "articulo" })); 
+    }).map((articulo) => ({ ...articulo, tipoResultado: "articulo", _score: puntuarArticulo(articulo, tokens) })); 
   } 
 
   estado.resultados = resultadosInfracciones.concat(resultadosArticulos); 
@@ -984,6 +1035,9 @@ function ordenarResultados(texto) {
     const codigoB = normalizarTexto(obtenerCodigo(b)); 
     if (codigoA === texto && codigoB !== texto) return -1; 
     if (codigoB === texto && codigoA !== texto) return 1; 
+    const puntosA = a._score || 0; 
+    const puntosB = b._score || 0; 
+    if (puntosA !== puntosB) return puntosB - puntosA; 
     if (a.tipoResultado !== b.tipoResultado) return a.tipoResultado === "infraccion" ? -1 : 1; 
     const tituloA = normalizarTexto(a.titulo); 
     const tituloB = normalizarTexto(b.titulo); 
