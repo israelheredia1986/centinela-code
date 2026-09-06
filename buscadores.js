@@ -2,8 +2,6 @@
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
    V16 — búsqueda única, local y sin navegación externa
    + visor completo de Espectáculos Públicos
-   + Decreto 155/2018 desde BOJA 2018/150/13
-   + reparación global de clics en Normativa
    ============================================================ */
 (function(){
   "use strict";
@@ -11,13 +9,7 @@
   function cargar(src){
     return new Promise((resolve,reject)=>{
       if(document.querySelector(`script[data-centinela-src="${src}"]`)){resolve();return;}
-      const s=document.createElement("script");
-      s.src=src;
-      s.async=false;
-      s.dataset.centinelaSrc=src;
-      s.onload=resolve;
-      s.onerror=()=>reject(new Error(`No se pudo cargar ${src}`));
-      document.head.appendChild(s);
+      const s=document.createElement("script");s.src=src;s.async=false;s.dataset.centinelaSrc=src;s.onload=resolve;s.onerror=()=>reject(new Error(`No se pudo cargar ${src}`));document.head.appendChild(s);
     });
   }
   async function boot(){
@@ -35,12 +27,7 @@
     }catch(e){console.error("Centinela Code — Constitución:",e)}
     try{
       await cargar(`${base}decreto-251-2023.js?v=20260906v4`);
-      await cargar(`${base}decreto-155-2018-oficial.js?v=20260906v1`);
     }catch(e){console.error("Centinela Code — Espectáculos públicos:",e)}
-    try{
-      await cargar(`${base}normativa-click-fix.js?v=20260906v2`);
-    }catch(e){console.error("Centinela Code — reparación de clics de Normativa:",e)}
   }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});
-  else boot();
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
