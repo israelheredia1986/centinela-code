@@ -246,8 +246,10 @@ BOJA nº 193, de 6 de octubre de 2023.`;
 
   function boot(){
     ensureCard();
-    const obs=new MutationObserver(()=>ensureCard());
-    obs.observe(document.body,{childList:true,subtree:true});
+    let q=false;
+    const run=()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;ensureCard();})};
+    const obs=new MutationObserver(run);
+    obs.observe(document.getElementById('section-normativa')||document.body,{childList:true,subtree:true});
     setInterval(ensureCard,2200);
   }
 
