@@ -1,6 +1,7 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V14 — búsqueda única, local y sin navegación externa
+   V15 — búsqueda única, local y sin navegación externa
+   + visor Decreto 251/2023
    ============================================================ */
 (function(){
   "use strict";
@@ -30,6 +31,9 @@
       await cargar(`${base}constitucion-completa.js?v=20260904-constitucion-v3`);
       await cargar(`${base}constitucion-tab-fix.js?v=20260904-constitucion-tab-fix-v2`);
     }catch(e){console.error("Centinela Code — Constitución:",e);}
+    try{
+      await cargar(`${base}decreto-251-2023.js?v=20260906v1`);
+    }catch(e){console.error("Centinela Code — Decreto 251/2023:",e);}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});
   else boot();
