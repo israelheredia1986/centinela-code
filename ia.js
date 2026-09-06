@@ -282,6 +282,14 @@
       cleanProgress("Buscando información oficial y actualizada en Internet...");
       const webResult=await callServer(question,"web_first");
       if (webResult.ok) { const parsed=parseResponse(webResult.data); if (webResult.data?.web_found===true && parsed.text) { cleanProgress("Respuesta web verificada y analizada."); return appendSources(parsed.text,parsed.sources); } }
+      else if (webResult.status===401) {
+        // La sesión no es válida: esto no es "no hay normativa", es que la IA
+        // remota nunca llega a consultarse. Hay que decírselo al agente en vez
+        // de disfrazarlo como resultado del motor local.
+        return "No se ha podido consultar Centinela IA porque la sesión no es válida o ha caducado. Cierra sesión y vuelve a entrar, y prueba de nuevo.";
+      } else if (webResult.error) {
+        console.warn("Centinela IA: fallo en la fase web_first:",webResult.error);
+      }
 
       cleanProgress("No hay una respuesta web suficientemente fiable. Consultando el repositorio normativo...");
       const local=await buildLocalContext(question);
@@ -289,11 +297,16 @@
       if (local.hits.length) {
         const repoResult=await callServer(question,"repository_fallback",local.context);
         if (repoResult.ok) { const parsed=parseResponse(repoResult.data); if (parsed.text) { cleanProgress("Respuesta normativa obtenida."); return parsed.text; } }
+        else if (repoResult.status===401) {
+          return "No se ha podido consultar Centinela IA porque la sesión no es válida o ha caducado. Cierra sesión y vuelve a entrar, y prueba de nuevo.";
+        } else if (repoResult.error) {
+          console.warn("Centinela IA: fallo en la fase repository_fallback:",repoResult.error);
+        }
       }
 
       if (local.hits.length) {
         cleanProgress("IA remota no disponible. Usando el motor normativo local.");
-        return formatearFallbackLocal(local.hits);
+        return formatearFallbackLocal(local.hits)+"\n\n(Aviso técnico: la IA remota no ha respondido en ninguna de las dos fases. Revisa la consola del navegador o los logs de la Edge Function 'centinela-ia' en Supabase para ver el motivo exacto — por ejemplo, la clave GEMINI_API_KEY o el despliegue de la función.)";
       }
 
       return "No se ha encontrado una referencia normativa suficientemente relacionada con los hechos descritos. No procede atribuir una infracción concreta solo por la coincidencia de palabras. Deben comprobarse los hechos (sustancia, edad, lugar, conducta, posesión/consumo, intervención de terceros y demás circunstancias) y consultar la normativa oficial aplicable antes de denunciar.";
