@@ -68,20 +68,71 @@
     return "";
   }
 
+  function pickRaw(object, names) {
+    if (!object || typeof object !== "object" || Array.isArray(object)) return undefined;
+    for (const name of names) {
+      const wanted = normalize(name);
+      const pair = Object.entries(object).find(([key]) => normalize(key) === wanted);
+      if (pair && pair[1] != null) return pair[1];
+    }
+    return undefined;
+  }
+
+  function formatMoney(value, moneda) {
+    const unit = moneda || "EUR";
+    const symbol = unit === "EUR" ? "€" : unit;
+    const number = typeof value === "number" ? value.toLocaleString("es-ES",{minimumFractionDigits:0,maximumFractionDigits:2,useGrouping:true}) : String(value);
+    return `${number} ${symbol}`;
+  }
+
+  function formatSancion(raw, severityHint) {
+    if (raw == null || raw === "") return "";
+    if (typeof raw !== "object") return String(raw);
+    if (raw.min != null || raw.max != null) {
+      if (raw.min != null && raw.max != null) return `De ${formatMoney(raw.min,raw.moneda)} a ${formatMoney(raw.max,raw.moneda)}`;
+      if (raw.max != null) return `Hasta ${formatMoney(raw.max,raw.moneda)}`;
+      return `Desde ${formatMoney(raw.min,raw.moneda)}`;
+    }
+    if (raw.detalle) return raw.tipo ? `${raw.tipo} — ${raw.detalle}` : String(raw.detalle);
+    if (raw.tipo) return String(raw.tipo);
+    const tierMap = {leve:"leve",grave:"grave",muygrave:"muyGrave","muy grave":"muyGrave"};
+    const hint = normalize(severityHint||"").replace(/\s+/g,"");
+    const tierKeys = Object.keys(raw).filter(key => typeof raw[key] === "object" && raw[key] && (raw[key].minPorcentaje != null || raw[key].maxPorcentaje != null || raw[key].multaMin != null));
+    if (tierKeys.length) {
+      const describe = key => {
+        const t = raw[key];
+        const parts = [];
+        if (t.minPorcentaje != null || t.maxPorcentaje != null) parts.push(`${t.minPorcentaje ?? "?"}%–${t.maxPorcentaje ?? "?"}%`);
+        if (t.multaMin != null) parts.push(`mínimo ${formatMoney(t.multaMin,raw.unidad)}`);
+        return parts.join(", ");
+      };
+      const matchKey = tierKeys.find(key => normalize(key).replace(/\s+/g,"") === hint || normalize(key).replace(/\s+/g,"").includes(hint));
+      if (matchKey) return describe(matchKey);
+      return tierKeys.map(key => `${key}: ${describe(key)}`).join(" · ");
+    }
+    return "";
+  }
+
   function recordsFrom(value, source, out = [], depth = 0, path = "$") {
     if (depth > 9 || value == null || out.length >= 7000) return out;
     if (Array.isArray(value)) { value.forEach((item, index) => recordsFrom(item, source, out, depth + 1, `${path}[${index}]`)); return out; }
     if (typeof value !== "object") return out;
+    const law = pick(value,["ley","norma"]);
     const article = pick(value,["articulo","artículo","article","art","precepto"]);
     const code = pick(value,["codigo","código","code"]);
     const title = pick(value,["titulo","título","title","denominacion","denominación","epigrafe","epígrafe","nombre","name"]);
     const description = pick(value,["conducta","descripcion","descripción","description","texto","text","contenido","content","tipificacion","tipificación","hechos","resumen"]);
     const severity = pick(value,["gravedad","severity","clasificacion","clasificación"]);
-    const amount = pick(value,["cuantia","cuantía","importe","multa","sancion","sanción"]);
-    const foundation = pick(value,["fundamento","fundamento_juridico","fundamento jurídico","base_legal","base legal"]);
+    const amountRaw = pickRaw(value,["cuantia","cuantía","importe","multa","sancion","sanción"]);
+    const amount = formatSancion(amountRaw, severity);
+    const foundation = pick(value,["fundamento","fundamento_juridico","fundamento jurídico","base_legal","base legal","observaciones","nota"]);
     const action = pick(value,["actuacion_policial","actuación policial","actuacion","actuación","procedimiento"]);
-    const search = normalize([article,code,title,description,severity,amount,foundation,action].join(" "));
-    if (article || code || title || description || foundation || action) out.push({source,article,code,title,description,severity,amount,foundation,action,search,path});
+    const responsablesRaw = pickRaw(value,["responsables"]);
+    const medidasRaw = pickRaw(value,["medidas"]);
+    const responsables = Array.isArray(responsablesRaw) ? responsablesRaw.filter(Boolean).join(", ") : primitive(responsablesRaw);
+    const medidas = Array.isArray(medidasRaw) ? medidasRaw.filter(Boolean).join(", ") : primitive(medidasRaw);
+    const search = normalize([law,article,code,title,description,severity,amount,foundation,action,responsables,medidas].join(" "));
+    if (article || code || title || description || foundation || action) out.push({source,law,article,code,title,description,severity,amount,foundation,action,responsables,medidas,search,path});
     Object.entries(value).forEach(([key,child]) => { if (child && typeof child === "object") recordsFrom(child,source,out,depth+1,`${path}.${key}`); });
     return out;
   }
@@ -149,8 +200,8 @@
       const hits = rank(question,records);
       if (!hits.length) return {context:"NO HAY COINCIDENCIAS NORMATIVAS SUFICIENTEMENTE RELEVANTES EN EL REPOSITORIO LOCAL. No inventar una norma a partir de palabras aisladas.",hits:[]};
       const context = hits.map((record,index) => {
-        const header = `${index+1}. NORMA: ${record.source}${record.article ? ` | ARTÍCULO: ${record.article}` : ""}${record.code ? ` | CÓDIGO: ${record.code}` : ""}${record.title ? ` | TÍTULO: ${record.title}` : ""}`;
-        const details = [record.description ? `CONTENIDO: ${String(record.description).replace(/\s+/g," ").slice(0,2200)}` : "",record.severity ? `GRAVEDAD: ${record.severity}` : "",record.amount ? `SANCIÓN/CUANTÍA: ${record.amount}` : "",record.foundation ? `FUNDAMENTO: ${String(record.foundation).replace(/\s+/g," ").slice(0,1300)}` : "",record.action ? `ACTUACIÓN: ${String(record.action).replace(/\s+/g," ").slice(0,1300)}` : ""].filter(Boolean).join("\n");
+        const header = `${index+1}. NORMA: ${record.law || record.source}${record.article ? ` | ARTÍCULO: ${record.article}` : ""}${record.code ? ` | CÓDIGO: ${record.code}` : ""}${record.title ? ` | TÍTULO: ${record.title}` : ""}`;
+        const details = [record.description ? `CONTENIDO: ${String(record.description).replace(/\s+/g," ").slice(0,2200)}` : "",record.severity ? `GRAVEDAD: ${record.severity}` : "",record.amount ? `SANCIÓN/CUANTÍA: ${record.amount}` : "",record.foundation ? `FUNDAMENTO: ${String(record.foundation).replace(/\s+/g," ").slice(0,1300)}` : "",record.action ? `ACTUACIÓN: ${String(record.action).replace(/\s+/g," ").slice(0,1300)}` : "",record.responsables ? `RESPONSABLES: ${record.responsables}` : "",record.medidas ? `MEDIDAS: ${record.medidas}` : ""].filter(Boolean).join("\n");
         return `${header}\n${details}`;
       }).join("\n\n");
       return {context,hits};
@@ -201,17 +252,25 @@
 
   function formatearFallbackLocal(hits) {
     const lineas = [`\u26a0\ufe0f IA remota no disponible. Resultado del motor normativo local (${hits.length} coincidencia${hits.length>1?"s":""}):`];
+    let faltaProcedimiento = false;
     hits.forEach((r, i) => {
       lineas.push("");
       if (hits.length > 1) lineas.push(`\u2014 Coincidencia ${i+1} \u2014`);
       lineas.push(`Infracción: ${r.title || r.description || "(sin título)"}`);
-      lineas.push(`Norma aplicable: ${r.source}${r.article ? `, art. ${r.article}` : ""}${r.code ? ` (código ${r.code})` : ""}`);
+      const norma = r.law || r.source;
+      lineas.push(`Norma aplicable: ${norma}${r.article ? `, art. ${r.article}` : ""}${r.code ? ` (código ${r.code})` : ""}`);
       if (r.severity) lineas.push(`Calificación: ${r.severity}`);
       if (r.amount) lineas.push(`Sanción: ${r.amount}`);
       if (r.foundation) lineas.push(`Fundamento jurídico: ${r.foundation}`);
-      lineas.push(`Procedimiento policial: ${r.action || "Comprobar hechos, identidad, competencia, precepto aplicable y pruebas antes de denunciar."}`);
+      if (r.responsables) lineas.push(`Responsables: ${r.responsables}`);
+      if (r.medidas) lineas.push(`Medidas: ${r.medidas}`);
+      if (r.action) { lineas.push(`Procedimiento policial: ${r.action}`); }
+      else { faltaProcedimiento = true; }
     });
-    lineas.push("", "Aviso: verifica el precepto, la competencia y la cuantía aplicable antes de formalizar la actuación.");
+    lineas.push("");
+    lineas.push(faltaProcedimiento
+      ? "Aviso: los datos de esta norma no incluyen un procedimiento policial específico. Antes de actuar, comprueba hechos, identidad, competencia, precepto aplicable y pruebas, y verifica la cuantía exacta."
+      : "Aviso: verifica el precepto, la competencia y la cuantía aplicable antes de formalizar la actuación.");
     return lineas.join("\n");
   }
 
