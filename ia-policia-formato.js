@@ -145,7 +145,8 @@
       });
     });
 
-    if(document.body)observer.observe(document.body,{childList:true,subtree:true,characterData:true});
+    const zonaChat=document.getElementById("chatMessages")||document.body;
+    if(zonaChat)observer.observe(zonaChat,{childList:true,subtree:true,characterData:true});
     window.CentinelaPoliceFormatObserver=observer;
 
     // Revisión corta adicional para respuestas que el motor inserta por etapas.
