@@ -149,7 +149,7 @@
       }
     });
 
-    observer.observe(document.body, {
+    observer.observe(document.getElementById("chatMessages") || document.body, {
       childList: true,
       subtree: true,
       characterData: true,
