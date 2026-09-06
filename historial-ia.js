@@ -1,6 +1,6 @@
 /* ============================================================
    CENTINELA CODE — HISTORIAL / MEMORIA LOCAL DE CENTINELA IA
-   V1 — Persistencia local, conversaciones, búsqueda y borrado.
+   V2 — Historial persistente, reconstrucción visual y reanudación.
    No sustituye el motor IA: envuelve la función existente.
    ============================================================ */
 (function () {
@@ -11,22 +11,32 @@
   const MAX_CONVERSATIONS = 60;
   const MAX_MESSAGES = 80;
   const MAX_MESSAGE_CHARS = 8000;
-  const SESSION_GAP_MS = 30 * 60 * 1000;
 
-  let instalado = false;
+  let installed = false;
   let originalAsk = null;
   let currentId = null;
 
-  function ahora() { return new Date().toISOString(); }
-  function uid() { return `ia-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`; }
-  function clean(value, max = MAX_MESSAGE_CHARS) {
-    return String(value == null ? "" : value).replace(/\u0000/g, "").trim().slice(0, max);
+  function now() {
+    return new Date().toISOString();
   }
-  function textoRespuesta(value) {
+
+  function uid() {
+    return `ia-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  }
+
+  function clean(value, max = MAX_MESSAGE_CHARS) {
+    return String(value == null ? "" : value)
+      .replace(/\u0000/g, "")
+      .trim()
+      .slice(0, max);
+  }
+
+  function answerText(value) {
     if (typeof value === "string") return value;
     try { return JSON.stringify(value); } catch (_) { return String(value ?? ""); }
   }
-  function leer() {
+
+  function read() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       const data = raw ? JSON.parse(raw) : [];
@@ -35,180 +45,140 @@
       return [];
     }
   }
-  function guardar(data) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data.slice(0, MAX_CONVERSATIONS))); }
-    catch (error) { console.warn("Centinela IA — no se pudo guardar historial", error); }
+
+  function write(data) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data.slice(0, MAX_CONVERSATIONS)));
+    } catch (error) {
+      console.warn("Centinela IA — no se pudo guardar historial", error);
+    }
   }
-  function getConversation(id) { return leer().find(item => item.id === id) || null; }
-  function saveCurrentId() {
+
+  function getConversation(id) {
+    return read().find(item => item.id === id) || null;
+  }
+
+  function setCurrentId(id) {
+    currentId = id || null;
     try {
       if (currentId) localStorage.setItem(CURRENT_KEY, currentId);
       else localStorage.removeItem(CURRENT_KEY);
     } catch (_) {}
   }
-  function loadCurrentId() {
+
+  function getCurrentId() {
+    if (currentId) return currentId;
     try { return localStorage.getItem(CURRENT_KEY) || null; } catch (_) { return null; }
   }
 
-  function startConversation(title) {
-    const data = leer();
+  function startConversation(title = "Nueva conversación") {
+    const data = read();
     const conversation = {
       id: uid(),
-      title: clean(title || "Nueva consulta", 90),
-      created_at: ahora(),
-      updated_at: ahora(),
+      title: clean(title || "Nueva conversación", 90),
+      created_at: now(),
+      updated_at: now(),
       messages: []
     };
     data.unshift(conversation);
-    while (data.length > MAX_CONVERSATIONS) data.pop();
-    guardar(data);
-    currentId = conversation.id;
-    saveCurrentId();
+    write(data);
+    setCurrentId(conversation.id);
     return conversation;
   }
 
   function ensureConversation(question) {
-    const requested = currentId || loadCurrentId();
-    if (requested) {
-      const existing = getConversation(requested);
-      if (existing && Date.now() - new Date(existing.updated_at || existing.created_at).getTime() < SESSION_GAP_MS) {
-        currentId = requested;
-        return existing;
-      }
+    const id = getCurrentId();
+    if (id) {
+      const current = getConversation(id);
+      if (current) return current;
     }
     return startConversation(question || "Nueva consulta");
   }
 
   function addMessage(question, answer) {
-    const data = leer();
-    let id = currentId || loadCurrentId();
-    let conversation = data.find(item => item.id === id);
-    if (!conversation || Date.now() - new Date(conversation.updated_at || conversation.created_at).getTime() >= SESSION_GAP_MS) {
+    const data = read();
+    const id = getCurrentId();
+    let conversation = id ? data.find(item => item.id === id) : null;
+
+    if (!conversation) {
       conversation = {
         id: uid(),
         title: clean(question || "Nueva consulta", 90),
-        created_at: ahora(),
-        updated_at: ahora(),
+        created_at: now(),
+        updated_at: now(),
         messages: []
       };
       data.unshift(conversation);
-      id = conversation.id;
-      currentId = id;
-      saveCurrentId();
+      setCurrentId(conversation.id);
     }
 
     conversation.messages = Array.isArray(conversation.messages) ? conversation.messages : [];
-    conversation.messages.push({
-      role: "user",
-      content: clean(question),
-      at: ahora()
-    });
-    conversation.messages.push({
-      role: "assistant",
-      content: clean(textoRespuesta(answer)),
-      at: ahora()
-    });
+    conversation.messages.push({ role: "user", content: clean(question), at: now() });
+    conversation.messages.push({ role: "assistant", content: clean(answerText(answer)), at: now() });
+
     if (conversation.messages.length > MAX_MESSAGES) {
       conversation.messages = conversation.messages.slice(-MAX_MESSAGES);
     }
-    conversation.updated_at = ahora();
-    if ((!conversation.title || conversation.title === "Nueva consulta") && question) {
-      conversation.title = clean(question, 90);
+
+    if (!conversation.title || conversation.title === "Nueva conversación" || conversation.title === "Nueva consulta") {
+      conversation.title = clean(question || conversation.title, 90);
     }
+    conversation.updated_at = now();
 
     const index = data.findIndex(item => item.id === conversation.id);
     if (index > 0) data.splice(index, 1), data.unshift(conversation);
-    guardar(data);
+    write(data);
     renderHistory();
+    emit("centinela:ia-history-changed", conversation);
     return conversation;
   }
 
-  function relativeDate(value) {
-    try {
-      const d = new Date(value);
-      return d.toLocaleString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
-    } catch (_) { return ""; }
+  function emit(name, detail) {
+    try { window.dispatchEvent(new CustomEvent(name, { detail })); } catch (_) {}
   }
 
   function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+    return String(value ?? "").replace(/[&<>\"']/g, char => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+    }[char]));
   }
 
-  function latestPreview(conversation) {
-    const messages = Array.isArray(conversation.messages) ? conversation.messages : [];
-    const last = [...messages].reverse().find(m => m.role === "assistant") || messages[messages.length - 1];
+  function dateText(value) {
+    try {
+      return new Date(value).toLocaleString("es-ES", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit"
+      });
+    } catch (_) { return ""; }
+  }
+
+  function preview(conversation) {
+    const messages = Array.isArray(conversation?.messages) ? conversation.messages : [];
+    const last = [...messages].reverse().find(item => item?.role === "assistant") || messages[messages.length - 1];
     return clean(last?.content || "Sin mensajes", 180).replace(/\s+/g, " ");
   }
 
-  function emitConversationChanged() {
-    try { window.dispatchEvent(new CustomEvent("centinela:ia-history-changed")); } catch (_) {}
-  }
-
-  function closeModal() {
-    const modal = document.getElementById("centinelaIAHistoryModal");
-    if (modal) modal.classList.remove("is-open");
-  }
-
-  function openModal() {
-    const modal = document.getElementById("centinelaIAHistoryModal");
-    if (!modal) return;
-    renderHistory();
-    modal.classList.add("is-open");
-  }
-
-  function newConversation() {
-    currentId = null;
-    saveCurrentId();
-    startConversation("Nueva conversación");
-    closeModal();
-    emitConversationChanged();
-    showToast("Nueva conversación iniciada");
-  }
-
-  function deleteConversation(id) {
-    const data = leer().filter(item => item.id !== id);
-    guardar(data);
-    if (currentId === id) {
-      currentId = null;
-      saveCurrentId();
+  function showToast(message) {
+    const toast = document.getElementById("toast");
+    const node = document.getElementById("toastMessage");
+    if (toast && node) {
+      node.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => toast.classList.remove("show"), 1800);
+      return;
     }
-    renderHistory();
-    emitConversationChanged();
-    showToast("Conversación eliminada");
-  }
-
-  function clearAll() {
-    if (!confirm("¿Borrar todo el historial de Centinela IA en este dispositivo?")) return;
-    try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(CURRENT_KEY); } catch (_) {}
-    currentId = null;
-    renderHistory();
-    emitConversationChanged();
-    showToast("Historial borrado");
-  }
-
-  function resumeConversation(id) {
-    const conversation = getConversation(id);
-    if (!conversation) return;
-    currentId = conversation.id;
-    saveCurrentId();
-    closeModal();
-
-    const section = document.querySelector('[data-section="ia"]');
-    if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
-
-    try {
-      window.dispatchEvent(new CustomEvent("centinela:ia-history-resume", { detail: conversation }));
-    } catch (_) {}
-    showToast("Conversación recuperada");
+    console.info("Centinela IA:", message);
   }
 
   function renderHistory(filter = "") {
     const list = document.getElementById("centinelaIAHistoryList");
     if (!list) return;
+
     const query = clean(filter).toLowerCase();
-    const data = leer();
+    const data = read();
     const filtered = query
-      ? data.filter(item => `${item.title} ${latestPreview(item)}`.toLowerCase().includes(query))
+      ? data.filter(item => `${item.title || ""} ${preview(item)}`.toLowerCase().includes(query))
       : data;
 
     if (!filtered.length) {
@@ -220,7 +190,11 @@
       <article class="cc-ia-history-item" data-history-id="${escapeHtml(item.id)}">
         <button type="button" class="cc-ia-history-open" data-history-open="${escapeHtml(item.id)}">
           <span class="cc-ia-history-icon">💬</span>
-          <span class="cc-ia-history-main"><strong>${escapeHtml(item.title || "Consulta")}</strong><small>${escapeHtml(relativeDate(item.updated_at || item.created_at))}</small><em>${escapeHtml(latestPreview(item))}</em></span>
+          <span class="cc-ia-history-main">
+            <strong>${escapeHtml(item.title || "Consulta")}</strong>
+            <small>${escapeHtml(dateText(item.updated_at || item.created_at))}</small>
+            <em>${escapeHtml(preview(item))}</em>
+          </span>
         </button>
         <button type="button" class="cc-ia-history-delete" title="Eliminar conversación" aria-label="Eliminar conversación" data-history-delete="${escapeHtml(item.id)}">🗑️</button>
       </article>`).join("");
@@ -260,21 +234,142 @@
       .cc-ia-history-empty strong{color:#edf9ff;font-size:14px}
       .cc-ia-history-empty span{font-size:11px;line-height:1.4}
       @media(max-width:520px){.cc-ia-history-modal{padding:8px}.cc-ia-history-dialog{border-radius:16px}.cc-ia-history-controls{flex-wrap:wrap}.cc-ia-history-search{flex-basis:100%}.cc-ia-history-clear{padding:9px 11px}}
+
+      .cc-ia-restored-banner{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px;padding:8px 10px;border:1px solid #176c96;border-radius:10px;background:linear-gradient(180deg,rgba(7,38,61,.95),rgba(3,20,34,.95));color:#bfeaff;font:700 10px/1.3 system-ui,sans-serif}
+      .cc-ia-restored-banner button{border:1px solid #337998;border-radius:8px;background:transparent;color:#dff6ff;padding:5px 8px;font-weight:800;cursor:pointer}
     `;
     document.head.appendChild(style);
   }
 
-  function showToast(message) {
-    const toast = document.getElementById("toast");
-    const node = document.getElementById("toastMessage");
-    if (toast && node) {
-      node.textContent = message;
-      toast.classList.add("show");
-      clearTimeout(showToast._timer);
-      showToast._timer = setTimeout(() => toast.classList.remove("show"), 1800);
+  function closeModal() {
+    document.getElementById("centinelaIAHistoryModal")?.classList.remove("is-open");
+  }
+
+  function openModal() {
+    const modal = document.getElementById("centinelaIAHistoryModal");
+    if (!modal) return;
+    renderHistory();
+    modal.classList.add("is-open");
+  }
+
+  function clearChat() {
+    const messages = document.getElementById("chatMessages");
+    if (!messages) return;
+    messages.innerHTML = `<div class="chat-bubble ai" style="background:#334155;padding:12px;border-radius:8px;color:#f8fafc;max-width:85%;font-size:.95rem;">🤖 <strong>Centinela AI:</strong> Saludos, Agente. Indícame los hechos o la duda normativa y te ayudaré a calificar la infracción o redactar la diligencia.</div>`;
+  }
+
+  function appendBubble(role, content) {
+    const messages = document.getElementById("chatMessages");
+    if (!messages) return;
+
+    const bubble = document.createElement("div");
+    bubble.className = `chat-bubble ${role === "assistant" ? "ai" : "user"}`;
+    bubble.style.cssText = role === "assistant"
+      ? "background:#334155;padding:12px;border-radius:8px;color:#f8fafc;max-width:85%;font-size:.95rem;white-space:pre-wrap;"
+      : "background:#0f4c75;padding:12px;border-radius:8px;color:#f8fafc;max-width:85%;font-size:.95rem;white-space:pre-wrap;align-self:flex-end;";
+
+    if (role === "assistant") {
+      const strong = document.createElement("strong");
+      strong.textContent = "Centinela AI: ";
+      bubble.appendChild(strong);
+      bubble.appendChild(document.createTextNode(content));
+    } else {
+      bubble.textContent = content;
+    }
+
+    messages.appendChild(bubble);
+  }
+
+  function scrollChat() {
+    const messages = document.getElementById("chatMessages");
+    if (messages) messages.scrollTop = messages.scrollHeight;
+  }
+
+  function renderConversation(conversation, showBanner = true) {
+    if (!conversation) return;
+    const messages = document.getElementById("chatMessages");
+    if (!messages) return;
+
+    const oldBanner = document.getElementById("ccIAConversationBanner");
+    oldBanner?.remove();
+    clearChat();
+
+    const stored = Array.isArray(conversation.messages) ? conversation.messages : [];
+    stored.forEach(message => {
+      if (!message || !message.content) return;
+      appendBubble(message.role === "assistant" ? "assistant" : "user", message.content);
+    });
+
+    if (showBanner) {
+      const banner = document.createElement("div");
+      banner.id = "ccIAConversationBanner";
+      banner.className = "cc-ia-restored-banner";
+      banner.innerHTML = `<span>↩ Conversación recuperada: <strong>${escapeHtml(conversation.title || "Consulta")}</strong></span><button type="button" id="ccCloseRestoredBanner">Cerrar</button>`;
+      messages.parentNode?.insertBefore(banner, messages);
+      document.getElementById("ccCloseRestoredBanner")?.addEventListener("click", () => banner.remove());
+    }
+
+    scrollChat();
+  }
+
+  function resumeConversation(id) {
+    const conversation = getConversation(id);
+    if (!conversation) return;
+    setCurrentId(conversation.id);
+    closeModal();
+
+    const iaSection = document.querySelector('[data-section="ia"]');
+    if (iaSection) iaSection.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    renderConversation(conversation, true);
+    emit("centinela:ia-history-resume", conversation);
+    showToast("Conversación recuperada");
+  }
+
+  function newConversation() {
+    setCurrentId(null);
+    const conversation = startConversation("Nueva conversación");
+    closeModal();
+    clearChat();
+    emit("centinela:ia-history-new", conversation);
+    showToast("Nueva conversación iniciada");
+  }
+
+  function deleteConversation(id) {
+    write(read().filter(item => item.id !== id));
+    if (getCurrentId() === id) setCurrentId(null);
+    renderHistory();
+    emit("centinela:ia-history-changed");
+    showToast("Conversación eliminada");
+  }
+
+  function clearAll() {
+    if (!confirm("¿Borrar todo el historial de Centinela IA en este dispositivo?")) return;
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(CURRENT_KEY);
+    } catch (_) {}
+    setCurrentId(null);
+    renderHistory();
+    clearChat();
+    emit("centinela:ia-history-changed");
+    showToast("Historial borrado");
+  }
+
+  function handleHistoryClick(event) {
+    const open = event.target.closest?.("[data-history-open]");
+    if (open) {
+      event.preventDefault();
+      resumeConversation(open.dataset.historyOpen);
       return;
     }
-    console.info("Centinela IA:", message);
+
+    const del = event.target.closest?.("[data-history-delete]");
+    if (del) {
+      event.preventDefault();
+      event.stopPropagation();
+      deleteConversation(del.dataset.historyDelete);
+    }
   }
 
   function buildUI() {
@@ -289,7 +384,7 @@
 
     const iaSection = document.querySelector('[data-section="ia"]');
     if (iaSection) {
-      const anchor = iaSection.querySelector("h1,h2,h3,.section-heading,.ia-header,.ia-panel") || iaSection.firstElementChild;
+      const anchor = iaSection.querySelector(".page-title,.section-heading,h1,h2,h3,.ia-header,.ia-panel") || iaSection.firstElementChild;
       if (anchor?.parentNode) anchor.parentNode.insertBefore(toolbar, anchor.nextSibling);
       else iaSection.prepend(toolbar);
     } else {
@@ -306,13 +401,13 @@
     modal.innerHTML = `
       <div class="cc-ia-history-dialog" role="dialog" aria-modal="true" aria-labelledby="ccIAHistoryTitle">
         <div class="cc-ia-history-header">
-          <div><h3 id="ccIAHistoryTitle">Historial de Centinela IA</h3><p>Conversaciones guardadas únicamente en este dispositivo</p></div>
-          <span class="cc-ia-history-spacer"></span>
+          <div><h3 id="ccIAHistoryTitle">Historial de Centinela IA</h3><p>Conversaciones guardadas en este dispositivo</p></div>
+          <div class="cc-ia-history-spacer"></div>
           <button type="button" class="cc-ia-history-close" id="ccCloseIAHistory" aria-label="Cerrar">×</button>
         </div>
         <div class="cc-ia-history-controls">
           <input id="ccIAHistorySearch" class="cc-ia-history-search" type="search" placeholder="Buscar en el historial…" autocomplete="off" />
-          <button type="button" class="cc-ia-history-clear" id="ccClearIAHistory">Borrar todo</button>
+          <button type="button" id="ccIAHistoryClear" class="cc-ia-history-clear">Borrar todo</button>
         </div>
         <div id="centinelaIAHistoryList" class="cc-ia-history-list"></div>
       </div>`;
@@ -321,58 +416,70 @@
     document.getElementById("ccOpenIAHistory")?.addEventListener("click", openModal);
     document.getElementById("ccNewIAConversation")?.addEventListener("click", newConversation);
     document.getElementById("ccCloseIAHistory")?.addEventListener("click", closeModal);
-    document.getElementById("ccClearIAHistory")?.addEventListener("click", clearAll);
-    document.getElementById("ccIAHistorySearch")?.addEventListener("input", event => renderHistory(event.target.value));
-    modal.addEventListener("click", event => { if (event.target === modal) closeModal(); });
-    document.addEventListener("keydown", event => { if (event.key === "Escape") closeModal(); });
-    document.getElementById("centinelaIAHistoryList")?.addEventListener("click", event => {
-      const open = event.target.closest("[data-history-open]");
-      const del = event.target.closest("[data-history-delete]");
-      if (open) resumeConversation(open.dataset.historyOpen);
-      else if (del) deleteConversation(del.dataset.historyDelete);
+    document.getElementById("ccIAHistoryClear")?.addEventListener("click", clearAll);
+    document.getElementById("ccIAHistorySearch")?.addEventListener("input", e => renderHistory(e.target.value));
+
+    modal.addEventListener("click", event => {
+      if (event.target === modal) closeModal();
+      handleHistoryClick(event);
     });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeModal();
+    });
+
     renderHistory();
   }
 
   function installWrapper() {
-    if (instalado) return true;
-    if (typeof window.preguntarCentinelaIA !== "function") return false;
-    originalAsk = window.preguntarCentinelaIA;
+    if (installed) return true;
+    const ask = window.preguntarCentinelaIA;
+    if (typeof ask !== "function") return false;
+
+    originalAsk = ask;
     window.preguntarCentinelaIA = async function (question, onProgress) {
       const q = clean(question);
-      if (!q) return originalAsk.call(this, question, onProgress);
-      let answer;
-      try {
-        answer = await originalAsk.call(this, question, onProgress);
-      } catch (error) {
-        answer = `Error al consultar Centinela IA: ${error?.message || error}`;
-        throw error;
-      } finally {
-        if (answer !== undefined) addMessage(q, answer);
-      }
+      if (!q) return "Escribe una consulta para Centinela IA.";
+
+      const existing = ensureConversation(q);
+      setCurrentId(existing.id);
+      const answer = await originalAsk.call(this, q, onProgress);
+      addMessage(q, answer);
       return answer;
     };
+
+    installed = true;
     window.CentinelaIAHistorial = {
-      version: "1.0.0",
-      listar: leer,
-      abrir: resumeConversation,
+      activo: true,
+      listar: read,
+      actual: () => getConversation(getCurrentId()),
       nueva: newConversation,
+      recuperar: resumeConversation,
       borrar: deleteConversation,
       borrarTodo: clearAll,
-      actual: () => currentId || loadCurrentId()
+      render: renderConversation
     };
-    instalado = true;
+
+    const current = getConversation(getCurrentId());
+    if (current && current.messages?.length) {
+      setTimeout(() => renderConversation(current, false), 0);
+    }
+
+    console.info("Centinela IA — historial V2 activo");
     return true;
   }
 
   function boot() {
     buildUI();
-    if (!installWrapper()) {
-      setTimeout(() => { installWrapper(); buildUI(); }, 250);
-      setTimeout(() => { installWrapper(); buildUI(); }, 1000);
-      setTimeout(() => { installWrapper(); buildUI(); }, 2500);
-    }
+    installWrapper();
   }
+
+  let tries = 0;
+  const timer = setInterval(() => {
+    tries += 1;
+    buildUI();
+    if (installWrapper() || tries >= 80) clearInterval(timer);
+  }, 250);
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot, { once: true });
@@ -380,6 +487,7 @@
     boot();
   }
 
-  window.addEventListener("centinela:ia-history-changed", renderHistory);
-  console.info("Centinela IA — historial local V1 activo");
+  window.addEventListener("centinela:ia-history-resume", event => {
+    if (event?.detail) renderConversation(event.detail, true);
+  });
 })();
