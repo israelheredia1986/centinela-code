@@ -26,7 +26,7 @@
       await cargar(`${base}constitucion-tab-fix.js?v=20260904-constitucion-tab-fix-v2`);
     }catch(e){console.error("Centinela Code — Constitución:",e)}
     try{
-      await cargar(`${base}decreto-251-2023.js?v=20260906v2`);
+      await cargar(`${base}decreto-251-2023.js?v=20260906v3`);
     }catch(e){console.error("Centinela Code — Espectáculos públicos:",e)}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
