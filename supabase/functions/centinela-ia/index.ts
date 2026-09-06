@@ -219,7 +219,20 @@ Deno.serve(async (req: Request) => {
       const prompt = `${POLICE_RULES}\n\nFASE INTERNET FIRST\n\nRealiza la consulta utilizando la herramienta de Búsqueda de Google habilitada.\nPrioriza resultados oficiales y vigentes. No uses memoria como sustituto de la búsqueda.\nSolo considera esta fase válida si la respuesta queda realmente fundamentada en fuentes web.\nSi no hay fuentes recuperadas o los resultados no permiten responder con seguridad, indícalo.\n\nCONSULTA DEL AGENTE:\n${pregunta}\n${webContext ? `\nCONTEXTO WEB ADICIONAL:\n${webContext}` : ""}`;
       const result = await callGemini(apiKey, prompt, true);
       if (!result.ok) {
-        return jsonResponse({ ok: false, mode: "web_first", web_found: false, error: result.data?.error?.message || "Error consultando Gemini con Búsqueda de Google.", status: result.status }, 502, origin);
+        // El fallo de Internet First no debe convertirse en un error de red visible
+        // en el navegador. La aplicación ya dispone de un fallback normativo local.
+        console.warn("Centinela IA: Internet First no disponible", result.status, result.data?.error?.message || result.data?.message || "");
+        return jsonResponse({
+          ok: true,
+          mode: "web_first",
+          web_found: false,
+          repository_required: true,
+          web_unavailable: true,
+          text: "",
+          sources: [],
+          search_queries: [],
+          reason: "No se ha podido completar la consulta web. Se activa el fallback normativo."
+        }, 200, origin);
       }
 
       const text = cleanText(result.text);
