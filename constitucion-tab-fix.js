@@ -216,8 +216,10 @@
     const panel=document.getElementById(PANEL_ID);
     if(panel) panel.classList.add('centinela-hidden');
     addCard();
-    const observer=new MutationObserver(()=>{removeOld();addCard();});
-    observer.observe(document.body,{childList:true,subtree:true});
+    let q=false;
+    const run=()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;removeOld();addCard();});};
+    const observer=new MutationObserver(run);
+    observer.observe(document.getElementById('section-normativa')||document.body,{childList:true,subtree:true});
     setTimeout(addCard,500);
     setTimeout(addCard,1500);
     setTimeout(repairLoad,700);
