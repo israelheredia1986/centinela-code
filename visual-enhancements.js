@@ -191,11 +191,14 @@
     reforzarBuscador();
     montarBuscadorDashboard();
     aplicarNuevaDistribucion();
-    var observer = new MutationObserver(function(){
+    var q=false;
+    var run=function(){if(q)return;q=true;requestAnimationFrame(function(){
+      q=false;
       aplicarEstilos();
       montarBuscadorDashboard();
       aplicarNuevaDistribucion();
-    });
+    });};
+    var observer = new MutationObserver(run);
     observer.observe(document.body, {childList:true,subtree:true});
   }
 
