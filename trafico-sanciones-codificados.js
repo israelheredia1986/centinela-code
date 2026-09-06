@@ -87,8 +87,10 @@
     });
   }
 
-  const observer=new MutationObserver(()=>enhance());
-  observer.observe(document.documentElement,{subtree:true,childList:true});
+  let q=false;
+  const run=()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;enhance();})};
+  const observer=new MutationObserver(run);
+  observer.observe(document.body,{subtree:true,childList:true});
   setTimeout(enhance,500);
   window.CentinelaTrafficSanctions={enhance,consequence};
 })();
