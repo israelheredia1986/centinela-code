@@ -199,6 +199,22 @@
     return {ok:false,status:0,error:lastError?.message||"No se ha podido consultar Centinela IA."};
   }
 
+  function formatearFallbackLocal(hits) {
+    const lineas = [`\u26a0\ufe0f IA remota no disponible. Resultado del motor normativo local (${hits.length} coincidencia${hits.length>1?"s":""}):`];
+    hits.forEach((r, i) => {
+      lineas.push("");
+      if (hits.length > 1) lineas.push(`\u2014 Coincidencia ${i+1} \u2014`);
+      lineas.push(`Infracción: ${r.title || r.description || "(sin título)"}`);
+      lineas.push(`Norma aplicable: ${r.source}${r.article ? `, art. ${r.article}` : ""}${r.code ? ` (código ${r.code})` : ""}`);
+      if (r.severity) lineas.push(`Calificación: ${r.severity}`);
+      if (r.amount) lineas.push(`Sanción: ${r.amount}`);
+      if (r.foundation) lineas.push(`Fundamento jurídico: ${r.foundation}`);
+      lineas.push(`Procedimiento policial: ${r.action || "Comprobar hechos, identidad, competencia, precepto aplicable y pruebas antes de denunciar."}`);
+    });
+    lineas.push("", "Aviso: verifica el precepto, la competencia y la cuantía aplicable antes de formalizar la actuación.");
+    return lineas.join("\n");
+  }
+
   async function preguntarCentinelaIA(pregunta,onProgress) {
     const question=String(pregunta||"").trim();
     if (!question) return "Escribe una consulta para Centinela IA.";
@@ -218,7 +234,7 @@
 
       if (local.hits.length) {
         cleanProgress("IA remota no disponible. Usando el motor normativo local.");
-        return JSON.stringify({resumen:`Se han localizado ${local.hits.length} referencias normativas directamente relacionadas con los términos principales de la consulta.`,infracciones:local.hits.map(record=>({fuente:record.source,articulo:record.article,codigo:record.code,titulo:record.title,descripcion:record.description,gravedad:record.severity,cuantia:record.amount,fundamento:record.foundation,actuacion_policial:record.action})),articulos:local.hits.map(record=>record.article).filter(Boolean),fundamento:local.hits.map(record=>record.foundation).filter(Boolean).join(" "),actuacion_policial:local.hits.map(record=>record.action).filter(Boolean).join(" ")||"Comprobar hechos, identidad, competencia, precepto aplicable y pruebas antes de denunciar.",aviso:"Resultado de contingencia: verificar el precepto, la competencia y la cuantía aplicable antes de formalizar la actuación."});
+        return formatearFallbackLocal(local.hits);
       }
 
       return "No se ha encontrado una referencia normativa suficientemente relacionada con los hechos descritos. No procede atribuir una infracción concreta solo por la coincidencia de palabras. Deben comprobarse los hechos (sustancia, edad, lugar, conducta, posesión/consumo, intervención de terceros y demás circunstancias) y consultar la normativa oficial aplicable antes de denunciar.";
