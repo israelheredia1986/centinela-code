@@ -3,6 +3,7 @@
    V16 — búsqueda única, local y sin navegación externa
    + visor completo de Espectáculos Públicos
    + Decreto 155/2018 desde BOJA 2018/150/13
+   + reparación global de clics en Normativa
    ============================================================ */
 (function(){
   "use strict";
@@ -36,6 +37,9 @@
       await cargar(`${base}decreto-251-2023.js?v=20260906v4`);
       await cargar(`${base}decreto-155-2018-oficial.js?v=20260906v1`);
     }catch(e){console.error("Centinela Code — Espectáculos públicos:",e)}
+    try{
+      await cargar(`${base}normativa-click-fix.js?v=20260906v1`);
+    }catch(e){console.error("Centinela Code — reparación de clics de Normativa:",e)}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});
   else boot();
