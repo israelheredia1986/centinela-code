@@ -1,8 +1,9 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V16 — búsqueda única, local y sin navegación externa
+   V17 — búsqueda única, local y sin navegación externa
    + visor completo de Espectáculos Públicos
    + historial local de Centinela IA
+   + memoria conversacional contextual
    ============================================================ */
 (function(){
   "use strict";
@@ -31,7 +32,8 @@
     }catch(e){console.error("Centinela Code — Espectáculos públicos:",e)}
     try{
       await cargar(`${base}historial-ia.js?v=20260906v1`);
-    }catch(e){console.error("Centinela Code — Historial IA:",e)}
+      await cargar(`${base}historial-ia-contexto.js?v=20260906v1`);
+    }catch(e){console.error("Centinela Code — Memoria IA:",e)}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
