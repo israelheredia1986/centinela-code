@@ -69,7 +69,8 @@
       .esp-text{padding:14px;border:1px solid rgba(45,113,159,.34);border-radius:14px;background:linear-gradient(145deg,rgba(6,30,49,.82),rgba(2,13,23,.96));color:#d5e3ec;font:400 10px/1.62 system-ui,-apple-system,Segoe UI,sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;max-height:68vh;overflow:auto}
       .esp-loading{padding:30px 12px;text-align:center;color:#a9bfd0;font-size:10px}
       .esp-error{padding:13px;border:1px solid rgba(255,82,101,.32);border-radius:13px;background:rgba(100,18,30,.16);color:#ffd8de;font-size:10px;line-height:1.5}
-      @media(max-width:560px){.esp-title{font-size:19px}.esp-btn{min-width:0}.esp-law .esp-btn{width:100%}}
+      .esp-frame{width:100%;height:70vh;border:1px solid rgba(45,113,159,.35);border-radius:13px;background:#fff}
+      @media(max-width:560px){.esp-title{font-size:19px}.esp-btn{min-width:0}.esp-law .esp-btn{width:100%}.esp-frame{height:72vh}}
     `;
     document.head.appendChild(s);
   }
@@ -88,14 +89,7 @@
     card.dataset.law='Espectáculos Públicos';
     card.setAttribute('role','button');
     card.setAttribute('tabindex','0');
-    card.innerHTML=`
-      <div class="normativa-icon">🎪</div>
-      <div class="normativa-info">
-        <h3>Espectáculos Públicos</h3>
-        <p>Ley 13/1999 · Decreto 155/2018 · Decreto 251/2023</p>
-        <span>3 normas · articulado disponible</span>
-      </div>
-      <button type="button" class="normativa-open" aria-label="Abrir Espectáculos Públicos">Ver normas</button>`;
+    card.innerHTML=`<div class="normativa-icon">🎪</div><div class="normativa-info"><h3>Espectáculos Públicos</h3><p>Ley 13/1999 · Decreto 155/2018 · Decreto 251/2023</p><span>3 normas · articulado disponible</span></div><button type="button" class="normativa-open" aria-label="Abrir Espectáculos Públicos">Ver normas</button>`;
     const cards=[...host.querySelectorAll('.normativa-card,.cc-law-card')];
     const first=cards.find(c=>{
       const t=(c.dataset.law||c.querySelector('h3')?.textContent||'').toLowerCase();
@@ -107,38 +101,18 @@
   }
 
   function panel(){
-    let p=document.getElementById(PANEL_ID);
-    const host=section();
+    let p=document.getElementById(PANEL_ID),host=section();
     if(!host)return null;
     if(p)return p;
     p=document.createElement('section');
-    p.id=PANEL_ID;
-    p.className='hidden';
+    p.id=PANEL_ID;p.className='hidden';
     host.insertBefore(p,host.querySelector('.normativa-list')||null);
     return p;
   }
 
   function renderCategory(){
-    style();
-    const p=panel();
-    if(!p)return;
-    p.innerHTML=`
-      <div class="esp-head">
-        <div class="esp-kicker">Normativa autonómica · Andalucía</div>
-        <h2 class="esp-title">Espectáculos Públicos</h2>
-        <p class="esp-sub">Consulta conjunta de las normas principales y su articulado.</p>
-      </div>
-      <div class="esp-actions">
-        <button type="button" class="esp-btn" id="espBack">← Volver a Normativa</button>
-      </div>
-      <div class="esp-note"><strong>Contenido:</strong> Ley 13/1999, Decreto 155/2018 y Decreto 251/2023. Cada ficha permite consultar el texto normativo y abrir la fuente oficial.</div>
-      <div class="esp-laws" id="espLaws">
-        ${lawCard(LAWS.ley13,'ley13')}
-        ${lawCard(LAWS.decreto155,'decreto155')}
-        ${lawCard(LAWS.decreto251,'decreto251')}
-      </div>
-      <div class="esp-view hidden" id="espView"></div>`;
-
+    style();const p=panel();if(!p)return;
+    p.innerHTML=`<div class="esp-head"><div class="esp-kicker">Normativa autonómica · Andalucía</div><h2 class="esp-title">Espectáculos Públicos</h2><p class="esp-sub">Consulta conjunta de las normas principales y su articulado.</p></div><div class="esp-actions"><button type="button" class="esp-btn" id="espBack">← Volver a Normativa</button></div><div class="esp-note"><strong>Contenido:</strong> Ley 13/1999, Decreto 155/2018 y Decreto 251/2023. Cada ficha permite consultar el articulado y abrir la fuente oficial.</div><div class="esp-laws" id="espLaws">${lawCard(LAWS.ley13,'ley13')}${lawCard(LAWS.decreto155,'decreto155')}${lawCard(LAWS.decreto251,'decreto251')}</div><div class="esp-view hidden" id="espView"></div>`;
     p.querySelector('#espBack')?.addEventListener('click',closeCategory);
     p.querySelectorAll('[data-esp-law]').forEach(btn=>btn.addEventListener('click',()=>openLaw(btn.dataset.espLaw)));
   }
@@ -148,35 +122,26 @@
   }
 
   async function openLaw(id){
-    const cfg=LAWS[id];
-    const p=panel();
-    const view=p?.querySelector('#espView');
-    const laws=p?.querySelector('#espLaws');
+    const cfg=LAWS[id],p=panel(),view=p?.querySelector('#espView'),laws=p?.querySelector('#espLaws');
     if(!cfg||!p||!view)return;
-    laws?.classList.add('hidden');
-    view.classList.remove('hidden');
+    laws?.classList.add('hidden');view.classList.remove('hidden');
     view.innerHTML=`<div class="esp-actions" style="padding:0 0 10px;border:0"><button type="button" class="esp-btn" id="espLawBack">← Volver a las 3 normas</button><a class="esp-btn primary" href="${cfg.official}" target="_blank" rel="noopener noreferrer">↗ Fuente oficial</a></div><div class="esp-view-head"><strong>${esc(cfg.title)}</strong><span>${esc(cfg.subtitle)}</span></div><div class="esp-loading">Cargando articulado oficial…</div>`;
-    view.querySelector('#espLawBack')?.addEventListener('click',()=>{view.classList.add('hidden');laws?.classList.remove('hidden');});
-
+    view.querySelector('#espLawBack')?.addEventListener('click',()=>{view.classList.add('hidden');laws?.classList.remove('hidden')});
     try{
       const cached=localStorage.getItem('cc-esp-full-'+id);
       let text=cached&&cached.length>300?cached:'';
-      if(!text && id==='decreto251') text=decreto251Text();
+      if(!text && id==='decreto251')text=decreto251Text();
       if(!text){
         const res=await fetch(cfg.source,{cache:'no-store'});
         if(!res.ok)throw new Error('HTTP '+res.status);
-        const html=await res.text();
-        text=extract(html);
+        const html=await res.text();text=extract(html);
         if(text.length<300)throw new Error('Texto normativo no disponible');
         try{localStorage.setItem('cc-esp-full-'+id,text)}catch(_){ }
       }
       view.querySelector('.esp-loading')?.remove();
-      const box=document.createElement('div');
-      box.className='esp-text';
-      box.textContent=text;
-      view.appendChild(box);
+      const box=document.createElement('div');box.className='esp-text';box.textContent=text;view.appendChild(box);
     }catch(err){
-      view.querySelector('.esp-loading').outerHTML=`<div class="esp-error"><strong>No se ha podido cargar el articulado dentro de la aplicación.</strong><br>Utiliza «Fuente oficial» para abrir el texto completo.</div>`;
+      view.querySelector('.esp-loading').outerHTML=`<div class="esp-error"><strong>No se ha podido extraer el articulado automáticamente.</strong><br>El texto oficial se muestra debajo dentro del visor para que la consulta no quede sin contenido.</div><iframe class="esp-frame" title="${esc(cfg.title)} — fuente oficial" src="${esc(cfg.source)}"></iframe>`;
       console.warn('Centinela — Espectáculos Públicos:',err);
     }
   }
@@ -189,68 +154,28 @@
   }
 
   function decreto251Text(){
-    return [
-      'DECRETO 251/2023, DE 3 DE OCTUBRE',
-      '',
-      'Artículo único. Modificación del Decreto 155/2018',
-      '',
-      'El Decreto 155/2018, de 31 de julio, por el que se aprueba el Catálogo de Espectáculos Públicos, Actividades Recreativas y Establecimientos Públicos de Andalucía y se regulan sus modalidades, régimen de apertura o instalación y horarios de apertura y cierre, queda modificado del siguiente modo.',
-      '',
-      'Uno. Nueva redacción de la disposición adicional tercera',
-      'Disposición adicional tercera. Instalación excepcional de equipos de reproducción o amplificación sonora o audiovisuales y actuaciones en directo de pequeño formato en terrazas y veladores de establecimientos de hostelería.',
-      '',
-      '1. Los Ayuntamientos podrán autorizar por periodos iguales o inferiores a cuatro meses dentro del año natural la instalación y utilización de equipos de reproducción o amplificación sonora o audiovisuales y el desarrollo de actuaciones en directo de pequeño formato, en los términos establecidos por esta disposición.',
-      '',
-      '2. Las autorizaciones municipales deberán establecer las restricciones, límites técnicos y condiciones de instalación y funcionamiento necesarios para garantizar los derechos a la salud y al descanso de los ciudadanos.',
-      '',
-      '3. El horario de funcionamiento se determinará en la resolución municipal, sin que en ningún caso pueda iniciarse antes de las 15:00 ni superar las 24:00 horas, con las excepciones previstas para determinados municipios costeros.',
-      '',
-      'Dos. Nueva disposición adicional undécima',
-      'Disposición adicional undécima. Seguros de responsabilidad civil de los establecimientos de hostelería con música y de los establecimientos especiales para festivales.',
-      '',
-      '1. Cuando se celebren o desarrollen espectáculos públicos y actividades recreativas en establecimientos de hostelería con música, las sumas aseguradas serán las establecidas en el punto 4.1 del anexo del Decreto 109/2005.',
-      '',
-      '2. Cuando se celebren o desarrollen espectáculos públicos y actividades recreativas en establecimientos especiales para festivales, las sumas aseguradas serán las previstas en el punto 4.2 del anexo del Decreto 109/2005.',
-      '',
-      'Disposición derogatoria única. Derogación normativa.',
-      'Disposición final primera. Desarrollo y ejecución.',
-      'Disposición final segunda. Entrada en vigor. El decreto entra en vigor el día siguiente al de su publicación en el Boletín Oficial de la Junta de Andalucía.'
-    ].join('\n');
+    return ['DECRETO 251/2023, DE 3 DE OCTUBRE','','Artículo único. Modificación del Decreto 155/2018','','El Decreto 155/2018, de 31 de julio, por el que se aprueba el Catálogo de Espectáculos Públicos, Actividades Recreativas y Establecimientos Públicos de Andalucía y se regulan sus modalidades, régimen de apertura o instalación y horarios de apertura y cierre, queda modificado del siguiente modo.','','Uno. Nueva redacción de la disposición adicional tercera','Disposición adicional tercera. Instalación excepcional de equipos de reproducción o amplificación sonora o audiovisuales y actuaciones en directo de pequeño formato en terrazas y veladores de establecimientos de hostelería.','','1. Los Ayuntamientos podrán autorizar por periodos iguales o inferiores a cuatro meses dentro del año natural la instalación y utilización de equipos de reproducción o amplificación sonora o audiovisuales y el desarrollo de actuaciones en directo de pequeño formato, en los términos establecidos por esta disposición.','','2. Las autorizaciones municipales deberán establecer las restricciones, límites técnicos y condiciones de instalación y funcionamiento necesarios para garantizar los derechos a la salud y al descanso de los ciudadanos.','','3. El horario de funcionamiento se determinará en la resolución municipal, sin que en ningún caso pueda iniciarse antes de las 15:00 ni superar las 24:00 horas, con las excepciones previstas para determinados municipios costeros.','','Dos. Nueva disposición adicional undécima','Disposición adicional undécima. Seguros de responsabilidad civil de los establecimientos de hostelería con música y de los establecimientos especiales para festivales.','','1. Cuando se celebren o desarrollen espectáculos públicos y actividades recreativas en establecimientos de hostelería con música, las sumas aseguradas serán las establecidas en el punto 4.1 del anexo del Decreto 109/2005.','','2. Cuando se celebren o desarrollen espectáculos públicos y actividades recreativas en establecimientos especiales para festivales, las sumas aseguradas serán las previstas en el punto 4.2 del anexo del Decreto 109/2005.','','Disposición derogatoria única. Derogación normativa.','','Disposición final primera. Desarrollo y ejecución.','','Disposición final segunda. Entrada en vigor. El decreto entra en vigor el día siguiente al de su publicación en el Boletín Oficial de la Junta de Andalucía.'].join('\n');
   }
 
   function openCategory(){
-    const l=list(),p=panel();
-    if(!p)return;
-    renderCategory();
+    const l=list(),p=panel();if(!p)return;renderCategory();
     l?.style.setProperty('display','none','important');
-    const search=document.getElementById('normativaSearch');
-    search?.style.setProperty('display','none','important');
-    p.classList.remove('hidden');
-    p.scrollIntoView({behavior:'smooth',block:'start'});
+    document.getElementById('normativaSearch')?.style.setProperty('display','none','important');
+    p.classList.remove('hidden');p.scrollIntoView({behavior:'smooth',block:'start'});
   }
 
   function closeCategory(){
-    panel()?.classList.add('hidden');
-    list()?.style.removeProperty('display');
-    document.getElementById('normativaSearch')?.style.removeProperty('display');
-    list()?.scrollIntoView({behavior:'smooth',block:'start'});
+    panel()?.classList.add('hidden');list()?.style.removeProperty('display');document.getElementById('normativaSearch')?.style.removeProperty('display');list()?.scrollIntoView({behavior:'smooth',block:'start'});
   }
 
   function bindCategory(card){
     if(!card||card.dataset.ccEspBound)return;
-    card.dataset.ccEspBound='1';
-    card.addEventListener('click',e=>{
-      if(e.target.closest('a'))return;
-      openCategory();
-    });
-    card.addEventListener('keydown',e=>{
-      if(e.key==='Enter'||e.key===' '){e.preventDefault();openCategory();}
-    });
+    card.dataset.ccEspBound='1';card.addEventListener('click',e=>{if(e.target.closest('a'))return;openCategory()});
+    card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCategory()}});
   }
 
   function removeOrphanStandaloneCards(){
-    const host=list();
-    if(!host)return;
+    const host=list();if(!host)return;
     [...host.querySelectorAll('.normativa-card,.cc-law-card')].forEach(c=>{
       if(c.id===CATEGORY_ID)return;
       const t=(c.dataset.law||c.querySelector('h3')?.textContent||'').toLowerCase();
@@ -259,15 +184,9 @@
   }
 
   function boot(){
-    style();
-    removeOrphanStandaloneCards();
-    categoryCard();
-    let n=0;
-    const timer=setInterval(()=>{removeOrphanStandaloneCards();categoryCard();if(++n>50)clearInterval(timer)},200);
-    const s=section();
-    if(s){
-      new MutationObserver(()=>{removeOrphanStandaloneCards();categoryCard()}).observe(s,{childList:true,subtree:true});
-    }
+    style();removeOrphanStandaloneCards();categoryCard();
+    let n=0;const timer=setInterval(()=>{removeOrphanStandaloneCards();categoryCard();if(++n>50)clearInterval(timer)},200);
+    const s=section();if(s)new MutationObserver(()=>{removeOrphanStandaloneCards();categoryCard()}).observe(s,{childList:true,subtree:true});
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
