@@ -9,15 +9,10 @@
   window.__centinelaNormativaClickFix=true;
 
   document.addEventListener('click', function(e){
-    const category=e.target.closest('#centinela-espectaculos-publicos-card');
-    if(category){
-      e.preventDefault();
-      e.stopPropagation();
-      if(typeof window.openCategory==='function') window.openCategory();
-      else if(typeof window.openCategory === 'function') window.openCategory();
-      return;
-    }
-
+    /*
+      Los botones de Espectáculos Públicos se gestionan dentro de su
+      propio módulo. No interceptamos su tarjeta contenedora aquí.
+    */
     const btn=e.target.closest('.normativa-open[data-law]');
     if(!btn) return;
 
