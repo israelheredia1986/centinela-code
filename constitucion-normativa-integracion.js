@@ -88,13 +88,16 @@
     if(panel) panel.classList.add('centinela-constitution-hidden');
     addCard();
     let n=0;
-    const observer=new MutationObserver(()=>{
+    let q=false;
+    const run=()=>{if(q)return;q=true;requestAnimationFrame(()=>{
+      q=false;
       removeOldTabs();
       addCard();
       const p=document.getElementById(PANEL_ID);
       if(p && !p.dataset.centinelaIntegration) {p.classList.add('centinela-constitution-hidden');}
-    });
-    observer.observe(document.body,{childList:true,subtree:true});
+    });};
+    const observer=new MutationObserver(run);
+    observer.observe(document.getElementById('section-normativa')||document.body,{childList:true,subtree:true});
     setTimeout(()=>addCard(),500);
     setTimeout(()=>addCard(),1500);
   }
