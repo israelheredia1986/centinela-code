@@ -175,7 +175,8 @@
         n.querySelectorAll?.(".chat-bubble.ai").forEach(render);
       });
     }));
-    if(document.body) obs.observe(document.body,{childList:true,subtree:true});
+    const zonaChat=document.getElementById("chatMessages")||document.body;
+    if(zonaChat) obs.observe(zonaChat,{childList:true,subtree:true});
     window.CentinelaRespuestaPolicialObserver=obs;
   }
 
