@@ -228,6 +228,11 @@
       if(min!=null&&max!=null)return `${min} € – ${max} €`;
       if(min!=null)return `Desde ${min} €`;
       if(max!=null)return `Hasta ${max} €`;
+      /* Formato {"cuantia":200,"moneda":"EUR"} — usado en las
+         infracciones de VMP/patinetes — antes no se reconocía y la
+         sanción se mostraba vacía en 15 de sus 22 infracciones. */
+      const cuantia=v.cuantia??v.cuantía;
+      if(cuantia!=null)return `${cuantia} ${v.moneda==="EUR"?"€":(v.moneda||"€")}`;
       if(v.texto)return String(v.texto);
     }
     return typeof v==="object"?"":String(v);
