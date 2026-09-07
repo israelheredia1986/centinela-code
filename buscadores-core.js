@@ -1,7 +1,32 @@
 /* ============================================================
-   CENTINELA CODE — BUSCADOR GLOBAL V4
-   Motor estable + búsqueda semántica + tolerancia a errores
-   + comercio ambulante + infracciones + normativa.
+   CENTINELA CODE — BUSCADOR GLOBAL V5
+   Motor de precisión (cobertura de términos) + tolerancia a
+   errores + escritura fluida (debounce) + sugerencia de IA
+   cuando no hay una coincidencia clara.
+   ------------------------------------------------------------
+   Cambios clave respecto a V4:
+   1) Cada norma/artículo ya NO arrastra en su propio texto de
+      búsqueda el contenido de sus artículos/apartados "hijos".
+      Antes, al indexar un nodo padre (p.ej. un capítulo entero)
+      se volcaba recursivamente TODO su contenido interno, así
+      que ese nodo "pajar" acababa coincidiendo con casi
+      cualquier palabra del documento. Ahora cada registro solo
+      usa su propio texto (id, artículo, título, conducta,
+      sanción...); lo anidado se indexa aparte, como su propio
+      resultado.
+   2) Las listas de "palabrasClave" (a menudo genéricas y
+      repetidas en decenas de infracciones) cuentan como pista
+      débil, no como coincidencia fuerte: ya no inflan resultados
+      poco relacionados.
+   3) Se exige cobertura de términos: para que un resultado
+      aparezca, deben encontrarse (todos, o la mayoría) los
+      términos de la búsqueda — no basta con uno suelto entre
+      miles de palabras.
+   4) El campo de búsqueda ya no relanza el cálculo en cada
+      pulsación: espera una breve pausa (debounce) antes de
+      buscar, así la escritura no se bloquea.
+   5) Si no hay una coincidencia clara, se ofrece un botón para
+      preguntarlo directamente a Centinela IA.
    ============================================================ */
 (function(){
   "use strict";
@@ -30,8 +55,12 @@
     ["Ley 5/2010 Andalucía","./data/ley_5_2010_andalucia.json"]
   ];
 
-  const STOP=new Set(["a","al","ante","bajo","con","contra","de","del","desde","durante","el","en","entre","hacia","hasta","la","las","lo","los","para","por","segun","sin","sobre","un","una","unos","unas","y","o","que"]);
+  const STOP=new Set(["a","al","ante","bajo","con","contra","de","del","desde","durante","el","en","entre","hacia","hasta","la","las","lo","los","para","por","segun","sin","sobre","un","una","unos","unas","y","o","que","es","del","al"]);
 
+  /* Sinónimos / variantes coloquiales → término(s) que sí aparecen en las
+     normas. Se usan en ambos sentidos: si la búsqueda o el propio texto
+     contiene cualquiera de las palabras de una misma entrada, cuentan como
+     la misma idea. */
   const ALIAS={
     vendendor:["vendedor","vendedores","vendedora","venta","vender","comerciante","comercio"],
     vendendora:["vendedora","vendedor","venta","comercio"],
@@ -51,7 +80,14 @@
     suciedad:["ensuciar","ensuciado","limpieza","residuos","basura","via publica","calle"],
     calle:["via publica","acera","calzada","limpieza","suciedad","residuos"],
     tirar:["arrojar","depositar","residuos","basura","suciedad","via publica"],
-    arrojar:["tirar","depositar","residuos","basura","suciedad","via publica"]
+    arrojar:["tirar","depositar","residuos","basura","suciedad","via publica"],
+    aparcar:["estacionar","estacionamiento","aparcamiento","parada"],
+    aparcado:["estacionado","estacionamiento","aparcamiento","aparcar"],
+    aparcamiento:["estacionamiento","parking","aparcar"],
+    parking:["aparcamiento","estacionamiento"],
+    discapacitado:["discapacidad","minusvalido","movilidad reducida"],
+    discapacidad:["discapacitado","minusvalido","movilidad reducida"],
+    minusvalido:["discapacitado","discapacidad","movilidad reducida"]
   };
 
   const GROUPS=[
@@ -66,17 +102,41 @@
     ["horario","horarios","hora","cierre","apertura","fuera de horario"],
     ["decomiso","decomisar","incautacion","incautar","aprehension"],
     ["talla","talla minima","talla inferior","tamano minimo","pescado pequeno"],
-    ["veda","vedado","epoca de veda","prohibido","prohibicion"]
+    ["veda","vedado","epoca de veda","prohibido","prohibicion"],
+    ["estacionar","estacionamiento","aparcar","aparcado","aparcamiento","parking","parada"],
+    ["discapacitado","discapacidad","minusvalido","movilidad reducida"]
   ];
 
   const norm=v=>String(v??"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9.]+/g," ").replace(/\s+/g," ").trim();
   const toks=v=>norm(v).split(" ").filter(Boolean).filter(x=>!STOP.has(x));
+  const esc=v=>String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 
-  function flat(v,d){
-    if(v==null||d>7)return "";
-    if(typeof v!=="object")return String(v);
-    if(Array.isArray(v))return v.slice(0,120).map(x=>flat(x,d+1)).join(" ");
-    return Object.entries(v).slice(0,150).map(([k,x])=>k+" "+flat(x,d+1)).join(" ");
+  /* ------------------------------------------------------------
+     Construcción del índice: cada nodo solo aporta SU PROPIO
+     texto (evita que un nodo contenedor "adopte" el texto de
+     todos sus artículos hijos y acabe encajando con cualquier
+     búsqueda).
+     ------------------------------------------------------------ */
+  const KEYWORD_KEYS=new Set(["palabrasclave","palabras_clave","keywords","tags","etiquetas","sinonimos","alias","terminos"]);
+  const keyIsKeyword=k=>KEYWORD_KEYS.has(norm(k).replace(/\s+/g,""));
+
+  function ownParts(o){
+    const body=[],kw=[];
+    if(!o||typeof o!=="object"||Array.isArray(o))return {body:"",kw:""};
+    for(const [k,v] of Object.entries(o)){
+      if(v==null)continue;
+      if(Array.isArray(v)){
+        if(v.every(x=>x==null||typeof x!=="object")){
+          const joined=v.slice(0,80).map(x=>String(x)).join(" ");
+          (keyIsKeyword(k)?kw:body).push(joined);
+        }
+        /* arrays de objetos: se indexan por separado (walk), no aquí */
+      }else if(typeof v!=="object"){
+        body.push(String(v));
+      }
+      /* objetos anidados: se indexan por separado (walk), no aquí */
+    }
+    return {body:body.join(" "),kw:kw.join(" ")};
   }
   function pick(o,names){
     if(!o||typeof o!=="object"||Array.isArray(o))return "";
@@ -108,7 +168,11 @@
     const severity=pick(o,["gravedad","severity","clasificacion","clasificación"]),sanc=sanction(o);
     if(!(id||code||article||title||desc))return null;
     const art=article?String(article)+(apartado&&!String(article).includes("."+apartado)?"."+apartado:""):"";
-    return {source:src,path,id,code,article:art,title,description:desc,severity,sanction:sanc,isInfraction:/infraccion/.test(norm(src))||!!severity||!!sanc||/sancion|multa|conducta|tipificacion/.test(norm(Object.keys(o).join(" "))),search:norm([src,id,code,art,title,desc,severity,sanc,flat(o,0)].join(" "))};
+    const {body:ownBody,kw:ownKw}=ownParts(o);
+    const bodyText=norm([src,id,code,art,title,desc,severity,sanc,ownBody].filter(Boolean).join(" "));
+    const kwText=norm(ownKw);
+    const isInfraction=/infraccion/.test(norm(src))||!!severity||!!sanc||/sancion|multa|conducta|tipificacion/.test(norm(Object.keys(o).join(" ")));
+    return {source:src,path,id,code,article:art,title,description:desc,severity,sanction:sanc,isInfraction,bodyText,kwText,bodyTokens:new Set(toks(bodyText)),kwTokens:new Set(toks(kwText))};
   }
   function walk(v,src,path,out,d){
     if(v==null||d>10)return;
@@ -122,55 +186,120 @@
   async function load(){
     if(PROMISE)return PROMISE;
     PROMISE=Promise.all(DATA.map(async([src,url])=>{
-      try{const r=await fetch(`${url}?searchv=20260904v4`,{cache:"no-store"});if(!r.ok)throw Error(r.status);const j=await r.json(),o=[];walk(j,src,"$",o,0);return o;}
-      catch(e){console.warn("Centinela buscador: no carga",url,e);return [];} 
+      try{const r=await fetch(`${url}?searchv=20260907v1`,{cache:"no-store"});if(!r.ok)throw Error(r.status);const j=await r.json(),o=[];walk(j,src,"$",o,0);return o;}
+      catch(e){console.warn("Centinela buscador: no carga",url,e);return [];}
     })).then(g=>{INDEX=g.flat();return INDEX;});
     return PROMISE;
   }
+
+  /* ------------------------------------------------------------
+     Coincidencia por términos: exacta → sinónimo/grupo → tolerante
+     a erratas (solo contra las palabras propias de ese registro,
+     que ahora son pocas, no todo el documento).
+     ------------------------------------------------------------ */
   function distance(a,b){
     if(a===b)return 0;if(Math.abs(a.length-b.length)>2)return 99;
     let p=Array.from({length:b.length+1},(_,i)=>i);
     for(let i=1;i<=a.length;i++){const c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(c[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[b.length];
   }
-  function match(t,text){
-    if(!t)return false;if(text.includes(t))return true;
-    if((ALIAS[t]||[]).some(a=>text.includes(norm(a))))return true;
-    for(const w of text.split(" ")){
-      if(w.length>=5&&t.length>=5){
-        if(distance(t,w)<=(t.length>=8?2:1))return true;
-        if(t.slice(0,5)===w.slice(0,5))return true;
+  const EXP_CACHE=new Map();
+  function tokenExpansions(t){
+    if(EXP_CACHE.has(t))return EXP_CACHE.get(t);
+    const set=new Set([t]);
+    (ALIAS[t]||[]).forEach(a=>toks(a).forEach(x=>set.add(x)));
+    GROUPS.forEach(g=>{
+      const gt=g.flatMap(x=>toks(x));
+      if(gt.includes(t))gt.forEach(x=>set.add(x));
+    });
+    EXP_CACHE.set(t,set);
+    return set;
+  }
+  const isCodeLike=t=>/^[0-9.]+$/.test(t);
+  function matchKind(t,tokenSet){
+    if(tokenSet.has(t))return "exact";
+    for(const e of tokenExpansions(t)){if(e!==t&&tokenSet.has(e))return "alias";}
+    /* Los números de artículo/código no admiten "parecido": 36.16 y 36.10
+       son preceptos distintos, no una errata el uno del otro. */
+    if(!isCodeLike(t)&&t.length>=5){
+      for(const w of tokenSet){
+        if(w.length<5||Math.abs(t.length-w.length)>2)continue;
+        if(t.slice(0,5)===w.slice(0,5))return "fuzzy";
+        if(distance(t,w)<=(t.length>=8?2:1))return "fuzzy";
       }
     }
-    return false;
+    return null;
   }
-  function expanded(ts){
-    const s=new Set(ts);ts.forEach(t=>(ALIAS[t]||[]).forEach(a=>s.add(norm(a))));
-    GROUPS.forEach(g=>{if(g.some(x=>ts.some(t=>match(t,norm(x)))))g.forEach(x=>s.add(norm(x)));});
-    return [...s];
-  }
-  function score(r,q){
-    const n=norm(q),ts=toks(q),ex=expanded(ts),text=r.search;if(!ts.length)return 0;let s=0;
-    if(norm(r.article)===n)s+=1200;if(norm(r.code)===n)s+=1100;if(norm(r.title)===n)s+=700;if(text.includes(n))s+=350;
-    ts.forEach(t=>{if(match(t,text))s+=90;if(norm(r.article).includes(t))s+=80;if(norm(r.title).includes(t))s+=60;if(norm(r.description).includes(t))s+=35;if(norm(r.source).includes(t))s+=40;});
-    ex.forEach(t=>{if(text.includes(t))s+=10;if(norm(r.title).includes(t))s+=15;if(norm(r.article).includes(t))s+=20;});
-    if(/comerc|ambul|vendedor|venta|mercadillo|pescad|marisc|juguet|autoriz|sancion|multa/.test(n)&&/comercio ambulante|venta ambulante|vendedor ambulante/.test(text))s+=220;
-    if(/pescad|marisc/.test(n)&&/pescado|pesquer|marisco/.test(text))s+=180;
-    if(/juguet/.test(n)&&/juguet|infantil/.test(text))s+=180;
-    if(/sancion|multa|infraccion/.test(n)&&r.isInfraction)s+=130;
-    if(/ensuciar|ensuciado|suciedad|limpieza|residuo|residuos|basura|arrojar|tirar|calle|via publica|acera|calzada/.test(n)){
-      if(/limpieza|residuo|residuos|basura|suciedad|higiene urbana|via publica|calle|acera|calzada|arrojar|ensuciar|tirar/.test(text))s+=260;
-      if(/ordenanza/.test(norm(r.source)))s+=80;
-    }
-    return s;
-  }
-  const esc=v=>String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 
+  const W={exactBody:150,aliasBody:115,fuzzyBody:75,exactKw:45,aliasKw:35,fuzzyKw:20};
+  function scoreRecord(r,qTokens,fullNorm){
+    let s=0,bodyHits=0,kwHits=0;
+    if(fullNorm){
+      if(norm(r.article)===fullNorm)s+=1300;
+      if(norm(r.code)===fullNorm)s+=1200;
+      if(norm(r.title)===fullNorm)s+=800;
+      if(fullNorm.length>3&&r.bodyText.includes(fullNorm))s+=400;
+    }
+    for(const t of qTokens){
+      const mb=matchKind(t,r.bodyTokens);
+      if(mb){
+        bodyHits++;
+        s+=mb==="exact"?W.exactBody:mb==="alias"?W.aliasBody:W.fuzzyBody;
+        if(norm(r.article).includes(t))s+=70;
+        if(norm(r.title).includes(t))s+=55;
+        continue;
+      }
+      const mk=matchKind(t,r.kwTokens);
+      if(mk){kwHits++;s+=mk==="exact"?W.exactKw:mk==="alias"?W.aliasKw:W.fuzzyKw;}
+    }
+    const total=qTokens.length||1;
+    const weighted=Math.min(1,(bodyHits+kwHits*0.35)/total);
+    return {score:s*(0.55+0.45*weighted),bodyHits,kwHits};
+  }
+  function passesFilter(n,bodyHits,kwHits){
+    const total=bodyHits+kwHits;
+    if(n<=2)return total>=n;
+    return total>=Math.ceil(n*0.65)&&bodyHits>=1;
+  }
+
+  /* ------------------------------------------------------------
+     Render + sugerencia de Centinela IA cuando no hay una
+     coincidencia clara con lo escrito.
+     ------------------------------------------------------------ */
+  function iaStyles(){
+    if(document.getElementById("cc-ia-suggest-style"))return;
+    const st=document.createElement("style");st.id="cc-ia-suggest-style";
+    st.textContent=`.cc-empty-noresults .primary-button{margin-top:16px}.cc-ia-suggest{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:14px 10px 4px;margin-top:6px;border-top:1px solid rgba(255,255,255,.08);color:var(--muted,#7f93a8);font-size:12.5px}.cc-ia-suggest .cc-ask-ia{background:transparent;border:1px solid rgba(49,185,255,.45);color:#31b9ff;border-radius:9px;padding:7px 12px;font-weight:700;font-size:12px;cursor:pointer}.cc-ia-suggest .cc-ask-ia:hover{background:rgba(49,185,255,.12)}`;
+    document.head.appendChild(st);
+  }
+  function preguntarIA(q){
+    const nav=document.querySelector('.nav-item[data-section="ia"]');
+    if(nav)nav.click();
+    else document.getElementById("section-ia")?.classList.add("active");
+    setTimeout(()=>{
+      const input=document.getElementById("chatInput"),btn=document.getElementById("btnSendChat");
+      if(input&&q)input.value=q;
+      if(btn)btn.click();else input?.focus();
+    },150);
+  }
+  function bindAskIA(box){
+    box.querySelectorAll(".cc-ask-ia").forEach(b=>b.addEventListener("click",()=>preguntarIA(b.dataset.q||"")));
+  }
+  function renderLoading(){
+    const box=document.getElementById("consultaResults");if(!box)return;
+    box.innerHTML='<div class="empty-state cc-loading"><div class="empty-icon">🔎</div><h3>Buscando…</h3><p>Consultando la normativa disponible.</p></div>';
+  }
   function render(rs,q){
+    iaStyles();
     const box=document.getElementById("consultaResults"),count=document.getElementById("consultaResultCount");if(!box)return;if(count)count.textContent=String(rs.length);
     if(!q.trim()){box.innerHTML='<div class="empty-state"><div class="empty-icon">🔎</div><h3>Buscar normativa o infracción</h3><p>Prueba «vendedor ambulante», «pescado», «juguetes», «sin autorización» o un artículo.</p></div>';return;}
-    if(!rs.length){box.innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Sin resultados</h3><p>No se ha encontrado coincidencia. El buscador también tolera errores como «vendendor ambulante juguestes».</p></div>';return;}
-    box.innerHTML=rs.slice(0,100).map((r,i)=>`<article class="result-card cc-search-result" data-i="${i}"><div class="result-card-header"><div><span class="result-ley">${esc(r.source)}</span>${r.article?`<span class="result-code">Art. ${esc(r.article)}</span>`:""}<h3>${esc(r.title||"Sin título")}</h3></div>${r.severity?`<span class="severity-badge">${esc(r.severity)}</span>`:""}</div><p class="result-conducta">${esc((r.description||"").slice(0,280))}${(r.description||"").length>280?"…":""}</p><div class="result-meta">${r.sanction?`<span class="result-pill result-pill--sancion"><span class="result-pill-label">Sanción</span> ${esc(r.sanction)}</span>`:""}${r.isInfraction?'<span class="result-pill">Infracción</span>':""}</div><button type="button" class="result-detail-button cc-detail">Ver detalle</button></article>`).join("");
+    if(!rs.length){
+      box.innerHTML=`<div class="empty-state cc-empty-noresults"><div class="empty-icon">⚠️</div><h3>Sin coincidencia exacta</h3><p>No se ha encontrado normativa que encaje con «${esc(q)}». Revisa la redacción o pregúntaselo directamente a Centinela IA.</p><button type="button" class="primary-button cc-ask-ia" data-q="${esc(q)}">🤖 Preguntar a Centinela IA</button></div>`;
+      bindAskIA(box);return;
+    }
+    box.innerHTML=rs.slice(0,100).map((r,i)=>`<article class="result-card cc-search-result" data-i="${i}"><div class="result-card-header"><div><span class="result-ley">${esc(r.source)}</span>${r.article?`<span class="result-code">Art. ${esc(r.article)}</span>`:""}<h3>${esc(r.title||"Sin título")}</h3></div>${r.severity?`<span class="severity-badge">${esc(r.severity)}</span>`:""}</div><p class="result-conducta">${esc((r.description||"").slice(0,280))}${(r.description||"").length>280?"…":""}</p><div class="result-meta">${r.sanction?`<span class="result-pill result-pill--sancion"><span class="result-pill-label">Sanción</span> ${esc(r.sanction)}</span>`:""}${r.isInfraction?'<span class="result-pill">Infracción</span>':""}</div><button type="button" class="result-detail-button cc-detail">Ver detalle</button></article>`).join("")
+      +`<div class="cc-ia-suggest"><span>¿No es lo que buscabas?</span><button type="button" class="cc-ask-ia" data-q="${esc(q)}">Pregúntale a Centinela IA →</button></div>`;
     box.querySelectorAll(".cc-detail").forEach((b,i)=>b.addEventListener("click",()=>detail(rs[i])));
+    bindAskIA(box);
   }
   function detail(r){
     const modal=document.getElementById("appModal"),body=document.getElementById("modalBody"),title=document.getElementById("modalTitle"),actions=document.getElementById("modalActions");
@@ -180,23 +309,48 @@
     if(actions)actions.innerHTML='<button class="secondary-button" type="button" id="ccCloseDetail">Cerrar</button>';
     modal.classList.remove("hidden");document.getElementById("ccCloseDetail")?.addEventListener("click",()=>modal.classList.add("hidden"));
   }
+
+  let searchGen=0;
   async function search(q){
-    q=String(q||"");if(!q.trim()){render([],q);return;}render([],"Buscando…");
-    const idx=await load();let rs=idx;if(mode==="infractions")rs=rs.filter(r=>r.isInfraction);if(severity!=="all")rs=rs.filter(r=>norm(r.severity)===norm(severity));
-    rs=rs.map(r=>({r,s:score(r,q)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s||String(a.r.article).localeCompare(String(b.r.article),"es",{numeric:true})).map(x=>x.r);render(rs,q);
+    q=String(q||"");
+    const myGen=++searchGen;
+    if(!q.trim()){render([],q);return;}
+    renderLoading();
+    const idx=await load();
+    if(myGen!==searchGen)return;
+    let rs=idx;
+    if(mode==="infractions")rs=rs.filter(r=>r.isInfraction);
+    if(severity!=="all")rs=rs.filter(r=>norm(r.severity)===norm(severity));
+    const qTokens=[...new Set(toks(q))];
+    if(!qTokens.length){render([],q);return;}
+    const fullNorm=norm(q);
+    const scored=[];
+    for(const r of rs){
+      const {score:sc,bodyHits,kwHits}=scoreRecord(r,qTokens,fullNorm);
+      if(sc<=0)continue;
+      if(!passesFilter(qTokens.length,bodyHits,kwHits))continue;
+      scored.push({r,s:sc});
+    }
+    scored.sort((a,b)=>b.s-a.s||String(a.r.article).localeCompare(String(b.r.article),"es",{numeric:true}));
+    if(myGen!==searchGen)return;
+    render(scored.map(x=>x.r),q);
   }
   function go(q,m){mode=m||"all";document.querySelector('.nav-item[data-section="consulta"]')?.click();setTimeout(()=>{const i=document.getElementById("consultaSearch");if(i){i.value=q||"";search(i.value);}},80);}
+
   function install(){
     const input=document.getElementById("consultaSearch");
     if(input){
-      input.addEventListener("input",e=>{e.stopImmediatePropagation();search(input.value);},true);
-      input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.stopImmediatePropagation();search(input.value);}},true);
+      let debounceTimer=null;
+      input.addEventListener("input",()=>{
+        if(debounceTimer)clearTimeout(debounceTimer);
+        const val=input.value;
+        debounceTimer=setTimeout(()=>search(val),220);
+      });
+      input.addEventListener("keydown",e=>{
+        if(e.key==="Enter"){e.preventDefault();if(debounceTimer)clearTimeout(debounceTimer);search(input.value);}
+      });
     }
-    document.querySelectorAll(".filter-chip[data-severity]").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();document.querySelectorAll(".filter-chip[data-severity]").forEach(x=>x.classList.remove("active"));b.classList.add("active");severity=b.dataset.severity||"all";search(input?.value||"");},true));
-    const g=document.getElementById("cc-global-search-input");
-    document.getElementById("cc-global-search-go")?.addEventListener("click",()=>go(g?.value||"","all"));
-    g?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go(g.value,"all");}});
-    document.querySelectorAll("[data-cc-search-mode]").forEach(b=>b.addEventListener("click",()=>go(g?.value||"",b.dataset.ccSearchMode||"all")));
+    document.querySelectorAll(".filter-chip[data-severity]").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();document.querySelectorAll(".filter-chip[data-severity]").forEach(x=>x.classList.remove("active"));b.classList.add("active");severity=b.dataset.severity||"all";search(input?.value||"");}));
     load();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
