@@ -894,10 +894,14 @@ CONSULTA DE INFRACCIONES
 ========================================================= */ 
 
 function configurarConsulta() { 
+  // NOTA: el buscado y los filtros de gravedad del buscador de Consulta los
+  // gestiona en exclusiva buscadores-core.js (window.CentinelaSearch). Antes
+  // este motor antiguo también escuchaba "input" y los chips de gravedad en
+  // paralelo, así que cada tecla pulsada disparaba DOS búsquedas completas a
+  // la vez (esta y la nueva), lo que provocaba el parón/"freeze" al escribir
+  // en el buscador. Se deja solo el botón de borrar, delegando en el motor
+  // nuevo para que la pantalla quede consistente. 
   const input = $("consultaSearch"); 
-  if (input) { 
-    input.addEventListener("input", () => actualizarBusqueda()); 
-  } 
 
   const limpiar = $("clearConsultaSearch"); 
   if (limpiar) { 
@@ -906,18 +910,9 @@ function configurarConsulta() {
         input.value = ""; 
         input.focus(); 
       } 
-      actualizarBusqueda(); 
+      if (window.CentinelaSearch?.search) window.CentinelaSearch.search(""); 
     }); 
   } 
-
-  document.querySelectorAll(".filter-chip[data-severity]").forEach((boton) => { 
-    boton.addEventListener("click", () => { 
-      document.querySelectorAll(".filter-chip[data-severity]").forEach((item) => item.classList.remove("active")); 
-      boton.classList.add("active"); 
-      estado.gravedad = boton.dataset.severity || "all"; 
-      actualizarBusqueda(); 
-    }); 
-  }); 
 } 
 
 function obtenerArticulosNormativa() { 
