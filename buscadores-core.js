@@ -138,7 +138,16 @@
        solo generaba ruido). Sí existen artículos sobre faltar al
        respeto/desobedecer a un agente, así que "insultar" enlaza ahí. */
     insultar:["desobediencia","resistencia","atentado","respeto"],
-    insulto:["desobediencia","resistencia","atentado","respeto"]
+    insulto:["desobediencia","resistencia","atentado","respeto"],
+    /* Variantes gramaticales de una misma raíz que la distancia de
+       edición por sí sola no cubre bien (adjetivo vs. sustantivo:
+       "excesiva"/"exceso" difieren en más letras de las que tolera
+       el corrector de erratas). Se enlazan explícitamente en vez de
+       reintroducir un atajo genérico de "mismas letras iniciales",
+       que antes causaba falsos positivos entre palabras distintas. */
+    excesiva:["exceso","excesivo","excede","exceder"],
+    excesivo:["exceso","excesiva","excede","exceder"],
+    exceso:["excesivo","excesiva","excede","exceder"]
   };
 
   const GROUPS=[
@@ -262,8 +271,22 @@
      ------------------------------------------------------------ */
   function distance(a,b){
     if(a===b)return 0;if(Math.abs(a.length-b.length)>2)return 99;
-    let p=Array.from({length:b.length+1},(_,i)=>i);
-    for(let i=1;i<=a.length;i++){const c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(c[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[b.length];
+    /* Damerau-Levenshtein (con transposición de letras adyacentes),
+       para que una errata típica de teclado como "pescaod" (por
+       "pescado") cuente como 1 cambio, no 2 — sin caer en el atajo
+       de "mismas 5 primeras letras" que confundía palabras distintas
+       que solo empezaban igual (p.ej. "pescaod" con "pesca"). */
+    const al=a.length,bl=b.length,d=[];
+    for(let i=0;i<=al;i++)d[i]=[i];
+    for(let j=0;j<=bl;j++)d[0][j]=j;
+    for(let i=1;i<=al;i++){
+      for(let j=1;j<=bl;j++){
+        const cost=a[i-1]===b[j-1]?0:1;
+        d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+cost);
+        if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1);
+      }
+    }
+    return d[al][bl];
   }
   const EXP_CACHE=new Map();
   function tokenExpansions(t){
@@ -286,7 +309,11 @@
     if(!isCodeLike(t)&&t.length>=5){
       for(const w of tokenSet){
         if(w.length<5||Math.abs(t.length-w.length)>2)continue;
-        if(t.slice(0,5)===w.slice(0,5))return "fuzzy";
+        /* Solo por distancia de edición real (nº mínimo de letras que
+           cambian). El antiguo atajo de "mismas 5 primeras letras" era
+           demasiado permisivo: emparejaba p.ej. "pescaod" (errata de
+           "pescado") con la palabra suelta "pesca", que no tiene nada
+           que ver con lo buscado. */
         if(distance(t,w)<=(t.length>=8?2:1))return "fuzzy";
       }
     }
@@ -332,12 +359,16 @@
   }
   function passesFilter(n,bodyHits,kwHits,strongHits){
     const total=bodyHits+kwHits;
-    /* Al menos una coincidencia fuerte (exacta o por sinónimo): que
-       todo el "acierto" venga solo de parecidos por errata (fuzzy) no
-       es suficiente para dar un resultado por bueno — así se evitan
-       coincidencias fantasma entre palabras que solo comparten raíz
-       (p.ej. "debería" pareciéndose a "deberá"). */
-    if(strongHits<1)return false;
+    /* En búsquedas de varias palabras, al menos una debe ser una
+       coincidencia fuerte (exacta o por sinónimo): que TODO el
+       "acierto" venga solo de parecidos por errata no basta, así se
+       evitan coincidencias fantasma entre palabras que solo comparten
+       raíz (p.ej. "debería" pareciéndose a "deberá"). En búsquedas de
+       una sola palabra esta exigencia NO se aplica: ahí el parecido
+       por errata es precisamente la tolerancia a errores que ofrece
+       el buscador (p.ej. "pescaod" → "pescado") y bloquearlo la
+       anularía por completo. */
+    if(n>1&&strongHits<1)return false;
     if(n<=2)return total>=n;
     return total>=Math.ceil(n*0.65)&&bodyHits>=1;
   }
