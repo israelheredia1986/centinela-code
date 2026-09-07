@@ -17,7 +17,7 @@
   async function boot(){
     try{
       await cargar(`${base}buscador-home.js?v=20260904v3`);
-      await cargar(`${base}buscadores-core.js?v=20260904v10`);
+      await cargar(`${base}buscadores-core.js?v=20260907v1`);
       await cargar(`${base}buscador-local-only.js?v=20260904v2`);
       await cargar(`${base}buscador-consecuencias.js?v=20260904v5`);
       await cargar(`${base}buscador-consecuencias-ui.js?v=20260904v3`);
