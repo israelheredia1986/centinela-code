@@ -52,10 +52,35 @@
     ["Policías Locales Andalucía","./data/policias_locales_andalucia.json"],
     ["Ley 39/2015","./data/ley_39_2015.json"],
     ["Ley 7/1985","./data/ley_7_1985.json"],
-    ["Ley 5/2010 Andalucía","./data/ley_5_2010_andalucia.json"]
+    ["Ley 5/2010 Andalucía","./data/ley_5_2010_andalucia.json"],
+    ["Aforo, hostelería y eventos","./data/aforo_hosteleria_eventos.json"],
+    ["Contrabando","./data/contrabando.json"],
+    ["Propiedad industrial y falsificaciones","./data/propiedad_industrial_falsificaciones.json"],
+    ["VMP, patinetes y bicicletas · infracciones","./data/infracciones_vmp_bicicletas.json"],
+    ["VMP, patinetes y bicicletas","./data/normativa_vmp_bicicletas.json"],
+    ["Reglamento General de Vehículos (RD 2822/1998)","./data/rd-2822-1998.json"],
+    ["Temario Bloque 1 · jurídico","./data/bloque1_juridico.json"],
+    ["Temario Bloque 1 · infracciones","./data/infracciones_bloque1.json"],
+    ["Actuaciones operativas B01","./data/operativas_b01.json"],
+    ["Actuaciones operativas B02","./data/operativas_b02.json"],
+    ["Actuaciones operativas B03","./data/operativas_b03.json"],
+    ["Actuaciones operativas B04","./data/operativas_b04.json"],
+    ["Actuaciones operativas B05","./data/operativas_b05.json"],
+    ["Actuaciones operativas B06","./data/operativas_b06.json"],
+    ["Actuaciones operativas B07","./data/operativas_b07.json"],
+    ["Actuaciones operativas B08","./data/operativas_b08.json"]
   ];
 
-  const STOP=new Set(["a","al","ante","bajo","con","contra","de","del","desde","durante","el","en","entre","hacia","hasta","la","las","lo","los","para","por","segun","sin","sobre","un","una","unos","unas","y","o","que","es","del","al"]);
+  const STOP=new Set(["a","al","ante","bajo","con","contra","de","del","desde","durante","el","en","entre","hacia","hasta","la","las","lo","los","para","por","segun","sin","sobre","un","una","unos","unas","y","o","que","es","del","al",
+    /* Palabras funcionales muy frecuentes que, si no se excluyen, aparecen
+       en casi cualquier artículo legal y disparan falsos positivos (p.ej.
+       "no" hace que cualquier búsqueda con "no autorizado" o "sin
+       permiso" case con cualquier norma que contenga la palabra "no",
+       es decir, prácticamente todas). */
+    "no","se","su","sus","le","les","lo","les","esta","este","estas","estos","ese","esa","esos","esas",
+    "mas","muy","tambien","como","cuando","donde","porque","pero","si","ya","asi","yo","tu","el","ella",
+    "ellos","ellas","nos","les","mi","mis","tu","tus","haber","hay","ser","fue","son","era","eran",
+    "cual","cuales","quien","quienes","cada","otro","otra","otros","otras","todo","toda","todos","todas"]);
 
   /* Sinónimos / variantes coloquiales → término(s) que sí aparecen en las
      normas. Se usan en ambos sentidos: si la búsqueda o el propio texto
@@ -75,19 +100,45 @@
     factura:["facturas","comprobante","ticket","tique"],
     horario:["horarios","hora","cierre","apertura"],
     multa:["sancion","sanciones","infraccion","infracciones"],
-    ensuciar:["ensuciado","ensuciamiento","suciedad","limpieza","residuos","basura","vertido","arrojar","tirar","via publica","calle","acera","calzada","papelera"],
-    ensuciado:["ensuciar","ensuciamiento","suciedad","limpieza","residuos","basura","vertido","via publica","calle"],
-    suciedad:["ensuciar","ensuciado","limpieza","residuos","basura","via publica","calle"],
-    calle:["via publica","acera","calzada","limpieza","suciedad","residuos"],
-    tirar:["arrojar","depositar","residuos","basura","suciedad","via publica"],
-    arrojar:["tirar","depositar","residuos","basura","suciedad","via publica"],
+    ensuciar:["ensuciado","ensuciamiento","suciedad","limpieza","residuos","basura","vertido","arrojar","tirar","calle","acera","calzada","papelera"],
+    ensuciado:["ensuciar","ensuciamiento","suciedad","limpieza","residuos","basura","vertido","calle"],
+    suciedad:["ensuciar","ensuciado","limpieza","residuos","basura","calle"],
+    calle:["acera","calzada","limpieza","suciedad","residuos"],
+    tirar:["arrojar","depositar","residuos","basura","suciedad"],
+    arrojar:["tirar","depositar","residuos","basura","suciedad"],
     aparcar:["estacionar","estacionamiento","aparcamiento","parada"],
     aparcado:["estacionado","estacionamiento","aparcamiento","aparcar"],
     aparcamiento:["estacionamiento","parking","aparcar"],
     parking:["aparcamiento","estacionamiento"],
     discapacitado:["discapacidad","minusvalido","movilidad reducida"],
     discapacidad:["discapacitado","minusvalido","movilidad reducida"],
-    minusvalido:["discapacitado","discapacidad","movilidad reducida"]
+    minusvalido:["discapacitado","discapacidad","movilidad reducida"],
+    /* Estacionamiento sobre marcas/zonas señalizadas: estos términos
+       coloquiales ("línea amarilla") no aparecen tal cual en el texto
+       legal (que habla de "vado señalizado", "señalizada"...), así que
+       se enlazan a palabras concretas y poco ambiguas del propio texto
+       (nunca a palabras sueltas muy comunes como "línea" o "zona", que
+       aparecen en contextos totalmente ajenos y generarían ruido). */
+    amarilla:["vado","vados","senalizado","senalizada","bordillo"],
+    amarillo:["vado","vados","senalizado","senalizada","bordillo"],
+    bordillo:["vado","vados","amarillo","amarilla","senalizado"],
+    vado:["vados","senalizado","senalizada"],
+    ruido:["ruidos","molestias","vibraciones","musica","descanso vecinal","contaminacion acustica"],
+    ruidos:["ruido","molestias","vibraciones","musica","contaminacion acustica"],
+    botellon:["consumo alcohol calle","bebidas alcoholicas calle"],
+    alcohol:["bebidas alcoholicas","embriaguez","alcoholemia","botellon"],
+    grafiti:["grafitis","pintada","pintadas","vandalismo"],
+    pintada:["pintadas","grafiti","grafitis","vandalismo"],
+    dron:["drones","aeronave no tripulada"],
+    mendicidad:["mendigar","limosna"],
+    perro:["perros","canino"],
+    correa:["bozal","sujecion animal"],
+    /* No hay datos de usurpación/okupación de vivienda en la base, así
+       que ese grupo se ha retirado (no aportaba coincidencias reales y
+       solo generaba ruido). Sí existen artículos sobre faltar al
+       respeto/desobedecer a un agente, así que "insultar" enlaza ahí. */
+    insultar:["desobediencia","resistencia","atentado","respeto"],
+    insulto:["desobediencia","resistencia","atentado","respeto"]
   };
 
   const GROUPS=[
@@ -103,8 +154,20 @@
     ["decomiso","decomisar","incautacion","incautar","aprehension"],
     ["talla","talla minima","talla inferior","tamano minimo","pescado pequeno"],
     ["veda","vedado","epoca de veda","prohibido","prohibicion"],
-    ["estacionar","estacionamiento","aparcar","aparcado","aparcamiento","parking","parada"],
-    ["discapacitado","discapacidad","minusvalido","movilidad reducida"]
+    ["estacionar","estacionamiento","aparcar","aparcado","aparcamiento","parking","parada","vado","vados","bordillo","senalizado","senalizada"],
+    ["discapacitado","discapacidad","minusvalido","movilidad reducida"],
+    ["ruido","ruidos","molestias","vibraciones","musica alta","descanso vecinal","contaminacion acustica"],
+    ["alcohol","bebidas alcoholicas","embriaguez","alcoholemia","botellon"],
+    ["botellon","consumo alcohol calle"],
+    ["mendicidad","mendigar","limosna"],
+    ["grafiti","grafitis","pintada","pintadas","vandalismo"],
+    ["dron","drones","aeronave no tripulada"],
+    ["arma","armas","arma blanca","navaja","cuchillo","arma de fuego"],
+    ["animal suelto","perro suelto","perro sin correa","abandono animal","maltrato animal","animal abandonado"],
+    ["menor","menores","tabaco menores","alcohol menores","venta a menores"],
+    ["residuo","residuos","vertido","escombro","escombros","basura","enseres"],
+    ["terraza","terrazas","veladores","aforo"],
+    ["insultar","insulto","desobediencia","resistencia","atentado","respeto"]
   ];
 
   const norm=v=>String(v??"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9.]+/g," ").replace(/\s+/g," ").trim();
@@ -186,7 +249,7 @@
   async function load(){
     if(PROMISE)return PROMISE;
     PROMISE=Promise.all(DATA.map(async([src,url])=>{
-      try{const r=await fetch(`${url}?searchv=20260907v1`,{cache:"no-store"});if(!r.ok)throw Error(r.status);const j=await r.json(),o=[];walk(j,src,"$",o,0);return o;}
+      try{const r=await fetch(`${url}?searchv=20260907v2`,{cache:"no-store"});if(!r.ok)throw Error(r.status);const j=await r.json(),o=[];walk(j,src,"$",o,0);return o;}
       catch(e){console.warn("Centinela buscador: no carga",url,e);return [];}
     })).then(g=>{INDEX=g.flat();return INDEX;});
     return PROMISE;
@@ -231,8 +294,17 @@
   }
 
   const W={exactBody:150,aliasBody:115,fuzzyBody:75,exactKw:45,aliasKw:35,fuzzyKw:20};
+  /* Una ficha es "sustanciosa" cuando de verdad da algo con lo que
+     trabajar (artículo, sanción o descripción propia con contenido):
+     no una entrada contenedora tipo "articulos": [] que solo trae
+     nombre + palabras clave genéricas. Estas últimas se penalizan
+     y solo se muestran como relleno si no hay suficientes resultados
+     concretos. */
+  function hasSubstance(r){
+    return !!(r.article||r.sanction||(r.description&&r.description.trim().length>=60));
+  }
   function scoreRecord(r,qTokens,fullNorm){
-    let s=0,bodyHits=0,kwHits=0;
+    let s=0,bodyHits=0,kwHits=0,strongHits=0;
     if(fullNorm){
       if(norm(r.article)===fullNorm)s+=1300;
       if(norm(r.code)===fullNorm)s+=1200;
@@ -243,20 +315,29 @@
       const mb=matchKind(t,r.bodyTokens);
       if(mb){
         bodyHits++;
+        if(mb!=="fuzzy")strongHits++;
         s+=mb==="exact"?W.exactBody:mb==="alias"?W.aliasBody:W.fuzzyBody;
         if(norm(r.article).includes(t))s+=70;
         if(norm(r.title).includes(t))s+=55;
         continue;
       }
       const mk=matchKind(t,r.kwTokens);
-      if(mk){kwHits++;s+=mk==="exact"?W.exactKw:mk==="alias"?W.aliasKw:W.fuzzyKw;}
+      if(mk){kwHits++;if(mk!=="fuzzy")strongHits++;s+=mk==="exact"?W.exactKw:mk==="alias"?W.aliasKw:W.fuzzyKw;}
     }
     const total=qTokens.length||1;
     const weighted=Math.min(1,(bodyHits+kwHits*0.35)/total);
-    return {score:s*(0.55+0.45*weighted),bodyHits,kwHits};
+    let score=s*(0.55+0.45*weighted);
+    if(!hasSubstance(r))score*=0.35;
+    return {score,bodyHits,kwHits,strongHits};
   }
-  function passesFilter(n,bodyHits,kwHits){
+  function passesFilter(n,bodyHits,kwHits,strongHits){
     const total=bodyHits+kwHits;
+    /* Al menos una coincidencia fuerte (exacta o por sinónimo): que
+       todo el "acierto" venga solo de parecidos por errata (fuzzy) no
+       es suficiente para dar un resultado por bueno — así se evitan
+       coincidencias fantasma entre palabras que solo comparten raíz
+       (p.ej. "debería" pareciéndose a "deberá"). */
+    if(strongHits<1)return false;
     if(n<=2)return total>=n;
     return total>=Math.ceil(n*0.65)&&bodyHits>=1;
   }
@@ -326,14 +407,24 @@
     const fullNorm=norm(q);
     const scored=[];
     for(const r of rs){
-      const {score:sc,bodyHits,kwHits}=scoreRecord(r,qTokens,fullNorm);
+      const {score:sc,bodyHits,kwHits,strongHits}=scoreRecord(r,qTokens,fullNorm);
       if(sc<=0)continue;
-      if(!passesFilter(qTokens.length,bodyHits,kwHits))continue;
+      if(!passesFilter(qTokens.length,bodyHits,kwHits,strongHits))continue;
       scored.push({r,s:sc});
     }
     scored.sort((a,b)=>b.s-a.s||String(a.r.article).localeCompare(String(b.r.article),"es",{numeric:true}));
     if(myGen!==searchGen)return;
-    render(scored.map(x=>x.r),q);
+    /* Resultados concretos (con artículo, sanción o descripción real)
+       primero; las fichas contenedoras sin articulado ("nota: el
+       articulado completo debe consultarse en el documento oficial")
+       solo rellenan hueco si no hay suficientes resultados concretos.
+       Máximo MAX_RESULTS en pantalla: pocos, pero los más precisos. */
+    const MAX_RESULTS=6;
+    const concretos=scored.filter(x=>hasSubstance(x.r));
+    const contenedores=scored.filter(x=>!hasSubstance(x.r));
+    let finalList=concretos.slice(0,MAX_RESULTS);
+    if(finalList.length<MAX_RESULTS)finalList=finalList.concat(contenedores.slice(0,MAX_RESULTS-finalList.length));
+    render(finalList.map(x=>x.r),q);
   }
   function go(q,m){mode=m||"all";document.querySelector('.nav-item[data-section="consulta"]')?.click();setTimeout(()=>{const i=document.getElementById("consultaSearch");if(i){i.value=q||"";search(i.value);}},80);}
 
