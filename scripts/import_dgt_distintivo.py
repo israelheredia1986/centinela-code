@@ -41,6 +41,9 @@ def norm_plate(value):
 
 def norm_badge(value):
     value = str(value or "").strip().upper()
+    codigo = norm_badge_codigo(value)
+    if codigo is not None:
+        return codigo
     if value in {"0", "CERO", "0 EMISIONES", "CERO EMISIONES"}:
         return "0"
     if value in {"A", "SIN DISTINTIVO", "SIN ETIQUETA", "SIN DISTINTIVO AMBIENTAL"}:
@@ -57,6 +60,21 @@ def norm_badge(value):
     if re.search(r"\bC\b", value):
         return "C"
     return value
+
+
+CODIGO_ETIQUETA_RE = re.compile(r"^\d{2}[A-Z]([BCE0])$")
+
+
+def norm_badge_codigo(value):
+    """Decodifica el formato real de la DGT: '16TC', '16MB', '16TE', '16T0', 'SIN DISTINTIVO'."""
+    value = str(value or "").strip().upper()
+    if value == "SIN DISTINTIVO":
+        return "A"
+    match = CODIGO_ETIQUETA_RE.match(value)
+    if match:
+        suffix = match.group(1)
+        return "ECO" if suffix == "E" else suffix
+    return None
 
 
 def find_column(headers, candidates):
@@ -93,7 +111,7 @@ def parse_member(raw):
     reader = csv.DictReader(io.StringIO(text), delimiter=delimiter)
     headers = reader.fieldnames or []
     plate_col = find_column(headers, ["matricula", "matrícula", "plate", "matricula_vehiculo"])
-    badge_col = find_column(headers, ["distintivo", "distintivo_ambiental", "etiqueta_ambiental", "clasificacion_ambiental", "categoria_ambiental"])
+    badge_col = find_column(headers, ["tipodeetiqueta", "tipo_etiqueta", "distintivo", "distintivo_ambiental", "etiqueta_ambiental", "clasificacion_ambiental", "categoria_ambiental"])
     if not plate_col or not badge_col:
         first_lines = text.splitlines()[:3]
         print(f"DIAGNOSTICO -> delimitador detectado: {delimiter!r}")
