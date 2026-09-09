@@ -95,6 +95,12 @@ def parse_member(raw):
     plate_col = find_column(headers, ["matricula", "matrícula", "plate", "matricula_vehiculo"])
     badge_col = find_column(headers, ["distintivo", "distintivo_ambiental", "etiqueta_ambiental", "clasificacion_ambiental", "categoria_ambiental"])
     if not plate_col or not badge_col:
+        first_lines = text.splitlines()[:3]
+        print(f"DIAGNOSTICO -> delimitador detectado: {delimiter!r}")
+        print(f"DIAGNOSTICO -> cabecera detectada: {headers}")
+        print("DIAGNOSTICO -> primeras 3 líneas crudas del fichero:")
+        for line in first_lines:
+            print(f"    {line!r}")
         return None, None, None
 
     rows = []
