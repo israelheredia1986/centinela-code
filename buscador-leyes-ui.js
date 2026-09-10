@@ -63,7 +63,7 @@
 
   function walk(v,source,path,inheritedLaw,depth){
     if(v==null||depth>12)return;
-    if(Array.isArray(v){
+    if(Array.isArray(v)){
       v.forEach((x,i)=>walk(x,source,`${path}[${i}]`,inheritedLaw,depth+1));
       return;
     }
@@ -131,10 +131,10 @@
 
   function applyCards(){
     document.querySelectorAll("#consultaResults .cc-search-result").forEach(card=>{
-      const source=card.querySelector(".result-ley")?.textContent||"";
+      const source=card.dataset.ccLaw?"":(card.querySelector(".result-ley")?.textContent||"");
       const article=card.querySelector(".result-code")?.textContent||"";
       const title=card.querySelector("h3")?.textContent||"";
-      const match=findLaw({source,article,title});
+      const match=card.dataset.ccLaw?{law:card.dataset.ccLaw}:findLaw({source,article,title});
       if(!match)return;
       card.dataset.ccLaw=match.law;
       const label=card.querySelector(".result-ley");
