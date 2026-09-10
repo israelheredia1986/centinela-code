@@ -60,15 +60,16 @@
     ["VMP, patinetes y bicicletas","./data/normativa_vmp_bicicletas.json"],
     ["Reglamento General de Vehículos (RD 2822/1998)","./data/rd-2822-1998.json"],
     ["Temario Bloque 1 · jurídico","./data/bloque1_juridico.json"],
-    ["Temario Bloque 1 · infracciones","./data/infracciones_bloque1.json"],
-    ["Actuaciones operativas B01","./data/operativas_b01.json"],
-    ["Actuaciones operativas B02","./data/operativas_b02.json"],
-    ["Actuaciones operativas B03","./data/operativas_b03.json"],
-    ["Actuaciones operativas B04","./data/operativas_b04.json"],
-    ["Actuaciones operativas B05","./data/operativas_b05.json"],
-    ["Actuaciones operativas B06","./data/operativas_b06.json"],
-    ["Actuaciones operativas B07","./data/operativas_b07.json"],
-    ["Actuaciones operativas B08","./data/operativas_b08.json"]
+    ["Temario Bloque 1 · infracciones","./data/infracciones_bloque1.json"]
+    /* Las "Actuaciones operativas B01-B08" se han retirado a propósito
+       de este índice: es el mismo contenido que ya tiene su propia
+       búsqueda dedicada en la pestaña "Apoyo operativo"
+       (actuaciones-operativas.js). Al mezclarlas aquí, la actuación
+       (texto largo, con muchas coincidencias de palabras) solía ganar
+       en puntuación a la infracción real y salía la primera en
+       "Consulta". Ahora "Consulta" solo busca en normativa e
+       infracciones; para actuaciones/procedimientos hay que entrar en
+       "Apoyo operativo". */
   ];
 
   const STOP=new Set(["a","al","ante","bajo","con","contra","de","del","desde","durante","el","en","entre","hacia","hasta","la","las","lo","los","para","por","segun","sin","sobre","un","una","unos","unas","y","o","que","es","del","al",
