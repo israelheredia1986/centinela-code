@@ -8,6 +8,25 @@ app.js - Con Supabase Auth + Actas + Subida de Fotos Incautación + PDF + Asiste
 "use strict";
 
 // ============================================================
+// FIX DIAGNÓSTICO: si algo falla en cualquier punto de la app
+// (no solo al arrancar), se muestra el error en pantalla en vez de
+// quedar en silencio con la app congelada. Así se puede leer el
+// motivo exacto sin necesitar conectar el móvil a un ordenador.
+// ============================================================
+window.addEventListener("error", (evento) => {
+  console.error("Error no controlado:", evento.error || evento.message);
+  if (typeof alert === "function") {
+    alert("Centinela Code — error:\n\n" + (evento.error?.stack || evento.message));
+  }
+});
+window.addEventListener("unhandledrejection", (evento) => {
+  console.error("Promesa rechazada sin controlar:", evento.reason);
+  if (typeof alert === "function") {
+    alert("Centinela Code — error:\n\n" + (evento.reason?.stack || evento.reason));
+  }
+});
+
+// ============================================================
 // SUPABASE – Configuración y Cliente de Respaldo Safe
 // ============================================================
 const SUPABASE_URL  = "https://okuygqbaliaeavhyezri.supabase.co";
@@ -3822,63 +3841,45 @@ async function iniciarAplicacion() {
 
   mostrarCarga(true);
 
-
-  inyectarBotonLogout();
-
-
-  configurarNavegacion();
-
-
-  configurarConsulta();
-
-
-  configurarActas();
-
-
-  configurarNormativa();
-
-
-  configurarAsistenteIA();
-
-
-  configurarAjustes();
-
-
-  configurarMatriculas();
-
-
-  configurarEventosDelegados();
-
-
-  actualizarRed();
-
-
-
-  window.addEventListener(
-    "online",
-    actualizarRed
-  );
-
-
-  window.addEventListener(
-    "offline",
-    actualizarRed
-  );
-
-
-
+  // ============================================================
+  // FIX: antes, si CUALQUIER paso de aquí abajo lanzaba un error
+  // (por ejemplo un elemento del HTML que ya no existe, o un botón
+  // que cambió de id), la función se paraba en seco y nunca llegaba
+  // a ocultar la pantalla de carga. Resultado: la pantalla de carga
+  // se queda tapando toda la app, bloqueando los toques, y parece
+  // que la app "no abre" nada (ni Actas, ni Normativa, ni el menú).
+  // Ahora todo el arranque va protegido: si algo falla, se ve el
+  // error en pantalla (para poder decírmelo) y aun así se oculta la
+  // pantalla de carga para que el resto de la app siga siendo usable.
+  // ============================================================
   try {
+    inyectarBotonLogout();
+    configurarNavegacion();
+    configurarConsulta();
+    configurarActas();
+    configurarNormativa();
+    configurarAsistenteIA();
+    configurarAjustes();
+    configurarMatriculas();
+    configurarEventosDelegados();
+    actualizarRed();
+
+    window.addEventListener("online", actualizarRed);
+    window.addEventListener("offline", actualizarRed);
+
     await cargarDatos();
     await cargarActas();
   } catch (error) {
-    console.error("Error inicializando datos/actas:", error);
+    console.error("Error inicializando la aplicación:", error);
+    mostrarToast(`⚠️ Error al iniciar: ${error?.message || error}`);
+    if (typeof alert === "function") {
+      alert("Centinela Code — error al iniciar:\n\n" + (error?.stack || error?.message || error));
+    }
   } finally {
-    // Pase lo que pase (sin red, error de Supabase, etc.) el overlay
-    // de carga se cierra siempre y la app queda usable.
+    // Pase lo que pase, el overlay de carga se cierra siempre y la
+    // app queda usable (aunque alguna sección concreta falle).
     mostrarCarga(false);
   }
-
-
 
   appInicializada = true;
 
