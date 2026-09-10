@@ -64,12 +64,33 @@
     return `<article class="result-card cc-search-result cc-legal-consequence-result"><div class="result-card-header"><div><span class="result-ley">${esc(r.source)}</span>${r.article?`<span class="result-code">Art. ${esc(r.article)}</span>`:""}<h3>${esc(r.title||"Consecuencia jurídica")}</h3></div>${r.severity?`<span class="severity-badge">${esc(r.severity)}</span>`:""}</div><p class="result-conducta">${esc(r.description||"Consulta el régimen jurídico aplicable.")}</p><div class="result-meta">${consequence.join("")}</div><button type="button" class="result-detail-button cc-detail cc-legal-detail">Ver detalle</button></article>`;
   }
 
+  function openDetail(r){
+    const modal=document.getElementById("appModal"),body=document.getElementById("modalBody"),title=document.getElementById("modalTitle"),actions=document.getElementById("modalActions");
+    if(!modal||!body){alert(`${r.article||r.source}\n\n${r.title||""}\n\n${r.description||""}\n\n${r.pena||""} ${r.sancion||""} ${r.medidas||""}`);return;}
+    if(title)title.textContent=r.article?`Art. ${r.article}`:(r.source||"Consecuencia jurídica");
+    body.innerHTML=`<div class="detail-content"><p><strong>Normativa:</strong> ${esc(r.source)}</p><p><strong>Artículo:</strong> ${esc(r.article||"-")}</p><p><strong>Concepto:</strong> ${esc(r.title||"-")}</p><p><strong>Gravedad:</strong> ${esc(r.severity||"-")}</p><h4>Conducta / contenido</h4><p>${esc(r.description||"-")}</p>${r.pena?`<h4>Pena penal</h4><p>${esc(r.pena)}</p>`:""}${r.sancion?`<h4>Sanción administrativa</h4><p>${esc(r.sancion)}</p>`:""}${r.medidas?`<h4>Medidas</h4><p>${esc(r.medidas)}</p>`:""}</div>`;
+    if(actions)actions.innerHTML='<button class="secondary-button" type="button" id="ccLegalCloseDetail">Cerrar</button>';
+    modal.classList.remove("hidden");document.getElementById("ccLegalCloseDetail")?.addEventListener("click",()=>modal.classList.add("hidden"));
+  }
+
   async function append(q){
     const box=document.getElementById("consultaResults");if(!box||!q)return;
     const all=await load();const hits=all.map(r=>({r,s:score(r,q)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,12).map(x=>x.r);
     if(!hits.length)return;
     const existing=[...box.querySelectorAll(".cc-legal-consequence-result")].map(x=>x.textContent).join(" ");
-    hits.forEach(r=>{const marker=`${r.source}|${r.article}|${r.title}`;if(existing.includes(r.title||"§§never"))return;box.insertAdjacentHTML("beforeend",makeCard(r));});
+    hits.forEach(r=>{
+      if(existing.includes(r.title||"§§never"))return;
+      /* Antes se insertaba con insertAdjacentHTML, lo que dejaba el
+         botón "Ver detalle" de estas tarjetas sin ningún evento de
+         clic enganchado (por eso no abría nada). Ahora se crea el
+         nodo aparte y se le añade su propio listener. */
+      const wrap=document.createElement("div");
+      wrap.innerHTML=makeCard(r);
+      const card=wrap.firstElementChild;
+      if(!card)return;
+      box.appendChild(card);
+      card.querySelector(".cc-legal-detail")?.addEventListener("click",()=>openDetail(r));
+    });
   }
 
   function patch(){
