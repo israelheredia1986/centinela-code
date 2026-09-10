@@ -478,7 +478,23 @@
       });
     }
     document.querySelectorAll(".filter-chip[data-severity]").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();document.querySelectorAll(".filter-chip[data-severity]").forEach(x=>x.classList.remove("active"));b.classList.add("active");severity=b.dataset.severity||"all";search(input?.value||"");}));
-    load();
+    /* FIX RENDIMIENTO: antes se llamaba a load() aquí, nada más
+       arrancar la app, lo que descargaba y mantenía en memoria una
+       SEGUNDA copia completa de toda la normativa (además de la que
+       ya carga app.js), justo al inicio, antes de tocar ninguna
+       pestaña. Eso elevaba mucho el consumo de memoria desde el
+       primer segundo y podía provocar cierres al entrar en Actas o
+       Normativa poco después. Ahora el índice del buscador solo se
+       construye la primera vez que el usuario realmente lo usa
+       (search() ya llama a load() internamente y lo cachea, así que
+       no se pierde nada, solo se retrasa hasta que hace falta).
+       Aun así, se precarga en segundo plano tras unos segundos de
+       inactividad, para que la primera búsqueda no note el retraso. */
+    if("requestIdleCallback" in window){
+      requestIdleCallback(()=>load(),{timeout:15000});
+    }else{
+      setTimeout(()=>load(),6000);
+    }
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
   window.CentinelaSearch={search,load,go};
