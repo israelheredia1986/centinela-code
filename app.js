@@ -42,9 +42,29 @@ window.CENTINELA_SUPABASE_CLIENT = supabase;
 // ============================================================
 let usuarioActual = null;
 
+// ============================================================
+// FIX RENDIMIENTO: evita que llamadas a Supabase sin red dejen
+// la app congelada indefinidamente (pantalla de carga bloqueada).
+// Si la promesa no resuelve en "ms", se continúa con "valorDefecto".
+// ============================================================
+function conTimeout(promesa, ms, valorDefecto) {
+  return Promise.race([
+    promesa,
+    new Promise((resolve) => setTimeout(() => resolve(valorDefecto), ms))
+  ]);
+}
+
 async function obtenerSesion() {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const resultado = await conTimeout(
+      supabase.auth.getSession(),
+      8000,
+      { data: { session: null }, timeout: true }
+    );
+    if (resultado?.timeout) {
+      console.warn("Comprobación de sesión sin respuesta en 8s, continuando sin sesión de red.");
+    }
+    const session = resultado?.data?.session;
     usuarioActual = session?.user ?? null;
     return usuarioActual;
   } catch (e) {
@@ -1973,17 +1993,29 @@ ACTAS - NUBE, FILTROS Y PDF
 async function cargarActas() {
   if (!usuarioActual) return;
   try {
-    const { data, error } = await supabase
-      .from("actas")
-      .select("*")
-      .eq("user_id", usuarioActual.id)
-      .order("actualizado", { ascending: false });
+    const resultado = await conTimeout(
+      supabase
+        .from("actas")
+        .select("*")
+        .eq("user_id", usuarioActual.id)
+        .order("actualizado", { ascending: false }),
+      8000,
+      { data: null, error: null, timeout: true }
+    );
 
+    if (resultado?.timeout) {
+      console.warn("Carga de actas sin respuesta en 8s (sin red). Se mantienen las actas locales si existen.");
+      estado.actas = estado.actas && estado.actas.length ? estado.actas : [];
+      renderizarActas();
+      return;
+    }
+
+    const { data, error } = resultado;
     if (error) throw error;
     estado.actas = data ?? [];
   } catch (error) {
     console.error("No se pudieron cargar las actas:", error);
-    estado.actas = [];
+    estado.actas = estado.actas && estado.actas.length ? estado.actas : [];
   }
   renderizarActas();
 }
@@ -3835,14 +3867,16 @@ async function iniciarAplicacion() {
 
 
 
-  await cargarDatos();
-
-
-  await cargarActas();
-
-
-
-  mostrarCarga(false);
+  try {
+    await cargarDatos();
+    await cargarActas();
+  } catch (error) {
+    console.error("Error inicializando datos/actas:", error);
+  } finally {
+    // Pase lo que pase (sin red, error de Supabase, etc.) el overlay
+    // de carga se cierra siempre y la app queda usable.
+    mostrarCarga(false);
+  }
 
 
 
