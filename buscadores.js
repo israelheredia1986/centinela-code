@@ -1,6 +1,7 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V25 — BUSCADOR ULTRA + PRIORIDAD REAL + VOCABULARIO ARMAS
+   V26 — BUSCADOR ULTRA + PRIORIDAD REAL + VOCABULARIO ARMAS
+        + REPARACIÓN CONSTITUCIÓN SIN 403
    ============================================================ */
 (function(){
   "use strict";
@@ -28,8 +29,9 @@
       await cargar(`${base}trafico-sanciones-codificados.js?v=20260905v1`);
     }catch(e){console.error("Centinela Code — módulos de búsqueda:",e)}
     try{
-      await cargar(`${base}constitucion-completa.js?v=20260904-constitucion-v3`);
-      await cargar(`${base}constitucion-tab-fix.js?v=20260904-constitucion-tab-fix-v2`);
+      await cargar(`${base}constitucion-api-fix.js?v=20260911v1`);
+      await cargar(`${base}constitucion-completa.js?v=20260904-constitucion-v4`);
+      await cargar(`${base}constitucion-tab-fix.js?v=20260904-constitucion-tab-fix-v3`);
     }catch(e){console.error("Centinela Code — Constitución:",e)}
     try{
       await cargar(`${base}decreto-251-2023.js?v=20260906v4`);
