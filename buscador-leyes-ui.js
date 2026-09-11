@@ -3,6 +3,17 @@
    Añade a cada artículo la ley/norma concreta a la que pertenece.
    No modifica el diseño ni sustituye el buscador: trabaja sobre
    los resultados ya renderizados por buscadores-core.js.
+
+   FIX FREEZE (2026-09-11): el MutationObserver reescribía con
+   textContent/innerHTML el mismo nodo que estaba observando en
+   cada notificación. textContent/innerHTML siempre crean un nodo
+   nuevo aunque el texto no cambie, así que cada escritura volvía
+   a disparar el observer -> bucle de microtasks infinito que
+   bloqueaba el hilo principal (la app se quedaba congelada tras
+   encontrar un resultado, sin poder salir de la pantalla).
+   Ahora solo se escribe en el DOM cuando el valor realmente
+   cambia, y se añade una guarda de reentrada como protección
+   adicional.
    ============================================================ */
 (function(){
   "use strict";
@@ -129,6 +140,22 @@
     return m?m[1]:s;
   }
 
+  /* Escritura segura: solo toca el DOM si el valor cambia de verdad.
+     Esto es lo que impide que el propio MutationObserver se retrigger
+     a sí mismo en bucle al ver un "cambio" que en realidad es idéntico. */
+  function setTextIfChanged(el,text){
+    if(!el)return;
+    if(el.textContent!==text)el.textContent=text;
+  }
+  function setAttrIfChanged(el,attr,value){
+    if(!el)return;
+    if(el.getAttribute(attr)!==value)el.setAttribute(attr,value);
+  }
+  function setDatasetIfChanged(el,key,value){
+    if(!el)return;
+    if(el.dataset[key]!==value)el.dataset[key]=value;
+  }
+
   function applyCards(){
     document.querySelectorAll("#consultaResults .cc-search-result").forEach(card=>{
       const source=card.dataset.ccLaw?"":(card.querySelector(".result-ley")?.textContent||"");
@@ -136,14 +163,14 @@
       const title=card.querySelector("h3")?.textContent||"";
       const match=card.dataset.ccLaw?{law:card.dataset.ccLaw}:findLaw({source,article,title});
       if(!match)return;
-      card.dataset.ccLaw=match.law;
+      setDatasetIfChanged(card,"ccLaw",match.law);
       const label=card.querySelector(".result-ley");
       if(label){
-        label.textContent=shortLaw(match.law)||source;
-        label.title=match.law;
+        setTextIfChanged(label,shortLaw(match.law)||source);
+        setAttrIfChanged(label,"title",match.law);
       }
       const detail=card.querySelector(".cc-detail");
-      if(detail)detail.dataset.ccLaw=match.law;
+      if(detail)setDatasetIfChanged(detail,"ccLaw",match.law);
     });
   }
 
@@ -154,10 +181,10 @@
     const lawParagraph=paragraphs.find(p=>/^\s*Normativa\s*:/i.test(p.textContent||""));
     if(!lawParagraph)return;
     const selected=window.__ccSelectedLaw;
-    if(selected){
-      lawParagraph.innerHTML=`<strong>Normativa:</strong> ${esc(selected)}`;
-      lawParagraph.title=selected;
-    }
+    if(!selected)return;
+    const newHTML=`<strong>Normativa:</strong> ${esc(selected)}`;
+    if(lawParagraph.innerHTML!==newHTML)lawParagraph.innerHTML=newHTML;
+    setAttrIfChanged(lawParagraph,"title",selected);
   }
 
   function bind(){
@@ -172,13 +199,37 @@
       setTimeout(applyModal,0);
     });
 
-    const observer=new MutationObserver(()=>{
-      applyCards();
-      applyModal();
+    /* Guarda de reentrada: además de las escrituras idempotentes de
+       arriba, evita procesar notificaciones mientras ya se está
+       aplicando una tanda anterior (protección extra, cinturón y
+       tirantes). */
+    let applyingResults=false;
+    const resultsObserver=new MutationObserver(()=>{
+      if(applyingResults)return;
+      applyingResults=true;
+      try{
+        applyCards();
+        applyModal();
+      }finally{
+        applyingResults=false;
+      }
     });
-    observer.observe(results,{childList:true,subtree:true});
+    resultsObserver.observe(results,{childList:true,subtree:true});
+
     const modal=document.getElementById("modalBody");
-    if(modal)new MutationObserver(applyModal).observe(modal,{childList:true,subtree:true});
+    if(modal){
+      let applyingModal=false;
+      const modalObserver=new MutationObserver(()=>{
+        if(applyingModal)return;
+        applyingModal=true;
+        try{
+          applyModal();
+        }finally{
+          applyingModal=false;
+        }
+      });
+      modalObserver.observe(modal,{childList:true,subtree:true});
+    }
 
     applyCards();
   }
