@@ -1,6 +1,6 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V20 — motor estable anti-freeze
+   V21 — motor estable anti-freeze + desbloqueo de interfaz
    ============================================================ */
 (function(){
   "use strict";
@@ -15,12 +15,10 @@
     });
   }
   async function boot(){
-    /* EL BUSCADOR ESTABLE sustituye al core anterior. No cargamos
-       buscadores-core.js porque ese motor era el que provocaba el
-       procesamiento pesado de las bases y el bloqueo del navegador. */
     try{
       await cargar(`${base}buscador-home.js?v=20260904v3`);
-      await cargar(`${base}buscador-estable.js?v=20260911-v20`);
+      /* Un único motor de búsqueda: el core antiguo NO se carga. */
+      await cargar(`${base}buscador-estable.js?v=20260911-v2`);
       await cargar(`${base}buscador-leyes-ui.js?v=20260910v1`);
       await cargar(`${base}buscador-local-only.js?v=20260904v2`);
       await cargar(`${base}buscador-consecuencias.js?v=20260904v5`);
