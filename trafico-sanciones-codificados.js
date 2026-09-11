@@ -4,6 +4,15 @@
    de tráfico conforme al RDL 6/2015 (texto consolidado BOE).
    No sustituye el cuadro específico del Anexo IV para velocidad:
    el importe depende del límite y del exceso constatado.
+
+   FIX FREEZE (2026-09-11): el observer vigilaba document.body
+   ENTERO (subtree:true) y en cada pasada reescribía meta.innerHTML
+   sin comprobar si el contenido había cambiado. Eso generaba una
+   mutación nueva en cada frame -> el observer se disparaba a sí
+   mismo sin parar, para siempre, tras la primera búsqueda de
+   tráfico, cargando la app de trabajo continuo en segundo plano.
+   Ahora se observa solo el contenedor de resultados y se escribe
+   únicamente cuando el contenido realmente cambia.
    ============================================================ */
 (function(){
   "use strict";
@@ -83,14 +92,31 @@
       if(c.amount)parts.push(`<span class="result-pill result-pill--sancion"><strong>Sanción</strong>: ${c.amount}</span>`);
       if(c.points)parts.push(`<span class="result-pill"><strong>Puntos</strong>: ${c.points}</span>`);
       if(c.note)parts.push(`<span class="result-pill"><strong>Nota</strong>: ${c.note}</span>`);
-      if(parts.length)meta.innerHTML=parts.join("");
+      if(!parts.length)return;
+      const newHTML=parts.join("");
+      /* Clave del fix: si el HTML ya es el mismo, no volver a escribir.
+         Escribir siempre (aunque sea idéntico) generaba una mutación
+         nueva en cada pasada y el observer no paraba nunca. */
+      if(meta.innerHTML!==newHTML)meta.innerHTML=newHTML;
     });
   }
 
   let q=false;
   const run=()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;enhance();})};
-  const observer=new MutationObserver(run);
-  observer.observe(document.body,{subtree:true,childList:true});
+
+  /* Antes se observaba document.body entero: cualquier cambio en
+     cualquier parte de la app (menús, modales, otras secciones)
+     disparaba esta lógica. Ahora solo se observa el contenedor de
+     resultados de Consulta, que es lo único que este módulo toca. */
+  function watch(){
+    const target=document.getElementById("consultaResults")||document.body;
+    const observer=new MutationObserver(run);
+    observer.observe(target,{subtree:true,childList:true});
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",watch,{once:true});
+  else watch();
+
   setTimeout(enhance,500);
   window.CentinelaTrafficSanctions={enhance,consequence};
 })();
