@@ -1,4 +1,4 @@
-/* CENTINELA CODE — RELEVANCIA REAL DE ARMAS + SANCIONES V2 */
+/* CENTINELA CODE — RELEVANCIA REAL DE ARMAS + SANCIONES V3 */
 (function(){
   "use strict";
   const WEAPON={
@@ -18,7 +18,8 @@
     cuchillo:["cartucheria","cartuchería","municion","munición","explosivos","pirotecnia"],
     espada:["cartucheria","cartuchería","municion","munición","explosivos","pirotecnia"],
     katana:["cartucheria","cartuchería","municion","munición","explosivos","pirotecnia"],
-    sable:["cartucheria","cartuchería","municion","munición","explosivos","pirotecnia"]
+    sable:["cartucheria","cartuchería","municion","munición","explosivos","pirotecnia"],
+    machete:["cartucheria","cartuchería","municion","munición","explosivos","pirotecnia"]
   };
   const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
   function queryKey(q){const n=norm(q).trim(); if(WEAPON[n])return n; for(const k of Object.keys(WEAPON)){if(WEAPON[k].includes(n))return k;} return null;}
@@ -35,6 +36,21 @@
     }
     return s;
   }
+  let bridgeBusy=false;
+  function bridgeSearch(){
+    const input=document.getElementById("consultaSearch");
+    if(!input||bridgeBusy)return;
+    const q=input.value||""; const key=queryKey(q);
+    if(!key || ["navaja","cuchillo","arma"].includes(key))return;
+    bridgeBusy=true;
+    const original=q;
+    /* El motor principal todavía no conoce todos los nombres de armas.
+       Le damos una consulta jurídica equivalente para recuperar las
+       infracciones de armas y después restauramos la búsqueda original. */
+    input.value="navaja";
+    input.dispatchEvent(new Event("input",{bubbles:true}));
+    setTimeout(()=>{input.value=original;bridgeBusy=false;reorder();},650);
+  }
   function reorder(){
     const box=document.getElementById("consultaResults"),input=document.getElementById("consultaSearch");
     if(!box||!input)return;
@@ -48,8 +64,8 @@
     const box=document.getElementById("consultaResults"),input=document.getElementById("consultaSearch");
     if(!box||!input)return;
     if(box.dataset.ccWeaponPriority)return; box.dataset.ccWeaponPriority="1";
-    const run=()=>requestAnimationFrame(reorder);
-    new MutationObserver(run).observe(box,{childList:true,subtree:true});
+    const run=()=>{requestAnimationFrame(reorder); bridgeSearch();};
+    new MutationObserver(()=>requestAnimationFrame(reorder)).observe(box,{childList:true,subtree:true});
     input.addEventListener("input",run,{passive:true});
     input.addEventListener("change",run,{passive:true});
     run();
