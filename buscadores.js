@@ -1,6 +1,6 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V18 — búsqueda única, local y sin navegación externa
+   V19 — búsqueda única, local y sin navegación externa
    + visor completo de Espectáculos Públicos
    + historial local de Centinela IA
    + memoria conversacional contextual
@@ -17,7 +17,7 @@
   async function boot(){
     try{
       await cargar(`${base}buscador-home.js?v=20260904v3`);
-      await cargar(`${base}buscadores-core.js?v=20260911-v6`);
+      await cargar(`${base}buscadores-core.js?v=20260911-v7`);
       await cargar(`${base}buscador-leyes-ui.js?v=20260910v1`);
       await cargar(`${base}buscador-local-only.js?v=20260904v2`);
       await cargar(`${base}buscador-consecuencias.js?v=20260904v5`);
