@@ -1,5 +1,5 @@
 /* ============================================================
-   CENTINELA CODE — BUSCADOR ESTABLE
+   CENTINELA CODE — BUSCADOR ESTABLE V2
    Motor de consulta local diseñado para no bloquear la PWA.
    - La primera fuente para consultas policiales es infracciones.json.
    - Busca directamente en la estructura de datos, sin recorrer
@@ -7,6 +7,7 @@
    - Carga una fuente cada vez y muestra resultados inmediatamente.
    - Caché por archivo.
    - Timeout de red para que nunca quede cargando indefinidamente.
+   - IMPORTANTE: nunca deja una capa de carga bloqueando la interfaz.
    ============================================================ */
 (function(){
   "use strict";
@@ -80,7 +81,39 @@
   const tokens=v=>norm(v).split(" ").filter(Boolean).filter(x=>!STOP.has(x));
   const esc=v=>String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 
+  function unlockUI(){
+    try{
+      const loading=document.getElementById("loadingScreen");
+      if(loading){
+        loading.classList.add("hidden");
+        loading.style.display="none";
+        loading.style.visibility="hidden";
+        loading.style.pointerEvents="none";
+      }
+      document.documentElement.style.pointerEvents="auto";
+      document.body.style.pointerEvents="auto";
+      const active=document.activeElement;
+      if(active && (active.id==="consultaSearch" || active.id==="homeQuickSearch")) active.blur();
+    }catch(_){ }
+  }
+
+  function installSafety(){
+    if(document.getElementById("cc-search-safety-style"))return;
+    const style=document.createElement("style");
+    style.id="cc-search-safety-style";
+    style.textContent=`
+      #loadingScreen.hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}
+      #loadingScreen.cc-search-disabled{display:none!important;visibility:hidden!important;pointer-events:none!important}
+      .cc-loading{pointer-events:none!important}
+      #consultaResults{pointer-events:auto!important}
+      .bottom-navigation,.nav-item,button,a,input,textarea,select{pointer-events:auto}
+    `;
+    document.head.appendChild(style);
+    unlockUI();
+  }
+
   function show(text){
+    installSafety();
     const box=document.getElementById("consultaResults");
     if(box)box.innerHTML=`<div class="empty-state cc-loading"><div class="empty-icon">🔎</div><h3>${esc(text)}</h3><p>Consultando la normativa disponible.</p></div>`;
   }
@@ -95,11 +128,7 @@
       const out=[];
       for(const ley of json.leyes||[]){
         for(const art of (Array.isArray(ley?.articulos)?ley.articulos:[])){
-          out.push({
-            ...art,
-            ley:art?.ley||ley?.ley||ley?.abreviatura||source,
-            normativa:art?.normativa||ley?.ley||ley?.abreviatura||source
-          });
+          out.push({...art,ley:art?.ley||ley?.ley||ley?.abreviatura||source,normativa:art?.normativa||ley?.ley||ley?.abreviatura||source});
         }
       }
       return out;
@@ -143,16 +172,15 @@
       const controller=new AbortController();
       const timer=setTimeout(()=>controller.abort(),8000);
       try{
-        const response=await fetch(`${url}?ccsearch=stable-20260911`,{cache:"no-store",headers:{Accept:"application/json"},signal:controller.signal});
+        const response=await fetch(`${url}?ccsearch=stable-v2-20260911`,{cache:"no-store",headers:{Accept:"application/json"},signal:controller.signal});
         if(!response.ok)throw new Error(`HTTP ${response.status}`);
         const json=await response.json();
         const rows=topRows(json,source);
         const out=[];
-        const LIMIT=rows.length;
-        for(let i=0;i<LIMIT;i++){
+        for(let i=0;i<rows.length;i++){
           const r=makeRecord(rows[i],source,i);
           if(r)out.push(r);
-          if(i%80===0)await yieldUI();
+          if(i%60===0)await yieldUI();
         }
         return out;
       }catch(error){
@@ -169,6 +197,7 @@
     for(const x of expand(t))if(text.includes(` ${x} `)||text.startsWith(`${x} `)||text.endsWith(` ${x}`)||text===x)return true;
     return false;
   }
+
   function scoreRow(r,qt,full){
     let hits=0,score=0;
     for(const t of qt){
@@ -186,15 +215,18 @@
   }
 
   function renderResults(results,q){
+    installSafety();
     const box=document.getElementById("consultaResults"),count=document.getElementById("consultaResultCount");
     if(!box)return;
     if(count)count.textContent=String(results.length);
     if(!q.trim()){
       box.innerHTML='<div class="empty-state"><div class="empty-icon">🔎</div><h3>Buscar normativa o infracción</h3><p>Introduce un código, artículo o palabra clave para comenzar.</p></div>';
+      unlockUI();
       return;
     }
     if(!results.length){
       box.innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Sin resultados</h3><p>No se ha encontrado una coincidencia con «${esc(q)}».</p></div>`;
+      unlockUI();
       return;
     }
     box.innerHTML=results.map((r,i)=>`<article class="result-card cc-search-result" data-index="${i}">
@@ -211,9 +243,11 @@
       <button type="button" class="result-detail-button cc-detail">Ver detalle</button>
     </article>`).join("");
     box.querySelectorAll(".cc-detail").forEach((button,index)=>button.addEventListener("click",()=>detail(results[index])));
+    unlockUI();
   }
 
   function detail(r){
+    unlockUI();
     const modal=document.getElementById("appModal"),body=document.getElementById("modalBody"),title=document.getElementById("modalTitle"),actions=document.getElementById("modalActions");
     if(!modal||!body){alert(`${r.article||r.code||r.source}\n\n${r.title}\n\n${r.description}\n\n${r.sanction}`);return;}
     if(title)title.textContent=r.article?`Art. ${r.article}`:(r.code||r.source);
@@ -245,6 +279,7 @@
   }
 
   async function search(q){
+    installSafety();
     q=String(q||"");
     const my=++generation;
     if(!q.trim()){renderResults([],q);return;}
@@ -252,22 +287,25 @@
     if(!qt.length){renderResults([],q);return;}
     const ranked=rank(q);
     const primary=ranked[0]?.item||SOURCES[0];
+
     show(`Cargando ${primary[0]}…`);
     let rows=await loadSource(primary);
-    if(my!==generation)return;
+    if(my!==generation){unlockUI();return;}
     let result=filter(rows,q);
     renderResults(result,q);
-    if(result.length>=3)return;
+    if(result.length>=3){unlockUI();return;}
+
     for(const candidate of ranked.slice(1,6)){
-      if(my!==generation)return;
+      if(my!==generation){unlockUI();return;}
       show(`Ampliando: ${candidate.item[0]}…`);
       const more=await loadSource(candidate.item);
-      if(my!==generation)return;
+      if(my!==generation){unlockUI();return;}
       rows=rows.concat(more);
       result=filter(rows,q);
       renderResults(result,q);
       if(result.length>=MAX_RESULTS)break;
     }
+    unlockUI();
   }
 
   function filter(rows,q){
@@ -291,6 +329,7 @@
   }
 
   function install(){
+    installSafety();
     const input=document.getElementById("consultaSearch");
     if(input&&!input.dataset.ccStableInstalled){
       input.dataset.ccStableInstalled="1";
@@ -306,7 +345,7 @@
     const clear=document.getElementById("clearConsultaSearch");
     if(clear&&!clear.dataset.ccStableInstalled){
       clear.dataset.ccStableInstalled="1";
-      clear.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();generation++;clearTimeout(window.__ccStableTimer);if(input)input.value="";renderResults([],"");});
+      clear.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();generation++;if(input)input.value="";renderResults([],"");});
     }
   }
 
