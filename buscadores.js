@@ -1,15 +1,15 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V21 — motor estable anti-freeze + desbloqueo de interfaz
+   V22 — BUSCADOR ULTRA: una sola fuente por consulta
    ============================================================ */
 (function(){
   "use strict";
   const base="./";
   function cargar(src){
     return new Promise((resolve,reject)=>{
-      if(document.querySelector(`script[data-centinela-src="${src}"]`)){resolve();return;}
+      if(document.querySelector(`script[data-centinela-src="${src.split('?')[0]}"]`)){resolve();return;}
       const s=document.createElement("script");
-      s.src=src;s.async=false;s.dataset.centinelaSrc=src;
+      s.src=src;s.async=false;s.dataset.centinelaSrc=src.split('?')[0];
       s.onload=resolve;s.onerror=()=>reject(new Error(`No se pudo cargar ${src}`));
       document.head.appendChild(s);
     });
@@ -17,14 +17,17 @@
   async function boot(){
     try{
       await cargar(`${base}buscador-home.js?v=20260904v3`);
-      /* Un único motor de búsqueda: el core antiguo NO se carga. */
-      await cargar(`${base}buscador-estable.js?v=20260911-v2`);
+      /* IMPORTANTE: solo el motor ultra. No se cargan core/estable para evitar
+         dobles listeners y procesos concurrentes que dejan la UI bloqueada. */
+      await cargar(`${base}buscador-ultra.js?v=20260911-v1`);
+    }catch(e){console.error("Centinela Code — buscador:",e)}
+    try{
       await cargar(`${base}buscador-leyes-ui.js?v=20260910v1`);
       await cargar(`${base}buscador-local-only.js?v=20260904v2`);
       await cargar(`${base}buscador-consecuencias.js?v=20260904v5`);
       await cargar(`${base}buscador-consecuencias-ui.js?v=20260904v3`);
       await cargar(`${base}trafico-sanciones-codificados.js?v=20260905v1`);
-    }catch(e){console.error("Centinela Code — sistema de búsqueda:",e)}
+    }catch(e){console.error("Centinela Code — módulos de búsqueda:",e)}
     try{
       await cargar(`${base}constitucion-completa.js?v=20260904-constitucion-v3`);
       await cargar(`${base}constitucion-tab-fix.js?v=20260904-constitucion-tab-fix-v2`);
