@@ -1,6 +1,6 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V24 — BUSCADOR ULTRA + PRIORIDAD REAL DE SANCIONES
+   V25 — BUSCADOR ULTRA + PRIORIDAD REAL + VOCABULARIO ARMAS
    ============================================================ */
 (function(){
   "use strict";
@@ -18,9 +18,7 @@
     try{
       await cargar(`${base}buscador-home.js?v=20260904v3`);
       await cargar(`${base}buscador-ultra.js?v=20260911-v3`);
-      /* Regla final de presentación: los resultados que contienen una
-         sanción/importe deben quedar por delante de los descriptivos. */
-      await cargar(`${base}buscador-prioridad-sanciones.js?v=20260911-v1`);
+      await cargar(`${base}buscador-prioridad-sanciones.js?v=20260911-v3`);
     }catch(e){console.error("Centinela Code — buscador:",e)}
     try{
       await cargar(`${base}buscador-leyes-ui.js?v=20260910v1`);
