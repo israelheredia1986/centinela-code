@@ -1,6 +1,6 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V23 — BUSCADOR ULTRA + PRIORIDAD DE SANCIONES
+   V24 — BUSCADOR ULTRA + PRIORIDAD REAL DE SANCIONES
    ============================================================ */
 (function(){
   "use strict";
@@ -17,10 +17,10 @@
   async function boot(){
     try{
       await cargar(`${base}buscador-home.js?v=20260904v3`);
-      /* El motor ultra es el único motor principal. Ahora cruza automáticamente
-         las consultas de conducta con data/infracciones.json para priorizar
-         resultados que contienen sanción/importe. */
-      await cargar(`${base}buscador-ultra.js?v=20260911-v2`);
+      await cargar(`${base}buscador-ultra.js?v=20260911-v3`);
+      /* Regla final de presentación: los resultados que contienen una
+         sanción/importe deben quedar por delante de los descriptivos. */
+      await cargar(`${base}buscador-prioridad-sanciones.js?v=20260911-v1`);
     }catch(e){console.error("Centinela Code — buscador:",e)}
     try{
       await cargar(`${base}buscador-leyes-ui.js?v=20260910v1`);
