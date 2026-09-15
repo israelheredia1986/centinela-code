@@ -15,11 +15,10 @@
   loadScript('centinelaActuacionesOperativasScript','./actuaciones-operativas.js?v=20260905g');
   loadScript('centinelaIAContextoIntegralScript','./ia-context-integral.js?v=20260905g');
   (async()=>{
-    // Cargadas una detrás de otra: todas modifican la misma sección de
-    // Normativa y a la vez causaban ráfagas de cambios en el DOM que
-    // disparaban decenas de comprobaciones simultáneas y bloqueaban la app.
-    await loadScript('centinelaNormativaUnificadaScript','./normativa-unificada.js?v=20260905k');
-    await loadScript('centinelaNormativaCompatScript','./normativa-compat.js?v=20260905k');
+    // Los módulos de Normativa se cargan en orden. El buscador utiliza el
+    // índice local ya cargado y no vuelve a descargar las leyes por tecla.
+    await loadScript('centinelaNormativaUnificadaScript','./normativa-unificada.js?v=20260915a');
+    await loadScript('centinelaNormativaCompatScript','./normativa-compat.js?v=20260915a');
     await loadScript('centinelaNormativaOficialScript','./normativa-oficial.js?v=20260905l');
     await loadScript('centinelaEspectaculosFusionScript','./normativa-espectaculos-fusion.js?v=20260905g');
     await loadScript('centinelaNormativaEstructuraScript','./normativa-estructura.js?v=20260905e');
