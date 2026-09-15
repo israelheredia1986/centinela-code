@@ -1,7 +1,6 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR DEL SISTEMA DE BÚSQUEDA
-   V26 — BUSCADOR ULTRA + PRIORIDAD REAL + VOCABULARIO ARMAS
-        + REPARACIÓN CONSTITUCIÓN SIN 403
+   V27 — BUSCADOR DEFINITIVO: infracciones + cuantías + normativa
    ============================================================ */
 (function(){
   "use strict";
@@ -17,10 +16,9 @@
   }
   async function boot(){
     try{
-      await cargar(`${base}buscador-home.js?v=20260904v3`);
-      await cargar(`${base}buscador-ultra.js?v=20260911-v3`);
-      await cargar(`${base}buscador-prioridad-sanciones.js?v=20260911-v3`);
-    }catch(e){console.error("Centinela Code — buscador:",e)}
+      await cargar(`${base}buscador-home.js?v=20260915a`);
+      await cargar(`${base}buscador-definitivo.js?v=20260915b`);
+    }catch(e){console.error("Centinela Code — buscador definitivo:",e)}
     try{
       await cargar(`${base}buscador-leyes-ui.js?v=20260910v1`);
       await cargar(`${base}buscador-local-only.js?v=20260904v2`);
