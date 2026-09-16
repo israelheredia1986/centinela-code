@@ -1,6 +1,6 @@
 /* ============================================================
    CENTINELA CODE — CARGADOR AUXILIAR
-   V29 — UN ÚNICO MOTOR DE CONSULTA, SIN BUSCADORES EN CONFLICTO.
+   V30 — MOTOR ÚNICO + CONSULTA RÁPIDA FUNCIONAL.
    ============================================================ */
 (function(){
   "use strict";
@@ -8,7 +8,8 @@
   function cargar(src){
     return new Promise((resolve,reject)=>{
       const key=src.split("?")[0];
-      if(document.querySelector(`script[data-centinela-src="${key}"]`)){resolve();return;}
+      const existente=document.querySelector(`script[data-centinela-src="${key}"]`);
+      if(existente){resolve();return;}
       const s=document.createElement("script");
       s.src=src;s.async=false;s.dataset.centinelaSrc=key;
       s.onload=resolve;s.onerror=()=>reject(new Error(`No se pudo cargar ${src}`));
@@ -16,7 +17,16 @@
     });
   }
   async function boot(){
-    try{await cargar(`${base}buscador-home.js?v=20260916f`);}catch(e){console.error("Centinela Code — acceso directo:",e)}
+    // PRIMERO: motor único de consulta. Así el acceso rápido nunca depende
+    // de que el usuario haya abierto antes la pestaña CONSULTA.
+    try{
+      await cargar(`${base}buscador-instantaneo.js?v=20260916h`);
+    }catch(e){console.error("Centinela Code — motor de consulta:",e)}
+
+    // SEGUNDO: buscador de INICIO / CONSULTA RÁPIDA.
+    try{
+      await cargar(`${base}buscador-home.js?v=20260916g`);
+    }catch(e){console.error("Centinela Code — acceso directo:",e)}
 
     // NO cargar buscador-definitivo, buscador-local-only, buscador-ultra,
     // buscadores-core ni otros motores que compitan por #consultaSearch.
