@@ -1,10 +1,10 @@
 /* ============================================================
    CENTINELA CODE — MOTOR ÚNICO DE CONSULTA
-   V5 — búsqueda literal, inmediata y sin falsos positivos.
+   V6 — búsqueda literal, inmediata y sin falsos positivos.
    ============================================================ */
 (function(){
   "use strict";
-  const VERSION="20260916f";
+  const VERSION="20260916g";
   const input=()=>document.getElementById("consultaSearch");
   const box=()=>document.getElementById("consultaResults");
   const count=()=>document.getElementById("consultaResultCount");
@@ -13,14 +13,11 @@
   const norm=s=>String(s??"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9./]+/g," ").replace(/\s+/g," ").trim();
   const esc=s=>String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 
-  function list(v){
-    if(Array.isArray(v)) return v.map(x=>String(x));
-    return v==null?[]:[String(v)];
-  }
+  function list(v){return Array.isArray(v)?v.map(String):v==null?[]:[String(v)];}
 
   async function load(){
-    if(rows) return rows;
-    if(loading) return loading;
+    if(rows)return rows;
+    if(loading)return loading;
     loading=fetch(`./data/infracciones.json?motor=${VERSION}`,{cache:"no-store",headers:{Accept:"application/json"}})
       .then(r=>{if(!r.ok)throw new Error(String(r.status));return r.json();})
       .then(j=>Array.isArray(j)?j:(Array.isArray(j?.infracciones)?j.infracciones:[]))
@@ -30,56 +27,52 @@
   }
 
   function exactWord(text,q){
-    const n=norm(text), t=norm(q);
-    if(!t)return false;
-    return n===t || n.includes(` ${t} `) || n.startsWith(t+" ") || n.endsWith(" "+t);
+    const n=norm(text),t=norm(q);
+    return !!t&&(n===t||n.includes(` ${t} `)||n.startsWith(t+" ")||n.endsWith(" "+t));
   }
 
   function score(r,q){
     const n=norm(q);
     if(!n)return -1;
-    const codigo=norm(r?.codigo), art=norm(r?.articulo), apartado=norm(r?.apartado);
-    if(codigo===n || `${art}.${apartado}`===n || art===n) return 10000;
+    const codigo=norm(r?.codigo),art=norm(r?.articulo),apartado=norm(r?.apartado);
+    if(codigo===n||`${art}.${apartado}`===n||art===n)return 10000;
 
     const titulo=norm(r?.titulo);
     const conducta=norm(r?.conducta);
     const descripcion=norm([r?.descripcion,r?.descripcion_corta,r?.materia,r?.objeto].join(" "));
     const claves=list(r?.palabrasClave).map(norm);
+    const armaLiteral=new Set(["navaja","navajas","cuchillo","cuchillos","cuchilla","cuchillas","daga","dagas","punal","puñal","espada","espadas","katana","katanas","sable","sables","machete","machetes","estilete"]);
+
+    // Coincidencia estrictamente literal. Nunca se amplía navaja a arma,
+    // ni arma a explosivos/cartuchería/pirotecnia.
     let s=-1;
+    const directoTitulo=exactWord(titulo,n);
+    const directoConducta=exactWord(conducta,n);
+    const directoDescripcion=exactWord(descripcion,n);
+    const directoClave=claves.some(x=>exactWord(x,n));
+    if(directoTitulo)s=9000;
+    else if(directoConducta)s=8500;
+    else if(directoDescripcion)s=8000;
+    else if(directoClave)s=6500;
+    else return -1;
 
-    // La coincidencia debe ser LITERAL. No se traducen sinónimos:
-    // "navaja" no equivale a "arma", "explosivos", etc.
-    if(exactWord(titulo,n)) s=Math.max(s,9000);
-    if(exactWord(conducta,n)) s=Math.max(s,8500);
-    if(exactWord(descripcion,n)) s=Math.max(s,8000);
-    if(claves.some(k=>exactWord(k,n))) s=Math.max(s,6500);
-
-    // Una coincidencia literal en palabrasClave vale, pero queda detrás
-    // de una coincidencia textual real en título/conducta.
-    if(s<0)return -1;
-
-    // Evita que una coincidencia de "navaja" quede por encima de un
-    // artículo claramente centrado en explosivos/cartuchería/pirotecnia.
-    const armaLiteral=["navaja","navajas","cuchillo","cuchillos","cuchilla","cuchillas","daga","dagas","punal","puñal","espada","espadas","katana","katanas","sable","sables","machete","machetes","estilete"];
-    if(armaLiteral.includes(n)){
-      const t=titulo+" "+conducta;
-      if(/explosivos|cartucheria|pirotecnia/.test(t)) s-=1200;
-      if(/armas prohibidas|portar|exhibir|usar armas/.test(t)) s+=700;
+    // Para búsquedas de un arma concreta, no mostrar como resultado un
+    // artículo cuyo contenido visible es exclusivamente sobre otras clases
+    // (explosivos, cartuchería o pirotecnia). Se exige que el artículo sea
+    // realmente pertinente al término introducido.
+    if(armaLiteral.has(n)){
+      const visible=titulo+" "+conducta+" "+descripcion;
+      if(/explosivos|cartucheria|pirotecnia/.test(visible) && !exactWord(titulo,n) && !exactWord(conducta,n) && !exactWord(descripcion,n)) return -1;
+      if(/armas prohibidas|portar armas|exhibir armas|usar armas/.test(visible)) s+=700;
     }
-    if(r?.sancion) s+=100;
+    if(r?.sancion)s+=100;
     return s;
-  }
-
-  function severityValue(r){
-    return norm(r?.gravedad);
   }
 
   function sanction(v){
     if(v==null)return "";
     if(typeof v!=="object")return String(v);
-    const min=v.min??v.minimo??v.importe_min;
-    const max=v.max??v.maximo??v.importe_max;
-    const q=v.cuantia??v.cuantía;
+    const min=v.min??v.minimo??v.importe_min,max=v.max??v.maximo??v.importe_max,q=v.cuantia??v.cuantía;
     if(min!=null&&max!=null)return `${Number(min).toLocaleString("es-ES")} € – ${Number(max).toLocaleString("es-ES")} €`;
     if(min!=null)return `Desde ${Number(min).toLocaleString("es-ES")} €`;
     if(max!=null)return `Hasta ${Number(max).toLocaleString("es-ES")} €`;
@@ -88,13 +81,9 @@
   }
 
   function render(results,q){
-    const b=box();
-    if(!b)return;
+    const b=box();if(!b)return;
     if(count)count.textContent=String(results.length);
-    if(!results.length){
-      b.innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Sin resultados</h3><p>No existe una coincidencia literal con «${esc(q)}».</p></div>`;
-      return;
-    }
+    if(!results.length){b.innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Sin resultados</h3><p>No existe una coincidencia literal con «${esc(q)}».</p></div>`;return;}
     b.innerHTML=results.map(r=>{
       const art=r.articulo?(r.apartado?`${r.articulo}.${r.apartado}`:r.articulo):"";
       const s=sanction(r.sancion??r.multa);
@@ -108,23 +97,15 @@
   }
 
   async function search(q){
-    const my=++generation;
-    q=String(q||"").trim();
-    if(!q){
-      if(count)count.textContent="0";
-      if(box())box().innerHTML='<div class="empty-state"><div class="empty-icon">🔎</div><h3>Buscar infracción</h3><p>Introduce un código, artículo o palabra clave para comenzar.</p></div>';
-      return;
-    }
-    const data=await load();
-    if(my!==generation)return;
-
+    const my=++generation;q=String(q||"").trim();
+    if(!q){if(count)count.textContent="0";if(box())box().innerHTML='<div class="empty-state"><div class="empty-icon">🔎</div><h3>Buscar infracción</h3><p>Introduce un código, artículo o palabra clave para comenzar.</p></div>';return;}
+    const data=await load();if(my!==generation)return;
     let severity="all";
     const active=document.querySelector(".filter-chip[data-severity].active");
     if(active)severity=active.dataset.severity||"all";
-
     const found=[];
     for(const r of data){
-      if(severity!=="all"&&severityValue(r)!==severityValue({gravedad:severity}))continue;
+      if(severity!=="all"&&norm(r?.gravedad)!==norm(severity))continue;
       const s=score(r,q);
       if(s>=0)found.push({...r,__score:s});
     }
@@ -136,33 +117,18 @@
     document.querySelectorAll(".filter-chip[data-severity]").forEach(btn=>{
       if(btn.dataset.ccMotorFilter)return;
       btn.dataset.ccMotorFilter="1";
-      btn.addEventListener("click",e=>{
-        e.preventDefault();
-        document.querySelectorAll(".filter-chip[data-severity]").forEach(x=>x.classList.remove("active"));
-        btn.classList.add("active");
-        search(input()?.value||"");
-      },true);
+      btn.addEventListener("click",e=>{e.preventDefault();document.querySelectorAll(".filter-chip[data-severity]").forEach(x=>x.classList.remove("active"));btn.classList.add("active");search(input()?.value||"");},true);
     });
   }
 
   function install(){
-    const i=input();
-    if(!i)return false;
-    i.removeAttribute("disabled");
-    i.removeAttribute("readonly");
+    const i=input();if(!i)return false;
+    i.removeAttribute("disabled");i.removeAttribute("readonly");
     bindFilters();
     if(!i.dataset.ccMotorInstalled){
       i.dataset.ccMotorInstalled="1";
-      i.addEventListener("input",()=>{
-        clearTimeout(timer);
-        timer=setTimeout(()=>search(i.value),50);
-      },true);
-      i.addEventListener("keydown",e=>{
-        if(e.key==="Enter"){
-          e.preventDefault();e.stopPropagation();
-          clearTimeout(timer);search(i.value);
-        }
-      },true);
+      i.addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(()=>search(i.value),50);},true);
+      i.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.stopPropagation();clearTimeout(timer);search(i.value);}},true);
     }
     if(!installed){installed=true;load();}
     return true;
