@@ -1,6 +1,7 @@
 /* ============================================================
-   CENTINELA CODE — BUSCADOR RÁPIDO DE INICIO
-   V3 — un único buscador en la pantalla principal
+   CENTINELA CODE — ACCESO DIRECTO DESDE INICIO
+   V4 — abre CONSULTA directamente y ejecuta la búsqueda sin depender
+   de hacer click en la navegación.
    ============================================================ */
 (function(){
   "use strict";
@@ -34,103 +35,106 @@
   function eliminarBuscadorDuplicado(){
     const home=document.getElementById("section-home");
     if(!home) return;
-
-    /*
-       La versión anterior de la portada ya tenía un segundo buscador,
-       normalmente con el placeholder "Buscar normativa, infracciones,
-       artículos...". Se elimina únicamente ese bloque y se conserva
-       el buscador nuevo #centinela-home-search.
-    */
     home.querySelectorAll('input,textarea').forEach(input=>{
       if(input.id === "homeQuickSearch") return;
       const ph=(input.getAttribute("placeholder")||"").toLowerCase();
       if(!/buscar normativa.*infracciones|buscar normativa.*art[ií]culos|qué necesitas consultar/.test(ph)) return;
-
-      let bloque=input;
-      for(let i=0;i<6 && bloque.parentElement;i++){
-        const padre=bloque.parentElement;
-        const texto=(padre.textContent||"").toLowerCase();
-        if(
-          /consulta r[aá]pida/.test(texto) &&
-          (/buscar/.test(texto) || /consultar/.test(texto)) &&
-          padre !== home &&
-          !padre.id?.includes("centinela-home-search")
-        ){
-          bloque=padre;
-        }else if(i>=2 && (padre.className||"").toString().match(/search|quick|panel/i)){
-          bloque=padre;
-        }else{
-          bloque=padre;
-        }
-      }
-
-      /* Preferimos un bloque cercano al input, nunca toda la portada. */
-      let candidato=input.closest('.home-search, .quick-search, .search-card, .search-panel, .home-panel');
-      if(candidato && candidato.id !== "centinela-home-search") bloque=candidato;
-
-      if(bloque && bloque !== home && bloque.id !== "centinela-home-search"){
-        /* Evita borrar contenedores demasiado grandes que incluyan las tarjetas. */
-        const hijos=(bloque.querySelectorAll?.(".quick-action,.quick-actions").length||0);
-        if(hijos===0) bloque.remove();
-        else input.remove();
-      }
+      const candidato=input.closest('.home-search, .quick-search, .search-card, .search-panel, .home-panel');
+      if(candidato && candidato.id !== "centinela-home-search") candidato.remove();
     });
+  }
+
+  function activarConsulta(){
+    const section=document.getElementById("section-consulta");
+    if(!section) return false;
+    if(typeof window.activarSeccion === "function"){
+      window.activarSeccion("consulta");
+    }else{
+      document.querySelectorAll(".app-section").forEach(s=>s.classList.toggle("active",s.dataset.section==="consulta"));
+      document.querySelectorAll(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.section==="consulta"));
+      window.scrollTo(0,0);
+    }
+    section.classList.add("active");
+    document.querySelectorAll('.app-section').forEach(s=>{if(s!==section)s.classList.remove('active');});
+    return true;
+  }
+
+  async function ejecutar(texto){
+    texto=String(texto||"").trim();
+    if(!activarConsulta()) return;
+    const input=document.getElementById("consultaSearch");
+    if(!input) return;
+    input.value=texto;
+    input.setAttribute("value",texto);
+    input.focus({preventScroll:true});
+    input.dispatchEvent(new Event("input",{bubbles:true}));
+    input.dispatchEvent(new Event("change",{bubbles:true}));
+
+    // Ejecuta el motor actual sin esperar a que otro listener lo haga.
+    if(window.CentinelaInstantSearch?.search){
+      await window.CentinelaInstantSearch.search(texto);
+      return;
+    }
+    if(window.CentinelaSearch?.search){
+      window.CentinelaSearch.search(texto);
+      return;
+    }
+
+    // Si el cargador todavía está arrancando, espera muy poco y reintenta.
+    let intentos=0;
+    const reintentar=setInterval(async()=>{
+      intentos++;
+      if(window.CentinelaInstantSearch?.search){
+        clearInterval(reintentar);
+        await window.CentinelaInstantSearch.search(texto);
+      }else if(intentos>=25){
+        clearInterval(reintentar);
+      }
+    },80);
   }
 
   function instalar(){
     const home=document.getElementById("section-home");
     const hero=home?.querySelector(".hero-grid");
-    if(!home||!hero||document.getElementById("centinela-home-search")) return;
-
-    eliminarBuscadorDuplicado();
-    estilos();
-    const bloque=document.createElement("section");
-    bloque.id="centinela-home-search";
-    bloque.className="home-search-card";
-    bloque.setAttribute("aria-label","Consulta rápida");
-    bloque.innerHTML=`
-      <div class="home-search-icon" aria-hidden="true"><span>⌕</span></div>
-      <div class="home-search-content">
-        <div class="home-search-kicker">CONSULTA RÁPIDA</div>
-        <h2>Buscar normativa e infracciones</h2>
-        <p>Busca por código, artículo, palabra o conducta.</p>
-        <div class="home-search-input-wrap">
-          <span class="home-search-input-icon" aria-hidden="true">⌕</span>
-          <input id="homeQuickSearch" type="search" autocomplete="off" placeholder="Ej.: art. 36.16 · navaja · desobediencia…" aria-label="Buscar normativa e infracciones">
-          <button id="homeQuickSearchButton" type="button" aria-label="Abrir consulta" title="Buscar">➜</button>
-        </div>
-        <div class="home-search-hint">Mismo motor de Consulta · sin buscadores duplicados</div>
-      </div>`;
-
-    hero.insertAdjacentElement("afterend",bloque);
+    if(!home||!hero) return false;
+    if(!document.getElementById("centinela-home-search")){
+      eliminarBuscadorDuplicado();
+      estilos();
+      const bloque=document.createElement("section");
+      bloque.id="centinela-home-search";
+      bloque.className="home-search-card";
+      bloque.setAttribute("aria-label","Consulta rápida");
+      bloque.innerHTML=`
+        <div class="home-search-icon" aria-hidden="true"><span>⌕</span></div>
+        <div class="home-search-content">
+          <div class="home-search-kicker">CONSULTA RÁPIDA</div>
+          <h2>Buscar normativa e infracciones</h2>
+          <p>Busca por código, artículo, palabra o conducta.</p>
+          <div class="home-search-input-wrap">
+            <span class="home-search-input-icon" aria-hidden="true">⌕</span>
+            <input id="homeQuickSearch" type="search" autocomplete="off" placeholder="Ej.: art. 36.16 · navaja · desobediencia…" aria-label="Buscar normativa e infracciones">
+            <button id="homeQuickSearchButton" type="button" aria-label="Abrir consulta" title="Buscar">➜</button>
+          </div>
+          <div class="home-search-hint">Búsqueda directa en Consulta</div>
+        </div>`;
+      hero.insertAdjacentElement("afterend",bloque);
+    }
 
     const input=document.getElementById("homeQuickSearch");
     const button=document.getElementById("homeQuickSearchButton");
-    function abrirConsulta(){
-      const texto=input?.value.trim()||"";
-      const destino=document.querySelector('[data-section="consulta"]');
-      if(!destino)return;
-      destino.click();
-      setTimeout(()=>{
-        const consulta=document.getElementById("consultaSearch");
-        if(consulta){
-          consulta.value=texto;
-          consulta.dispatchEvent(new Event("input",{bubbles:true}));
-          consulta.focus();
-        }
-      },100);
+    if(input&&!input.dataset.ccHomeBound){
+      input.dataset.ccHomeBound="1";
+      input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.stopPropagation();ejecutar(input.value);}},true);
+      input.addEventListener("input",()=>{clearTimeout(input.__ccHomeTimer);const v=input.value;input.__ccHomeTimer=setTimeout(()=>{if(v.trim())ejecutar(v)},180);},true);
     }
-    input?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();abrirConsulta();}});
-    button?.addEventListener("click",abrirConsulta);
+    if(button&&!button.dataset.ccHomeBound){button.dataset.ccHomeBound="1";button.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();ejecutar(input?.value||"")},true);}
+    return true;
   }
 
   function arrancar(){
     instalar();
-    /* Algunos componentes de portada se pintan después de DOMContentLoaded. */
-    setTimeout(eliminarBuscadorDuplicado,300);
-    setTimeout(eliminarBuscadorDuplicado,1000);
+    [250,700,1500,3000].forEach(ms=>setTimeout(()=>{instalar();eliminarBuscadorDuplicado();},ms));
   }
-
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",arrancar,{once:true});
   else arrancar();
 })();
