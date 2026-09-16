@@ -1,115 +1,111 @@
 /* ============================================================
-   CENTINELA CODE — BÚSQUEDA LOCAL
-   V2 — buscador único, sin navegación externa
+   CENTINELA CODE — CONSULTA RÁPIDA LOCAL
+   V3 — acceso directo funcional y sin eliminar la interfaz
    ============================================================ */
 (function(){
   "use strict";
 
-  function limpiarElementosAntiguos(){
-    const home=document.getElementById("section-home");
-    if(home){
-      home.querySelectorAll(".cc-global-search,#centinela-global-search-ui").forEach(el=>el.remove());
-      home.querySelectorAll('input,textarea').forEach(el=>{
-        if(el.id==="homeQuickSearch") return;
-        const ph=(el.getAttribute("placeholder")||"").toLowerCase();
-        if(!/buscar normativa.*infracciones|buscar normativa.*art[ií]culos|qué necesitas consultar/.test(ph)) return;
-        const bloque=el.closest(".cc-global-search,.search-card,.search-panel,.quick-search");
-        if(bloque) bloque.remove();
-      });
-    }
-    document.querySelectorAll('script[src*="global-search.js"]').forEach(s=>s.remove());
-  }
-
-  function navegarSoloAConsulta(){
-    const nav=document.querySelector('.nav-item[data-section="consulta"]');
-    if(nav){
-      nav.click();
-      return true;
-    }
-
+  function activarConsulta(){
     const section=document.getElementById("section-consulta");
-    if(section){
-      document.querySelectorAll(".app-section").forEach(el=>el.classList.remove("active"));
-      section.classList.add("active");
-      return true;
+    if(!section) return false;
+
+    // Usar el sistema principal de navegación si existe.
+    if(typeof window.activarSeccion === "function"){
+      try{ window.activarSeccion("consulta"); }catch(e){}
     }
 
-    return false;
+    // Refuerzo: garantiza que CONSULTA quede realmente activa.
+    document.querySelectorAll(".app-section").forEach(s=>{
+      s.classList.toggle("active",s===section || s.dataset.section==="consulta");
+    });
+    document.querySelectorAll(".nav-item[data-section]").forEach(n=>{
+      n.classList.toggle("active",n.dataset.section==="consulta");
+    });
+    window.scrollTo({top:0,behavior:"instant"});
+    return true;
   }
 
-  function esperarMotor(callback){
-    if(typeof window.CentinelaSearch?.search === "function"){
-      callback();
-      return;
-    }
+  async function buscar(texto){
+    const q=String(texto||"").trim();
+    if(!q) return;
+
+    if(!activarConsulta()) return;
+
+    // Espera a que la sección de Consulta esté disponible en el DOM.
     let intentos=0;
-    const timer=setInterval(()=>{
-      if(typeof window.CentinelaSearch?.search === "function" || ++intentos>50){
-        clearInterval(timer);
-        if(typeof window.CentinelaSearch?.search === "function") callback();
-      }
-    },100);
-  }
-
-  function ejecutarBusqueda(input){
-    const q=String(input?.value||"").trim();
-    if(!q){
-      input?.focus();
-      return;
-    }
-
-    /* IMPORTANTE: nunca abrir BOE/DGT/Tráfico ni ninguna web externa. */
-    navegarSoloAConsulta();
-
-    setTimeout(()=>{
-      const consulta=document.getElementById("consultaSearch");
-      if(consulta){
-        consulta.value=q;
-        consulta.setAttribute("value",q);
+    const ejecutar=async()=>{
+      const input=document.getElementById("consultaSearch");
+      if(!input){
+        if(++intentos<30) setTimeout(ejecutar,50);
+        return;
       }
 
-      esperarMotor(()=>{
-        window.CentinelaSearch.search(q);
-        setTimeout(()=>document.getElementById("consultaResults")?.scrollIntoView({behavior:"smooth",block:"start"}),120);
-      });
-    },150);
+      input.removeAttribute("disabled");
+      input.removeAttribute("readonly");
+      input.value=q;
+      input.setAttribute("value",q);
+
+      // Ejecutar directamente el motor único. No dependemos de filtros.
+      if(typeof window.CentinelaInstantSearch?.search === "function"){
+        await window.CentinelaInstantSearch.search(q);
+        document.getElementById("consultaResults")?.scrollIntoView({behavior:"smooth",block:"start"});
+        return;
+      }
+
+      // Si todavía está cargando, esperar y ejecutar una sola vez que exista.
+      if(++intentos<40){ setTimeout(ejecutar,75); }
+    };
+    ejecutar();
   }
 
   function instalar(){
-    limpiarElementosAntiguos();
-
     const input=document.getElementById("homeQuickSearch");
-    const original=document.getElementById("homeQuickSearchButton");
-    if(!input||!original||original.dataset.localBound==="1") return;
+    const button=document.getElementById("homeQuickSearchButton");
+    if(!input||!button) return false;
 
-    /* Reemplazamos el botón para eliminar listeners antiguos y cualquier
-       comportamiento heredado que pudiera navegar fuera de la aplicación. */
-    const button=original.cloneNode(true);
-    button.type="button";
-    button.dataset.localBound="1";
-    original.replaceWith(button);
+    // No eliminamos .cc-global-search ni otros elementos: el acceso rápido
+    // debe coexistir con la interfaz y con la pestaña Consulta.
+    if(!input.dataset.ccLocalV3){
+      input.dataset.ccLocalV3="1";
+      input.addEventListener("keydown",e=>{
+        if(e.key!=="Enter") return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        buscar(input.value);
+      },true);
+    }
 
-    button.addEventListener("click",e=>{
-      e.preventDefault();
-      e.stopPropagation();
-      ejecutarBusqueda(input);
-    },true);
+    if(!button.dataset.ccLocalV3){
+      button.dataset.ccLocalV3="1";
+      button.addEventListener("click",e=>{
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        buscar(input.value);
+      },true);
+    }
 
-    input.addEventListener("keydown",e=>{
-      if(e.key!=="Enter") return;
-      e.preventDefault();
-      e.stopPropagation();
-      ejecutarBusqueda(input);
-    },true);
+    // Si el usuario escribe y espera unos instantes, funciona también sin
+    // tener que pulsar el botón. No navega hasta que haya texto real.
+    if(!input.dataset.ccLocalInputV3){
+      input.dataset.ccLocalInputV3="1";
+      input.addEventListener("input",()=>{
+        clearTimeout(input.__ccLocalTimerV3);
+        const value=input.value;
+        if(!value.trim()) return;
+        input.__ccLocalTimerV3=setTimeout(()=>buscar(value),350);
+      },true);
+    }
+    return true;
   }
 
   function arrancar(){
     instalar();
-    setTimeout(instalar,200);
-    setTimeout(instalar,600);
-    setTimeout(limpiarElementosAntiguos,1000);
+    [100,300,700,1200,2000,3500].forEach(ms=>setTimeout(instalar,ms));
   }
 
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",arrancar,{once:true});
-  else arrancar();
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",arrancar,{once:true});
+  }else{
+    arrancar();
+  }
 })();
