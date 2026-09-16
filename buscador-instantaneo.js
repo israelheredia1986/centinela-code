@@ -1,19 +1,18 @@
 /* ============================================================
    CENTINELA CODE — MOTOR ÚNICO DE CONSULTA
-   V6 — búsqueda literal, inmediata y sin falsos positivos.
+   V7 — búsqueda literal, inmediata y sin falsos positivos.
    ============================================================ */
 (function(){
   "use strict";
-  const VERSION="20260916g";
+  const VERSION="20260916h";
   const input=()=>document.getElementById("consultaSearch");
   const box=()=>document.getElementById("consultaResults");
   const count=()=>document.getElementById("consultaResultCount");
-  let rows=null, loading=null, timer=null, generation=0, installed=false;
+  let rows=null,loading=null,timer=null,generation=0,installed=false;
 
   const norm=s=>String(s??"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9./]+/g," ").replace(/\s+/g," ").trim();
   const esc=s=>String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
-
-  function list(v){return Array.isArray(v)?v.map(String):v==null?[]:[String(v)];}
+  const list=v=>Array.isArray(v)?v.map(String):v==null?[]:[String(v)];
 
   async function load(){
     if(rows)return rows;
@@ -32,8 +31,7 @@
   }
 
   function score(r,q){
-    const n=norm(q);
-    if(!n)return -1;
+    const n=norm(q); if(!n)return -1;
     const codigo=norm(r?.codigo),art=norm(r?.articulo),apartado=norm(r?.apartado);
     if(codigo===n||`${art}.${apartado}`===n||art===n)return 10000;
 
@@ -41,29 +39,41 @@
     const conducta=norm(r?.conducta);
     const descripcion=norm([r?.descripcion,r?.descripcion_corta,r?.materia,r?.objeto].join(" "));
     const claves=list(r?.palabrasClave).map(norm);
-    const armaLiteral=new Set(["navaja","navajas","cuchillo","cuchillos","cuchilla","cuchillas","daga","dagas","punal","puñal","espada","espadas","katana","katanas","sable","sables","machete","machetes","estilete"]);
 
-    // Coincidencia estrictamente literal. Nunca se amplía navaja a arma,
-    // ni arma a explosivos/cartuchería/pirotecnia.
-    let s=-1;
+    // IMPORTANTE: las palabras clave son ayudas de indexación, no deben
+    // convertir una infracción de una materia distinta en un falso positivo.
+    // Ejemplo: art. 35.2 tiene históricamente "navaja" en palabrasClave,
+    // pero su título/conducta es sobre armas reglamentarias, explosivos,
+    // cartuchería y pirotecnia. Buscar "navaja" no debe devolverlo.
+    const categoriasExclusivas=["explosivos","cartucheria","pirotecnia"];
+    const esCategoriaExclusiva=categoriasExclusivas.some(x=>titulo.includes(x));
     const directoTitulo=exactWord(titulo,n);
     const directoConducta=exactWord(conducta,n);
     const directoDescripcion=exactWord(descripcion,n);
     const directoClave=claves.some(x=>exactWord(x,n));
+
+    // Para materias concretas, una coincidencia que exista SOLO en keywords
+    // no puede vencer a la concordancia real del título/conducta. Esto elimina
+    // el falso positivo de 35.2 para "navaja", "cuchillo", etc.
+    if(esCategoriaExclusiva && directoClave && !directoTitulo && !directoConducta && !directoDescripcion){
+      return -1;
+    }
+
+    let s=-1;
     if(directoTitulo)s=9000;
     else if(directoConducta)s=8500;
     else if(directoDescripcion)s=8000;
     else if(directoClave)s=6500;
     else return -1;
 
-    // Para búsquedas de un arma concreta, no mostrar como resultado un
-    // artículo cuyo contenido visible es exclusivamente sobre otras clases
-    // (explosivos, cartuchería o pirotecnia). Se exige que el artículo sea
-    // realmente pertinente al término introducido.
-    if(armaLiteral.has(n)){
-      const visible=titulo+" "+conducta+" "+descripcion;
-      if(/explosivos|cartucheria|pirotecnia/.test(visible) && !exactWord(titulo,n) && !exactWord(conducta,n) && !exactWord(descripcion,n)) return -1;
-      if(/armas prohibidas|portar armas|exhibir armas|usar armas/.test(visible)) s+=700;
+    // Para armas concretas damos prioridad a una coincidencia real en el
+    // contenido antes que a una simple palabra clave.
+    const armasConcretas=new Set(["navaja","navajas","cuchillo","cuchillos","cuchilla","cuchillas","daga","dagas","punal","puñal","espada","espadas","katana","katanas","sable","sables","machete","machetes","estilete"]);
+    if(armasConcretas.has(n)){
+      if(directoTitulo)s+=1200;
+      else if(directoConducta)s+=900;
+      else if(directoDescripcion)s+=700;
+      else if(directoClave)s+=100;
     }
     if(r?.sancion)s+=100;
     return s;
@@ -81,9 +91,12 @@
   }
 
   function render(results,q){
-    const b=box();if(!b)return;
+    const b=box(); if(!b)return;
     if(count)count.textContent=String(results.length);
-    if(!results.length){b.innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Sin resultados</h3><p>No existe una coincidencia literal con «${esc(q)}».</p></div>`;return;}
+    if(!results.length){
+      b.innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Sin resultados</h3><p>No existe una coincidencia literal con «${esc(q)}».</p></div>`;
+      return;
+    }
     b.innerHTML=results.map(r=>{
       const art=r.articulo?(r.apartado?`${r.articulo}.${r.apartado}`:r.articulo):"";
       const s=sanction(r.sancion??r.multa);
@@ -97,9 +110,13 @@
   }
 
   async function search(q){
-    const my=++generation;q=String(q||"").trim();
-    if(!q){if(count)count.textContent="0";if(box())box().innerHTML='<div class="empty-state"><div class="empty-icon">🔎</div><h3>Buscar infracción</h3><p>Introduce un código, artículo o palabra clave para comenzar.</p></div>';return;}
-    const data=await load();if(my!==generation)return;
+    const my=++generation; q=String(q||"").trim();
+    if(!q){
+      if(count)count.textContent="0";
+      if(box())box().innerHTML='<div class="empty-state"><div class="empty-icon">🔎</div><h3>Buscar infracción</h3><p>Introduce un código, artículo o palabra clave para comenzar.</p></div>';
+      return;
+    }
+    const data=await load(); if(my!==generation)return;
     let severity="all";
     const active=document.querySelector(".filter-chip[data-severity].active");
     if(active)severity=active.dataset.severity||"all";
@@ -117,24 +134,32 @@
     document.querySelectorAll(".filter-chip[data-severity]").forEach(btn=>{
       if(btn.dataset.ccMotorFilter)return;
       btn.dataset.ccMotorFilter="1";
-      btn.addEventListener("click",e=>{e.preventDefault();document.querySelectorAll(".filter-chip[data-severity]").forEach(x=>x.classList.remove("active"));btn.classList.add("active");search(input()?.value||"");},true);
+      btn.addEventListener("click",e=>{
+        e.preventDefault();
+        document.querySelectorAll(".filter-chip[data-severity]").forEach(x=>x.classList.remove("active"));
+        btn.classList.add("active");
+        search(input()?.value||"");
+      },true);
     });
   }
 
   function install(){
-    const i=input();if(!i)return false;
-    i.removeAttribute("disabled");i.removeAttribute("readonly");
+    const i=input(); if(!i)return false;
+    i.removeAttribute("disabled"); i.removeAttribute("readonly");
     bindFilters();
     if(!i.dataset.ccMotorInstalled){
       i.dataset.ccMotorInstalled="1";
-      i.addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(()=>search(i.value),50);},true);
-      i.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.stopPropagation();clearTimeout(timer);search(i.value);}},true);
+      i.addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(()=>search(i.value),40);},true);
+      i.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.stopImmediatePropagation();clearTimeout(timer);search(i.value);}},true);
     }
     if(!installed){installed=true;load();}
     return true;
   }
 
-  function boot(){install();[100,300,800,1500,2500].forEach(ms=>setTimeout(()=>{install();bindFilters();},ms));}
+  function boot(){
+    install();
+    [50,150,300,600,1200,2500].forEach(ms=>setTimeout(()=>{install();bindFilters();},ms));
+  }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
   window.CentinelaInstantSearch={search,install,load};
 })();
