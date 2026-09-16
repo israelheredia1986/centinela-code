@@ -1,98 +1,19 @@
-/* CENTINELA CODE — FIX BUSCADOR 2026-09-16
-   Capa de compatibilidad para asegurar que el buscador de Consulta responde
-   aunque otro módulo haya registrado listeners antes o el buscador definitivo
-   todavía no haya terminado de cargarse.
-*/
+/* CENTINELA — BUSCADOR ROBUSTO 2026-09-16 */
 (function(){
-  'use strict';
-  if(window.__centinelaSearchFixInstalled)return;
-  window.__centinelaSearchFixInstalled=true;
-
-  const INPUT_ID='consultaSearch';
-  const BOX_ID='consultaResults';
-  const COUNT_ID='consultaResultCount';
-  let timer=null;
-  let generation=0;
-
-  function esc(s){return String(s??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));}
-
-  async function ensureEngine(){
-    if(window.CentinelaDefinitiveSearch?.search)return true;
-    return new Promise(resolve=>{
-      const s=document.createElement('script');
-      s.src='./buscador-definitivo.js?v=20260916fix';
-      s.onload=()=>resolve(!!window.CentinelaDefinitiveSearch?.search);
-      s.onerror=()=>resolve(false);
-      document.body.appendChild(s);
-    });
-  }
-
-  function showMessage(title,text,icon){
-    const box=document.getElementById(BOX_ID);
-    if(!box)return;
-    box.innerHTML=`<div class="empty-state"><div class="empty-icon">${icon}</div><h3>${esc(title)}</h3><p>${esc(text)}</p></div>`;
-  }
-
-  async function run(value){
-    const my=++generation;
-    const q=String(value??'').trim();
-    const box=document.getElementById(BOX_ID);
-    const count=document.getElementById(COUNT_ID);
-    if(!box)return;
-    if(!q){
-      if(count)count.textContent='0';
-      showMessage('Buscar normativa o infracción','Introduce una palabra, conducta, artículo o código.','🔎');
-      return;
-    }
-    if(count)count.textContent='…';
-    showMessage('Buscando…','Consultando la normativa e infracciones disponibles.','🔎');
-    const ok=await ensureEngine();
-    if(my!==generation)return;
-    if(ok){
-      try{
-        await window.CentinelaDefinitiveSearch.search(q);
-        return;
-      }catch(e){console.error('Centinela buscador fix:',e);}
-    }
-    showMessage('Buscador no disponible','No se ha podido cargar el motor de búsqueda. Recarga la aplicación e inténtalo de nuevo.','⚠️');
-    if(count)count.textContent='0';
-  }
-
-  function install(){
-    const input=document.getElementById(INPUT_ID);
-    if(!input)return false;
-    if(input.dataset.ccSearchFix==='1')return true;
-    input.dataset.ccSearchFix='1';
-
-    input.addEventListener('input',()=>{
-      clearTimeout(timer);
-      timer=setTimeout(()=>run(input.value),180);
-    },true);
-
-    input.addEventListener('keydown',e=>{
-      if(e.key==='Enter'){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        clearTimeout(timer);
-        run(input.value);
-      }
-    },true);
-
-    const clear=document.getElementById('clearConsultaSearch');
-    if(clear&&!clear.dataset.ccSearchFix){
-      clear.dataset.ccSearchFix='1';
-      clear.addEventListener('click',()=>{
-        input.value='';
-        input.dispatchEvent(new Event('input',{bubbles:true}));
-        input.focus();
-      },true);
-    }
-    return true;
-  }
-
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
-  else install();
-  let tries=0;
-  const poll=setInterval(()=>{if(install()||++tries>100)clearInterval(poll);},150);
-  window.CentinelaSearchFix={run,install};
+'use strict';
+if(window.__centinelaSearchFixInstalled)return;
+window.__centinelaSearchFixInstalled=true;
+const SOURCES=[['Infracciones','./data/infracciones.json'],['LOPSC','./data/lopsc.json'],['Reglamento de Armas','./data/reglamento_armas.json'],['Código Penal','./data/codigo_penal.json'],['Tráfico','./data/infracciones_trafico.json'],['Tráfico','./data/normativa_trafico.json'],['Ordenanzas','./data/ordenanzas.json'],['Animales','./data/normativa_animales.json'],['Menores','./data/normativa_menores.json'],['Violencia de género','./data/normativa_violencia_genero.json'],['Ley 2/1986','./data/ley_2_86.json'],['LECrim','./data/lecrim.json'],['Extranjería','./data/extranjeria.json'],['Seguridad privada','./data/seguridad_privada.json'],['Espectáculos públicos','./data/espectaculos_publicos.json'],['Medio ambiente y ruidos','./data/medio_ambiente_ruidos.json'],['Policías Locales Andalucía','./data/policias_locales_andalucia.json'],['Ley 39/2015','./data/ley_39_2015.json'],['Ley 7/1985','./data/ley_7_1985.json'],['Ley 5/2010 Andalucía','./data/ley_5_2010_andalucia.json'],['VMP','./data/infracciones_vmp_bicicletas.json'],['VMP','./data/normativa_vmp_bicicletas.json']];
+const ALIAS={navaja:'navajas arma armas arma blanca cuchillo cuchillos cuchilla daga puñal punal espada katana sable machete estilete',espada:'espadas arma armas arma blanca navaja cuchillo katana sable machete daga puñal punal estoque florete alfanje',arma:'armas arma blanca navaja cuchillo espada katana sable machete daga puñal punal',armas:'arma arma blanca navaja cuchillo espada katana sable machete daga puñal punal',droga:'drogas estupefaciente estupefacientes cannabis hachis marihuana cocaina cocaína',desobediencia:'desobedecer resistencia resistirse negativa negarse autoridad agente',patinete:'vmp vehículo de movilidad personal vehiculo de movilidad personal',vmp:'patinete vehículo de movilidad personal vehiculo de movilidad personal',ppp:'perro perros potencialmente peligroso potencialmente peligrosos',perro:'perros can canino animal animales ppp potencialmente peligroso',alcohol:'alcoholemia embriaguez bebidas alcoholicas botellon',ruido:'ruidos molestia molestias vibraciones musica música contaminación acustica',multa:'multas sanción sanciones infracción infracciones',sancion:'sanción sanciones multa multas infracción infracciones',infraccion:'infracciones sanción sanciones multa multas'};
+const norm=s=>String(s??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9./]+/g,' ').replace(/\s+/g,' ').trim();
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cache=new Map();let timer;
+function flat(v,out){if(v==null)return;if(typeof v!=='object'){out.push(String(v));return}if(Array.isArray(v)){v.forEach(x=>flat(x,out));return}Object.entries(v).forEach(([k,x])=>{out.push(k);flat(x,out)})}
+function records(data,source){const arr=Array.isArray(data)?data:data&&Array.isArray(data.infracciones)?data.infracciones:null;if(arr)return arr.map((x,i)=>make(x,source,i));const out=[];flat(data,out);return [make({texto:out.join(' ')},source,0)]}
+function make(o,source,index){const p=[];flat(o,p);const text=norm(p.join(' '));const pick=(keys)=>{for(const k of keys){const x=Object.keys(o||{}).find(z=>norm(z)===norm(k));if(x)return String(o[x]??'')}return ''};return {source,index,text,article:pick(['articulo','art','numero','precepto']),title:pick(['titulo','concepto','denominacion','nombre']),description:pick(['conducta','descripcion','texto','contenido','tipificacion','hechos','resumen']),ley:pick(['ley','normativa','fuente']),severity:pick(['gravedad','clasificacion','severity']),sanction:pick(['sancion','multa','cuantia','importe'])}}
+async function load(src){const [name,url]=src;if(cache.has(url))return cache.get(url);const p=fetch(url+'?searchfix=20260916b',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(d=>records(d,name)).catch(e=>{console.warn('Centinela buscador',name,e);return []});cache.set(url,p);return p}
+function variants(t){return [t,...String(ALIAS[t]||'').split(' ').map(norm).filter(Boolean)]}
+async function run(q){const box=document.getElementById('consultaResults'),count=document.getElementById('consultaResultCount');if(!box)return;q=String(q||'').trim();if(!q){if(count)count.textContent='0';box.innerHTML='<div class="empty-state"><div class="empty-icon">🔎</div><h3>Buscar normativa o infracción</h3><p>Introduce una palabra, conducta, artículo o código.</p></div>';return}if(count)count.textContent='…';box.innerHTML='<div class="empty-state"><div class="empty-icon">🔎</div><h3>Buscando…</h3><p>Consultando todas las fuentes.</p></div>';const all=(await Promise.all(SOURCES.map(load))).flat(),ts=norm(q).split(' ').filter(Boolean),full=norm(q),found=[];for(const r of all){let hits=0,score=0;for(const t of ts){let hit=false;for(const v of variants(t)){if(r.text.includes(v)){hit=true;score+=100;if(norm(r.title).includes(v))score+=250;if(norm(r.description).includes(v))score+=120;if(norm(r.article).includes(v))score+=180}}if(hit)hits++}if(hits)found.push({...r,_score:score+(r.source==='Infracciones'?300:0)+(full&&r.text.includes(full)?500:0)})}found.sort((a,b)=>b._score-a._score);const u=[],seen=new Set();for(const r of found){const k=r.source+'|'+r.article+'|'+r.title+'|'+r.description;if(!seen.has(k)){seen.add(k);u.push(r)}if(u.length>=30)break}if(count)count.textContent=String(u.length);if(!u.length){box.innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Sin resultados</h3><p>No se ha encontrado coincidencia con «'+esc(q)+'».</p></div>';return}box.innerHTML=u.map(r=>'<article class="result-card cc-search-result"><div class="result-card-header"><div><span class="result-ley">'+esc(r.ley||r.source)+'</span>'+(r.article?'<span class="result-code">Art. '+esc(r.article)+'</span>':'')+'<h3>'+esc(r.title||r.description||'Resultado')+'</h3></div>'+(r.severity?'<span class="severity-badge">'+esc(r.severity)+'</span>':'')+'</div><p class="result-conducta">'+esc(String(r.description||r.text).slice(0,500))+'</p><div class="result-meta">'+(r.sanction?'<span class="result-pill result-pill--sancion"><span class="result-pill-label">Sanción</span> '+esc(r.sanction)+'</span>':'')+'<span class="result-pill">'+esc(r.source)+'</span></div></article>').join('')}
+function install(){const input=document.getElementById('consultaSearch');if(!input)return false;if(input.dataset.ccRobustSearch==='1')return true;input.dataset.ccRobustSearch='1';input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(()=>run(input.value),180)},true);input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopImmediatePropagation();clearTimeout(timer);run(input.value)}},true);return true}
+window.CentinelaRobustSearch={run,install};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();let n=0;const poll=setInterval(()=>{if(install()||++n>100)clearInterval(poll)},150)
 })();
