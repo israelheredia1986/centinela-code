@@ -1,10 +1,14 @@
 /* ============================================================
    CENTINELA CODE — MOTOR ÚNICO DE CONSULTA
-   V7 — búsqueda literal, inmediata y sin falsos positivos.
+   V8 — cubre TODAS las bases de infracciones (antes solo indexaba
+   infracciones.json, 106 de ~340 registros) y usa el marcado real
+   de tarjeta (severity-badge con data-gravedad, result-pill--sancion)
+   para que la sanción se pinte en verde neón como en el resto de
+   la app. Búsqueda literal, inmediata y sin falsos positivos.
    ============================================================ */
 (function(){
   "use strict";
-  const VERSION="20260916h";
+  const VERSION="20260916j";
   const input=()=>document.getElementById("consultaSearch");
   const box=()=>document.getElementById("consultaResults");
   const count=()=>document.getElementById("consultaResultCount");
@@ -14,13 +18,82 @@
   const esc=s=>String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
   const list=v=>Array.isArray(v)?v.map(String):v==null?[]:[String(v)];
 
+  const FUENTES=[
+    {url:"./data/infracciones.json",fuenteLabel:"LOPSC"},
+    {url:"./data/infracciones_trafico.json",fuenteLabel:"Tráfico"},
+    {url:"./data/infracciones_vmp_bicicletas.json",fuenteLabel:"VMP/Bicicletas"},
+    {url:"./data/ley_2_86.json",fuenteLabel:"LO 2/1986"},
+    {url:"./data/lecrim.json",fuenteLabel:"LECrim"},
+    {url:"./data/extranjeria.json",fuenteLabel:"Extranjería"},
+    {url:"./data/seguridad_privada.json",fuenteLabel:"Seguridad privada"},
+    {url:"./data/espectaculos_publicos.json",fuenteLabel:"Espectáculos públicos"},
+    {url:"./data/medio_ambiente_ruidos.json",fuenteLabel:"Medio ambiente/Ruidos"},
+    {url:"./data/reglamento_armas.json",fuenteLabel:"Reglamento de armas"},
+    {url:"./data/policias_locales_andalucia.json",fuenteLabel:"Policías Locales Andalucía"},
+    {url:"./data/comercio_ambulante.json",fuenteLabel:"Comercio ambulante"},
+    {url:"./data/propiedad_industrial_falsificaciones.json",fuenteLabel:"Código Penal"},
+    {url:"./data/aforo_hosteleria_eventos.json",fuenteLabel:"Aforo/Hostelería"}
+  ];
+
+  const PALABRAS_CLAVE_EXTRA_36_16=[
+    "hachis","hachís","cocaina","cocaína","marihuana","resina de hachis","resina de hachís",
+    "mdma","extasis","éxtasis","anfetaminas","heroina","heroína","sustancia estupefaciente",
+    "sustancias estupefacientes","droga toxica","droga tóxica","drogas toxicas","drogas tóxicas",
+    "sustancia psicotropica","sustancia psicotrópica","consumo via publica","consumo vía pública",
+    "tenencia ilicita","tenencia ilícita","planta de cannabis","plantas de cannabis","cultivo de cannabis"
+  ];
+
+  function extraerArray(json){
+    if(Array.isArray(json))return json;
+    if(json&&Array.isArray(json.infracciones))return json.infracciones;
+    return [];
+  }
+
+  function normalizar(raw,cfg){
+    const articuloBruto=raw.articulo??raw.numero??"";
+    const articulo=String(articuloBruto).replace(/^art[íi]?\.?\s*/i,"").trim();
+    const sancionBruta=raw.sancion??raw.multa;
+    let sancion=null;
+    if(sancionBruta&&typeof sancionBruta==="object")sancion=sancionBruta;
+    else if(sancionBruta)sancion={texto:String(sancionBruta)};
+    const palabrasClave=raw.palabrasClave||raw.keywords||raw.palabras_clave||[];
+    return {
+      id:raw.id||"",
+      codigo:raw.codigo||articulo||raw.id||"",
+      ley:raw.ley||raw.normativa||cfg.fuenteLabel||"",
+      articulo,
+      apartado:raw.apartado?String(raw.apartado):"",
+      gravedad:raw.gravedad||"",
+      titulo:raw.titulo||raw.concepto||"",
+      conducta:raw.conducta||raw.descripcion||"",
+      sancion,
+      palabrasClave:Array.isArray(palabrasClave)?palabrasClave:[],
+      fuente:raw.fuente||cfg.fuenteLabel||raw.normativa||""
+    };
+  }
+
+  function aplicarPalabrasClaveExtra(datos){
+    datos.forEach(r=>{
+      if(String(r.articulo)==="36"&&String(r.apartado)==="16"){
+        const existentes=Array.isArray(r.palabrasClave)?r.palabrasClave:[];
+        r.palabrasClave=existentes.concat(PALABRAS_CLAVE_EXTRA_36_16.filter(p=>!existentes.includes(p)));
+      }
+    });
+  }
+
   async function load(){
     if(rows)return rows;
     if(loading)return loading;
-    loading=fetch(`./data/infracciones.json?motor=${VERSION}`,{cache:"no-store",headers:{Accept:"application/json"}})
-      .then(r=>{if(!r.ok)throw new Error(String(r.status));return r.json();})
-      .then(j=>Array.isArray(j)?j:(Array.isArray(j?.infracciones)?j.infracciones:[]))
-      .catch(e=>{console.warn("Centinela consulta:",e);return [];});
+    loading=Promise.all(FUENTES.map(cfg=>
+      fetch(`${cfg.url}?motor=${VERSION}`,{cache:"no-store",headers:{Accept:"application/json"}})
+        .then(r=>{if(!r.ok)throw new Error(String(r.status));return r.json();})
+        .then(j=>extraerArray(j).map(item=>normalizar(item,cfg)))
+        .catch(e=>{console.warn(`Centinela consulta — ${cfg.url}:`,e);return [];})
+    )).then(listas=>{
+      const datos=[].concat(...listas);
+      aplicarPalabrasClaveExtra(datos);
+      return datos;
+    });
     rows=await loading;
     return rows;
   }
@@ -33,60 +106,47 @@
   function score(r,q){
     const n=norm(q); if(!n)return -1;
     const codigo=norm(r?.codigo),art=norm(r?.articulo),apartado=norm(r?.apartado);
-    if(codigo===n||`${art}.${apartado}`===n||art===n)return 10000;
+    if(codigo===n||(apartado&&`${art}.${apartado}`===n)||art===n)return 10000;
 
     const titulo=norm(r?.titulo);
     const conducta=norm(r?.conducta);
-    const descripcion=norm([r?.descripcion,r?.descripcion_corta,r?.materia,r?.objeto].join(" "));
     const claves=list(r?.palabrasClave).map(norm);
 
-    // IMPORTANTE: las palabras clave son ayudas de indexación, no deben
-    // convertir una infracción de una materia distinta en un falso positivo.
-    // Ejemplo: art. 35.2 tiene históricamente "navaja" en palabrasClave,
-    // pero su título/conducta es sobre armas reglamentarias, explosivos,
-    // cartuchería y pirotecnia. Buscar "navaja" no debe devolverlo.
     const categoriasExclusivas=["explosivos","cartucheria","pirotecnia"];
     const esCategoriaExclusiva=categoriasExclusivas.some(x=>titulo.includes(x));
     const directoTitulo=exactWord(titulo,n);
     const directoConducta=exactWord(conducta,n);
-    const directoDescripcion=exactWord(descripcion,n);
     const directoClave=claves.some(x=>exactWord(x,n));
 
-    // Para materias concretas, una coincidencia que exista SOLO en keywords
-    // no puede vencer a la concordancia real del título/conducta. Esto elimina
-    // el falso positivo de 35.2 para "navaja", "cuchillo", etc.
-    if(esCategoriaExclusiva && directoClave && !directoTitulo && !directoConducta && !directoDescripcion){
-      return -1;
-    }
+    if(esCategoriaExclusiva&&directoClave&&!directoTitulo&&!directoConducta)return -1;
 
     let s=-1;
     if(directoTitulo)s=9000;
     else if(directoConducta)s=8500;
-    else if(directoDescripcion)s=8000;
     else if(directoClave)s=6500;
     else return -1;
 
-    // Para armas concretas damos prioridad a una coincidencia real en el
-    // contenido antes que a una simple palabra clave.
     const armasConcretas=new Set(["navaja","navajas","cuchillo","cuchillos","cuchilla","cuchillas","daga","dagas","punal","puñal","espada","espadas","katana","katanas","sable","sables","machete","machetes","estilete"]);
     if(armasConcretas.has(n)){
       if(directoTitulo)s+=1200;
       else if(directoConducta)s+=900;
-      else if(directoDescripcion)s+=700;
       else if(directoClave)s+=100;
     }
     if(r?.sancion)s+=100;
     return s;
   }
 
-  function sanction(v){
+  function sanctionText(v){
     if(v==null)return "";
     if(typeof v!=="object")return String(v);
-    const min=v.min??v.minimo??v.importe_min,max=v.max??v.maximo??v.importe_max,q=v.cuantia??v.cuantía;
-    if(min!=null&&max!=null)return `${Number(min).toLocaleString("es-ES")} € – ${Number(max).toLocaleString("es-ES")} €`;
-    if(min!=null)return `Desde ${Number(min).toLocaleString("es-ES")} €`;
-    if(max!=null)return `Hasta ${Number(max).toLocaleString("es-ES")} €`;
-    if(q!=null)return `${Number(q).toLocaleString("es-ES")} €`;
+    const min=v.min??v.minimo??v.importe_min;
+    const max=v.max??v.maximo??v.importe_max;
+    const q=v.cuantia??v.cuantía;
+    const fmt=n=>new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(Number(n));
+    if(min!=null&&max!=null)return `${fmt(min)} - ${fmt(max)}`;
+    if(min!=null)return `Desde ${fmt(min)}`;
+    if(max!=null)return `Hasta ${fmt(max)}`;
+    if(q!=null)return fmt(q);
     return v.texto?String(v.texto):"";
   }
 
@@ -99,12 +159,23 @@
     }
     b.innerHTML=results.map(r=>{
       const art=r.articulo?(r.apartado?`${r.articulo}.${r.apartado}`:r.articulo):"";
-      const s=sanction(r.sancion??r.multa);
-      return `<article class="result-card cc-instant-result" style="display:block!important;opacity:1!important;visibility:visible!important;">
-        <div class="result-card-header"><div><span class="result-ley">${esc(r.ley||"LO 4/2015")}</span>${art?`<span class="result-code">Art. ${esc(art)}</span>`:""}<h3>${esc(r.titulo||r.codigo||"Infracción")}</h3></div>${r.gravedad?`<span class="severity-badge">${esc(r.gravedad)}</span>`:""}</div>
-        <p class="result-conducta">${esc(r.conducta||r.descripcion||"")}</p>
-        ${s?`<div class="cc-instant-sanction"><strong>⚖️ Sanción</strong><span>${esc(s)}</span></div>`:""}
-        <div class="result-meta"><span class="result-pill">${esc(r.codigo||r.fuente||"LOPSC")}</span></div>
+      const rango=sanctionText(r.sancion);
+      const conductaSnippet=(r.conducta||"").length>220?r.conducta.slice(0,220).trim()+"…":(r.conducta||"");
+      return `<article class="result-card">
+        <div class="result-card-header">
+          <div>
+            <span class="result-ley">${esc(r.ley||r.fuente||"")}</span>
+            ${art?`<span class="result-code">Art. ${esc(art)}</span>`:""}
+            <h3>${esc(r.titulo||r.codigo||"Infracción")}</h3>
+          </div>
+          ${r.gravedad?`<span class="severity-badge" data-gravedad="${esc(r.gravedad)}">${esc(r.gravedad)}</span>`:""}
+        </div>
+        <p class="result-conducta">${esc(conductaSnippet)}</p>
+        <div class="result-meta">
+          ${art?`<span class="result-pill result-pill--articulo"><span class="result-pill-label">Art.</span> ${esc(art)}</span>`:""}
+          ${rango?`<span class="result-pill result-pill--sancion"><span class="result-pill-label">Sanción</span> ${esc(rango)}</span>`:""}
+          <span class="result-pill"><span class="result-pill-label">Fuente</span> ${esc(r.fuente||r.codigo||"")}</span>
+        </div>
       </article>`;
     }).join("");
   }
