@@ -18,6 +18,14 @@
   const esc=s=>String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
   const list=v=>Array.isArray(v)?v.map(String):v==null?[]:[String(v)];
 
+  // ------------------------------------------------------------
+  // FUENTES DE DATOS
+  // Antes el motor solo leía "infracciones.json" (LOPSC, 106
+  // registros). Faltaban tráfico, VMP/patinetes, extranjería,
+  // seguridad privada, espectáculos públicos, medio ambiente,
+  // armas, Policías Locales de Andalucía y comercio ambulante:
+  // de ahí que la mayoría de búsquedas no encontraran nada.
+  // ------------------------------------------------------------
   const FUENTES=[
     {url:"./data/infracciones.json",fuenteLabel:"LOPSC"},
     {url:"./data/infracciones_trafico.json",fuenteLabel:"Tráfico"},
@@ -35,6 +43,9 @@
     {url:"./data/aforo_hosteleria_eventos.json",fuenteLabel:"Aforo/Hostelería"}
   ];
 
+  // Palabras clave que faltaban en el art. 36.16 LOPSC (consumo/tenencia
+  // de drogas en vía pública): sin ellas, "hachís", "cocaína", etc. no
+  // encontraban esa infracción. Se conserva del motor anterior.
   const PALABRAS_CLAVE_EXTRA_36_16=[
     "hachis","hachís","cocaina","cocaína","marihuana","resina de hachis","resina de hachís",
     "mdma","extasis","éxtasis","anfetaminas","heroina","heroína","sustancia estupefaciente",
@@ -49,6 +60,11 @@
     return [];
   }
 
+  // Normaliza cualquiera de los esquemas presentes en /data a una única
+  // forma común. Es idempotente para los ficheros "estructurados" (ya
+  // traen codigo/ley/articulo/apartado/gravedad/titulo/conducta/sancion)
+  // y traduce los ficheros "planos" (normativa/concepto/descripcion) y
+  // variantes de palabras clave (palabrasClave / keywords / palabras_clave).
   function normalizar(raw,cfg){
     const articuloBruto=raw.articulo??raw.numero??"";
     const articulo=String(articuloBruto).replace(/^art[íi]?\.?\s*/i,"").trim();
@@ -112,13 +128,20 @@
     const conducta=norm(r?.conducta);
     const claves=list(r?.palabrasClave).map(norm);
 
+    // IMPORTANTE: las palabras clave son ayudas de indexación, no deben
+    // convertir una infracción de una materia distinta en un falso positivo.
+    // Ejemplo: art. 35.2 tiene históricamente "navaja" en palabrasClave,
+    // pero su título/conducta es sobre armas reglamentarias, explosivos,
+    // cartuchería y pirotecnia. Buscar "navaja" no debe devolverlo.
     const categoriasExclusivas=["explosivos","cartucheria","pirotecnia"];
     const esCategoriaExclusiva=categoriasExclusivas.some(x=>titulo.includes(x));
     const directoTitulo=exactWord(titulo,n);
     const directoConducta=exactWord(conducta,n);
     const directoClave=claves.some(x=>exactWord(x,n));
 
-    if(esCategoriaExclusiva&&directoClave&&!directoTitulo&&!directoConducta)return -1;
+    if(esCategoriaExclusiva&&directoClave&&!directoTitulo&&!directoConducta){
+      return -1;
+    }
 
     let s=-1;
     if(directoTitulo)s=9000;
@@ -126,6 +149,8 @@
     else if(directoClave)s=6500;
     else return -1;
 
+    // Para armas concretas damos prioridad a una coincidencia real en el
+    // contenido antes que a una simple palabra clave.
     const armasConcretas=new Set(["navaja","navajas","cuchillo","cuchillos","cuchilla","cuchillas","daga","dagas","punal","puñal","espada","espadas","katana","katanas","sable","sables","machete","machetes","estilete"]);
     if(armasConcretas.has(n)){
       if(directoTitulo)s+=1200;
@@ -143,11 +168,33 @@
     const max=v.max??v.maximo??v.importe_max;
     const q=v.cuantia??v.cuantía;
     const fmt=n=>new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(Number(n));
-    if(min!=null&&max!=null)return `${fmt(min)} - ${fmt(max)}`;
+    // Cuantía fija: los datos la codifican como min===max (ej. 200/200).
+    // Antes se pintaba "200 € - 200 €", que es ruido visual.
+    if(min!=null&&max!=null)return Number(min)===Number(max)?fmt(min):`${fmt(min)} - ${fmt(max)}`;
     if(min!=null)return `Desde ${fmt(min)}`;
     if(max!=null)return `Hasta ${fmt(max)}`;
     if(q!=null)return fmt(q);
-    return v.texto?String(v.texto):"";
+    // Sanciones variables por ley (ej. art. 77.j: el doble/triple de la
+    // infracción originaria) no tienen cuantía numérica, solo una nota.
+    // Sin este caso la etiqueta de sanción desaparecía por completo.
+    // Las bases de contrabando/LOPSC usan además "detalle" y "tipo"
+    // (multa proporcional al valor de los bienes, penas de prisión, etc.),
+    // que tampoco se leían: 16 registros salían sin sanción visible.
+    const textoLibre=v.texto??v.nota??v.detalle;
+    if(textoLibre)return String(textoLibre);
+    // Esquema por tramos de gravedad (contrabando, art. 12 LO 12/1995):
+    // la multa es un porcentaje sobre el valor de los bienes con un mínimo
+    // en euros, desglosado por leve/grave/muyGrave. No se leía en absoluto.
+    const tramo=v.muyGrave||v.grave||v.leve;
+    if(tramo&&typeof tramo==="object"){
+      const pMin=tramo.minPorcentaje,pMax=tramo.maxPorcentaje,mMin=tramo.multaMin;
+      const partes=[];
+      if(pMin!=null&&pMax!=null)partes.push(`${pMin}%-${pMax}% del valor`);
+      else if(pMin!=null)partes.push(`desde el ${pMin}% del valor`);
+      if(mMin!=null)partes.push(`mín. ${fmt(mMin)}`);
+      if(partes.length)return partes.join(", ");
+    }
+    return v.tipo?String(v.tipo):"";
   }
 
   function render(results,q){
@@ -159,7 +206,11 @@
     }
     b.innerHTML=results.map(r=>{
       const art=r.articulo?(r.apartado?`${r.articulo}.${r.apartado}`:r.articulo):"";
-      const rango=sanctionText(r.sancion);
+      let rango=sanctionText(r.sancion);
+      // Las sanciones descritas en texto legal (multa proporcional, penas
+      // de prisión, reglas por cantidad) pueden ocupar varias líneas y
+      // rompen la etiqueta; se recortan para que la píldora no desborde.
+      if(rango.length>90)rango=rango.slice(0,90).trim()+"…";
       const conductaSnippet=(r.conducta||"").length>220?r.conducta.slice(0,220).trim()+"…":(r.conducta||"");
       return `<article class="result-card">
         <div class="result-card-header">
