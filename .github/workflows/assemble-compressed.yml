@@ -1,0 +1,30 @@
+name: Assemble compressed ZIP update
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tmp_update/COMPRESSED_READY'
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    if: ${{ hashFiles('tmp_update/COMPRESSED_READY') != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Restore exact files from ZIP payloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 -d tmp_update/app.b64 | gzip -dc > app.js
+          base64 -d tmp_update/traf.b64 | gzip -dc > data/infracciones_trafico.json
+          rm -rf tmp_update
+          rm -f .github/workflows/assemble-zip-update.yml .github/workflows/assemble-final2.yml .github/workflows/assemble-final3.yml .github/workflows/assemble-compressed.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Replace files with versions from provided ZIP"
+          git push
