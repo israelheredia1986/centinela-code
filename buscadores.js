@@ -25,7 +25,7 @@
 
     // SEGUNDO: buscador de INICIO / CONSULTA RÁPIDA.
     try{
-      await cargar(`${base}buscador-home.js?v=20260916g`);
+      await cargar(`${base}buscador-home.js?v=20260916k`);
     }catch(e){console.error("Centinela Code — acceso directo:",e)}
 
     // NO cargar buscador-definitivo, buscador-local-only, buscador-ultra,
