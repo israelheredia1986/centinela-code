@@ -20,7 +20,7 @@
     // PRIMERO: motor único de consulta. Así el acceso rápido nunca depende
     // de que el usuario haya abierto antes la pestaña CONSULTA.
     try{
-      await cargar(`${base}buscador-instantaneo.js?v=20260916j`);
+      await cargar(`${base}buscador-instantaneo.js?v=20260917a`);
     }catch(e){console.error("Centinela Code — motor de consulta:",e)}
 
     // SEGUNDO: buscador de INICIO / CONSULTA RÁPIDA.
