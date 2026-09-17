@@ -8,7 +8,7 @@
    ============================================================ */
 (function(){
   "use strict";
-  const VERSION="20260916j";
+  const VERSION="20260917a";
   const input=()=>document.getElementById("consultaSearch");
   const box=()=>document.getElementById("consultaResults");
   const count=()=>document.getElementById("consultaResultCount");
@@ -84,7 +84,13 @@
       conducta:raw.conducta||raw.descripcion||"",
       sancion,
       palabrasClave:Array.isArray(palabrasClave)?palabrasClave:[],
-      fuente:raw.fuente||cfg.fuenteLabel||raw.normativa||""
+      fuente:raw.fuente||cfg.fuenteLabel||raw.normativa||"",
+      // Solo las infracciones de tráfico llevan esta clave en origen (incluso
+      // cuando su valor es null, "no lleva puntos"). El resto de fuentes
+      // (LOPSC, seguridad privada, extranjería...) no la tienen: para ellas
+      // el concepto "puntos del carné" no existe y no se muestra ninguna
+      // píldora, en vez de un "sin retirada de puntos" fuera de lugar.
+      puntos:Object.prototype.hasOwnProperty.call(raw,"puntos")?raw.puntos:undefined
     };
   }
 
@@ -197,6 +203,18 @@
     return v.tipo?String(v.tipo):"";
   }
 
+  function pointsText(p){
+    // p===undefined: la fuente no documenta puntos (no es tráfico) -> sin píldora.
+    // p===null: es tráfico y consta expresamente que NO se detraen puntos.
+    // p es número: puntos fijos a detraer.
+    // p es {variable:true, texto}: depende del exceso (velocidad, anexo IV).
+    if(p===undefined)return null;
+    if(p===null)return "Sin retirada de puntos";
+    if(typeof p==="number")return p===1?"1 punto":`${p} puntos`;
+    if(typeof p==="object"&&p.texto)return String(p.texto);
+    return "Sin retirada de puntos";
+  }
+
   function render(results,q){
     const b=box(); if(!b)return;
     if(count)count.textContent=String(results.length);
@@ -211,6 +229,7 @@
       // de prisión, reglas por cantidad) pueden ocupar varias líneas y
       // rompen la etiqueta; se recortan para que la píldora no desborde.
       if(rango.length>90)rango=rango.slice(0,90).trim()+"…";
+      const puntos=pointsText(r.puntos);
       const conductaSnippet=(r.conducta||"").length>220?r.conducta.slice(0,220).trim()+"…":(r.conducta||"");
       return `<article class="result-card">
         <div class="result-card-header">
@@ -224,6 +243,7 @@
         <p class="result-conducta">${esc(conductaSnippet)}</p>
         <div class="result-meta">
           ${art?`<span class="result-pill result-pill--articulo"><span class="result-pill-label">Art.</span> ${esc(art)}</span>`:""}
+          ${puntos?`<span class="result-pill result-pill--puntos"><span class="result-pill-label">Puntos</span> ${esc(puntos)}</span>`:""}
           ${rango?`<span class="result-pill result-pill--sancion"><span class="result-pill-label">Sanción</span> ${esc(rango)}</span>`:""}
           <span class="result-pill"><span class="result-pill-label">Fuente</span> ${esc(r.fuente||r.codigo||"")}</span>
         </div>
