@@ -1,0 +1,38 @@
+name: Replace exact files from ZIP v4
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tmp_exact_chunks_v4/READY'
+permissions:
+  contents: write
+jobs:
+  replace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rebuild exact files and verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat tmp_exact_chunks_v4/app/*.part > /tmp/app.b64
+          cat tmp_exact_chunks_v4/traf/*.part > /tmp/traf.b64
+          base64 -d /tmp/app.b64 | gzip -dc > /tmp/app.js
+          base64 -d /tmp/traf.b64 | gzip -dc > /tmp/infracciones_trafico.json
+          test "$(wc -c < /tmp/app.js)" -eq 147988
+          test "$(wc -c < /tmp/infracciones_trafico.json)" -eq 204320
+          test "$(git hash-object /tmp/app.js)" = "fcbbd5a77840095e9f82ab181e1fccf877118227"
+          test "$(git hash-object /tmp/infracciones_trafico.json)" = "960b45d2fad4bd963fe245652c8dce31b57c0db7"
+          cp /tmp/app.js app.js
+          cp /tmp/infracciones_trafico.json data/infracciones_trafico.json
+      - name: Clean all temporary transfer files
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf tmp_exact_chunks_v2 tmp_exact_chunks_v3 tmp_exact_chunks_v4 tmp_exact_payload_app.b64 tmp_exact_payload_traf.b64 tmp_zip_exact tmp_transfer tmp_update tmp_binary_payload tmp_exact_trigger
+          rm -f tmp_cleanup_marker tmp_cleanup_marker .github/workflows/final-zip-v2.yml .github/workflows/final-zip-v4.yml .github/workflows/replace-from-zip-exact.yml .github/workflows/debug-zip-parts.yml .github/workflows/finalize-zip-replacement.yml .github/workflows/assemble-any-final.yml .github/workflows/assemble-compressed.yml .github/workflows/assemble-exact-v3.yml .github/workflows/assemble-final2.yml .github/workflows/assemble-final3.yml .github/workflows/assemble-payload.yml .github/workflows/assemble-small-final.yml .github/workflows/assemble-small-final2.yml .github/workflows/assemble-zip-update.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Replace files with exact versions from provided ZIP"
+          git push
