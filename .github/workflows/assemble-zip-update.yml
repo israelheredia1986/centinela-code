@@ -1,0 +1,31 @@
+name: Assemble ZIP update
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tmp_update/READY'
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    if: ${{ hashFiles('tmp_update/READY') != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble exact files from ZIP chunks
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat tmp_update/app/*.part > app.js
+          cat tmp_update/traf/*.part > data/infracciones_trafico.json
+          rm -rf tmp_update
+          rm -f .github/workflows/assemble-zip-update.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app.js data/infracciones_trafico.json .github/workflows/assemble-zip-update.yml
+          git commit -m "Replace files with versions from provided ZIP"
+          git push
