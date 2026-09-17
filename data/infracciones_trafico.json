@@ -15,7 +15,6 @@
       "titulo": "Infracción leve (cláusula residual)",
       "conducta": "Cualquier incumplimiento de las normas de la Ley de Tráfico que no esté expresamente calificado como infracción grave o muy grave.",
       "sancion": {
-        "min": 1,
         "max": 100,
         "moneda": "EUR"
       },
@@ -1855,7 +1854,6 @@
       "titulo": "No llevar o no exhibir la documentación obligatoria",
       "conducta": "No llevar consigo o no exhibir a los agentes de la autoridad, cuando lo requieran, el permiso o licencia de conducir, el permiso de circulación del vehículo o la tarjeta de inspección técnica.",
       "sancion": {
-        "min": 1,
         "max": 100,
         "moneda": "EUR"
       },
@@ -2081,7 +2079,6 @@
       "titulo": "Estacionamiento prohibido",
       "conducta": "Estacionar el vehículo en lugares prohibidos: doble fila, vado señalizado, zona de carga y descarga, plaza reservada para personas con discapacidad, paso de peatones, o sin título habilitante en zona de estacionamiento limitado (salvo que constituya infracción grave por crear peligro).",
       "sancion": {
-        "min": 1,
         "max": 100,
         "moneda": "EUR"
       },
