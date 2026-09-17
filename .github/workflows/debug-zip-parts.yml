@@ -1,0 +1,40 @@
+name: Debug ZIP parts
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tmp_zip_exact/DEBUG'
+permissions:
+  contents: read
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate parts
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64, pathlib
+          for label, directory in [('app','tmp_zip_exact/app'),('traf','tmp_zip_exact/traf')]:
+              parts=sorted(pathlib.Path(directory).glob('*.part'))
+              print(label, 'parts', len(parts))
+              pos=0
+              for p in parts:
+                  s=p.read_text(encoding='utf-8')
+                  print(p.name, len(s), 'range', pos, pos+len(s)-1)
+                  pos += len(s)
+              s=''.join(p.read_text(encoding='utf-8') for p in parts)
+              print(label, 'total chars', len(s), 'mod4', len(s)%4)
+              try:
+                  base64.b64decode(s, validate=True)
+                  print(label, 'BASE64 VALID')
+              except Exception as e:
+                  print(label, 'BASE64 INVALID:', repr(e))
+                  bad=None
+                  for i,ch in enumerate(s):
+                      if ch not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=':
+                          bad=(i,repr(ch)); break
+                  print(label, 'first invalid character', bad)
+                  raise
+          PY
