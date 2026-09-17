@@ -1,0 +1,116 @@
+        <h2 style="margin:0;font-size:1.2rem;color:var(--color-text,#e6edf3);">Centinela Code</h2>
+        <p style="margin:.25rem 0 0;font-size:.8rem;color:var(--color-muted,#8b949e);">Acceso para agentes</p>
+      </div>
+
+      <input id="loginEmail" type="email" placeholder="Correo electrónico"
+        style="padding:.65rem .9rem;border-radius:8px;border:1px solid var(--color-border,#30363d);
+        background:var(--color-bg,#0d1117);color:var(--color-text,#e6edf3);font-size:.95rem;width:100%;box-sizing:border-box;" />
+
+      <input id="loginPassword" type="password" placeholder="Contraseña"
+        style="padding:.65rem .9rem;border-radius:8px;border:1px solid var(--color-border,#30363d);
+        background:var(--color-bg,#0d1117);color:var(--color-text,#e6edf3);font-size:.95rem;width:100%;box-sizing:border-box;" />
+
+      <button id="loginBtn"
+        style="padding:.75rem;border-radius:8px;border:none;background:var(--color-accent,#1f6feb);
+        color:#fff;font-size:1rem;cursor:pointer;font-weight:600;">
+        Entrar
+      </button>
+
+      <button id="registroBtn"
+        style="padding:.75rem;border-radius:8px;border:1px solid var(--color-border,#30363d);
+        background:transparent;color:var(--color-muted,#8b949e);font-size:.9rem;cursor:pointer;">
+        Crear cuenta nueva
+      </button>
+
+      <p id="loginError" style="color:#f85149;font-size:.85rem;text-align:center;margin:0;display:none;"></p>
+    </div>
+  `;
+  document.body.appendChild(div);
+
+  document.getElementById("loginBtn")?.addEventListener("click", async () => {
+    const email    = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const errEl    = document.getElementById("loginError");
+    errEl.style.display = "none";
+    try {
+      await login(email, password);
+      ocultarPantallaLogin();
+      await iniciarAplicacion();
+    } catch (e) {
+      errEl.textContent = e.message || "Error al iniciar sesión.";
+      errEl.style.display = "block";
+    }
+  });
+
+  document.getElementById("registroBtn")?.addEventListener("click", async () => {
+    const email    = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const errEl    = document.getElementById("loginError");
+    errEl.style.display = "none";
+    try {
+      await registro(email, password);
+    } catch (e) {
+      errEl.textContent = e.message || "Error al registrar.";
+      errEl.style.display = "block";
+    }
+  });
+
+  document.getElementById("loginPassword")?.addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("loginBtn")?.click();
+  });
+}
+
+function mostrarPantallaLogin() {
+  inyectarPantallaLogin();
+  const el = document.getElementById("loginScreen");
+  if (el) el.style.display = "flex";
+}
+
+function ocultarPantallaLogin() {
+  const el = document.getElementById("loginScreen");
+  if (el) el.style.display = "none";
+}
+
+function inyectarBotonLogout() {
+  const seccionAjustes = document.getElementById("section-ajustes");
+  if (!seccionAjustes || document.getElementById("logoutBtn")) return;
+  const wrapper = document.createElement("div");
+  wrapper.style.cssText = "padding:1rem 1rem 0;";
+  wrapper.innerHTML = `
+    <button id="logoutBtn" style="
+      width:100%;padding:.75rem;border-radius:8px;
+      border:1px solid #f85149;background:transparent;
+      color:#f85149;font-size:.95rem;cursor:pointer;font-weight:600;
+    ">Cerrar sesión</button>
+    <p style="text-align:center;font-size:.8rem;color:var(--color-muted,#8b949e);margin:.5rem 0 0;">
+      ${usuarioActual?.email ?? ""}
+    </p>
+  `;
+  seccionAjustes.insertBefore(wrapper, seccionAjustes.firstChild);
+  document.getElementById("logoutBtn")?.addEventListener("click", cerrarSesion);
+} 
+
+// ============================================================
+// CONFIGURACIÓN Y ESTADO DE LA APLICACIÓN
+// ============================================================
+const CONFIG = { 
+  VERSION: "1.6.0", 
+  RUTAS: { 
+    infracciones: "./data/infracciones.json", 
+    infraccionesTrafico: "./data/infracciones_trafico.json",
+    infraccionesVmpBicicletas: "./data/infracciones_vmp_bicicletas.json", 
+    lopsc: "./data/lopsc.json", 
+    codigoPenal: "./data/codigo_penal.json", 
+    menores: "./data/normativa_menores.json", 
+    violenciaGenero: "./data/normativa_violencia_genero.json", 
+    ordenanzas: "./data/ordenanzas.json", 
+    animales: "./data/normativa_animales.json", 
+    trafico: "./data/normativa_trafico.json",
+    vmpBicicletas: "./data/normativa_vmp_bicicletas.json", 
+    leyFcs: "./data/ley_2_86.json", 
+    lecrim: "./data/lecrim.json", 
+    extranjeria: "./data/extranjeria.json", 
+    seguridadPrivada: "./data/seguridad_privada.json", 
+    espectaculos: "./data/espectaculos_publicos.json", 
+    medioAmbiente: "./data/medio_ambiente_ruidos.json", 
+    reglamentoArmas: "./data/reglamento_armas.json", 
