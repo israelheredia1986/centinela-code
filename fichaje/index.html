@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Fichaje, localización y tareas para equipos de trabajo.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f172a'/%3E%3Cpath d='M20 14h24v36H20z' fill='none' stroke='%2338bdf8' stroke-width='5'/%3E%3Cpath d='M27 23h10M27 32h10M27 41h7' stroke='white' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <title>ControlPro · Fichaje y tareas</title>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <span class="eyebrow">CONTROLPRO</span>
+      <h1>Fichaje y tareas</h1>
+    </div>
+    <div class="top-actions">
+      <button id="installBtn" class="ghost hidden">Instalar app</button>
+      <button id="resetBtn" class="ghost">Restablecer demo</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="panel hero-panel">
+      <div class="hero-copy">
+        <span class="pill" id="liveBadge">● Sin fichaje activo</span>
+        <h2 id="clockLabel">00:00:00</h2>
+        <p id="employeeLabel">Selecciona un empleado para comenzar.</p>
+      </div>
+      <div class="hero-actions">
+        <select id="employeeSelect" aria-label="Empleado"></select>
+        <button id="clockInBtn" class="primary">Entrar</button>
+        <button id="clockOutBtn" class="danger" disabled>Salir</button>
+      </div>
+      <div class="location-note">
+        <strong>Localización:</strong> se solicita al fichar y, mientras el fichaje siga activo, puede guardarse una posición periódicamente con permiso del usuario.
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="Secciones">
+      <button class="tab active" data-tab="dashboard">Resumen</button>
+      <button class="tab" data-tab="tasks">Tareas</button>
+      <button class="tab" data-tab="employees">Empleados</button>
+      <button class="tab" data-tab="records">Fichajes</button>
+      <button class="tab" data-tab="settings">Configuración</button>
+    </nav>
+
+    <section id="dashboard" class="tab-page active">
+      <div class="metric-grid">
+        <article class="metric"><span>Horas hoy</span><strong id="metricHours">0 h</strong><small>fichajes cerrados y activos</small></article>
+        <article class="metric"><span>Personal activo</span><strong id="metricActive">0</strong><small>con fichaje abierto</small></article>
+        <article class="metric"><span>Tareas pendientes</span><strong id="metricPending">0</strong><small>por completar</small></article>
+        <article class="metric"><span>Ubicaciones hoy</span><strong id="metricLocations">0</strong><small>puntos registrados</small></article>
+      </div>
+      <div class="grid-2">
+        <article class="panel card">
+          <div class="section-head"><div><span class="eyebrow">ACTIVIDAD</span><h3>Fichajes de hoy</h3></div><button class="text-btn" data-tab-link="records">Ver todos</button></div>
+          <div id="todayTable" class="table-wrap"></div>
+        </article>
+        <article class="panel card">
+          <div class="section-head"><div><span class="eyebrow">TAREAS</span><h3>Prioridades</h3></div><button class="text-btn" data-tab-link="tasks">Gestionar</button></div>
+          <div id="priorityTasks" class="task-stack"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="tasks" class="tab-page">
+      <div class="section-head page-head"><div><span class="eyebrow">OPERACIONES</span><h2>Asignación de tareas</h2><p>Crea tareas, asígnalas y controla su estado.</p></div></div>
+      <div class="grid-2">
+        <article class="panel card">
+          <h3>Nueva tarea</h3>
+          <form id="taskForm" class="form-grid">
+            <label>Título<input id="taskTitle" required maxlength="120" placeholder="Ej. Revisar instalación del cliente"></label>
+            <label>Descripción<textarea id="taskDescription" rows="4" placeholder="Detalles, materiales, instrucciones..."></textarea></label>
+            <div class="form-row">
+              <label>Empleado<select id="taskAssignee"></select></label>
+              <label>Prioridad<select id="taskPriority"><option value="normal">Normal</option><option value="alta">Alta</option><option value="urgente">Urgente</option></select></label>
+            </div>
+            <label>Fecha límite<input id="taskDue" type="date"></label>
+            <button class="primary" type="submit">Crear tarea</button>
+          </form>
+        </article>
+        <article class="panel card"><div class="section-head"><h3>Listado</h3><select id="taskFilter"><option value="all">Todas</option><option value="pendiente">Pendientes</option><option value="en_curso">En curso</option><option value="completada">Completadas</option></select></div><div id="taskList" class="task-stack"></div></article>
+      </div>
+    </section>
+
+    <section id="employees" class="tab-page">
+      <div class="section-head page-head"><div><span class="eyebrow">EQUIPO</span><h2>Empleados</h2><p>Alta rápida para la demo. La versión de producción conectará usuarios y permisos a un backend.</p></div></div>
+      <div class="grid-2">
+        <article class="panel card">
+          <h3>Nuevo empleado</h3>
+          <form id="employeeForm" class="form-grid">
+            <label>Nombre<input id="employeeName" required maxlength="80" placeholder="Nombre y apellidos"></label>
+            <label>Puesto<input id="employeeRole" maxlength="80" placeholder="Ej. Técnico de campo"></label>
+            <button class="primary" type="submit">Añadir empleado</button>
+          </form>
+        </article>
+        <article class="panel card"><h3>Equipo</h3><div id="employeeList" class="employee-stack"></div></article>
+      </div>
+    </section>
+
+    <section id="records" class="tab-page">
+      <div class="section-head page-head"><div><span class="eyebrow">CONTROL HORARIO</span><h2>Fichajes y localización</h2><p>Consulta horas, coordenadas y enlaces de mapa.</p></div><button id="exportBtn" class="secondary">Exportar CSV</button></div>
+      <article class="panel card"><div id="recordsTable" class="table-wrap"></div></article>
+    </section>
+
+    <section id="settings" class="tab-page">
+      <div class="section-head page-head"><div><span class="eyebrow">PREFERENCIAS</span><h2>Configuración</h2><p>Opciones del prototipo local.</p></div></div>
+      <article class="panel card settings-card">
+        <label class="switch-row"><span><strong>Seguimiento durante el fichaje</strong><small>Guarda una posición periódica mientras el empleado está fichado. Requiere permiso de ubicación.</small></span><input id="trackingToggle" type="checkbox"></label>
+        <label>Intervalo de localización<select id="trackingInterval"><option value="60000">1 minuto · demo</option><option value="300000">5 minutos</option><option value="900000">15 minutos</option></select></label>
+        <div class="notice"><strong>Producción:</strong> para una empresa real habrá que añadir autenticación, base de datos, control de acceso, políticas de conservación de datos y un aviso/consentimiento de localización adaptado a la normativa aplicable.</div>
+      </article>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js" defer></script>
+</body>
+</html>
