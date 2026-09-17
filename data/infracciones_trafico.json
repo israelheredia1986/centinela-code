@@ -115,7 +115,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-76-VEL",
@@ -226,7 +227,11 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": {
+        "variable": true,
+        "texto": "2 a 4 puntos según el exceso (anexo IV, no anexo II)"
+      }
     },
     {
       "id": "TRAF-77-VEL",
@@ -337,7 +342,11 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": {
+        "variable": true,
+        "texto": "4 a 6 puntos según el exceso (anexo IV, no anexo II)"
+      }
     },
     {
       "id": "TRAF-14-ALCOHOL",
@@ -453,7 +462,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 6
     },
     {
       "id": "TRAF-14-DROGAS",
@@ -571,7 +581,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 6
     },
     {
       "id": "TRAF-14-NEGATIVA",
@@ -689,7 +700,8 @@
         "conductor",
         "usuario de la via"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 6
     },
     {
       "id": "TRAF-77-SINPERMISO",
@@ -801,7 +813,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-77-INHIBIDOR",
@@ -912,7 +925,8 @@
         "conductor",
         "titular del vehiculo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 6
     },
     {
       "id": "TRAF-77-NOIDENTIFICAR",
@@ -1031,7 +1045,8 @@
         "titular del vehiculo",
         "arrendatario"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-77-MOVIL",
@@ -1147,7 +1162,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 6
     },
     {
       "id": "TRAF-76-CINTURON",
@@ -1259,7 +1275,8 @@
         "conductor",
         "ocupante"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 3
     },
     {
       "id": "TRAF-76-DISTANCIA",
@@ -1376,7 +1393,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 3
     },
     {
       "id": "TRAF-76-ADELANTAMIENTO",
@@ -1493,7 +1511,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-76-SEMAFORO",
@@ -1610,7 +1629,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-77-SENTIDOCONTRARIO",
@@ -1726,7 +1746,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 6
     },
     {
       "id": "TRAF-77-TEMERARIA",
@@ -1842,7 +1863,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 6
     },
     {
       "id": "TRAF-59-DOCUMENTACION",
@@ -1954,7 +1976,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-ITV-CADUCADA",
@@ -2067,7 +2090,8 @@
         "conductor",
         "titular del vehiculo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-40-ESTACIONAMIENTO",
@@ -2182,7 +2206,8 @@
         "conductor",
         "titular del vehiculo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-11-PLACAS",
@@ -2295,7 +2320,8 @@
         "conductor",
         "titular del vehiculo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-13-MENORESMOTO",
@@ -2406,7 +2432,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 2
     },
     {
       "id": "TRAF-64-PUNTOS",
@@ -2518,7 +2545,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-76-SINSEGURO",
@@ -2636,7 +2664,8 @@
         "conductor",
         "propietario"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-76-B",
@@ -2747,7 +2776,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-76-D",
@@ -2858,7 +2888,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 2
     },
     {
       "id": "TRAF-76-E",
@@ -2970,7 +3001,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 2
     },
     {
       "id": "TRAF-76-N",
@@ -3082,7 +3114,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-76-Q",
@@ -3194,7 +3227,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-76-S",
@@ -3305,7 +3339,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-76-T",
@@ -3417,7 +3452,8 @@
         "conductor",
         "titular"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-76-X",
@@ -3530,7 +3566,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-77-G",
@@ -3641,7 +3678,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 6
     },
     {
       "id": "TRAF-77-K",
@@ -3751,7 +3789,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-77-L",
@@ -3863,7 +3902,8 @@
         "conductor",
         "titular"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-77-M",
@@ -3975,7 +4015,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 6
     },
     {
       "id": "TRAF-77-N",
@@ -4086,7 +4127,8 @@
       "responsables": [
         "conductor"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-75-a",
@@ -4212,7 +4254,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-75-b",
@@ -4340,7 +4383,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-75-b-bis",
@@ -4469,7 +4513,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-75-b-ter",
@@ -4598,7 +4643,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-75-c",
@@ -4731,7 +4777,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-76-c",
@@ -4871,7 +4918,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-AUTO-76-f",
@@ -5006,7 +5054,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 3
     },
     {
       "id": "TRAF-AUTO-76-g",
@@ -5144,7 +5193,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 3
     },
     {
       "id": "TRAF-AUTO-76-j",
@@ -5276,7 +5326,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-AUTO-76-k",
@@ -5402,7 +5453,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-AUTO-76-l",
@@ -5530,7 +5582,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-AUTO-76-ll",
@@ -5664,7 +5717,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-76-m",
@@ -5792,7 +5846,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-AUTO-76-o",
@@ -5925,7 +5980,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-76-p",
@@ -6054,7 +6110,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-76-r",
@@ -6179,7 +6236,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-76-u",
@@ -6307,7 +6365,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     },
     {
       "id": "TRAF-AUTO-76-v",
@@ -6439,7 +6498,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-76-w",
@@ -6575,7 +6635,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-76-y",
@@ -6705,7 +6766,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-76-z",
@@ -6833,7 +6895,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-76-z1",
@@ -6968,7 +7031,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-76-z2",
@@ -7102,7 +7166,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-76-z3",
@@ -7232,7 +7297,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-b",
@@ -7360,7 +7426,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-i",
@@ -7491,7 +7558,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 6
     },
     {
       "id": "TRAF-AUTO-77-j",
@@ -7620,7 +7688,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-ll",
@@ -7752,7 +7821,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-o",
@@ -7884,7 +7954,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-q",
@@ -8024,7 +8095,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-r",
@@ -8154,7 +8226,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-s",
@@ -8288,7 +8361,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-t",
@@ -8424,7 +8498,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-u",
@@ -8556,7 +8631,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-v",
@@ -8683,7 +8759,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-w",
@@ -8809,7 +8886,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": null
     },
     {
       "id": "TRAF-AUTO-77-x",
@@ -8938,7 +9016,8 @@
         "conductor",
         "titular o arrendatario del vehículo"
       ],
-      "fuente": "BOE"
+      "fuente": "BOE",
+      "puntos": 4
     }
   ]
 }
