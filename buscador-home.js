@@ -39,7 +39,12 @@
       if(input.id === "homeQuickSearch") return;
       const ph=(input.getAttribute("placeholder")||"").toLowerCase();
       if(!/buscar normativa.*infracciones|buscar normativa.*art[ií]culos|qué necesitas consultar/.test(ph)) return;
-      const candidato=input.closest('.home-search, .quick-search, .search-card, .search-panel, .home-panel');
+      // El widget viejo "CENTINELA-GLOBAL-SEARCH-V1" (index.html) usa la
+      // clase .cc-global-search, que no estaba en esta lista: por eso nunca
+      // se eliminaba y convivían DOS cajas de "Consulta rápida" en Inicio,
+      // la nueva (fiable, llama directo a CentinelaInstantSearch) y la vieja
+      // (heurística por regex sobre inputs visibles + Enter simulado).
+      const candidato=input.closest('.home-search, .quick-search, .search-card, .search-panel, .home-panel, .cc-global-search');
       if(candidato && candidato.id !== "centinela-home-search") candidato.remove();
     });
   }
