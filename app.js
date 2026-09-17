@@ -856,7 +856,13 @@ async function cargarDatos() {
     }); 
 
   actualizarEstadoDatos(); 
-  actualizarBusqueda(); 
+  // NO llamar a actualizarBusqueda() aquí: el motor antiguo de este fichero
+  // escribe en los mismos elementos (#consultaResults, #consultaResultCount)
+  // que buscador-instantaneo.js, que es quien gestiona la Consulta en
+  // exclusiva (ver configurarConsulta()). Si esta carga de datos terminaba
+  // DESPUÉS de que el usuario ya hubiera buscado algo, este motor antiguo
+  // pisaba el contador de resultados con su propia cuenta (normalmente 0),
+  // dejando el contador y las tarjetas visibles desincronizados.
   renderizarNormativa(); 
 
   const correctos = resultados.filter((r) => r.status === "fulfilled").length; 
